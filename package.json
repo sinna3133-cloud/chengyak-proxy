@@ -4,6 +4,6 @@
   "description": "쉬운청약 CORS 프록시 서버",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   }
 }
