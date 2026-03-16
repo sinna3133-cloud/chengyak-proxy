@@ -2546,8 +2546,7 @@ function showScreen(name){
   const savedY=scrollPositions['screen-'+name]||0;
   window.scrollTo(0, name==='detail'?0:savedY);
 }
-}
-  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 /* ══════════════════════════════════════
    청약홈 공공데이터 API 연동
@@ -2860,12 +2859,12 @@ function parseAptItem(item, isLotto=false){
   const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
   const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
   const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
-  const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.rceptBgnde || item.RCEPT_BGNDE || '';
-  const rceptEnd  = item['청약접수종료일'] || item.rceptEndde  || item.RCEPT_END_DE  || '';
+  const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || item.RCEPT_BGNDE || item.CNTRCT_CNCLS_BGNDE || '';
+  const rceptEnd  = item['청약접수종료일'] || item.GNRL_RCEPT_ENDDE || item.rceptEndde || item.RCEPT_END_DE || item.CNTRCT_CNCLS_ENDDE || '';
   const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
   const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
   const unitsRaw  = item['공급규모']     || item['세대수']      || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || 0;
-  const priceRaw  = item['분양가']       || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || 0;
+  const priceRaw  = item['분양가'] || item.NSPRC_NM || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || 0;
 
   // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
   function parseDate(s){
