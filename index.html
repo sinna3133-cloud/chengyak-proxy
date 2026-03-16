@@ -2075,7 +2075,7 @@ function showDetail(id){
     </div>`
     :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openWrSheet()"><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
     <div class="info-card" style="margin-top:14px">
-      <div class="info-card-title">📊 시세 차익 분석</div>
+      <div class="info-card-title">📊 시세 차익 분석 ${l.mktPFromApi?'<span style="font-size:11px;font-weight:500;color:var(--public);margin-left:6px">실거래가 기반</span>':'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">추정치</span>'}</div>
       <div class="gap-chart" id="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
@@ -2634,6 +2634,141 @@ function showStatus(type, msg){
   el.textContent = msg;
   el.style.display = 'block';
 }
+/* ══ 카카오 지오코딩 — 주소 → 좌표 ══ */
+const KAKAO_KEY = '5ebbb3bfdafac23bc229d28977d4bdaa';
+
+async function geocodeAddress(addr){
+  try {
+    const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(addr)}`;
+    const res = await fetch(PROXY + encodeURIComponent(url));
+    const data = await res.json();
+    const doc = data?.documents?.[0];
+    if(!doc) return null;
+    return { lat: parseFloat(doc.y), lng: parseFloat(doc.x) };
+  } catch(e) { return null; }
+}
+
+function calcDistance(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2)
+    + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)
+    * Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+/* ══ 국토부 실거래가 API ══ */
+const API_REAL_PRICE = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev';
+
+/* 주소에서 시군구코드(앞5자리) 추출 */
+function extractSggCd(addr){
+  const map = {
+    '서울 종로':11110,'서울 중구':11140,'서울 용산':11170,'서울 성동':11200,'서울 광진':11215,
+    '서울 동대문':11230,'서울 중랑':11260,'서울 성북':11290,'서울 강북':11305,'서울 도봉':11320,
+    '서울 노원':11350,'서울 은평':11380,'서울 서대문':11410,'서울 마포':11440,'서울 양천':11470,
+    '서울 강서':11500,'서울 구로':11530,'서울 금천':11545,'서울 영등포':11560,'서울 동작':11590,
+    '서울 관악':11620,'서울 서초':11650,'서울 강남':11680,'서울 송파':11710,'서울 강동':11740,
+    '인천 중구':28110,'인천 동구':28140,'인천 미추홀':28177,'인천 연수':28185,'인천 남동':28200,
+    '인천 부평':28237,'인천 계양':28245,'인천 서구':28260,'인천 강화':28710,'인천 옹진':28720,
+    '경기 수원':41111,'경기 성남':41131,'경기 의정부':41150,'경기 안양':41171,'경기 부천':41190,
+    '경기 광명':41210,'경기 평택':41220,'경기 동두천':41250,'경기 안산':41271,'경기 고양':41281,
+    '경기 과천':41290,'경기 구리':41310,'경기 남양주':41360,'경기 오산':41370,'경기 시흥':41390,
+    '경기 군포':41410,'경기 의왕':41430,'경기 하남':41450,'경기 용인':41461,'경기 파주':41480,
+    '경기 이천':41500,'경기 안성':41550,'경기 김포':41570,'경기 화성':41590,'경기 광주':41610,
+    '경기 양주':41630,'경기 포천':41650,'경기 여주':41670,
+    '부산 중구':26110,'부산 서구':26140,'부산 동구':26170,'부산 영도':26200,'부산 부산진':26230,
+    '부산 동래':26260,'부산 남구':26290,'부산 북구':26320,'부산 해운대':26350,'부산 사하':26380,
+    '부산 금정':26410,'부산 강서':26440,'부산 연제':26470,'부산 수영':26500,'부산 사상':26530,
+    '대전 동구':30110,'대전 중구':30140,'대전 서구':30170,'대전 유성':30200,'대전 대덕':30230,
+    '세종':36110,
+  };
+  for(const [k,v] of Object.entries(map)){
+    const parts = k.split(' ');
+    if(parts.length===1){
+      if(addr.includes(parts[0])) return String(v);
+    } else {
+      if(addr.includes(parts[0]) && addr.includes(parts[1])) return String(v);
+    }
+  }
+  return null;
+}
+
+async function fetchMarketPrice(addr, sizeStr){
+  try {
+    const sggCd = extractSggCd(addr);
+    if(!sggCd || !apiKey) return null;
+
+    const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
+    const targetSize = sizes[0] || 59;
+
+    const coords = await geocodeAddress(addr);
+
+    const months = [];
+    const now = new Date();
+    for(let i=0;i<3;i++){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      months.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`);
+    }
+
+    let allItems = [];
+    for(const ym of months){
+      const url = `${API_REAL_PRICE}?serviceKey=${encodeURIComponent(apiKey)}&LAWD_CD=${sggCd}&DEAL_YMD=${ym}&numOfRows=200&pageNo=1`;
+      try {
+        const res = await fetch(PROXY + encodeURIComponent(url));
+        const body = await res.json();
+        const items = body?.response?.body?.items?.item || body?.items?.item || [];
+        allItems = allItems.concat(Array.isArray(items)?items:[items]);
+      } catch(e){ continue; }
+    }
+
+    if(!allItems.length) return null;
+
+    const currentYear = new Date().getFullYear();
+
+    let geoFiltered = allItems;
+    if(coords){
+      const addrParts = addr.split(' ');
+      const dong = addrParts[2] || '';
+      geoFiltered = allItems.filter(item => {
+        const itemDong = item['법정동'] || item.umdNm || '';
+        return !dong || itemDong.includes(dong.replace(/[0-9]/g,'').trim()) ||
+               dong.includes(itemDong.replace(/[0-9]/g,'').trim());
+      });
+      if(!geoFiltered.length) geoFiltered = allItems;
+    }
+
+    let filtered = geoFiltered.filter(item => {
+      const buildYear = parseInt(item['건축년도'] || item.buildYear || 0);
+      const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
+      const age = currentYear - buildYear;
+      return buildYear > 0 && age <= 10 && Math.abs(area - targetSize) <= 15;
+    });
+
+    if(!filtered.length){
+      filtered = geoFiltered.filter(item => {
+        const buildYear = parseInt(item['건축년도'] || item.buildYear || 0);
+        const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
+        const age = currentYear - buildYear;
+        return buildYear > 0 && age <= 15 && Math.abs(area - targetSize) <= 15;
+      });
+    }
+
+    if(!filtered.length) return null;
+
+    const prices = filtered.map(item => {
+      const raw = String(item['거래금액'] || item.dealAmount || '0').replace(/,/g,'');
+      return parseInt(raw) || 0;
+    }).filter(p => p > 0);
+
+    if(!prices.length) return null;
+    const avg = Math.round(prices.reduce((a,b)=>a+b,0) / prices.length);
+    return avg * 10000;
+  } catch(e){
+    console.error('fetchMarketPrice error:', e);
+    return null;
+  }
+}
 
 /* ── APT 분양정보 목록 ── */
 async function fetchAptList(key, page=1, num=20){
@@ -2859,7 +2994,22 @@ async function loadLiveData(){
     updateConsult();
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
-
+    
+    // 3단계: 실거래가 기반 시세 업데이트 (백그라운드)
+showToast('📊 주변 실거래가 분석 중...');
+const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
+  const mktP = await fetchMarketPrice(l.loc, l.size);
+  if(mktP && mktP > l.minP) {
+    l.mktP = mktP;
+    l.mktPFromApi = true;
+  }
+});
+for(let i = 0; i < pricePromises.length; i += 3){
+  await Promise.all(pricePromises.slice(i, i + 3));
+}
+renderListings();
+showToast('✓ 실거래가 시세 업데이트 완료');
+    
   } catch(e){
     console.error('loadLiveData error:', e);
     apiConnected = false;
