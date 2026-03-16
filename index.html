@@ -2940,6 +2940,7 @@ function parseAptItem(item, isLotto=false){
 
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
+  showToast('loadLiveData 시작 key:' + apiKey.slice(0,8));
   if(!apiKey){ updateApiStatus(); return; }
 
   const ind = document.getElementById('api-indicator');
