@@ -2948,9 +2948,10 @@ async function loadLiveData(){
   try {
     // 1단계: 분양정보 + 줍줍 목록 동시 조회
     const [aptItems, lottoItems] = await Promise.all([
-      fetchAptList(apiKey,  1, 20).catch(()=>[]),
-      fetchLottoList(apiKey, 1, 10).catch(()=>[])
-    ]);
+  fetchAptList(apiKey,  1, 20).catch(()=>[]),
+  fetchLottoList(apiKey, 1, 10).catch(()=>[])
+]);
+showToast(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
 
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
