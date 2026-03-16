@@ -1069,6 +1069,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div class="my-sub">내 청약 조건 관리</div>
     </div>
     <button class="login-btn" onclick="showToast('로그인 기능은 준비 중이에요!')">로그인하기</button>
+    <button onclick="debugApi()" style="margin:10px 20px;padding:12px;background:#333;color:white;border:none;border-radius:10px;font-size:13px;width:calc(100% - 40px)">🔧 API 디버그</button>
   </div>
   <div style="padding:20px 20px 0">
     <div style="font-size:15px;font-weight:800;margin-bottom:12px;color:var(--ink)">저장된 내 조건</div>
@@ -2545,7 +2546,19 @@ function showScreen(name){
   const savedY=scrollPositions['screen-'+name]||0;
   window.scrollTo(0, name==='detail'?0:savedY);
 }
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+async function debugApi(){
+  const key = localStorage.getItem('cheongyak_api_key') || '없음';
+  alert('저장된 키: ' + key.slice(0,15) + '...');
+  try {
+    const url = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancDetail?serviceKey=' + encodeURIComponent(key) + '&page=1&perPage=1';
+    const res = await fetch('https://chengyak-proxy-okmj.vercel.app/api/proxy?url=' + encodeURIComponent(url));
+    const data = await res.json();
+    alert(JSON.stringify(data).slice(0, 500));
+  } catch(e) {
+    alert('오류: ' + e.message);
+  }
+}
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 /* ══════════════════════════════════════
    청약홈 공공데이터 API 연동
