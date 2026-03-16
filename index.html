@@ -755,19 +755,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-title">소득과 자산을<br>알려주세요</div>
     <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
     <div class="wiz-field">
-    <div class="wiz-field">
-      <label class="wiz-label">세대원 수</label>
-      <select class="wiz-sel" id="w-household" onchange="onIncomeChange()">
-        <option value="">선택하세요</option>
-        <option value="1">1인</option><option value="2">2인</option>
-        <option value="3">3인</option><option value="4">4인</option>
-        <option value="5">5인 이상</option>
-      </select>
-    </div>
-    <div class="wiz-field">
       <label class="wiz-label">연간 소득 <span class="wiz-label-note" id="income-who-label">본인</span></label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-income" placeholder="예: 4500" oninput="onIncomeChange()"/><span class="unit">만원</span></div>
-
       <!-- 소득 기준 % 표시 -->
       <div id="income-pct-box" style="display:none;margin-top:10px;padding:10px 14px;background:var(--accent-light);border-radius:10px;line-height:1.7">
         <div id="income-pct-main" style="font-size:14px;font-weight:800;color:var(--accent)"></div>
@@ -790,6 +779,15 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div class="wiz-accuracy-hint">
         <span>📊 입력하면 자금 계획 분석(계약금 납부 가능 여부)을 해드려요</span>
       </div>
+    </div>
+    <div class="wiz-field">
+      <label class="wiz-label">세대원 수</label>
+      <select class="wiz-sel" id="w-household" onchange="onIncomeChange()">
+        <option value="">선택하세요</option>
+        <option value="1">1인</option><option value="2">2인</option>
+        <option value="3">3인</option><option value="4">4인</option>
+        <option value="5">5인 이상</option>
+      </select>
     </div>
   </div>
 
@@ -1043,9 +1041,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="prem-card">
     <div class="prem-inner">
       <div class="prem-title">AI 맞춤 청약 전략 리포트</div>
-      <div style="margin:8px 0 12px;padding:10px 14px;background:rgba(255,255,255,.15);border-radius:10px;border-left:3px solid white">
-  <div style="font-size:13px;font-weight:800;color:white;line-height:1.6">✦ 내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
-</div>
       <div class="prem-sub">나만을 위한 청약 로드맵과 최적 타이밍을 AI가 분석해드려요</div>
       <div class="prem-features">
         <div class="prem-feat">내 조건 기반 최적 청약지 TOP 5 추천</div>
