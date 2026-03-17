@@ -2826,6 +2826,7 @@ async function fetchCutScore(key, pblancNo){
     const score = parseFloat(target.AVRG_SCORE || target.TOP_SCORE || target.LWET_SCORE || 0);
     return score > 0 ? Math.round(score) : null;
   } catch(e) {
+    alert('Claude 에러: ' + e.message);
     return null;
   }
 }
