@@ -1582,7 +1582,7 @@ function toggleCond(){
 }
 
 /* ══ 유틸 ══ */
-function gap(l){const g=l.mktP-l.minP;return{g,pct:Math.round(g/l.mktP*100)};}
+function gap(l){const g=l.mktP-l.minP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0};}
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
   // 맞벌이면 합산소득, 아니면 본인소득
@@ -2018,8 +2018,7 @@ function showDetail(id){
     </div>`
     :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openWrSheet()"><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
     <div class="info-card" style="margin-top:14px">
-      <div class="info-card-title">📊 시세 차익 분석 ${l.mktPFromApi?'<span style="font-size:11px;font-weight:500;color:var(--public);margin-left:6px">실거래가 기반</span>':'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">추정치</span>'}</div>
-      <div class="gap-chart" id="det-gap-chart">
+      <div class="info-card-title">📊 시세 차익 분석 ${l.mktPFromApi?'<span style="font-size:11px;font-weight:500;color:var(--public);margin-left:6px">실거래가 기반</span>':l.mktP?'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">추정치</span>':'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">확인 중</span>'}
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
           <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
@@ -2652,7 +2651,7 @@ async function fetchMarketPrice(addr, sizeStr, region){
 
     const months = [];
     const now = new Date();
-    for(let i=0;i<3;i++){
+    for(let i=0;i<15;i++){
       const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
       months.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`);
     }
@@ -2988,7 +2987,7 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
     
-            // 3단계: 시세 업데이트 (실거래가 → Claude 웹검색 fallback)
+            // 3단계: 실거래가 기반 시세 업데이트
 showToast('📊 주변 시세 분석 중...');
 
 const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
