@@ -2539,7 +2539,6 @@ function closeApiSetup(){
 }
 
 async function connectApi(){
-  showToast('connectApi 시작');
   const key = document.getElementById('api-key-input').value.trim();
   if(!key){ showStatus('err','서비스키(인증키)를 입력해주세요.'); return; }
 
@@ -2557,7 +2556,6 @@ async function connectApi(){
   apiConnected = true; 
   closeApiSetup(); 
   updateApiStatus(); 
-  alert('apiConnected:' + apiConnected);
   await loadLiveData(); 
 }, 1500);
     } else {
@@ -3006,7 +3004,7 @@ renderListings();
 showToast('✓ 실거래가 시세 업데이트 완료');
     
   } catch(e){
-    alert('loadLiveData 에러:' + e.message);
+    console.error('loadLiveData 에러:', e.message);
     apiConnected = false;
     updateApiStatus();
     showToast('API 오류 — 목업 데이터로 표시해요');
@@ -3038,7 +3036,6 @@ requestAnimationFrame(()=>{
   restoreRegions();
   renderListings();
   if(apiKey) setTimeout(()=>loadLiveData(), 500);
-else showToast('apiKey 없음');
 
 });
 </script>
