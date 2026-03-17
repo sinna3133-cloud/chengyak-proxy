@@ -2719,8 +2719,9 @@ async function fetchMarketPrice(addr, sizeStr, region){
 }
 
 async function fetchMarketPriceFromClaude(name, loc, sizeStr, minP){
-  showToast('Claude 시세 검색 중: ' + name.slice(0,6));
+  alert('Claude 시세 검색 중: ' + name.slice(0,6));
   try {
+
     const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
     const targetSize = sizes[0] || 59;
 
