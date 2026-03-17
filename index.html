@@ -11,7 +11,7 @@
 :root {
   --ink:#0A0E1A; --ink-2:#1E2535; --ink-3:#4A5568; --ink-4:#8896A8; --ink-5:#BCC6D3;
   --bg:#F5F7FA; --bg-2:#EDF0F5; --bg-card:#FFFFFF;
-  --accent:#0066FF; --accent-dark:#0051CC; --accent-light:#EBF2FF; --accent-mid:#C7DCFF;
+  --accent:#0066FF; --accent-dark:#0051CC; --accent-light:#EBF2FF; --accent-mid:#C7DCFF;loadLiveData 호출'
   --mint:#00C9A0; --mint-light:#E6FAF5;
   --gold:#F5A623; --gold-light:#FFF8EC;
   --red:#F04040; --red-light:#FEF0F0;
@@ -2553,7 +2553,7 @@ async function connectApi(){
       apiKey = key;
       localStorage.setItem('cheongyak_api_key', key);
       showStatus('ok', `✓ 연결 성공! 공고 ${data.length}건 확인됐어요.\n잠시 후 실시간 데이터로 전환합니다.`);
-      setTimeout(async ()=>{ closeApiSetup(); alert('loadLiveData 호출'); await loadLiveData(); }, 1500);
+      setTimeout(async ()=>{ closeApiSetup(); alert('loadLiveData 호출'); alert('apiKey:' + apiKey); await loadLiveData(); }, 1500);
     } else {
       showStatus('err', '데이터를 가져올 수 없어요.\n인증키(Decoding 키)가 맞는지 확인해주세요.');
     }
