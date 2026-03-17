@@ -3054,7 +3054,7 @@ renderListings();
 showToast('✓ 시세 업데이트 완료');
     
   } catch(e){
-    console.error('loadLiveData 에러:', e.message);
+    alert('loadLiveData 에러: ' + e.message);
     apiConnected = false;
     updateApiStatus();
     showToast('API 오류 — 목업 데이터로 표시해요');
