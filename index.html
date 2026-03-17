@@ -3033,7 +3033,8 @@ const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
     l.mktPFromApi = true;
     return;
   }
-    let mktP = await fetchMarketPrice(l.loc, l.size);
+      let mktP = await fetchMarketPrice(l.loc, l.size);
+  alert('실거래가 결과: ' + mktP);
   if(!mktP || mktP <= l.minP) {
     mktP = await fetchMarketPriceFromClaude(l.name, l.loc, l.size, l.minP);
   }
