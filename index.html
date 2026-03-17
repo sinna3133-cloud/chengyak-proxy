@@ -1902,7 +1902,7 @@ function animateDashVal(id, target){
 }
 function renderMyCondDashboard(){
   const p=P, score=calcScore(p), types=calcTypes(p), tl=types.map(t=>t.l);
-  const matched=listings.filter(l=>!l.lotto&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>l && !l.lotto&&l.elig.some(e=>tl.includes(e)));
   const typeDescs={'생애최초':{desc:'세대원 전원 첫 주택'},'신생아특공':{desc:'만 2세 이하 자녀 보유'},'다자녀특공':{desc:'미성년 자녀 3명 이상'},'청년특공':{desc:'만 39세 이하 미혼'},'일반공급':{desc:'무주택 세대구성원'}};
   document.getElementById('mycond-body').innerHTML=`
     <div class="dash-hero">
@@ -2951,6 +2951,7 @@ async function loadLiveData(){
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
     listings.splice(0, listings.length, ...parsed);
     liveListings = parsed;
+    alert('listings 업데이트 완료:' + listings.length);
     apiConnected = true;
     updateApiStatus();
     renderListings();
