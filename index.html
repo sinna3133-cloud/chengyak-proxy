@@ -2977,6 +2977,20 @@ showToast(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
     const normalListings = parsed.filter(l => !l.lotto && l.id);
+    // 분양가 상세 조회
+const pricePromises2 = parsed.filter(l => !l.lotto && l.id).map(async (l) => {
+  try {
+    const url = `https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetailInfo?serviceKey=${encodeURIComponent(apiKey)}&page=1&perPage=1&cond[PBLANC_NO::EQ]=${l.id}`;
+    const res = await fetch(PROXY + encodeURIComponent(url));
+    const body = await res.json();
+    const data = body?.data?.[0];
+    if(data?.LTTOT_TOP_AMOUNT) l.minP = parseInt(data.LTTOT_TOP_AMOUNT) || 0;
+  } catch(e) {}
+});
+await Promise.all(pricePromises2);
+
+const normalListings = parsed.filter(l => !l.lotto && l.id);
+
     const enrichPromises = normalListings.map(async (l) => {
       const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
       const [comp, cut] = await Promise.all([
