@@ -2652,6 +2652,68 @@ async function fetchMarketPrice(addr, sizeStr, region){
 
     const months = [];
     const now = new Date();
+    for(let i=0;i<15;i++){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      months.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`);
+    }
+
+    let allItems = [];
+    for(const ym of months){
+      const url = `${API_REAL_PRICE}?serviceKey=${encodeURIComponent(apiKey)}&LAWD_CD=${sggCd}&DEAL_YMD=${ym}&numOfRows=500&pageNo=1`;
+      try {
+        const res = await fetch(PROXY + encodeURIComponent(url));
+        const body = await res.json();
+        const items = body?.response?.body?.items?.item || body?.items?.item || [];
+        allItems = allItems.concat(Array.isArray(items)?items:[items]);
+      } catch(e){ continue; }
+    }
+
+    if(!allItems.length) return null;
+
+    const addrParts = addr.split(' ');
+    const dong = addrParts[2] || '';
+
+    // 1단계: 같은 동
+    let filtered = allItems.filter(item => {
+      const itemDong = item['법정동'] || item.umdNm || '';
+      const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
+      const dongMatch = dong ? (itemDong.includes(dong.replace(/[0-9]/g,'').trim()) || dong.includes(itemDong.replace(/[0-9]/g,'').trim())) : true;
+      return dongMatch && Math.abs(area - targetSize) <= 20;
+    });
+
+    // 2단계: 같은 시군구 전체
+    if(!filtered.length){
+      filtered = allItems.filter(item => {
+        const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
+        return Math.abs(area - targetSize) <= 20;
+      });
+    }
+
+    if(!filtered.length) return null;
+
+    const prices = filtered.map(item => {
+      const raw = String(item['거래금액'] || item.dealAmount || '0').replace(/,/g,'');
+      return parseInt(raw) || 0;
+    }).filter(p => p > 0);
+
+    if(!prices.length) return null;
+    const avg = Math.round(prices.reduce((a,b)=>a+b,0) / prices.length);
+    return avg * 10000;
+  } catch(e){
+    console.error('fetchMarketPrice error:', e);
+    return null;
+  }
+}
+
+  try {
+    const sggCd = extractSggCd(addr);
+    if(!sggCd || !apiKey) return null;
+
+    const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
+    const targetSize = sizes[0] || 59;
+
+    const months = [];
+    const now = new Date();
     for(let i=0;i<3;i++){
       const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
       months.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`);
