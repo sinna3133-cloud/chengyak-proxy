@@ -2718,46 +2718,6 @@ async function fetchMarketPrice(addr, sizeStr, region){
   }
 }
 
-async function fetchMarketPriceFromClaude(name, loc, sizeStr, minP){
-  alert('Claude 시세 검색 중: ' + name.slice(0,6));
-  try {
-        alert('API 호출 시작');
-    const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
-    const targetSize = sizes[0] || 59;
-    alert('targetSize: ' + targetSize);
-    alert('fetch 직전');
-    const response = await fetch(PROXY + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{
-          role: 'user',
-          content: `${name} 분양 시세차익 분석\n\n블로그나 분석글에서 시세차익 금액을 찾아줘. 반드시 숫자만 답해줘. 단위는 만원. 예시: 30000 (3억인 경우). 시세차익을 찾으면 분양가 ${Math.round(minP/10000)}억에 더해서 예상 시세를 만원 단위로 답해줘.`
-        }]
-      })
-    });
-
-    alert('fetch 완료 status: ' + response.status);
-    const data = await response.json();
-    alert('data: ' + JSON.stringify(data).slice(0, 200));
-
-    const text = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('');
-
-    const match = text.match(/(\d{4,6})/);
-    alert('Claude 응답: ' + text.slice(0,100) + ' / match: ' + (match ? match[1] : 'null'));
-    if(match) return parseInt(match[1]) * 10000;
-    return null;
-  } catch(e) {
-    return null;
-  }
-}
-
 /* ── APT 분양정보 목록 ── */
 async function fetchAptList(key, page=1, num=20){
   const url = `${API_APT}?serviceKey=${encodeURIComponent(key)}&page=${page}&perPage=${num}`;
@@ -2961,7 +2921,6 @@ function parseAptItem(item, isLotto=false){
 
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
-  alert('loadLiveData 시작 v2');
   if(!apiKey){ updateApiStatus(); return; }
 
   const ind = document.getElementById('api-indicator');
@@ -3031,23 +2990,10 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
     
             // 3단계: 시세 업데이트 (실거래가 → Claude 웹검색 fallback)
-alert('3단계 시작');
 showToast('📊 주변 시세 분석 중...');
 
 const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
-    const cacheKey = `mktP_${l.id}_${new Date().toDateString()}`;
-  const cached = localStorage.getItem(cacheKey);
-  alert('캐시 확인: ' + cacheKey + ' = ' + cached);
-  if(cached) {
-    l.mktP = parseInt(cached);
-    l.mktPFromApi = true;
-    return;
-  }
       let mktP = await fetchMarketPrice(l.loc, l.size);
-  alert('실거래가 결과: ' + mktP);
-  if(!mktP || mktP <= l.minP) {
-    mktP = await fetchMarketPriceFromClaude(l.name, l.loc, l.size, l.minP);
-  }
   if(mktP && mktP > 0) {
     l.mktP = mktP;
     l.mktPFromApi = true;
