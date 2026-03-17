@@ -2851,11 +2851,42 @@ async function fetchCutScore(key, pblancNo){
    odcloud 응답은 camelCase 또는 한글 필드명으로 옴
    예: 주택명, 공급지역명, 청약접수시작일, 청약접수종료일, 당첨자발표일 등
 ── */
+  const PRICE_MAP = {
+  // 서울
+  '영등포자이 디그니티': 85000,
+  '더샵프리엘라': 130000,
+  '마곡지구17단지': 31000,
+  '래미안 엘라비네': 175000,
+  '해링턴플레이스 노원 센트럴': 79000,
+  // 인천/경기
+  '포레나더샵 인천시청역': 66000,
+  '시티오씨엘 1단지': 56900,
+  '시티오씨엘 3단지': 61000,
+  '시티오씨엘 6단지': 62000,
+  '연수 월드메르디앙 어반포레': 47000,
+  '두산위브 더센트럴 수원': 85000,
+  '부천역 에피트 어바닉': 54000,
+  '시흥거모B1 호반써밋': 50000,
+  '썬밸리 오드카운티 가평설악': 35000,
+  '용인 플랫폼시티 라온프라이빗 아르디에': 80000,
+  '천안 아이파크 시티 5단지': 50000,
+  '천안 아이파크 시티 6단지': 52000,
+  '영종하늘도시 대성베르힐': 35000,
+  'e편한세상 신곡 파크프라임': 49000,
+  // 지방
+  'e편한세상 여수 글렌츠': 58000,
+  '경산 상방공원 호반써밋 1단지': 46000,
+  '상주자이르네': 45000,
+  '해링턴플레이스 오룡역': 55000,
+  '에코델타시티 아테라': 55500,
+};
+
 function parseAptItem(item, isLotto=false){
   const today = new Date();
   
   // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
-  const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
+  const name = item['주택명'] || item.houseNm || item.HOUSE_NM || '공고명 확인 필요';
+  if(name.includes('임대') || name.includes('공공지원') || (item.HOUSE_SECD_NM || '').includes('임대')) return null;
   const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
   const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
   const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || item.RCEPT_BGNDE || item.CNTRCT_CNCLS_BGNDE || '';
@@ -2864,6 +2895,8 @@ function parseAptItem(item, isLotto=false){
   const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
   const unitsRaw  = item['공급규모']     || item['세대수']      || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || 0;
   const priceRaw = item.NSPRC_NM && item.NSPRC_NM !== 'null' ? parseInt(String(item.NSPRC_NM).replace(/[^0-9]/g,'')) : 0;
+  const mappedKey = Object.keys(PRICE_MAP).find(k => name.includes(k.slice(0,6)));
+  const finalPrice = priceRaw || (mappedKey ? PRICE_MAP[mappedKey] : 0);
 
   // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
   function parseDate(s){
@@ -2893,7 +2926,7 @@ function parseAptItem(item, isLotto=false){
     : (houseType.includes('국민') || houseType.includes('공공') || houseType.includes('LH')) ? 'public'
     : 'private';
 
-  const minP  = parseInt(priceRaw) || 0;
+  const minP = finalPrice || 0;
   const units = parseInt(unitsRaw) || 0;
   const loc   = addr || `${regionRaw}`;
 
@@ -2957,7 +2990,7 @@ showToast(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-    ].filter(l => l.days >= 0);
+    ].filter(l => l.days >= 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
 
     if(parsed.length === 0){
       apiConnected = false;
