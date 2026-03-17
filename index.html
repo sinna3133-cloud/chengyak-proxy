@@ -1815,7 +1815,7 @@ function renderListings(){
   lb.innerHTML = curFilter==='lotto' && activeLotto.length
     ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
     : '';
- let fl=listings.filter(l=>l.days>=0);
+ let fl=listings.filter(l=>l.days>0);
   if(curFilter==='public') fl=fl.filter(l=>l.type==='public');
   else if(curFilter==='private') fl=fl.filter(l=>l.type==='private');
   else if(curFilter==='lotto') fl=fl.filter(l=>l.lotto);
@@ -2998,8 +2998,8 @@ showToast(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-    ].filter(l => l.days >= 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
-
+   ].filter(l => l.days > 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
+    
     if(parsed.length === 0){
       apiConnected = false;
       updateApiStatus();
