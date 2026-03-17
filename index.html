@@ -2938,7 +2938,7 @@ async function loadLiveData(){
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-   ].filter(l => l.days > 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
+   ].filter(l => l !== null && l !== undefined && l.days > 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
     
     alert('parsed:' + parsed.length + ' / ' + JSON.stringify(parsed[0]?.name));
     if(parsed.length === 0){
