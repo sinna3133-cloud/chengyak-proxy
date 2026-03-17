@@ -2978,28 +2978,27 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
     
-            // 3단계: 실거래가 기반 시세 업데이트
+             // 3단계: 실거래가 기반 시세 업데이트 (백그라운드)
 showToast('📊 주변 시세 분석 중...');
-
-const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
-  try {
-    const mktP = await Promise.race([
-      fetchMarketPrice(l.loc, l.size, l.region),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
-    ]);
-    if(mktP && mktP > 0) {
-      l.mktP = mktP;
-      l.mktPFromApi = true;
-    }
-  } catch(e) {}
-});
-
-for(let i = 0; i < pricePromises.length; i += 5){
-  await Promise.all(pricePromises.slice(i, i + 5));
-}
-}
-renderListings();
-showToast('✓ 시세 업데이트 완료');
+(async () => {
+  const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
+    try {
+      const mktP = await Promise.race([
+        fetchMarketPrice(l.loc, l.size, l.region),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      ]);
+      if(mktP && mktP > 0) {
+        l.mktP = mktP;
+        l.mktPFromApi = true;
+      }
+    } catch(e) {}
+  });
+  for(let i = 0; i < pricePromises.length; i += 5){
+    await Promise.all(pricePromises.slice(i, i + 5));
+    renderListings();
+  }
+  showToast('✓ 시세 업데이트 완료');
+})();
     
   } catch(e){
     apiConnected = false;
