@@ -14,13 +14,19 @@ export default async function handler(req, res) {
   try {
      const kakaoAuth = target.hostname === 'dapi.kakao.com'
       ? { 'Authorization': 'KakaoAK 5ebbb3bfdafac23bc229d28977d4bdaa' } : {};
+    const anthropicAuth = target.hostname === 'api.anthropic.com'
+      ? { 
+          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+          'anthropic-version': '2023-06-01'
+        } : {};
     const r = await fetch(target.toString(), {
       method: req.method === 'POST' ? 'POST' : 'GET',
       headers: { 
         'Accept': 'application/json', 
         'User-Agent': 'cheongyak-proxy/1.0', 
         'Content-Type': 'application/json',
-        ...kakaoAuth 
+        ...kakaoAuth,
+        ...anthropicAuth
       },
       body: req.method === 'POST' ? JSON.stringify(req.body) : undefined
     });
