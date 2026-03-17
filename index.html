@@ -1635,7 +1635,7 @@ function toggleCond(){
 }
 
 /* ══ 유틸 ══ */
-function gap(l){const g=l.mktP-l.minP;return{g,pct:Math.round(g/l.mktP*100)};}
+function gap(l){const g=l.mktP-l.minP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0};}
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
   // 맞벌이면 합산소득, 아니면 본인소득
@@ -2027,7 +2027,7 @@ function openWrSheet(){ openNudge(); }
 
 /* ══ 상세 ══ */
 function showDetail(id){
-  const l=listings.find(x=>x.id===id);
+  const l=listings.find(x=>String(x.id)===String(id));
   prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
   window._prevScrollY = window.scrollY;
   const prob=calcProb(l,P);
