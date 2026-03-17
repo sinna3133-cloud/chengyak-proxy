@@ -2916,28 +2916,19 @@ function parseAptItem(item, isLotto=false){
 
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
-  alert('loadLiveData 시작 key:' + apiKey.slice(0,8));
-  if(!apiKey){ alert('apiKey 없음'); updateApiStatus(); return; }
+  if(!apiKey){ updateApiStatus(); return; }
 
   const ind = document.getElementById('api-indicator');
   if(ind){ ind.className='api-ind-loading'; ind.textContent='불러오는 중...'; }
 
   try {
     // 1단계: 분양정보 + 줍줍 목록 동시 조회
-     let aptItems = [], lottoItems = [];
-  try {
-    aptItems = await fetchAptList(apiKey, 1, 20);
-    alert('APT 성공:' + aptItems.length);
-  } catch(e) {
-    alert('APT 에러:' + e.message);
-  }
-  try {
-    lottoItems = await fetchLottoList(apiKey, 1, 10);
-    alert('LOTTO 성공:' + lottoItems.length);
-  } catch(e) {
-    alert('LOTTO 에러:' + e.message);
-  }
-
+    const [aptItems, lottoItems] = await Promise.all([
+      fetchAptList(apiKey, 1, 20).catch(()=>[]),
+      fetchLottoList(apiKey, 1, 10).catch(()=>[])
+    ]);
+    const testParsed = parseAptItem(aptItems[0], false);
+    alert('파싱결과:' + JSON.stringify(testParsed).slice(0,200));
 
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
