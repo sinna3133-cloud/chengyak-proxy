@@ -2518,6 +2518,7 @@ function updateApiStatus(){
   const ind   = document.getElementById('api-indicator');
   const badge = document.getElementById('api-menu-badge');
   if(!ind) return;
+  alert('updateApiStatus 호출 apiConnected:' + apiConnected);
   if(apiConnected){
     ind.style.display='block';
     ind.className='api-ind-live';
