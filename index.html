@@ -2987,7 +2987,9 @@ const pricePromises2 = parsed.filter(l => !l.lotto && l.id).map(async (l) => {
     if(data?.LTTOT_TOP_AMOUNT) l.minP = parseInt(data.LTTOT_TOP_AMOUNT) || 0;
   } catch(e) {}
 });
-await Promise.all(pricePromises2);
+for(let i = 0; i < pricePromises2.length; i += 5){
+  await Promise.all(pricePromises2.slice(i, i + 5));
+}
 
 const normalListings = parsed.filter(l => !l.lotto && l.id);
 
