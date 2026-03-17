@@ -2033,7 +2033,7 @@ function openWrSheet(){ openNudge(); }
 
 /* ══ 상세 ══ */
 function showDetail(id){
-  const l=listings.find(x=>x.id===id);
+  const l=listings.find(x=>String(x.id)===String(id));
   prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
   window._prevScrollY = window.scrollY;
   const prob=calcProb(l,P);
@@ -2908,7 +2908,7 @@ function parseAptItem(item, isLotto=false){
   const priceLabel = minP ? `${(minP/10000).toFixed(0)}만원~` : '공고 확인 필요';
 
   return {
-    id:       item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
+    id: String(item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || Math.random()),
     name, loc, type, region, lotto: isLotto,
     price:    priceLabel,
     minP,
