@@ -3028,8 +3028,9 @@ alert('3단계 시작');
 showToast('📊 주변 시세 분석 중...');
 
 const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
-  const cacheKey = `mktP_${l.id}_${new Date().toDateString()}`;
+    const cacheKey = `mktP_${l.id}_${new Date().toDateString()}`;
   const cached = localStorage.getItem(cacheKey);
+  alert('캐시 확인: ' + cacheKey + ' = ' + cached);
   if(cached) {
     l.mktP = parseInt(cached);
     l.mktPFromApi = true;
