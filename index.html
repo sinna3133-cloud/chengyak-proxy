@@ -2853,7 +2853,7 @@ async function fetchCutScore(key, pblancNo){
 ── */
 function parseAptItem(item, isLotto=false){
   const today = new Date();
-  if(!window._logged){window._logged=true;showToast(Object.keys(item).slice(0,5).join(', '));}
+  if(!window._logged){window._logged=true;alert(JSON.stringify(item).slice(0,300));}
   if(!item.lotto && !window._logged2){window._logged2=true;alert('NSPRC_NM=' + item.NSPRC_NM + '\ntype=' + typeof item.NSPRC_NM);}
 
   // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
