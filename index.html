@@ -2721,10 +2721,11 @@ async function fetchMarketPrice(addr, sizeStr, region){
 async function fetchMarketPriceFromClaude(name, loc, sizeStr, minP){
   alert('Claude 시세 검색 중: ' + name.slice(0,6));
   try {
-    alert('API 호출 시작');
+        alert('API 호출 시작');
     const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
     const targetSize = sizes[0] || 59;
 
+    alert('fetch 직전');
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2739,7 +2740,10 @@ async function fetchMarketPriceFromClaude(name, loc, sizeStr, minP){
       })
     });
 
+    alert('fetch 완료 status: ' + response.status);
     const data = await response.json();
+    alert('data: ' + JSON.stringify(data).slice(0, 200));
+
     const text = data.content
       .filter(b => b.type === 'text')
       .map(b => b.text)
