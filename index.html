@@ -2955,6 +2955,7 @@ function parseAptItem(item, isLotto=false){
 
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
+  alert('loadLiveData 시작');
   if(!apiKey){ updateApiStatus(); return; }
 
   const ind = document.getElementById('api-indicator');
