@@ -2924,11 +2924,20 @@ async function loadLiveData(){
 
   try {
     // 1단계: 분양정보 + 줍줍 목록 동시 조회
-      const [aptItems, lottoItems] = await Promise.all([
-  fetchAptList(apiKey,  1, 20).catch(()=>[]),
-  fetchLottoList(apiKey, 1, 10).catch(()=>[])
-]);
-alert(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
+     let aptItems = [], lottoItems = [];
+  try {
+    aptItems = await fetchAptList(apiKey, 1, 20);
+    alert('APT 성공:' + aptItems.length);
+  } catch(e) {
+    alert('APT 에러:' + e.message);
+  }
+  try {
+    lottoItems = await fetchLottoList(apiKey, 1, 10);
+    alert('LOTTO 성공:' + lottoItems.length);
+  } catch(e) {
+    alert('LOTTO 에러:' + e.message);
+  }
+
 
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
