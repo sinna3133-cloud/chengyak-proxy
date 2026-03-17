@@ -3023,8 +3023,10 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
     
-        // 3단계: 시세 업데이트 (실거래가 → Claude 웹검색 fallback)
+            // 3단계: 시세 업데이트 (실거래가 → Claude 웹검색 fallback)
+alert('3단계 시작');
 showToast('📊 주변 시세 분석 중...');
+
 const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
   const cacheKey = `mktP_${l.id}_${new Date().toDateString()}`;
   const cached = localStorage.getItem(cacheKey);
