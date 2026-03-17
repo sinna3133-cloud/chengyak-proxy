@@ -2746,6 +2746,7 @@ async function fetchMarketPriceFromClaude(name, loc, sizeStr, minP){
       .join('');
 
     const match = text.match(/(\d{4,6})/);
+    alert('Claude 응답: ' + text.slice(0,100) + ' / match: ' + (match ? match[1] : 'null'));
     if(match) return parseInt(match[1]) * 10000;
     return null;
   } catch(e) {
