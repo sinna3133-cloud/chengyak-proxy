@@ -1,11 +1,11 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'url 파라미터가 필요해요' });
-  const ALLOWED = ['api.odcloud.kr','openapi.gg.go.kr','openapi.seoul.go.kr','dapi.kakao.com','apis.data.go.kr'];
+  const ALLOWED = ['api.odcloud.kr','openapi.gg.go.kr','openapi.seoul.go.kr','dapi.kakao.com','apis.data.go.kr','api.anthropic.com'];
   let target;
   try { target = new URL(decodeURIComponent(url)); } 
   catch { return res.status(400).json({ error: '유효하지 않은 URL' }); }
@@ -15,7 +15,14 @@ export default async function handler(req, res) {
      const kakaoAuth = target.hostname === 'dapi.kakao.com'
       ? { 'Authorization': 'KakaoAK 5ebbb3bfdafac23bc229d28977d4bdaa' } : {};
     const r = await fetch(target.toString(), {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'cheongyak-proxy/1.0', ...kakaoAuth }
+      method: req.method === 'POST' ? 'POST' : 'GET',
+      headers: { 
+        'Accept': 'application/json', 
+        'User-Agent': 'cheongyak-proxy/1.0', 
+        'Content-Type': 'application/json',
+        ...kakaoAuth 
+      },
+      body: req.method === 'POST' ? JSON.stringify(req.body) : undefined
     });
     const ct = r.headers.get('content-type') || '';
     const data = ct.includes('json') ? await r.json() : await r.text();
