@@ -2518,7 +2518,6 @@ function updateApiStatus(){
   const ind   = document.getElementById('api-indicator');
   const badge = document.getElementById('api-menu-badge');
   if(!ind) return;
-  alert('updateApiStatus 호출 apiConnected:' + apiConnected);
   if(apiConnected){
     ind.style.display='block';
     ind.className='api-ind-live';
@@ -2949,10 +2948,9 @@ async function loadLiveData(){
     }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
+    apiConnected = true;
     listings.splice(0, listings.length, ...parsed);
     liveListings = parsed;
-    alert('listings 업데이트 완료:' + listings.length);
-    apiConnected = true;
     updateApiStatus();
     renderListings();
     renderRecommend();
