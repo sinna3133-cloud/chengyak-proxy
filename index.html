@@ -2891,7 +2891,7 @@ function parseAptItem(item, isLotto=false){
     name, loc, type, region, lotto: isLotto,
     price:    priceLabel,
     minP,
-    mktP:     Math.round(minP * 1.3), // 시세 = 분양가 × 1.3 추정
+    mktP:     0,
     deadline: toStr(rceptEnd),
     days:     daysLeft,
     size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
