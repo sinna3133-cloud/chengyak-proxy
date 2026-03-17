@@ -2976,7 +2976,6 @@ showToast(`APT:${aptItems.length} LOTTO:${lottoItems.length}`);
     showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
-    const normalListings = parsed.filter(l => !l.lotto && l.id);
     // 분양가 상세 조회 (추후 활성화)
 // const pricePromises2 = parsed.filter(l => !l.lotto && l.id).map(async (l) => {
 //   try {
