@@ -2539,6 +2539,7 @@ function closeApiSetup(){
 }
 
 async function connectApi(){
+  showToast('connectApi 시작');
   const key = document.getElementById('api-key-input').value.trim();
   if(!key){ showStatus('err','서비스키(인증키)를 입력해주세요.'); return; }
 
