@@ -2853,7 +2853,7 @@ async function fetchCutScore(key, pblancNo){
 ── */
 function parseAptItem(item, isLotto=false){
   const today = new Date();
-  if(!window._logged){window._logged=true;alert(Object.keys(item).join('\n'));}
+  if(!window._logged){window._logged=true;document.title=Object.keys(item).slice(0,10).join('|');}
 
   // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
   const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
