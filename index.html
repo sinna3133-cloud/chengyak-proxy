@@ -2642,9 +2642,11 @@ function extractSggCd(addr){
 }
 
 async function fetchMarketPrice(addr, sizeStr, region){
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
     const sggCd = extractSggCd(addr);
-    if(!sggCd || !apiKey) return null;
+    if(!sggCd || !apiKey){ clearTimeout(timeoutId); return null; }
 
     const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
     const targetSize = sizes[0] || 59;
@@ -2660,7 +2662,7 @@ async function fetchMarketPrice(addr, sizeStr, region){
     for(const ym of months){
       const url = `${API_REAL_PRICE}?serviceKey=${encodeURIComponent(apiKey)}&LAWD_CD=${sggCd}&DEAL_YMD=${ym}&numOfRows=500&pageNo=1`;
       try {
-        const res = await fetch(PROXY + encodeURIComponent(url));
+        const res = await fetch(PROXY + encodeURIComponent(url), { signal: controller.signal });
         const body = await res.json();
         const items = body?.response?.body?.items?.item || body?.items?.item || [];
         allItems = allItems.concat(Array.isArray(items)?items:[items]);
@@ -2673,27 +2675,15 @@ async function fetchMarketPrice(addr, sizeStr, region){
     const addrParts = addr.split(' ');
     const dong = addrParts[2] || '';
 
-    // 1단계: 같은 동 + 건축년도 10년 이하
+    // 1단계: 같은 동
     let filtered = allItems.filter(item => {
       const itemDong = item['법정동'] || item.umdNm || '';
-      const buildYear = parseInt(item['건축년도'] || item.buildYear || 0);
       const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
-      const age = currentYear - buildYear;
       const dongMatch = dong ? (itemDong.includes(dong.replace(/[0-9]/g,'').trim()) || dong.includes(itemDong.replace(/[0-9]/g,'').trim())) : true;
-      return dongMatch && buildYear > 0 && age <= 10 && Math.abs(area - targetSize) <= 15;
+      return dongMatch && Math.abs(area - targetSize) <= 20;
     });
 
-    // 2단계: 같은 시군구 + 건축년도 10년 이하
-    if(!filtered.length){
-      filtered = allItems.filter(item => {
-        const buildYear = parseInt(item['건축년도'] || item.buildYear || 0);
-        const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
-        const age = currentYear - buildYear;
-        return buildYear > 0 && age <= 10 && Math.abs(area - targetSize) <= 15;
-      });
-    }
-
-    // 3단계: 같은 시군구 + 건축년도 제한 없음
+    // 2단계: 같은 시군구 전체
     if(!filtered.length){
       filtered = allItems.filter(item => {
         const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
@@ -2712,8 +2702,9 @@ async function fetchMarketPrice(addr, sizeStr, region){
     const avg = Math.round(prices.reduce((a,b)=>a+b,0) / prices.length);
     return avg * 10000;
   } catch(e){
-    console.error('fetchMarketPrice error:', e);
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
