@@ -592,7 +592,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .prob-num{transition:color .6s ease}
 
 /* ══ 스플래시 ══ */
-#splash{position:fixed;inset:0;background:linear-gradient(160deg,#1E2535 0%,#0A0E1A 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;animation:splashOut .4s ease .forward}
+#splash{position:fixed;inset:0;background:linear-gradient(160deg,#1E2535 0%,#0A0E1A 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
 #splash.hide{animation:splashOut .5s ease forwards}
 @keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 .splash-logo{font-size:52px;font-weight:400;color:white;letter-spacing:-1px;font-family:'Black Han Sans',sans-serif}
@@ -2604,7 +2604,7 @@ async function connectApi(){
       apiKey = key;
       localStorage.setItem('cheongyak_api_key', key);
       showStatus('ok', `✓ 연결 성공! 공고 ${data.length}건 확인됐어요.\n잠시 후 실시간 데이터로 전환합니다.`);
-      setTimeout(async ()=>{ closeApiSetup(); await loadLiveData(); }, 1500);
+      setTimeout(async ()=>{ apiConnected = true; closeApiSetup(); updateApiStatus(); await loadLiveData(); }, 1500);
     } else {
       showStatus('err', '데이터를 가져올 수 없어요.\n인증키(Decoding 키)가 맞는지 확인해주세요.');
     }
