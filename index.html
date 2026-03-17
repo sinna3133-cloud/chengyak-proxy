@@ -178,7 +178,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .wr-sheet-header{padding:16px 20px 12px;border-bottom:1px solid rgba(0,0,0,.06)}
 .wr-sheet-title{font-size:18px;font-weight:900;color:var(--ink);letter-spacing:-.3px}
 .wr-sheet-sub{font-size:13px;color:var(--ink-4);margin-top:4px;line-height:1.5}
-/* 조건 입력 목록= */
+/* 조건 입력 목록 */
 .wr-cond-list{padding:12px 0 0}
 .wr-cond-item{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer;transition:background .15s;gap:14px}
 .wr-cond-item:active{background:var(--bg)}
@@ -1172,7 +1172,73 @@ const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',da
 const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-my',mycond:'nav-search',detail:'nav-home'};
 
 /* ══ 데이터 ══ */
-const listings = [];
+const listings = [
+  {id:1,name:'힐스테이트 광교',loc:'경기 수원시 영통구',type:'private',region:'gyeonggi',lotto:false,
+   price:'4억 8천~7억 2천만원',minP:48000,mktP:72000,deadline:'2025-03-20',days:6,
+   size:'84㎡ / 101㎡',units:320,comp:12,cut:48,
+   qual:'무주택세대구성원, 청약통장 24회 이상',inc:'도시근로자 월평균소득 130% 이하',
+   sched:'당첨자 발표: 2025.03.28 / 계약: 2025.04.05',
+   aS:'2025-03-18',aE:'2025-03-20',aD:'2025-03-28',
+   elig:['일반공급','생애최초'],
+   ai:{q:'만 19세 이상 무주택세대구성원이면 신청 가능해요. 24회 이상 납입한 분만 1순위예요.',p:'전용 84㎡ 4억 8천, 101㎡ 7억 2천만원부터예요. 중도금 60% 무이자 대출 가능해요.',s:'3월 18~20일 접수, 28일 발표, 4월 5~7일 계약이에요.',d:'신분증, 청약통장 확인서, 무주택확인서, 가족관계증명서가 필요해요.'}},
+  {id:2,name:'래미안 원베일리',loc:'서울 서초구 반포동',type:'private',region:'seoul',lotto:false,
+   price:'15억~22억원',minP:150000,mktP:220000,deadline:'2025-03-25',days:11,
+   size:'59㎡ / 84㎡ / 115㎡',units:180,comp:85,cut:68,
+   qual:'서울 2년 이상 거주, 무주택',inc:'소득 제한 없음',
+   sched:'당첨자 발표: 2025.04.01 / 계약: 2025.04.10',
+   aS:'2025-03-23',aE:'2025-03-25',aD:'2025-04-01',
+   elig:['일반공급'],
+   ai:{q:'서울 2년 이상 거주 무주택자면 신청 가능해요.',p:'59㎡ 15억~115㎡ 22억이에요. 분양가 상한제 적용 단지예요.',s:'3월 23~25일 접수, 4월 1일 발표, 10~12일 계약이에요.',d:'주민등록등본(2년치), 청약통장 확인서, 무주택세대원 확인서가 필요해요.'}},
+  {id:3,name:'검단신도시 공공분양 A3블록',loc:'인천 서구 검단신도시',type:'public',region:'incheon',lotto:false,
+   price:'2억 1천~3억 4천만원',minP:21000,mktP:36000,deadline:'2025-03-16',days:2,
+   size:'46㎡ / 59㎡ / 74㎡',units:520,comp:5,cut:32,
+   qual:'무주택, 청약통장 6회 이상',inc:'도시근로자 월평균소득 100% 이하',
+   sched:'당첨자 발표: 2025.03.25 / 계약: 2025.04.02',
+   aS:'2025-03-14',aE:'2025-03-16',aD:'2025-03-25',
+   elig:['생애최초','신생아특공','일반공급'],
+   ai:{q:'공공분양이라 소득 기준이 있어요. 3인 기준 월 590만원 이하여야 해요.',p:'46㎡ 2억 1천만원부터예요. LH 주담대 최대 70% 가능해요.',s:'3월 14~16일 접수, 25일 발표. 마감 2일!',d:'소득확인서류, 청약통장 확인서, 가족관계증명서가 필요해요.'}},
+  {id:4,name:'위례 자연앤자이',loc:'경기 하남시 학암동',type:'private',region:'gyeonggi',lotto:false,
+   price:'5억 5천~8억원',minP:55000,mktP:75000,deadline:'2025-04-05',days:22,
+   size:'74㎡ / 84㎡ / 102㎡',units:440,comp:18,cut:52,
+   qual:'무주택 또는 1주택자(84㎡ 이하)',inc:'소득 제한 없음',
+   sched:'당첨자 발표: 2025.04.12 / 계약: 2025.04.20',
+   aS:'2025-04-03',aE:'2025-04-05',aD:'2025-04-12',
+   elig:['일반공급','신생아특공','다자녀특공'],
+   ai:{q:'84㎡ 이하는 1주택자도 신청 가능해요.',p:'74㎡ 5억 5천만원부터예요. 위례 시세 대비 약 27% 저렴해요.',s:'4월 3~5일 접수, 12일 발표, 20~22일 계약이에요.',d:'청약통장 확인서, 주민등록등본, 재직확인서가 필요해요.'}},
+  {id:5,name:'세종 6-3생활권 공공분양',loc:'세종특별자치시 도담동',type:'public',region:'sejong',lotto:false,
+   price:'1억 8천~2억 9천만원',minP:18000,mktP:32000,deadline:'2025-03-18',days:4,
+   size:'46㎡ / 59㎡',units:680,comp:4,cut:28,
+   qual:'세종 1년 이상 거주, 무주택',inc:'도시근로자 월평균소득 120% 이하',
+   sched:'당첨자 발표: 2025.03.27 / 계약: 2025.04.04',
+   aS:'2025-03-16',aE:'2025-03-18',aD:'2025-03-27',
+   elig:['생애최초','신생아특공','일반공급'],
+   ai:{q:'세종 1년 이상 거주 무주택자 우선이에요.',p:'46㎡ 1억 8천만원이에요. 세종 공공분양 최저 수준이에요.',s:'3월 16~18일 접수, 27일 발표. 마감 4일!',d:'세종 거주 주민등록등본(1년치), 소득확인서류, 청약통장 확인서가 필요해요.'}},
+  {id:6,name:'마포 프레스티지자이',loc:'서울 마포구 아현동',type:'private',region:'seoul',lotto:false,
+   price:'9억~14억원',minP:90000,mktP:130000,deadline:'2025-04-12',days:29,
+   size:'59㎡ / 84㎡',units:260,comp:45,cut:60,
+   qual:'서울 거주, 무주택',inc:'소득 제한 없음',
+   sched:'당첨자 발표: 2025.04.19 / 계약: 2025.04.28',
+   aS:'2025-04-10',aE:'2025-04-12',aD:'2025-04-19',
+   elig:['일반공급','생애최초'],
+   ai:{q:'투기과열지구라 5년 전매제한 있어요.',p:'59㎡ 9억원부터예요.',s:'4월 10~12일 접수, 19일 발표, 28~30일 계약이에요.',d:'청약통장 확인서, 무주택 확인서, 주민등록등본이 필요해요.'}},
+  {id:7,name:'동탄2 롯데캐슬 무순위',loc:'경기 화성시 동탄2신도시',type:'lotto',region:'gyeonggi',lotto:true,
+   price:'4억 2천만원',minP:42000,mktP:70000,deadline:'2025-03-17',days:3,
+   size:'84㎡',units:12,comp:300,cut:0,
+   qual:'만 19세 이상 누구나',inc:'소득 제한 없음',
+   sched:'당첨자 발표: 2025.03.19 / 계약: 2025.03.22',
+   aS:'2025-03-15',aE:'2025-03-17',aD:'2025-03-19',
+   elig:['무순위(줍줍)'],
+   ai:{q:'만 19세 이상 누구나! 무주택·청약통장 조건 없어요.',p:'분양가 4억 2천 고정. 시세 7억 대비 약 3억 저렴해요.',s:'3월 15~17일 신청, 19일 발표, 22~23일 계약이에요.',d:'신분증만 있으면 돼요.'}},
+  {id:8,name:'고덕강일 공공분양 무순위',loc:'서울 강동구 강일동',type:'lotto',region:'seoul',lotto:true,
+   price:'5억 8천만원',minP:58000,mktP:105000,deadline:'2025-03-22',days:8,
+   size:'59㎡',units:5,comp:500,cut:0,
+   qual:'서울 거주 만 19세 이상',inc:'소득 제한 없음',
+   sched:'당첨자 발표: 2025.03.25 / 계약: 2025.03.28',
+   aS:'2025-03-20',aE:'2025-03-22',aD:'2025-03-25',
+   elig:['무순위(줍줍)'],
+   ai:{q:'서울 거주 만 19세 이상이면 신청 가능.',p:'분양가 5억 8천. 시세 10억 이상으로 약 4억 시세차익 기대.',s:'3월 20~22일 신청, 25일 발표, 28~29일 계약.',d:'신분증, 서울 거주 주민등록등본이 필요해요.'}}
+];
+
 const PRICE_FACTORS = {
   1:[
     {icon:'🚇',text:'GTX-A 수원역 개통(2024) — 강남까지 20분대 접근 가능'},
@@ -1213,14 +1279,6 @@ const PRICE_FACTORS = {
   7:[{icon:'🎰',text:'무순위 로또청약 — 시세 대비 저렴한 분양가 메리트'}],
   8:[{icon:'🚇',text:'지하철 5호선 강일역 도보권 — 강동·강남 접근 용이'},{icon:'🏗️',text:'고덕강일지구 개발 완성 단계 — 생활 인프라 완비'}],
 };
-
-  listings.forEach(l => {
-  if(l.deadline) {
-    const end = new Date(l.deadline);
-    const today = new Date();
-    l.days = Math.ceil((end - today) / 86400000);
-  }
-});
 
 const GLOSSARY = [
   // 청약 자격
@@ -1582,7 +1640,7 @@ function toggleCond(){
 }
 
 /* ══ 유틸 ══ */
-function gap(l){const g=l.mktP-l.minP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0};}
+function gap(l){const g=l.mktP-l.minP;return{g,pct:Math.round(g/l.mktP*100)};}
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
   // 맞벌이면 합산소득, 아니면 본인소득
@@ -1652,7 +1710,6 @@ function typeBadge(l){
   return`<span class="badge badge-private">민간분양</span>`;
 }
 function gapPill(l){
-  if(!l.minP||!l.mktP) return`<div class="gap-pill"><div class="gap-nums"><span style="color:var(--ink-5);font-size:12px">시세 정보 확인 중</span></div></div>`;
   const{g,pct}=gap(l);const up=g>0;
   return`<div class="gap-pill"><div class="gap-nums"><b>${(l.minP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
 }
@@ -1749,10 +1806,10 @@ function renderListings(){
   lb.innerHTML = curFilter==='lotto' && activeLotto.length
     ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
     : '';
- let fl=listings.filter(l=>l && l.days>0);
-  if(curFilter==='public') fl=fl.filter(l=>l.type==='public');
-  else if(curFilter==='private') fl=fl.filter(l=>l.type==='private');
-  else if(curFilter==='lotto') fl=fl.filter(l=>l.lotto);
+  let fl=listings;
+  if(curFilter==='public') fl=listings.filter(l=>l.type==='public');
+  else if(curFilter==='private') fl=listings.filter(l=>l.type==='private');
+  else if(curFilter==='lotto') fl=listings.filter(l=>l.lotto);
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터
   if(selectedRegions.size>0) fl=fl.filter(l=>selectedRegions.has(l.region));
@@ -1902,7 +1959,7 @@ function animateDashVal(id, target){
 }
 function renderMyCondDashboard(){
   const p=P, score=calcScore(p), types=calcTypes(p), tl=types.map(t=>t.l);
-  const matched=listings.filter(l=>l && !l.lotto&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>!l.lotto&&l.elig.some(e=>tl.includes(e)));
   const typeDescs={'생애최초':{desc:'세대원 전원 첫 주택'},'신생아특공':{desc:'만 2세 이하 자녀 보유'},'다자녀특공':{desc:'미성년 자녀 3명 이상'},'청년특공':{desc:'만 39세 이하 미혼'},'일반공급':{desc:'무주택 세대구성원'}};
   document.getElementById('mycond-body').innerHTML=`
     <div class="dash-hero">
@@ -1975,7 +2032,7 @@ function openWrSheet(){ openNudge(); }
 
 /* ══ 상세 ══ */
 function showDetail(id){
-  const l=listings.find(x=>String(x.id)===String(id));
+  const l=listings.find(x=>x.id===id);
   prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
   window._prevScrollY = window.scrollY;
   const prob=calcProb(l,P);
@@ -2018,7 +2075,8 @@ function showDetail(id){
     </div>`
     :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openWrSheet()"><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
     <div class="info-card" style="margin-top:14px">
-      <div class="info-card-title">📊 시세 차익 분석 ${l.mktPFromApi?'<span style="font-size:11px;font-weight:500;color:var(--public);margin-left:6px">실거래가 기반</span>':l.mktP?'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">추정치</span>':'<span style="font-size:11px;font-weight:500;color:var(--ink-5);margin-left:6px">확인 중</span>'}
+      <div class="info-card-title">📊 시세 차익 분석</div>
+      <div class="gap-chart" id="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
           <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
@@ -2551,12 +2609,7 @@ async function connectApi(){
       apiKey = key;
       localStorage.setItem('cheongyak_api_key', key);
       showStatus('ok', `✓ 연결 성공! 공고 ${data.length}건 확인됐어요.\n잠시 후 실시간 데이터로 전환합니다.`);
-      setTimeout(async ()=>{ 
-  apiConnected = true; 
-  closeApiSetup(); 
-  updateApiStatus(); 
-  await loadLiveData(); 
-}, 1500);
+      setTimeout(async ()=>{ closeApiSetup(); await loadLiveData(); }, 1500);
     } else {
       showStatus('err', '데이터를 가져올 수 없어요.\n인증키(Decoding 키)가 맞는지 확인해주세요.');
     }
@@ -2580,132 +2633,6 @@ function showStatus(type, msg){
   el.style.whiteSpace = 'pre-line';
   el.textContent = msg;
   el.style.display = 'block';
-}
-/* ══ 카카오 지오코딩 — 주소 → 좌표 ══ */
-const KAKAO_KEY = '5ebbb3bfdafac23bc229d28977d4bdaa';
-
-async function geocodeAddress(addr){
-  try {
-    const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(addr)}`;
-    const res = await fetch(PROXY + encodeURIComponent(url));
-    const data = await res.json();
-    const doc = data?.documents?.[0];
-    if(!doc) return null;
-    return { lat: parseFloat(doc.y), lng: parseFloat(doc.x) };
-  } catch(e) { return null; }
-}
-
-function calcDistance(lat1, lng1, lat2, lng2){
-  const R = 6371;
-  const dLat = (lat2-lat1) * Math.PI/180;
-  const dLng = (lng2-lng1) * Math.PI/180;
-  const a = Math.sin(dLat/2)*Math.sin(dLat/2)
-    + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)
-    * Math.sin(dLng/2)*Math.sin(dLng/2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-/* ══ 국토부 실거래가 API ══ */
-const API_REAL_PRICE = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev';
-
-/* 주소에서 시군구코드(앞5자리) 추출 */
-function extractSggCd(addr){
-  const map = {
-    '서울 종로':11110,'서울 중구':11140,'서울 용산':11170,'서울 성동':11200,'서울 광진':11215,
-    '서울 동대문':11230,'서울 중랑':11260,'서울 성북':11290,'서울 강북':11305,'서울 도봉':11320,
-    '서울 노원':11350,'서울 은평':11380,'서울 서대문':11410,'서울 마포':11440,'서울 양천':11470,
-    '서울 강서':11500,'서울 구로':11530,'서울 금천':11545,'서울 영등포':11560,'서울 동작':11590,
-    '서울 관악':11620,'서울 서초':11650,'서울 강남':11680,'서울 송파':11710,'서울 강동':11740,
-    '인천 중구':28110,'인천 동구':28140,'인천 미추홀':28177,'인천 연수':28185,'인천 남동':28200,
-    '인천 부평':28237,'인천 계양':28245,'인천 서구':28260,'인천 강화':28710,'인천 옹진':28720,
-    '경기 수원':41111,'경기 성남':41131,'경기 의정부':41150,'경기 안양':41171,'경기 부천':41190,
-    '경기 광명':41210,'경기 평택':41220,'경기 동두천':41250,'경기 안산':41271,'경기 고양':41281,
-    '경기 과천':41290,'경기 구리':41310,'경기 남양주':41360,'경기 오산':41370,'경기 시흥':41390,
-    '경기 군포':41410,'경기 의왕':41430,'경기 하남':41450,'경기 용인':41461,'경기 파주':41480,
-    '경기 이천':41500,'경기 안성':41550,'경기 김포':41570,'경기 화성':41590,'경기 광주':41610,
-    '경기 양주':41630,'경기 포천':41650,'경기 여주':41670,
-    '부산 중구':26110,'부산 서구':26140,'부산 동구':26170,'부산 영도':26200,'부산 부산진':26230,
-    '부산 동래':26260,'부산 남구':26290,'부산 북구':26320,'부산 해운대':26350,'부산 사하':26380,
-    '부산 금정':26410,'부산 강서':26440,'부산 연제':26470,'부산 수영':26500,'부산 사상':26530,
-    '대전 동구':30110,'대전 중구':30140,'대전 서구':30170,'대전 유성':30200,'대전 대덕':30230,
-    '세종':36110,
-  };
-  for(const [k,v] of Object.entries(map)){
-    const parts = k.split(' ');
-    if(parts.length===1){
-      if(addr.includes(parts[0])) return String(v);
-    } else {
-      if(addr.includes(parts[0]) && addr.includes(parts[1])) return String(v);
-    }
-  }
-  return null;
-}
-
-async function fetchMarketPrice(addr, sizeStr, region){
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
-  try {
-    const sggCd = extractSggCd(addr);
-    if(!sggCd || !apiKey){ clearTimeout(timeoutId); return null; }
-
-    const sizes = (sizeStr||'').match(/\d+/g)?.map(Number) || [];
-    const targetSize = sizes[0] || 59;
-
-    const months = [];
-    const now = new Date();
-    for(let i=0;i<6;i++){
-      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-      months.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`);
-    }
-
-    let allItems = [];
-    for(const ym of months){
-      const url = `${API_REAL_PRICE}?serviceKey=${encodeURIComponent(apiKey)}&LAWD_CD=${sggCd}&DEAL_YMD=${ym}&numOfRows=500&pageNo=1`;
-      try {
-        const res = await fetch(PROXY + encodeURIComponent(url), { signal: controller.signal });
-        const body = await res.json();
-        const items = body?.response?.body?.items?.item || body?.items?.item || [];
-        allItems = allItems.concat(Array.isArray(items)?items:[items]);
-      } catch(e){ continue; }
-    }
-
-    if(!allItems.length) return null;
-
-    const currentYear = new Date().getFullYear();
-    const addrParts = addr.split(' ');
-    const dong = addrParts[2] || '';
-
-    // 1단계: 같은 동
-    let filtered = allItems.filter(item => {
-      const itemDong = item['법정동'] || item.umdNm || '';
-      const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
-      const dongMatch = dong ? (itemDong.includes(dong.replace(/[0-9]/g,'').trim()) || dong.includes(itemDong.replace(/[0-9]/g,'').trim())) : true;
-      return dongMatch && Math.abs(area - targetSize) <= 20;
-    });
-
-    // 2단계: 같은 시군구 전체
-    if(!filtered.length){
-      filtered = allItems.filter(item => {
-        const area = parseFloat(item['전용면적'] || item.excluUseAr || 0);
-        return Math.abs(area - targetSize) <= 20;
-      });
-    }
-
-    if(!filtered.length) return null;
-
-    const prices = filtered.map(item => {
-      const raw = String(item['거래금액'] || item.dealAmount || '0').replace(/,/g,'');
-      return parseInt(raw) || 0;
-    }).filter(p => p > 0);
-
-    if(!prices.length) return null;
-    const avg = Math.round(prices.reduce((a,b)=>a+b,0) / prices.length);
-    return avg * 10000;
-  } catch(e){
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
 }
 
 /* ── APT 분양정보 목록 ── */
@@ -2788,52 +2715,19 @@ async function fetchCutScore(key, pblancNo){
    odcloud 응답은 camelCase 또는 한글 필드명으로 옴
    예: 주택명, 공급지역명, 청약접수시작일, 청약접수종료일, 당첨자발표일 등
 ── */
-  const PRICE_MAP = {
-  // 서울
-  '영등포자이 디그니티': 85000,
-  '더샵프리엘라': 130000,
-  '마곡지구17단지': 31000,
-  '래미안 엘라비네': 175000,
-  '해링턴플레이스 노원 센트럴': 79000,
-  // 인천/경기
-  '포레나더샵 인천시청역': 66000,
-  '시티오씨엘 1단지': 56900,
-  '시티오씨엘 3단지': 61000,
-  '시티오씨엘 6단지': 62000,
-  '연수 월드메르디앙 어반포레': 47000,
-  '두산위브 더센트럴 수원': 85000,
-  '부천역 에피트 어바닉': 54000,
-  '시흥거모B1 호반써밋': 50000,
-  '썬밸리 오드카운티 가평설악': 35000,
-  '용인 플랫폼시티 라온프라이빗 아르디에': 80000,
-  '천안 아이파크 시티 5단지': 50000,
-  '천안 아이파크 시티 6단지': 52000,
-  '영종하늘도시 대성베르힐': 35000,
-  'e편한세상 신곡 파크프라임': 49000,
-  // 지방
-  'e편한세상 여수 글렌츠': 58000,
-  '경산 상방공원 호반써밋 1단지': 46000,
-  '상주자이르네': 45000,
-  '해링턴플레이스 오룡역': 55000,
-  '에코델타시티 아테라': 55500,
-};
-
 function parseAptItem(item, isLotto=false){
   const today = new Date();
-  
+
   // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
-  const name = item['주택명'] || item.houseNm || item.HOUSE_NM || '공고명 확인 필요';
-  if(name.includes('임대') || name.includes('공공지원') || (item.HOUSE_SECD_NM || '').includes('임대')) return null;
+  const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
   const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
   const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
-  const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || item.RCEPT_BGNDE || item.CNTRCT_CNCLS_BGNDE || '';
-  const rceptEnd  = item['청약접수종료일'] || item.GNRL_RCEPT_ENDDE || item.rceptEndde || item.RCEPT_END_DE || item.CNTRCT_CNCLS_ENDDE || '';
+  const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.rceptBgnde || item.RCEPT_BGNDE || '';
+  const rceptEnd  = item['청약접수종료일'] || item.rceptEndde  || item.RCEPT_END_DE  || '';
   const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
   const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
   const unitsRaw  = item['공급규모']     || item['세대수']      || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || 0;
-  const priceRaw = item.NSPRC_NM && item.NSPRC_NM !== 'null' ? parseInt(String(item.NSPRC_NM).replace(/[^0-9]/g,'')) : 0;
-  const mappedKey = Object.keys(PRICE_MAP).find(k => name.includes(k.slice(0,6)));
-  const finalPrice = priceRaw || (mappedKey ? PRICE_MAP[mappedKey] : 0);
+  const priceRaw  = item['분양가']       || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || 0;
 
   // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
   function parseDate(s){
@@ -2863,7 +2757,7 @@ function parseAptItem(item, isLotto=false){
     : (houseType.includes('국민') || houseType.includes('공공') || houseType.includes('LH')) ? 'public'
     : 'private';
 
-  const minP = finalPrice || 0;
+  const minP  = parseInt(priceRaw) || 0;
   const units = parseInt(unitsRaw) || 0;
   const loc   = addr || `${regionRaw}`;
 
@@ -2874,14 +2768,14 @@ function parseAptItem(item, isLotto=false){
       ? ['생애최초','신생아특공','일반공급']
       : ['일반공급','생애최초'];
 
-  const priceLabel = minP ? `${(minP/10000).toFixed(1)}억원~` : '공고 확인 필요';
+  const priceLabel = minP ? `${(minP/10000).toFixed(0)}만원~` : '공고 확인 필요';
 
   return {
-    id: String(item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || Math.random()),
+    id:       item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
     name, loc, type, region, lotto: isLotto,
     price:    priceLabel,
     minP,
-    mktP:     0,
+    mktP:     Math.round(minP * 1.3), // 시세 = 분양가 × 1.3 추정
     deadline: toStr(rceptEnd),
     days:     daysLeft,
     size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
@@ -2918,14 +2812,15 @@ async function loadLiveData(){
   try {
     // 1단계: 분양정보 + 줍줍 목록 동시 조회
     const [aptItems, lottoItems] = await Promise.all([
-      fetchAptList(apiKey, 1, 20).catch(()=>[]),
+      fetchAptList(apiKey,  1, 20).catch(()=>[]),
       fetchLottoList(apiKey, 1, 10).catch(()=>[])
     ]);
 
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-   ].filter(l => l !== null && l !== undefined && l.days > 0 && !l.name.includes('임대') && !l.name.includes('민간임대') && !l.name.includes('공공임대') && !l.name.includes('LH임대'));
+    ].filter(l => l.days >= 0);
+
     if(parsed.length === 0){
       apiConnected = false;
       updateApiStatus();
@@ -2934,29 +2829,16 @@ async function loadLiveData(){
     }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
-    apiConnected = true;
     listings.splice(0, listings.length, ...parsed);
     liveListings = parsed;
+    apiConnected = true;
     updateApiStatus();
     renderListings();
     renderRecommend();
     showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
-    // 분양가 상세 조회 (추후 활성화)
-// const pricePromises2 = parsed.filter(l => !l.lotto && l.id).map(async (l) => {
-//   try {
-//     const url = `https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetailInfo?serviceKey=${encodeURIComponent(apiKey)}&page=1&perPage=1&cond[PBLANC_NO::EQ]=${l.id}`;
-//     const res = await fetch(PROXY + encodeURIComponent(url));
-//     const body = await res.json();
-//     const data = body?.data?.[0];
-//     if(data?.LTTOT_TOP_AMOUNT) l.minP = parseInt(data.LTTOT_TOP_AMOUNT) || 0;
-//   } catch(e) {}
-// });
-// await Promise.all(pricePromises2);
-
-const normalListings = parsed.filter(l => !l.lotto && l.id);
-
+    const normalListings = parsed.filter(l => !l.lotto && l.id);
     const enrichPromises = normalListings.map(async (l) => {
       const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
       const [comp, cut] = await Promise.all([
@@ -2977,32 +2859,9 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     updateConsult();
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
-    
-    // 3단계: 완전 백그라운드 (await 없음 — 로딩 블로킹 없음)
-    setTimeout(async () => {
-showToast('📊 주변 시세 분석 중...');
-(async () => {
-  const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
-    try {
-      const mktP = await Promise.race([
-        fetchMarketPrice(l.loc, l.size, l.region),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-      ]);
-      if(mktP && mktP > 0) {
-        l.mktP = mktP;
-        l.mktPFromApi = true;
-      }
-    } catch(e) {}
-  });
-  for(let i = 0; i < pricePromises.length; i += 5){
-    await Promise.all(pricePromises.slice(i, i + 5));
-    renderListings();
-      showToast('✓ 시세 업데이트 완료');
-    }, 100);
 
-})();
-    
   } catch(e){
+    console.error('loadLiveData error:', e);
     apiConnected = false;
     updateApiStatus();
     showToast('API 오류 — 목업 데이터로 표시해요');
@@ -3034,7 +2893,6 @@ requestAnimationFrame(()=>{
   restoreRegions();
   renderListings();
   if(apiKey) setTimeout(()=>loadLiveData(), 500);
-
 });
 </script>
 </body>
