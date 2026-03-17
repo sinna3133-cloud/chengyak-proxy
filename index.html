@@ -2978,7 +2978,8 @@ const normalListings = parsed.filter(l => !l.lotto && l.id);
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
     
-             // 3단계: 실거래가 기반 시세 업데이트 (백그라운드)
+    // 3단계: 완전 백그라운드 (await 없음 — 로딩 블로킹 없음)
+    setTimeout(async () => {
 showToast('📊 주변 시세 분석 중...');
 (async () => {
   const pricePromises = parsed.filter(l => !l.lotto && l.loc).map(async (l) => {
@@ -2996,8 +2997,9 @@ showToast('📊 주변 시세 분석 중...');
   for(let i = 0; i < pricePromises.length; i += 5){
     await Promise.all(pricePromises.slice(i, i + 5));
     renderListings();
-  }
-  showToast('✓ 시세 업데이트 완료');
+      showToast('✓ 시세 업데이트 완료');
+    }, 100);
+
 })();
     
   } catch(e){
