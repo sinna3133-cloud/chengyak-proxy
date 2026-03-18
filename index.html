@@ -795,16 +795,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <span>📊 입력하면 자금 계획 분석(계약금 납부 가능 여부)을 해드려요</span>
       </div>
     </div>
-    <div class="wiz-field">
-      <label class="wiz-label">세대원 수</label>
-      <select class="wiz-sel" id="w-household" onchange="onIncomeChange()">
-        <option value="">선택하세요</option>
-        <option value="1">1인</option><option value="2">2인</option>
-        <option value="3">3인</option><option value="4">4인</option>
-        <option value="5">5인 이상</option>
-      </select>
-    </div>
-  </div>
 
   <!-- Step 4: 청약통장 + 지역 -->
   <div class="wiz-body" id="ws4" style="display:none">
@@ -2120,7 +2110,7 @@ function showDetail(id, fromSwipe=false){
           +'</div>';
       })()}
     </div>`
-    :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`
+    :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
     <div class="info-card" style="margin-top:14px">
       <div class="info-card-title">📊 시세 차익 분석</div>
       ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
