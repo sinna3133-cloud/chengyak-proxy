@@ -1824,7 +1824,12 @@ function renderListings(){
   if(sort==='recommend') fl=[...fl].sort((a,b)=>{const am=a.elig.some(e=>tl.includes(e))?1:0,bm=b.elig.some(e=>tl.includes(e))?1:0;return bm-am||a.days-b.days;});
   else if(sort==='winrate') fl=[...fl].sort((a,b)=>(calcProb(b,P)||0)-(calcProb(a,P)||0));
   else if(sort==='profit') fl=[...fl].sort((a,b)=>gap(b).g-gap(a).g);
-  else fl=[...fl].sort((a,b)=>a.days-b.days);
+  else fl=[...fl].sort((a,b)=>{
+    const aEnd = a.days <= 0 ? 1 : 0;
+    const bEnd = b.days <= 0 ? 1 : 0;
+    if(aEnd !== bEnd) return aEnd - bEnd;
+    return a.days - b.days;
+  });
 
   if(!fl.length){cont.innerHTML=`<div class="no-res"><div class="no-res-icon">🔍</div><div class="no-res-title">"${srchQ}" 결과가 없어요</div><div class="no-res-sub">다른 키워드로 검색해보세요</div></div>`;return;}
 
@@ -1841,7 +1846,7 @@ function renderListings(){
       <div class="card-top">
         <div class="card-badges">
           ${typeBadge(l)}
-          ${l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}
+          ${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}
           ${myType?`<span class="badge badge-mytype">✓ ${myType}</span>`:''}
         </div>
         <button class="bm-btn ${savedIds.has(l.id)?'saved':'unsaved'}" onclick="toggleSave(event,${l.id})">${bmSVG}</button>
