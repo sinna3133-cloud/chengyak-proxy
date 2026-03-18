@@ -2693,8 +2693,18 @@ function renderEditCond(){
         <div class="wiz-label">납입 총액</div>
         <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div>
       </div>
-      <div>
-
+            <div>
+        <div class="wiz-label">세대원 수</div>
+        <select class="wiz-sel" id="ec-household" style="margin-top:8px">
+          <option value="">선택하세요</option>
+          <option value="1" ${p.household==='1'?'selected':''}>1인</option>
+          <option value="2" ${p.household==='2'?'selected':''}>2인</option>
+          <option value="3" ${p.household==='3'?'selected':''}>3인</option>
+          <option value="4" ${p.household==='4'?'selected':''}>4인</option>
+          <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option>
+        </select>
+      </div>
+    </div>`;
 }
 
 function saveEditCond(){
