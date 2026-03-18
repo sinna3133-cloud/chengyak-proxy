@@ -2077,7 +2077,19 @@ function showDetail(id){
     </div>
     <div class="info-card">
       <div class="info-card-title">📋 분양 정보</div>
-      <div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>
+            ${l.price && l.price.includes('|')
+        ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
+            <span class="info-rl" style="width:auto">평형별 분양가</span>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;width:100%">
+              ${l.price.split('|').map(p=>`
+                <div style="background:var(--accent-light);border-radius:10px;padding:8px 12px;flex:1;min-width:80px;text-align:center">
+                  <div style="font-size:11px;color:var(--ink-4);margin-bottom:3px">${p.split(' ')[0]||''}</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--accent)">${p.split(' ').slice(1).join(' ')||p}</div>
+                </div>`).join('')}
+            </div>
+          </div>`
+        : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>`
+      }
       <div class="info-row"><span class="info-rl">공급 면적</span><span class="info-rv">${l.size}</span></div>
       <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
       <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
@@ -2559,10 +2571,12 @@ async function loadSheetFactors(){
       const factors    = factorsRaw
         ? factorsRaw.split('|').map(f => {
             const trimmed = f.trim();
-            const icon = [...trimmed][0];
-            const text = trimmed.slice(1).trim();
+            const spaceIdx = trimmed.indexOf(' ');
+            if(spaceIdx === -1) return null;
+            const icon = trimmed.slice(0, spaceIdx).trim();
+            const text = trimmed.slice(spaceIdx + 1).trim();
             return {icon, text};
-          }).filter(f => f.icon && f.text)
+          }).filter(f => f && f.icon && f.text)
         : [];
       if(!name) return;
       sheetPrices[name] = {price, minP, mktP, factors};
