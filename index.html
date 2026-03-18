@@ -2002,10 +2002,12 @@ function closeNudge(e){ if(!e || e.target===document.getElementById('nudge-ov'))
 function openWrSheet(){ openNudge(); }
 
 /* ══ 상세 ══ */
-function showDetail(id){
+function showDetail(id, fromSwipe=false){
   const l=listings.find(x=>String(x.id)===String(id));
-  prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
-  window._prevScrollY = window.scrollY;
+  if(!fromSwipe){
+    prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
+    window._prevScrollY = window.scrollY;
+  }
   const prob=calcProb(l,P);
   const{g,pct}=gap(l);
   const price=l.minP,dep=Math.round(price*.1),mid=Math.round(price*.6),rem=price-dep-mid;
@@ -2229,13 +2231,10 @@ document.addEventListener('touchend', e => {
   const currentName = document.getElementById('det-title').textContent;
   const currentIdx = listings.findIndex(x => x.name === currentName);
   if(currentIdx === -1) return;
-
   if(dx < 0 && currentIdx < listings.length - 1) {
-    // 왼쪽 스와이프 → 다음 공고
-    showDetail(listings[currentIdx + 1].id);
+    showDetail(listings[currentIdx + 1].id, true);
   } else if(dx > 0 && currentIdx > 0) {
-    // 오른쪽 스와이프 → 이전 공고
-    showDetail(listings[currentIdx - 1].id);
+    showDetail(listings[currentIdx - 1].id, true);
   }
 }, {passive: true});
 
@@ -2771,8 +2770,8 @@ function parseAptItem(item, isLotto=false){
   const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
   const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
   const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
-  const rceptBgn  = item['청약접수시작일'] || item['모집공고일'] || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || item.RCEPT_BGNDE || item.CNTRCT_CNCLS_BGNDE || '';
-  const rceptEnd  = item['청약접수종료일'] || item.GNRL_RCEPT_ENDDE || item.rceptEndde || item.RCEPT_END_DE || item.CNTRCT_CNCLS_ENDDE || '';
+  const rceptBgn  = item['청약접수시작일'] || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || item.RCEPT_BGNDE || '';
+  const rceptEnd  = item['청약접수종료일'] || item.GNRL_RCEPT_ENDDE || item.rceptEndde || item.RCEPT_END_DE || '';
   const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
   const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
   const unitsRaw  = item['공급규모']     || item['세대수']      || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || 0;
@@ -2882,7 +2881,7 @@ async function loadLiveData(){
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-    ].filter(l => l.days >= 0 && !l.name.includes('임대'));
+    ].filter(l => l.days > 0 && !l.name.includes('임대'));
 
     if(parsed.length === 0){
       apiConnected = false;
