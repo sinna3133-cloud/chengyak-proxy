@@ -1067,7 +1067,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <button class="login-btn" onclick="showToast('로그인 기능은 준비 중이에요!')">로그인하기</button>
   </div>
   <div style="padding:20px 20px 0">
-    <div style="font-size:15px;font-weight:800;margin-bottom:12px;color:var(--ink)">저장된 내 조건</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
+      <button onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정하기</button>
+    </div>
     <div class="my-cond-card" id="my-cond-card">
       <div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div>
       <button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">조건 설정하러 가기</button>
@@ -1125,6 +1128,20 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="nudge-sub">내 조건(소득, 무주택 기간, 청약통장 등)을 입력하면<br>이 공고의 예상 당첨률을 바로 알려드려요.</div>
     <button class="nudge-btn" onclick="closeNudge();openWizard()">내 조건 입력하고 당첨 확률 분석하기</button>
     <div class="nudge-cancel" onclick="closeNudge()">나중에 할게요</div>
+  </div>
+</div>
+
+<!-- ══ 조건 수정 화면 ══ -->
+<div class="screen" id="screen-editcond">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="wiz-back" onclick="showScreen('my')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <div class="page-title">내 조건 수정</div>
+    </div>
+  </div>
+  <div id="editcond-body" style="padding:20px"></div>
+  <div style="padding:0 20px 40px">
+    <button onclick="saveEditCond()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.35)">저장하기</button>
   </div>
 </div>
 
@@ -1746,7 +1763,7 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${l.name}</div><div class="rec-loc">📍 ${l.loc}</div>
       <div class="rec-bottom"><span class="rec-price">${l.price.split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}">${l.days}일 남음</span></div>
     </div>`;
@@ -1807,9 +1824,8 @@ function renderListings(){
     return`<div class="card card-anim" style="animation-delay:${idx*0.06}s" onclick="showDetail('${l.id}')">
       <div class="card-top">
         <div class="card-badges">
-          ${typeBadge(l)}
           ${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}
-          ${myType?`<span class="badge badge-mytype">✓ ${myType}</span>`:''}
+          ${typeBadge(l)}
         </div>
         <button class="bm-btn ${savedIds.has(l.id)?'saved':'unsaved'}" onclick="toggleSave(event,${l.id})">${bmSVG}</button>
       </div>
@@ -2016,7 +2032,7 @@ function showDetail(id, fromSwipe=false){
   const cash=parseInt(P.cash||0),loan=Math.max(0,price-cash),lr=Math.round(loan/price*100);
   const monthly=Math.round(loan*.04/12),canAfford=cash>=dep;
 
-  document.getElementById('det-badges').innerHTML=`${typeBadge(l).replace('class="badge','class="badge" style="display:inline-block;margin-bottom:10px"')}${l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-left:6px">D-${l.days}</span>`:''}`;
+  document.getElementById('det-badges').innerHTML=`${l.days>0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">D-${l.days}</span>`:''}${typeBadge(l).replace('class="badge','class="badge" style="display:inline-block;margin-bottom:10px"')}`;
   document.getElementById('det-title').textContent=l.name;
   document.getElementById('det-loc').textContent='📍 '+l.loc;
   document.getElementById('det-body').innerHTML=`
@@ -2536,6 +2552,7 @@ function filterGlossary(){
 
 /* ══ 화면 전환 ══ */
 function showScreen(name){
+  if(name==='editcond') renderEditCond();
   // 탭 바운스
   const navMap={home:'nav-home',mycond:'nav-search',consult:'nav-consult',saved:'nav-saved',my:'nav-my'};
   const navId=navMap[name];
@@ -2563,8 +2580,94 @@ function showScreen(name){
   const savedY=scrollPositions['screen-'+name]||0;
   window.scrollTo(0, name==='detail'?0:savedY);
 }
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function renderEditCond(){
+  const p = P;
+  wDep = parseInt(p.dependents||0);
+  document.getElementById('editcond-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div>
+        <div class="wiz-label">출생년도 / 월 / 일</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input type="number" class="wiz-inp" id="ec-by" placeholder="1990" value="${p.byear||''}" style="flex:2" oninput="if(this.value.length>=4)document.getElementById('ec-bm').focus()"/>
+          <input type="number" class="wiz-inp" id="ec-bm" placeholder="01" value="${p.bmonth||''}" style="flex:1" oninput="if(this.value.length>=2)document.getElementById('ec-bd').focus()"/>
+          <input type="number" class="wiz-inp" id="ec-bd" placeholder="01" value="${p.bday||''}" style="flex:1"/>
+        </div>
+      </div>
+      <div>
+        <div class="wiz-label">혼인 여부</div>
+        <div class="wiz-radio-grp" style="margin-top:8px">
+          <div class="wiz-radio ${p.marriage==='미혼'?'on':''}" onclick="wRadio(this,'marriage')">미혼</div>
+          <div class="wiz-radio ${p.marriage==='기혼'?'on':''}" onclick="wRadio(this,'marriage')">기혼</div>
+          <div class="wiz-radio ${p.marriage==='이혼·사별'?'on':''}" onclick="wRadio(this,'marriage')">이혼·사별</div>
+        </div>
+      </div>
+      <div>
+        <div class="wiz-label">현재 주택 소유</div>
+        <div class="wiz-radio-grp" style="margin-top:8px">
+          <div class="wiz-radio ${p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">무주택자</div>
+          <div class="wiz-radio ${!p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">1주택자</div>
+          <div class="wiz-radio" onclick="wRadio(this,'homeowner')">2주택↑</div>
+        </div>
+      </div>
+      <div>
+        <div class="wiz-label">무주택 기간</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-nohome" value="${p.noHomeYears||''}" placeholder="예: 3"/><span class="unit">년</span></div>
+      </div>
+      <div>
+        <div class="wiz-label">부양가족 수 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">(본인 제외)</span></div>
+        <div class="wiz-stepper" style="margin-top:8px">
+          <button class="step-btn" onclick="wDep=Math.max(0,wDep-1);document.getElementById('ec-dep').textContent=wDep+'명'">−</button>
+          <div class="step-val" id="ec-dep">${parseInt(p.dependents||0)}명</div>
+          <button class="step-btn" onclick="wDep++;document.getElementById('ec-dep').textContent=wDep+'명'">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="wiz-label">연간 소득</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-income" value="${p.income||''}" placeholder="예: 4500"/><span class="unit">만원</span></div>
+      </div>
+      <div>
+        <div class="wiz-label">보유 현금 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">예·적금 포함</span></div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-cash" value="${p.cash||''}" placeholder="예: 5000"/><span class="unit">만원</span></div>
+      </div>
+      <div>
+        <div class="wiz-label">납입 횟수</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-dc" value="${p.depCount||''}" placeholder="예: 24"/><span class="unit">회</span></div>
+      </div>
+      <div>
+        <div class="wiz-label">납입 총액</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div>
+      </div>
+      <div>
+        <div class="wiz-label">세대원 수</div>
+        <select class="wiz-sel" id="ec-household" style="margin-top:8px">
+          <option value="">선택하세요</option>
+          <option value="1" ${p.household==='1'?'selected':''}>1인</option>
+          <option value="2" ${p.household==='2'?'selected':''}>2인</option>
+          <option value="3" ${p.household==='3'?'selected':''}>3인</option>
+          <option value="4" ${p.household==='4'?'selected':''}>4인</option>
+          <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option>
+        </select>
+      </div>
+    </div>`;
+}
 
+function saveEditCond(){
+  P.byear      = document.getElementById('ec-by').value;
+  P.bmonth     = document.getElementById('ec-bm').value;
+  P.bday       = document.getElementById('ec-bd').value;
+  P.noHomeYears= document.getElementById('ec-nohome').value;
+  P.income     = document.getElementById('ec-income').value;
+  P.cash       = document.getElementById('ec-cash').value;
+  P.depCount   = document.getElementById('ec-dc').value;
+  P.depAmt     = document.getElementById('ec-da').value;
+  P.household  = document.getElementById('ec-household').value;
+  P.dependents = wDep;
+  updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen();
+  showScreen('my');
+  showToast('조건이 저장됐어요 ✓');
+}
+
+function show​​​​​​​​​​​​​​​​
 /* ══════════════════════════════════════
    청약홈 공공데이터 API 연동
    Base URL: api.odcloud.kr/api
