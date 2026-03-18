@@ -2077,20 +2077,23 @@ function showDetail(id){
     </div>
     <div class="info-card">
       <div class="info-card-title">📋 분양 정보</div>
-            ${l.price && l.price.includes('|')
+                  ${l.price && l.price.includes('|')
         ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
-            <span class="info-rl" style="width:auto">평형별 분양가</span>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;width:100%">
-              ${l.price.split('|').map(p=>`
-                <div style="background:var(--accent-light);border-radius:10px;padding:8px 12px;flex:1;min-width:80px;text-align:center">
-                  <div style="font-size:11px;color:var(--ink-4);margin-bottom:3px">${p.split(' ')[0]||''}</div>
-                  <div style="font-size:13px;font-weight:700;color:var(--accent)">${p.split(' ').slice(1).join(' ')||p}</div>
-                </div>`).join('')}
+            <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
+              ${l.price.split('|').map(p=>{
+                const parts = p.trim().split(' ');
+                const size = parts[0]||'';
+                const price = parts.slice(1).join(' ')||p;
+                return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
+                  <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--accent)">${price}</div>
+                </div>`;
+              }).join('')}
             </div>
           </div>`
         : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>`
       }
-      <div class="info-row"><span class="info-rl">공급 면적</span><span class="info-rv">${l.size}</span></div>
       <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
       <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
       <div class="info-row"><span class="info-rl">일정</span><span class="info-rv">${l.sched}</span></div>
@@ -2785,7 +2788,19 @@ function parseAptItem(item, isLotto=false){
       ? ['생애최초','신생아특공','일반공급']
       : ['일반공급','생애최초'];
 
-  const priceLabel = sheetPrice?.price || (minP ? `${(minP/10000).toFixed(0)}만원~` : '공고 확인 필요');
+  let priceLabel = '공고 확인 필요';
+  if(sheetPrice?.price){
+    const parts = sheetPrice.price.split('|').map(p=>p.trim());
+    if(parts.length > 1){
+      const first = parts[0].replace(/.*?\s/, '').trim();
+      const last  = parts[parts.length-1].replace(/.*?\s/, '').trim();
+      priceLabel = `${first}~${last}`;
+    } else {
+      priceLabel = sheetPrice.price;
+    }
+  } else if(minP) {
+    priceLabel = `${(minP/10000).toFixed(0)}만원~`;
+  }
 
   return {
     id:       item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
