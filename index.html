@@ -2667,7 +2667,7 @@ function saveEditCond(){
   showToast('조건이 저장됐어요 ✓');
 }
 
-function show​​​​​​​​​​​​​​​​
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 /* ══════════════════════════════════════
    청약홈 공공데이터 API 연동
    Base URL: api.odcloud.kr/api
