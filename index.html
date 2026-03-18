@@ -2547,7 +2547,9 @@ async function loadSheetFactors(){
   const SHEET_ID = '1_ertTMrEFvNp83YkKY64XZ325kOUW3RgzcKKcV39ro0';
   try {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
+    alert('시트 로드 시작: ' + url);
     const res = await fetch(url);
+    alert('시트 응답 상태: ' + res.status);
     const text = await res.text();
     const json = JSON.parse(text.replace(/^.*?({.*}).*?$/s, '$1'));
     json.table.rows.forEach(row => {
@@ -2569,7 +2571,7 @@ async function loadSheetFactors(){
     });
     const keys = Object.keys(sheetPrices);
     alert(keys.length ? `✓ 시트 로드 성공!\n단지: ${keys.join(', ')}` : '❌ 시트 데이터 없음\n시트가 비어있거나 접근 불가');
-  } catch(e) { console.warn('시트 로드 실패:', e); }
+  } catch(e) { alert('시트 로드 실패: ' + e.message); }
 }
   
 /* API 상태 업데이트 */
