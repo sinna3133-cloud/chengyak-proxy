@@ -2567,8 +2567,8 @@ async function loadSheetFactors(){
       if(!name) return;
       sheetPrices[name] = {price, minP, mktP, factors};
     });
-    console.log('✓ 시트 로드:', Object.keys(sheetPrices));
-    console.log('시트 원본 데이터:', JSON.stringify(json.table.rows?.slice(0,2)));
+    const keys = Object.keys(sheetPrices);
+    showToast(keys.length ? `✓ 시트 로드: ${keys[0]}` : '시트 데이터 없음');
   } catch(e) { console.warn('시트 로드 실패:', e); }
 }
   
