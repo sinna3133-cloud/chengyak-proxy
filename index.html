@@ -2878,12 +2878,15 @@ async function loadLiveData(){
       fetchLottoList(apiKey, 1, 10).catch(()=>[])
     ]);
 
-    const parsed = [
+    const allParsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-    ].filter(l => l.days > 0 && !l.name.includes('임대'));
+    ];
+    alert(`전체 ${allParsed.length}건\n마감안된것: ${allParsed.filter(l=>l.days>0).length}건\n첫번째 days: ${allParsed[0]?.days} deadline: ${allParsed[0]?.deadline}`);
+    const parsed = allParsed.filter(l => l.days > 0 && !l.name.includes('임대'));
 
     if(parsed.length === 0){
+
       apiConnected = false;
       updateApiStatus();
       showToast('API 응답이 비어있어요 — 목업 데이터로 표시해요');
