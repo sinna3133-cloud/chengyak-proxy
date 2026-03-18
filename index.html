@@ -2882,7 +2882,7 @@ async function loadLiveData(){
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
     ];
-    alert(`전체 ${allParsed.length}건\n마감안된것: ${allParsed.filter(l=>l.days>0).length}건\n첫번째 days: ${allParsed[0]?.days} deadline: ${allParsed[0]?.deadline}`);
+    alert(`전체 ${allParsed.length}건\n첫번째 공고 원본 필드:\n${Object.keys(aptItems[0]||{}).join('\n')}`);
     const parsed = allParsed.filter(l => l.days > 0 && !l.name.includes('임대'));
 
     if(parsed.length === 0){
