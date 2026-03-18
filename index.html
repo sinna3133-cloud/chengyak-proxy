@@ -922,7 +922,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     </div>
     <div class="region-chips-wrap" id="region-chips-wrap">
       <div class="region-chips">
-        <div class="region-chips">
         <label class="region-chip" onclick="clearRegions()">전체</label>
         <label class="region-chip" onclick="toggleRegion('seoul')">서울</label>
         <label class="region-chip" onclick="toggleRegion('gyeonggi')">경기</label>
@@ -1869,6 +1868,7 @@ function clearRegions(){
   selectedRegions.clear();
   _updateRegionUI();
   _updateWizRegionUI();
+  _updateAllRegionUI();
   localStorage.setItem('selectedRegions', JSON.stringify([]));
   P.region = '';
   renderListings();
@@ -1878,7 +1878,17 @@ function clearWizRegions(){
   selectedRegions.clear();
   _updateRegionUI();
   _updateWizRegionUI();
+  _updateAllRegionUI();
   localStorage.setItem('selectedRegions', JSON.stringify([]));
+}
+
+function _updateAllRegionUI(){
+  // 전체 칩 활성화: 선택된 지역 없을 때 전체 칩 checked
+  document.querySelectorAll('.region-chip').forEach(chip=>{
+    if(chip.textContent.trim()==='전체'){
+      chip.classList.toggle('checked', selectedRegions.size===0);
+    }
+  });
 }
 
 function toggleWizRegion(code){
@@ -1890,16 +1900,28 @@ function toggleWizRegion(code){
   localStorage.setItem('selectedRegions', JSON.stringify([...selectedRegions]));
 }
 
+function _updateRegionUI(){
+  document.querySelectorAll('.region-chip').forEach(chip=>{
+    const label=chip.textContent.trim();
+    if(label==='전체'){
+      chip.classList.toggle('checked', selectedRegions.size===0);
+      return;
+    }
+    const chipCode=Object.keys(RGN).find(k=>RGN[k]===label);
+    if(chipCode) chip.classList.toggle('checked', selectedRegions.has(chipCode));
+  });
+
 function _updateWizRegionUI(){
   document.querySelectorAll('#wiz-region-chips .region-chip').forEach(chip=>{
     const label=chip.textContent.trim();
+    if(label==='전체'){
+      chip.classList.toggle('checked', selectedRegions.size===0);
+      return;
+    }
     const code=Object.keys(RGN).find(k=>RGN[k]===label);
     if(code) chip.classList.toggle('checked', selectedRegions.has(code));
   });
 }
-
-function syncWizardRegion(){}
-
 function _updateRegionUI(){
   document.querySelectorAll('.region-chip').forEach(chip=>{
     const label=chip.textContent.trim();
@@ -1917,11 +1939,11 @@ function restoreRegions(){
     const saved=localStorage.getItem('selectedRegions');
     if(saved){
       JSON.parse(saved).forEach(c=>selectedRegions.add(c));
-      _updateRegionUI();
-      _updateWizRegionUI();
-      if(selectedRegions.size>=1) P.region=[...selectedRegions][0];
     }
   }catch(e){}
+  _updateRegionUI();
+  _updateWizRegionUI();
+  if(selectedRegions.size>=1) P.region=[...selectedRegions][0];
 }
 
 function setFilter(f,el){curFilter=f;document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderListings();}
