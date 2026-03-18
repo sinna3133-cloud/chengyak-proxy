@@ -617,6 +617,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .region-chips{display:flex;flex-wrap:wrap;gap:7px;padding:10px 0 2px}
 .region-chip{padding:5px 12px;border-radius:20px;border:1.5px solid rgba(0,0,0,.08);background:var(--bg-card);font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;transition:all .15s;user-select:none}
 .region-chip.checked{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:700}
+@keyframes ripple{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
 
 </style>
 </head>
@@ -3096,7 +3097,8 @@ setTimeout(()=>{
 }, 1800);
 
 loadSheetFactors();
-/ days 계산을 즉시 실행 (rAF 밖으로)
+
+// days 계산 즉시 실행
 const _initToday = new Date();
 listings.forEach(l => {
   if(l.deadline){
@@ -3105,11 +3107,103 @@ listings.forEach(l => {
   }
 });
 restoreRegions();
-renderListings(); // 즉시 렌더
+renderListings();
 
 if(apiKey){
   setTimeout(()=>loadLiveData(), 500);
 }
+
+// ══ 애니메이션 1: 카드 스크롤 진입 (Intersection Observer) ══
+const _cardObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+      _cardObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+
+function observeCards(){
+  document.querySelectorAll('.card').forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(24px)';
+    card.style.transition = `opacity .35s ease ${i * 0.06}s, transform .35s ease ${i * 0.06}s`;
+    _cardObserver.observe(card);
+  });
+}
+
+// renderListings 호출 후 자동 관찰
+const _origRenderListings = renderListings;
+window.renderListings = function(){
+  _origRenderListings();
+  requestAnimationFrame(observeCards);
+};
+renderListings();
+
+// ══ 애니메이션 2: 지역 칩 ripple 효과 ══
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.region-chip');
+  if(!chip) return;
+  const r = document.createElement('span');
+  const rect = chip.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  r.style.cssText = `position:absolute;border-radius:50%;background:rgba(0,102,255,.25);width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;transform:scale(0);animation:ripple .5s ease forwards;pointer-events:none`;
+  chip.style.position = 'relative';
+  chip.style.overflow = 'hidden';
+  chip.appendChild(r);
+  setTimeout(() => r.remove(), 500);
+});
+
+// ══ 애니메이션 3: 히어로 조건값 카운트업 ══
+const _origUpdateHero = updateHero;
+window.updateHero = function(){
+  _origUpdateHero();
+  const numFields = ['cd-income','cd-cash','cd-nohome','cd-dep','cd-children'];
+  numFields.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el || el.classList.contains('blank')) return;
+    const num = parseInt(el.textContent);
+    if(isNaN(num) || num === 0) return;
+    const unit = el.textContent.replace(/[0-9]/g,'');
+    let cur = 0;
+    const step = Math.ceil(num / 15);
+    const t = setInterval(() => {
+      cur = Math.min(cur + step, num);
+      el.textContent = cur + unit;
+      if(cur >= num) clearInterval(t);
+    }, 30);
+  });
+};
+
+// ══ 애니메이션 4: 탭 필터 슬라이드 인디케이터 ══
+(function initTabIndicator(){
+  const wrap = document.querySelector('.filter-tabs');
+  if(!wrap) return;
+  const indicator = document.createElement('div');
+  indicator.id = 'tab-indicator';
+  indicator.style.cssText = 'position:absolute;bottom:0;height:3px;background:var(--accent);border-radius:3px;transition:left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1);pointer-events:none';
+  wrap.style.position = 'relative';
+  wrap.appendChild(indicator);
+
+  function moveIndicator(tab){
+    const wRect = wrap.getBoundingClientRect();
+    const tRect = tab.getBoundingClientRect();
+    indicator.style.left = (tRect.left - wRect.left + wrap.scrollLeft) + 'px';
+    indicator.style.width = tRect.width + 'px';
+    indicator.style.background = tab.classList.contains('lotto') ? 'var(--lotto)' : 'var(--accent)';
+  }
+
+  wrap.querySelectorAll('.ftab').forEach(tab => {
+    tab.addEventListener('click', () => moveIndicator(tab));
+  });
+
+  setTimeout(() => {
+    const active = wrap.querySelector('.ftab.active');
+    if(active) moveIndicator(active);
+  }, 100);
+})();
+
 </script>
 </body>
 </html>
