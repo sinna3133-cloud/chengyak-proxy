@@ -3142,18 +3142,6 @@ window.renderListings = function(){
 };
 renderListings();
 
-// ══ 애니메이션 2: 지역 칩 ripple 효과 ══
-document.addEventListener('click', e => {
-  const chip = e.target.closest('.region-chip');
-  if(!chip) return;
-  const r = document.createElement('span');
-  const rect = chip.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height) * 2;
-  r.style.cssText = `position:absolute;border-radius:50%;background:rgba(0,102,255,.2);width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;transform:scale(0);animation:ripple .5s ease forwards;pointer-events:none;z-index:0`;
-  chip.style.position = 'relative';
-  chip.appendChild(r);
-  setTimeout(() => r.remove(), 500);
-}, true);
 
 // ══ 애니메이션 3: 히어로 조건값 카운트업 ══
 const _origUpdateHero = updateHero;
@@ -3176,33 +3164,6 @@ window.updateHero = function(){
   });
 };
 
-// ══ 애니메이션 4: 탭 필터 슬라이드 인디케이터 ══
-(function initTabIndicator(){
-  const wrap = document.querySelector('.filter-tabs');
-  if(!wrap) return;
-  const indicator = document.createElement('div');
-  indicator.id = 'tab-indicator';
-  indicator.style.cssText = 'position:absolute;bottom:0;height:3px;background:var(--accent);border-radius:3px;transition:left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1);pointer-events:none';
-  wrap.style.position = 'relative';
-  wrap.appendChild(indicator);
-
-  function moveIndicator(tab){
-    const wRect = wrap.getBoundingClientRect();
-    const tRect = tab.getBoundingClientRect();
-    indicator.style.left = (tRect.left - wRect.left + wrap.scrollLeft) + 'px';
-    indicator.style.width = tRect.width + 'px';
-    indicator.style.background = tab.classList.contains('lotto') ? 'var(--lotto)' : 'var(--accent)';
-  }
-
-  wrap.querySelectorAll('.ftab').forEach(tab => {
-    tab.addEventListener('click', () => moveIndicator(tab));
-  });
-
-  setTimeout(() => {
-    const active = wrap.querySelector('.ftab.active');
-    if(active) moveIndicator(active);
-  }, 100);
-})();
 
 </script>
 </body>
