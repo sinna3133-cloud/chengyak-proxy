@@ -2096,7 +2096,7 @@ function showDetail(id){
       }
       <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
       <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
-      <div class="info-row"><span class="info-rl">일정</span><span class="info-rv">${l.sched}</span></div>
+      <div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>
     </div>
     ${l.cut?`<div class="info-card">
       <div class="info-card-title">🏆 가점 커트라인 비교</div>
@@ -2210,8 +2210,38 @@ function syncDetailAlarmBtn(id){
   btn.classList.toggle('on', alarmIds.has(id));
 }
 function shareDetail(id){const l=listings.find(x=>x.id===id);const text=`[쉬운청약] ${l.name}\n📍 ${l.loc}\n💰 ${l.price}\n📅 마감: ${l.deadline}`;if(navigator.share)navigator.share({title:l.name,text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));}
+/* ══ 상세 스와이프 ══ */
+let _touchStartX = 0;
+let _touchStartY = 0;
+
+document.addEventListener('touchstart', e => {
+  if(!document.getElementById('screen-detail').classList.contains('active')) return;
+  _touchStartX = e.touches[0].clientX;
+  _touchStartY = e.touches[0].clientY;
+}, {passive: true});
+
+document.addEventListener('touchend', e => {
+  if(!document.getElementById('screen-detail').classList.contains('active')) return;
+  const dx = e.changedTouches[0].clientX - _touchStartX;
+  const dy = e.changedTouches[0].clientY - _touchStartY;
+  if(Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+
+  const currentName = document.getElementById('det-title').textContent;
+  const currentIdx = listings.findIndex(x => x.name === currentName);
+  if(currentIdx === -1) return;
+
+  if(dx < 0 && currentIdx < listings.length - 1) {
+    // 왼쪽 스와이프 → 다음 공고
+    showDetail(listings[currentIdx + 1].id);
+  } else if(dx > 0 && currentIdx > 0) {
+    // 오른쪽 스와이프 → 이전 공고
+    showDetail(listings[currentIdx - 1].id);
+  }
+}, {passive: true});
+
 function goBack(){
   showScreen(prevScreen);
+
   if(window._prevScrollY !== undefined){
     setTimeout(()=>window.scrollTo({top:window._prevScrollY, behavior:'instant'}), 50);
     window._prevScrollY = undefined;
@@ -2852,7 +2882,7 @@ async function loadLiveData(){
     const parsed = [
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
-    ].filter(l => l.days >= 0);
+    ].filter(l => l.days >= 0 && !l.name.includes('임대'));
 
     if(parsed.length === 0){
       apiConnected = false;
