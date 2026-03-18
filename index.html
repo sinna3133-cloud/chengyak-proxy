@@ -1910,6 +1910,11 @@ function _updateRegionUI(){
     const chipCode=Object.keys(RGN).find(k=>RGN[k]===label);
     if(chipCode) chip.classList.toggle('checked', selectedRegions.has(chipCode));
   });
+  const cnt=document.getElementById('region-cnt');
+  if(!cnt) return;
+  if(selectedRegions.size===0){ cnt.textContent='전체'; cnt.className='cnt none'; }
+  else { cnt.textContent=selectedRegions.size+'개 선택'; cnt.className='cnt'; }
+}
 
 function _updateWizRegionUI(){
   document.querySelectorAll('#wiz-region-chips .region-chip').forEach(chip=>{
@@ -1921,17 +1926,6 @@ function _updateWizRegionUI(){
     const code=Object.keys(RGN).find(k=>RGN[k]===label);
     if(code) chip.classList.toggle('checked', selectedRegions.has(code));
   });
-}
-function _updateRegionUI(){
-  document.querySelectorAll('.region-chip').forEach(chip=>{
-    const label=chip.textContent.trim();
-    const chipCode=Object.keys(RGN).find(k=>RGN[k]===label);
-    if(chipCode) chip.classList.toggle('checked', selectedRegions.has(chipCode));
-  });
-  const cnt=document.getElementById('region-cnt');
-  if(!cnt) return;
-  if(selectedRegions.size===0){ cnt.textContent='전체'; cnt.className='cnt none'; }
-  else { cnt.textContent=selectedRegions.size+'개 선택'; cnt.className='cnt'; }
 }
 
 function restoreRegions(){
