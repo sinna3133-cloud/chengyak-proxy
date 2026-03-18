@@ -569,7 +569,12 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* D-N 배지 흔들림 */
 @keyframes badgeShake{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
 .badge-urgent{animation:badgeShake 2.5s ease infinite}
-
+@keyframes qBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-10px) scale(1.15); }
+  60% { transform: translateY(-4px) scale(1.05); }
+}
+  
 /* ══ 추가 애니메이션 ══ */
 /* 히어로 인사말 페이드업 */
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -755,6 +760,15 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="wiz-body" id="ws3" style="display:none">
     <div class="wiz-title">소득과 자산을<br>알려주세요</div>
     <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
+    <div class="wiz-field">
+      <label class="wiz-label">세대원 수</label>
+      <select class="wiz-sel" id="w-household" onchange="onIncomeChange()">
+        <option value="">선택하세요</option>
+        <option value="1">1인</option><option value="2">2인</option>
+        <option value="3">3인</option><option value="4">4인</option>
+        <option value="5">5인 이상</option>
+      </select>
+    </div>
     <div class="wiz-field">
       <label class="wiz-label">연간 소득 <span class="wiz-label-note" id="income-who-label">본인</span></label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-income" placeholder="예: 4500" oninput="onIncomeChange()"/><span class="unit">만원</span></div>
@@ -1464,7 +1478,8 @@ function onIncomeChange(){
   const color = pct<=100?'#059669':pct<=140?'var(--accent)':'var(--gold)';
   main.innerHTML=`<span style="color:${color}">월평균소득의 ${pct}%</span> <span style="font-size:12px;font-weight:400;color:var(--ink-4)">(기준소득 월 ${base.toLocaleString()}만원)</span>`;
   detail.innerHTML=`✓ 가능: ${passItems.join(', ')||'없음'}${effectiveLimitNote?'<br>'+effectiveLimitNote:''}`;
-  box.style.display='block';
+  // 맞벌이면 본인 소득 기준 박스는 숨김, 부부 합산만 표시
+  if(!P.isDual) box.style.display='block';
 
   // 맞벌이 합산 계산
   if(isDual){
@@ -2105,7 +2120,7 @@ function showDetail(id, fromSwipe=false){
           +'</div>';
       })()}
     </div>`
-    :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openWrSheet()"><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
+    :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`
     <div class="info-card" style="margin-top:14px">
       <div class="info-card-title">📊 시세 차익 분석</div>
       ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
@@ -2679,17 +2694,7 @@ function renderEditCond(){
         <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div>
       </div>
       <div>
-        <div class="wiz-label">세대원 수</div>
-        <select class="wiz-sel" id="ec-household" style="margin-top:8px">
-          <option value="">선택하세요</option>
-          <option value="1" ${p.household==='1'?'selected':''}>1인</option>
-          <option value="2" ${p.household==='2'?'selected':''}>2인</option>
-          <option value="3" ${p.household==='3'?'selected':''}>3인</option>
-          <option value="4" ${p.household==='4'?'selected':''}>4인</option>
-          <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option>
-        </select>
-      </div>
-    </div>`;
+
 }
 
 function saveEditCond(){
