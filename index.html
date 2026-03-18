@@ -87,7 +87,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-item-label{font-size:10px;color:rgba(255,255,255,.4)}
 .cond-item-val{font-size:13px;font-weight:700;color:white;margin-top:2px}
 .cond-item-val.blank{color:rgba(255,255,255,.3)}
-.hero-cta-btn{display:block;width:100%;margin:14px 0;padding:13px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1}
+.hero-cta-btn{display:block;width:100%;margin:14px 0 20px;padding:13px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1}
 .hero-cta-btn:active{background:rgba(255,255,255,.2)}
 /* 하단 탭 라인 */
 .hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(255,255,255,.08)}
@@ -809,6 +809,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-field">
       <label class="wiz-label">희망 지역</label>
       <div class="region-chips" id="wiz-region-chips" style="padding:0">
+        <label class="region-chip" onclick="clearWizRegions()">전체</label>
         <label class="region-chip" onclick="toggleWizRegion('seoul')">서울</label>
         <label class="region-chip" onclick="toggleWizRegion('gyeonggi')">경기</label>
         <label class="region-chip" onclick="toggleWizRegion('incheon')">인천</label>
@@ -921,6 +922,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     </div>
     <div class="region-chips-wrap" id="region-chips-wrap">
       <div class="region-chips">
+        <div class="region-chips">
+        <label class="region-chip" onclick="clearRegions()">전체</label>
         <label class="region-chip" onclick="toggleRegion('seoul')">서울</label>
         <label class="region-chip" onclick="toggleRegion('gyeonggi')">경기</label>
         <label class="region-chip" onclick="toggleRegion('incheon')">인천</label>
@@ -1069,7 +1072,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div style="padding:20px 20px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
-      <button onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정하기</button>
+      <button onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
     </div>
     <div class="my-cond-card" id="my-cond-card">
       <div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div>
@@ -1860,6 +1863,22 @@ function toggleRegion(code){
   localStorage.setItem('selectedRegions', JSON.stringify([...selectedRegions]));
   P.region = [...selectedRegions][0] || '';
   renderListings();
+}
+
+function clearRegions(){
+  selectedRegions.clear();
+  _updateRegionUI();
+  _updateWizRegionUI();
+  localStorage.setItem('selectedRegions', JSON.stringify([]));
+  P.region = '';
+  renderListings();
+}
+
+function clearWizRegions(){
+  selectedRegions.clear();
+  _updateRegionUI();
+  _updateWizRegionUI();
+  localStorage.setItem('selectedRegions', JSON.stringify([]));
 }
 
 function toggleWizRegion(code){
