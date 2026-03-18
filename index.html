@@ -788,6 +788,14 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <div id="spouse-pct-detail" style="font-size:12px;color:var(--ink-4);margin-top:2px"></div>
       </div>
     </div>
+    <div class="wiz-field">
+      <label class="wiz-label">보유 현금 <span class="wiz-label-note">예·적금 포함</span></label>
+      <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-cash" placeholder="예: 5000"/><span class="unit">만원</span></div>
+      <div class="wiz-accuracy-hint">
+        <span>📊 입력하면 자금 계획 분석(계약금 납부 가능 여부)을 해드려요</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Step 4: 청약통장 + 지역 -->
   <div class="wiz-body" id="ws4" style="display:none">
@@ -2761,7 +2769,7 @@ async function loadSheetFactors(){
     });
     const keys = Object.keys(sheetPrices);
     console.log('✓ 시트 로드:', keys);
-  } catch(e) { alert('시트 로드 실패: ' + e.message); }
+  } catch(e) { console.warn('시트 로드 실패:', e.message); }
 }
   
 /* API 상태 업데이트 */
@@ -3111,6 +3119,7 @@ listings.forEach(l => {
   }
 });
 restoreRegions();
+updateHero();
 renderListings();
 
 if(apiKey){
@@ -3143,7 +3152,6 @@ window.renderListings = function(){
   _origRenderListings();
   requestAnimationFrame(observeCards);
 };
-renderListings();
 
 
 // ══ 애니메이션 3: 히어로 조건값 카운트업 ══
