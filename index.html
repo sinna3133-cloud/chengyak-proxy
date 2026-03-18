@@ -2063,11 +2063,11 @@ function showDetail(id){
         <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
         <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
       </div>
-      ${(PRICE_FACTORS[l.id]||[]).length?`
+      ${(l.priceFactors&&l.priceFactors.length)?`
       <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
         <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          ${(PRICE_FACTORS[l.id]||[]).map(f=>`
+           ${(l.priceFactors||[]).map(f=>`
           <div style="display:flex;align-items:flex-start;gap:8px">
             <span style="font-size:15px;flex-shrink:0;margin-top:1px">${f.icon}</span>
             <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
