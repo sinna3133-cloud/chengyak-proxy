@@ -1480,12 +1480,13 @@ function renderChildDates(){
   ${P.childDates.map((c,i)=>`<div class="child-date-item">
     <div class="child-date-label">${i+1}번째 자녀</div>
     <div class="wiz-inp-row">
-      <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" placeholder="2022" id="cy${i}" value="${c.year}" oninput="updateChild(${i},'year',this.value)"/></div>
-      <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" placeholder="01" min="1" max="12" id="cm${i}" value="${c.month}" oninput="updateChild(${i},'month',this.value)"/></div>
+      <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" placeholder="2022" id="cy${i}" value="${c.year}" oninput="updateChild(${i},'year',this.value);if(this.value.length>=4)document.getElementById('cm${i}').focus();"/></div>
+      <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" placeholder="01" min="1" max="12" id="cm${i}" value="${c.month}" oninput="updateChild(${i},'month',this.value);if(this.value.length>=2)document.getElementById('cd${i}').focus();"/></div>
       <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" placeholder="01" min="1" max="31" id="cd${i}" value="${c.day}" oninput="updateChild(${i},'day',this.value)"/></div>
     </div>
     <div id="newborn-chip-${i}"></div>
   </div>`).join('')}</div>`;
+
   P.childDates.forEach((_,i)=>checkNewborn(i));
 }
 
@@ -1666,6 +1667,7 @@ function typeBadge(l){
   return`<span class="badge badge-private">민간분양</span>`;
 }
 function gapPill(l){
+  if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
   const{g,pct}=gap(l);const up=g>0;
   return`<div class="gap-pill"><div class="gap-nums"><b>${(l.minP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
 }
@@ -1958,7 +1960,7 @@ function renderMyCondDashboard(){
       <div class="dash-section-title">🏆 가점 커트라인 비교</div>
       ${listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=score.total-l.cut,ok=d>=0;return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${l.name}</div><div class="dash-match-loc">📍 ${l.loc}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:12px;color:var(--ink-4)">커트라인 ${l.cut}점</span><span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:${ok?'var(--public-light)':'var(--red-light)'};color:${ok?'var(--public)':'var(--red)'}">${ok?`+${d}점 통과`:`${d}점 부족`}</span></div></div>`;}).join('')}
     </div>
-    <div style="height:20px"></div>`;
+    <div style="height:120px"></div>`;
   setTimeout(()=>{
     animateDashVal('dash-val-score',score.total);
     animateDashVal('dash-val-match',matched.length);
@@ -2049,6 +2051,7 @@ function showDetail(id, fromSwipe=false){
     :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openWrSheet()"><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
     <div class="info-card" style="margin-top:14px">
       <div class="info-card-title">📊 시세 차익 분석</div>
+      ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
       <div class="gap-chart" id="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
@@ -2850,6 +2853,7 @@ function parseAptItem(item, isLotto=false){
     aE:       toStr(rceptEnd),
     aD:       toStr(pblancDe),
     elig,
+    noMktP: !sheetPrice?.mktP || sheetPrice?.mktP === 0 || String(sheetPrice?.mktP).trim() === '-',
     priceFactors: sheetPrice?.factors || [],
     ai:{
       q: isLotto
