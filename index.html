@@ -680,8 +680,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-field dob">
       <label class="wiz-label">출생년도 / 월 / 일</label>
       <div class="wiz-inp-row">
-        <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-by" placeholder="1990" maxlength="4" oninput="onBirthChange()"/></div>
-        <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-bm" placeholder="01" min="1" max="12" oninput="onBirthChange()"/></div>
+        <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-by" placeholder="1990" oninput="onBirthChange();if(this.value.length>=4)document.getElementById('w-bm').focus();" maxlength="4"/></div>
+        <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-bm" placeholder="01" min="1" max="12" oninput="onBirthChange();if(this.value.length>=2)document.getElementById('w-bd').focus();"/></div>
         <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-bd" placeholder="01" min="1" max="31"/></div>
       </div>
       <div class="wiz-accuracy-hint">
@@ -2068,8 +2068,8 @@ function showDetail(id){
         <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${(l.priceFactors||[]).map(f=>`
-          <div style="display:flex;align-items:flex-start;gap:8px">
-            <span style="font-size:15px;flex-shrink:0;margin-top:1px">${f.icon}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon}</span>
             <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
           </div>`).join('')}
         </div>
