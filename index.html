@@ -2145,7 +2145,7 @@ function showDetail(id, fromSwipe=false){
   <!-- 3. 청약 자격 (톤다운) + 🎯 신청 가능한 전형 -->
   <div class="info-card" style="margin-top:14px">
     <!-- 청약 자격 — 톤다운 -->
-    <div style="padding:10px 18px 4px;font-size:11px;font-weight:600;color:var(--ink-5);letter-spacing:.3px">청약 자격</div>
+    <div class="info-card-title" style="color:var(--ink-4);font-size:13px">청약 자격</div>
     <div style="padding:4px 18px 12px;border-bottom:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;gap:6px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:11px;color:var(--ink-5)">신청 자격</span>
@@ -2211,15 +2211,15 @@ function showDetail(id, fromSwipe=false){
   <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
     <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
     <div class="prob-gauge-wrap">
-      <svg class="prob-gauge-svg" viewBox="0 0 160 90">
+      <svg class="prob-gauge-svg" viewBox="0 0 160 100" style="height:96px">
         <path class="prob-gauge-bg" d="M20,80 A60,60 0 0,1 140,80"/>
         <path class="prob-gauge-fill" id="det-gauge-fill" d="M20,80 A60,60 0 0,1 140,80"
           stroke="${pColor(prob)}"
           stroke-dasharray="188.5"
           stroke-dashoffset="188.5"/>
         <text id="det-prob-num" class="prob-gauge-num" x="80" y="72" fill="${pColor(prob)}">${prob}%</text>
-        <text class="prob-gauge-label" x="20" y="92" fill="var(--ink-4)">0%</text>
-        <text class="prob-gauge-label" x="140" y="92" fill="var(--ink-4)">100%</text>
+        <text x="20" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">0%</text>
+        <text x="140" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">100%</text>
       </svg>
     </div>
     ${(()=>{
