@@ -2083,132 +2083,191 @@ function showDetail(id, fromSwipe=false){
   document.getElementById('det-title').textContent=l.name;
   document.getElementById('det-loc').textContent='📍 '+l.loc;
   document.getElementById('det-body').innerHTML=`
-    ${prob!==null?`
-    <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
-      <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
-      <div class="prob-gauge-wrap">
-        <svg class="prob-gauge-svg" viewBox="0 0 160 90">
-          <path class="prob-gauge-bg" d="M20,80 A60,60 0 0,1 140,80"/>
-          <path class="prob-gauge-fill" id="det-gauge-fill" d="M20,80 A60,60 0 0,1 140,80"
-            stroke="${pColor(prob)}"
-            stroke-dasharray="188.5"
-            stroke-dashoffset="188.5"/>
-          <text id="det-prob-num" class="prob-gauge-num" x="80" y="72" fill="${pColor(prob)}">${prob}%</text>
-          <text class="prob-gauge-label" x="20" y="92" fill="var(--ink-4)">0%</text>
-          <text class="prob-gauge-label" x="140" y="92" fill="var(--ink-4)">100%</text>
-        </svg>
-      </div>
-      ${(()=>{
-        const tips=[];
-        const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
-        const nhPlus=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh+3>=5?1.5:nh+3>=3?1.2:1)*(dep>=24?1.3:dep>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
-        if(nhPlus>prob) tips.push({label:`지금부터 3년 무주택 유지하면`,val:nhPlus,type:'time'});
-        const depScore1=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh>=5?1.5:nh>=3?1.2:1)*((dep+1)>=24?1.3:(dep+1)>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
-        if(depScore1>prob) tips.push({label:`부양가족 1명 늘어나면`,val:depScore1,type:'action'});
-        if(!tips.length) return '';
-        return '<div style="margin-top:8px;padding-top:10px;border-top:1px solid rgba(0,102,255,.15);display:flex;flex-direction:column;gap:6px">'
-          +tips.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;color:var(--ink-3);line-height:1.4">${t.type==='action'?'💡':'⏳'} ${t.label}</span><span style="font-size:13px;font-weight:800;color:${pColor(t.val)};white-space:nowrap">${t.val}% 올라가요</span></div>`).join('')
-          +'</div>';
-      })()}
-    </div>`
-    :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
-    <div class="info-card" style="margin-top:14px">
-      <div class="info-card-title">📊 시세 차익 분석</div>
-      ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
-      <div class="gap-chart" id="det-gap-chart">
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-          <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
-        </div>
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">주변 시세</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
-          <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
-        <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
-        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
-      </div>
-      ${(l.priceFactors&&l.priceFactors.length)?`
-      <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
-        <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${(l.priceFactors||[]).map(f=>`
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon}</span>
-            <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
-          </div>`).join('')}
-        </div>
-      </div>`:''}
-    </div>
-    <div class="info-card">
-      <div class="info-card-title">📋 분양 정보</div>
-                  ${l.price && l.price.includes('|')
-        ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
-            <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
-              ${l.price.split('|').map(p=>{
-                const parts = p.trim().split(' ');
-                const size = parts[0]||'';
-                const price = parts.slice(1).join(' ')||p;
-                return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
-                  <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
-                  <div style="font-size:13px;font-weight:700;color:var(--accent)">${price}</div>
-                </div>`;
-              }).join('')}
-            </div>
-          </div>`
-        : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>`
-      }
-      <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
-      <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
-      <div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>
-    </div>
-    ${l.cut?`<div class="info-card">
-      <div class="info-card-title">🏆 가점 커트라인 비교</div>
-      <div class="cut-chart" style="padding:12px 18px 12px">
-        <div style="font-size:12px;color:var(--ink-4);margin-bottom:8px;line-height:1.6">내 가점 <b style="color:var(--accent)">${calcScore(P).total}점</b> vs 커트라인 <b style="color:var(--red)">${l.cut}점</b></div>
-        <div class="cut-chart-bar-wrap">
-          <div class="cut-chart-track">
-            <div class="cut-chart-my" id="det-cut-my"></div>
-            <div class="cut-chart-line" id="det-cut-line"></div>
+
+  <!-- 1. 📋 분양 정보 -->
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📋 분양 정보</div>
+    ${l.price && l.price.includes('|')
+      ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
+          <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
+            ${l.price.split('|').map(p=>{
+              const parts = p.trim().split(' ');
+              const size = parts[0]||'';
+              const price = parts.slice(1).join(' ')||p;
+              return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
+                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent)">${price}</div>
+              </div>`;
+            }).join('')}
           </div>
-        </div>
-        <div class="cut-chart-scores" style="margin-top:4px;flex-wrap:wrap;row-gap:2px">
-          <span style="color:var(--accent)">내 가점 ${calcScore(P).total}점</span>
-          <span style="color:${calcScore(P).total>=l.cut?'var(--public)':'var(--red)'};font-weight:700">${calcScore(P).total>=l.cut?`+${calcScore(P).total-l.cut}점 통과`:`${calcScore(P).total-l.cut}점 부족`}</span>
-          <span style="color:var(--red)">커트라인 ${l.cut}점</span>
-        </div>
+        </div>`
+      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>`
+    }
+    <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
+    <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
+    <div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>
+  </div>
+
+  <!-- 2. 📈 시세 차익 분석 -->
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📈 시세 차익 분석</div>
+    ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
+    <div class="gap-chart" id="det-gap-chart">
+      <div class="gap-bar-row">
+        <div class="gap-bar-label">분양가</div>
+        <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+        <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+      </div>
+      <div class="gap-bar-row">
+        <div class="gap-bar-label">주변 시세</div>
+        <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
+        <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
+      <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
+      <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
+    </div>
+    ${(l.priceFactors&&l.priceFactors.length)?`
+    <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
+      <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(l.priceFactors||[]).map(f=>`
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon}</span>
+          <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
+        </div>`).join('')}
       </div>
     </div>`:''}
-    <div class="info-card">
-  <div class="info-card-title">✅ 청약 자격</div>
-  <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
-  <div class="info-row"><span class="info-rl">소득 기준</span><span class="info-rv">${l.inc}</span></div>
-</div>
-${(()=>{
-  const typeDesc = {
-    '생애최초':    { desc:'세대원 전원 처음 집 사는 분', reason:'소득 기준을 초과하거나 과거 주택 소유 이력이 있어요' },
-    '신생아특공':  { desc:'만 2세 이하 자녀가 있는 분', reason:'만 2세 이하 자녀가 없어요' },
-    '다자녀특공':  { desc:'미성년 자녀 3명 이상인 분', reason:'미성년 자녀가 3명 미만이에요' },
-    '청년특공':    { desc:'만 39세 이하 미혼 무주택자', reason:'나이·혼인 조건이 맞지 않아요' },
-    '신혼부부특공':{ desc:'혼인 7년 이내 신혼부부', reason:'혼인 기간 조건이 맞지 않아요' },
-    '노부모부양':  { desc:'만 65세 이상 부모를 부양 중인 분', reason:'부모 부양 조건이 맞지 않아요' },
-    '일반공급':    { desc:'무주택 세대구성원', reason:'무주택 조건이 맞지 않아요' },
-    '무순위(줍줍)':{ desc:'만 19세 이상 누구나', reason:'' },
-  };
-  const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
-  const myTypes = calcTypes(P).map(t => t.l);
-  const matched = l.elig.filter(e => myTypes.includes(e));
-  const unmatched = l.elig.filter(e => !myTypes.includes(e));
+  </div>
 
-  if(!hasConditions) return `
-    <div class="info-card" style="margin-top:14px">
-      <div class="info-card-title">🎯 신청 가능한 전형</div>
-      <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px">
-        ${l.elig.map(e => `
+  <!-- 3. 청약 자격 (톤다운) + 🎯 신청 가능한 전형 -->
+  <div class="info-card" style="margin-top:14px">
+    <!-- 청약 자격 — 톤다운 -->
+    <div style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--ink-5)">신청 자격</span>
+        <span style="font-size:12px;color:var(--ink-4);text-align:right;flex:1;margin-left:12px">${l.qual}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--ink-5)">소득 기준</span>
+        <span style="font-size:12px;color:var(--ink-4);text-align:right;flex:1;margin-left:12px">${l.inc}</span>
+      </div>
+    </div>
+    <!-- 신청 가능한 전형 -->
+    <div class="info-card-title">🎯 신청 가능한 전형</div>
+    ${(()=>{
+      const typeDesc = {
+        '생애최초':    { desc:'세대원 전원 처음 집 사는 분', reason:'소득 기준 초과 또는 주택 소유 이력이 있어요' },
+        '신생아특공':  { desc:'만 2세 이하 자녀가 있는 분', reason:'만 2세 이하 자녀가 없어요' },
+        '다자녀특공':  { desc:'미성년 자녀 3명 이상인 분', reason:'미성년 자녀가 3명 미만이에요' },
+        '청년특공':    { desc:'만 39세 이하 미혼 무주택자', reason:'나이·혼인 조건이 맞지 않아요' },
+        '신혼부부특공':{ desc:'혼인 7년 이내 신혼부부', reason:'혼인 기간 조건이 맞지 않아요' },
+        '노부모부양':  { desc:'만 65세 이상 부모를 부양 중인 분', reason:'부모 부양 조건이 맞지 않아요' },
+        '일반공급':    { desc:'무주택 세대구성원', reason:'무주택 조건이 맞지 않아요' },
+        '무순위(줍줍)':{ desc:'만 19세 이상 누구나', reason:'' },
+      };
+      const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
+      const myTypes = calcTypes(P).map(t => t.l);
+      const matched = l.elig.filter(e => myTypes.includes(e));
+      const unmatched = l.elig.filter(e => !myTypes.includes(e));
+
+      if(!hasConditions) return `
+        <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
+          ${l.elig.map(e=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+              <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
+              <div style="font-size:11px;color:var(--ink-4)">${(typeDesc[e]||{}).desc||''}</div>
+            </div>`).join('')}
+          <div style="padding:10px 12px;background:var(--accent-light);border-radius:10px;font-size:12px;color:var(--accent);font-weight:600;text-align:center;cursor:pointer" onclick="openWizard()">조건을 설정하면 내가 신청 가능한 전형을 알려드려요 →</div>
+        </div>`;
+
+      return `
+        <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
+          ${matched.map(e=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
+              <div style="width:24px;height:24px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0;font-weight:800">✓</div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:800;color:var(--public)">${e}</div>
+                <div style="font-size:12px;color:#059669;margin-top:2px">${(typeDesc[e]||{}).desc||''}</div>
+              </div>
+            </div>`).join('')}
+          ${unmatched.map(e=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
+              <div style="width:24px;height:24px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700;color:var(--ink-4)">${e}</div>
+                <div style="font-size:12px;color:var(--ink-5);margin-top:2px">${(typeDesc[e]||{}).reason||'조건이 맞지 않아요'}</div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    })()}
+  </div>
+
+  <!-- 4. 📊 당첨 예상 확률 + 🏆 가점 커트라인 -->
+  ${prob!==null?`
+  <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
+    <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
+    <div class="prob-gauge-wrap">
+      <svg class="prob-gauge-svg" viewBox="0 0 160 90">
+        <path class="prob-gauge-bg" d="M20,80 A60,60 0 0,1 140,80"/>
+        <path class="prob-gauge-fill" id="det-gauge-fill" d="M20,80 A60,60 0 0,1 140,80"
+          stroke="${pColor(prob)}"
+          stroke-dasharray="188.5"
+          stroke-dashoffset="188.5"/>
+        <text id="det-prob-num" class="prob-gauge-num" x="80" y="72" fill="${pColor(prob)}">${prob}%</text>
+        <text class="prob-gauge-label" x="20" y="92" fill="var(--ink-4)">0%</text>
+        <text class="prob-gauge-label" x="140" y="92" fill="var(--ink-4)">100%</text>
+      </svg>
+    </div>
+    ${(()=>{
+      const tips=[];
+      const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
+      const nhPlus=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh+3>=5?1.5:nh+3>=3?1.2:1)*(dep>=24?1.3:dep>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
+      if(nhPlus>prob) tips.push({label:`지금부터 3년 무주택 유지하면`,val:nhPlus,type:'time'});
+      const depScore1=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh>=5?1.5:nh>=3?1.2:1)*((dep+1)>=24?1.3:(dep+1)>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
+      if(depScore1>prob) tips.push({label:`부양가족 1명 늘어나면`,val:depScore1,type:'action'});
+      if(!tips.length) return '';
+      return '<div style="margin-top:8px;padding-top:10px;border-top:1px solid rgba(0,102,255,.15);display:flex;flex-direction:column;gap:6px">'
+        +tips.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;color:var(--ink-3);line-height:1.4">${t.type==='action'?'💡':'⏳'} ${t.label}</span><span style="font-size:13px;font-weight:800;color:${pColor(t.val)};white-space:nowrap">${t.val}% 올라가요</span></div>`).join('')
+        +'</div>';
+    })()}
+  </div>`
+  :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
+  ${l.cut?`<div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">🏆 가점 커트라인 비교</div>
+    <div class="cut-chart" style="padding:12px 18px 12px">
+      <div style="font-size:12px;color:var(--ink-4);margin-bottom:8px;line-height:1.6">내 가점 <b style="color:var(--accent)">${calcScore(P).total}점</b> vs 커트라인 <b style="color:var(--red)">${l.cut}점</b></div>
+      <div class="cut-chart-bar-wrap">
+        <div class="cut-chart-track">
+          <div class="cut-chart-my" id="det-cut-my"></div>
+          <div class="cut-chart-line" id="det-cut-line"></div>
+        </div>
+      </div>
+      <div class="cut-chart-scores" style="margin-top:4px;flex-wrap:wrap;row-gap:2px">
+        <span style="color:var(--accent)">내 가점 ${calcScore(P).total}점</span>
+        <span style="color:${calcScore(P).total>=l.cut?'var(--public)':'var(--red)'};font-weight:700">${calcScore(P).total>=l.cut?`+${calcScore(P).total-l.cut}점 통과`:`${calcScore(P).total-l.cut}점 부족`}</span>
+        <span style="color:var(--red)">커트라인 ${l.cut}점</span>
+      </div>
+    </div>
+  </div>`:''}
+
+  <!-- 5. 💰 내 자금 계획 -->
+  ${P.cash?`<div class="fund-card" style="margin-top:14px">
+    <div class="fund-header">💰 내 자금 계획</div>
+    <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
+    <div class="fund-row"><span class="fund-rl">계약금 (10%)</span><span class="fund-rv ${canAfford?'ok':'no'}">${(dep/10000).toFixed(1)}억 ${canAfford?'✓':'✗ 부족'}</span></div>
+    <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억 무이자대출</span></div>
+    <div class="fund-row"><span class="fund-rl">필요 대출</span><span class="fund-rv ${lr<=70?'':'no'}">${(loan/10000).toFixed(1)}억 (LTV ${lr}%)</span></div>
+    <div style="padding:12px 18px;background:${canAfford?'var(--public-light)':'var(--red-light)'}"><span style="font-size:13px;font-weight:700;color:${canAfford?'var(--public)':'var(--red)'}">${canAfford?`✓ 계약금 납부 가능! 월 상환 약 ${monthly.toLocaleString()}만원`:`✗ 계약금 ${Math.max(0,dep-cash).toLocaleString()}만원 부족`}</span></div>
+  </div>`:''}
+
+  <!-- 6. 🏠 청약홈 버튼 -->
+  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">🏠 청약홈에서 신청하기</a>
+  <button class="pri-btn" style="margin-top:10px;background:${savedIds.has(l.id)?'var(--gold)':'var(--bg)'};color:${savedIds.has(l.id)?'white':'var(--ink-3)'};box-shadow:none;border:1.5px solid ${savedIds.has(l.id)?'var(--gold)':'rgba(0,0,0,.1)'}" onclick="toggleSaveFromDetail(${l.id})">${savedIds.has(l.id)?'즐겨찾기 저장됨':'즐겨찾기 저장'}</button>
+  <button class="sec-btn" onclick="shareDetail(${l.id})">📤 이 공고 공유하기</button>`;
+
           <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
             <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
             <div style="font-size:11px;color:var(--ink-4)">${(typeDesc[e]||{}).desc||''}</div>
