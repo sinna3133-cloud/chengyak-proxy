@@ -1157,6 +1157,50 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   </div>
 </div>
 
+<!-- ══ 관리자 모달 ══ -->
+<div id="admin-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto">
+  <div style="background:var(--bg-card);border-radius:20px 20px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)">
+    <div style="width:40px;height:4px;background:var(--bg-2);border-radius:20px;margin:12px auto 0"></div>
+    <div style="padding:20px 24px 12px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:18px;font-weight:900;color:var(--ink)">🔧 관리자 모드</div>
+        <div style="font-size:12px;color:var(--ink-4);margin-top:3px">공고문 PDF를 업로드하면 자동으로 데이터를 추출해요</div>
+      </div>
+      <button onclick="closeAdmin()" style="background:var(--bg);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:18px;color:var(--ink-4)">×</button>
+    </div>
+
+    <!-- 업로드 영역 -->
+    <div style="padding:20px 24px">
+      <div id="admin-drop" onclick="document.getElementById('admin-file-input').click()"
+        style="border:2px dashed var(--accent-mid);border-radius:16px;padding:32px 20px;text-align:center;cursor:pointer;background:var(--accent-light);transition:all .2s">
+        <div style="font-size:36px;margin-bottom:10px">📄</div>
+        <div style="font-size:15px;font-weight:700;color:var(--accent)">공고문 PDF 업로드</div>
+        <div style="font-size:12px;color:var(--ink-4);margin-top:5px">탭해서 파일 선택</div>
+      </div>
+      <input type="file" id="admin-file-input" accept=".pdf" style="display:none" onchange="onAdminFileSelect(event)"/>
+
+      <!-- 상태 표시 -->
+      <div id="admin-status" style="display:none;margin-top:16px;padding:14px 16px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.6"></div>
+
+      <!-- 추출 결과 미리보기 -->
+      <div id="admin-preview" style="display:none;margin-top:16px">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px">📋 추출된 데이터 확인</div>
+        <div id="admin-preview-body" style="background:var(--bg);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;color:var(--ink-3)"></div>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button onclick="confirmAdminData()" style="flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">✓ 공고 추가하기</button>
+          <button onclick="resetAdmin()" style="padding:14px 18px;background:var(--bg);color:var(--ink-4);border:1.5px solid rgba(0,0,0,.1);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">다시</button>
+        </div>
+      </div>
+
+      <!-- 등록된 공고 목록 -->
+      <div style="margin-top:24px;border-top:1px solid rgba(0,0,0,.06);padding-top:16px">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:10px">등록된 공고 <span id="admin-count" style="color:var(--accent)">0</span>건</div>
+        <div id="admin-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 하단 네비 -->
 <nav class="nav">
   <div class="nav-item active" onclick="showScreen('home')" id="nav-home">
@@ -3234,6 +3278,207 @@ window.updateHero = function(){
   });
 };
 
+/* ══ 관리자 모드 ══ */
+let _adminExtracted = null;
+
+// URL 파라미터로 관리자 진입
+(function checkAdminParam(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('admin') === '1234'){
+    setTimeout(()=>openAdmin(), 500);
+  }
+})();
+
+function openAdmin(){
+  const ov = document.getElementById('admin-ov');
+  ov.style.display = 'flex';
+  renderAdminList();
+}
+
+function closeAdmin(){
+  document.getElementById('admin-ov').style.display = 'none';
+  resetAdmin();
+}
+
+function resetAdmin(){
+  _adminExtracted = null;
+  document.getElementById('admin-status').style.display = 'none';
+  document.getElementById('admin-preview').style.display = 'none';
+  document.getElementById('admin-drop').style.display = 'block';
+  document.getElementById('admin-file-input').value = '';
+}
+
+async function onAdminFileSelect(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  document.getElementById('admin-drop').style.display = 'none';
+  const statusEl = document.getElementById('admin-status');
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#FFF8EC';
+  statusEl.style.border = '1px solid rgba(245,166,35,.3)';
+  statusEl.style.color = '#92400E';
+  statusEl.textContent = '📄 ' + file.name + ' 읽는 중... Claude가 분석하고 있어요';
+
+  try {
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(',')[1]);
+      reader.onerror = () => rej(new Error('파일 읽기 실패'));
+      reader.readAsDataURL(file);
+    });
+
+    const prompt = `다음 청약 공고문 PDF에서 아래 항목들을 추출해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
+
+{
+  "name": "단지명",
+  "loc": "위치 (시/구/동)",
+  "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
+  "type": "public 또는 private",
+  "price": "분양가 (예: 3억~5억원, 평형별이면 | 로 구분: 84A 3억5천|101B 4억2천)",
+  "minP": 분양가 최저값 만원 단위 숫자,
+  "deadline": "청약 접수 마감일 YYYY-MM-DD",
+  "size": "공급 면적 (예: 59㎡ / 84㎡)",
+  "units": 총 세대수 숫자,
+  "qual": "신청 자격 한 줄 요약",
+  "inc": "소득 기준 한 줄 요약",
+  "sched": "주요 일정 (접수~발표~계약)",
+  "aS": "청약 접수 시작일 YYYY-MM-DD",
+  "aE": "청약 접수 종료일 YYYY-MM-DD",
+  "aD": "당첨자 발표일 YYYY-MM-DD",
+  "elig": ["생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/일반공급/무순위(줍줍) 중 해당하는 것들"],
+  "cut": 예상 가점 커트라인 숫자 없으면 0,
+  "ai": {
+    "q": "신청 자격 쉬운 설명 1~2문장",
+    "p": "분양가 쉬운 설명 1~2문장",
+    "s": "일정 쉬운 설명 1~2문장",
+    "d": "필요 서류 쉬운 설명 1~2문장"
+  }
+}`;
+
+    const response = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.map(c => c.text||'').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    _adminExtracted = {
+      ...parsed,
+      id: Date.now(),
+      lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
+      mktP: parsed.minP ? Math.round(parsed.minP * 1.3) : 0,
+      comp: 10,
+      days: parsed.aE ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : 0,
+      priceFactors: []
+    };
+
+    statusEl.style.background = 'var(--public-light)';
+    statusEl.style.border = '1px solid rgba(5,150,105,.3)';
+    statusEl.style.color = 'var(--public)';
+    statusEl.textContent = '✓ 추출 완료! 아래 내용을 확인해주세요';
+
+    document.getElementById('admin-preview-body').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${[
+          ['단지명', parsed.name],
+          ['위치', parsed.loc],
+          ['분양가', parsed.price],
+          ['세대수', (parsed.units||'?') + '세대'],
+          ['마감일', parsed.aE],
+          ['신청 전형', (parsed.elig||[]).join(', ')],
+          ['소득 기준', parsed.inc],
+          ['신청 자격', parsed.qual],
+        ].map(([k,v]) => `
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:11px;color:var(--ink-5);width:60px;flex-shrink:0;padding-top:2px">${k}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--ink);flex:1">${v||'—'}</span>
+          </div>`).join('')}
+      </div>`;
+    document.getElementById('admin-preview').style.display = 'block';
+
+  } catch(e) {
+    console.error(e);
+    const statusEl = document.getElementById('admin-status');
+    statusEl.style.background = 'var(--red-light)';
+    statusEl.style.border = '1px solid rgba(240,64,64,.3)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = '❌ 추출 실패: ' + e.message;
+    document.getElementById('admin-drop').style.display = 'block';
+  }
+}
+
+function confirmAdminData(){
+  if(!_adminExtracted) return;
+  listings.unshift(_adminExtracted);
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings') || '[]');
+    saved.unshift(_adminExtracted);
+    localStorage.setItem('admin_listings', JSON.stringify(saved));
+  } catch(e){}
+  showToast('✓ 공고가 추가됐어요!');
+  resetAdmin();
+  renderAdminList();
+  renderListings();
+  renderRecommend();
+}
+
+function renderAdminList(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    const el = document.getElementById('admin-list');
+    const countEl = document.getElementById('admin-count');
+    countEl.textContent = saved.length;
+    if(!saved.length){
+      el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
+      return;
+    }
+    el.innerHTML = saved.map(l => `
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${l.name}</div>
+          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
+        </div>
+        <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
+      </div>`).join('');
+  } catch(e){}
+}
+
+function removeAdminListing(id){
+  const idx = listings.findIndex(l => l.id === id);
+  if(idx > -1) listings.splice(idx, 1);
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    localStorage.setItem('admin_listings', JSON.stringify(saved.filter(s => s.id !== id)));
+  } catch(e){}
+  renderAdminList();
+  renderListings();
+  showToast('공고를 삭제했어요');
+}
+
+// 앱 시작 시 저장된 관리자 공고 복원
+(function restoreAdminListings(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    saved.forEach(l => {
+      if(!listings.find(x => x.id === l.id)) listings.unshift(l);
+    });
+  } catch(e){}
+})();
 
 </script>
 </body>
