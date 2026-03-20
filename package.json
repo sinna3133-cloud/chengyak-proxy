@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "쉬운청약 CORS 프록시 서버",
   "private": true,
-  "type": "module",
   "engines": {
     "node": "22.x"
   }
