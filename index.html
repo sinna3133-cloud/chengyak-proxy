@@ -1765,11 +1765,16 @@ function cleanPrice(p){
   if(!p) return p;
   // 천원 단위 숫자 (예: 255,150천원 → 약 2.6억)
   if(/[0-9,]+천원/.test(p)){
-    const num = parseInt(p.replace(/,/g,'')) * 1000; // 천원 → 원
-    const uk = Math.round(num / 100000000 * 10) / 10; // 억 단위
+    const num = parseInt(p.replace(/,/g,'')) * 1000;
+    const uk = Math.round(num / 100000000 * 10) / 10;
     return uk + '억';
   }
-  return p.replace(/만원/g, '').trim();
+  // 천원 → 천 (단위 변경)
+  p = p.replace(/천원/g, '천');
+  p = p.replace(/만원/g, '만');
+  // 숫자와 단위 사이 불필요한 공백 정리
+  p = p.replace(/\s+(억|천|만)/g, '$1');
+  return p.trim();
 }
 
 /* ══ 카드용 가격 표시 (최저~최고, 평형 제거) ══ */
@@ -1786,24 +1791,22 @@ function cardPrice(price){
 
   if(price.includes('|')){
     const parts = price.split('|').map(p => extractAmt(p.trim())).filter(Boolean);
-    // 전체에서 최저값 (첫 파트 ~ 앞)
     const firstPart = parts[0];
     const firstMin = firstPart.includes('~') ? firstPart.split('~')[0].trim() : firstPart;
-    // 전체에서 최고값 (마지막 파트 ~ 뒤)
     const lastPart = parts[parts.length - 1];
     const lastMax = lastPart.includes('~') ? lastPart.split('~').pop().trim() : lastPart;
-    if(!firstMin || !lastMax || firstMin === '0억' || lastMax === '0억') return price.split('|')[0].trim();
-    return firstMin === lastMax ? firstMin : `${firstMin}~${lastMax}`;
+    if(!firstMin || !lastMax || firstMin === '0억' || lastMax === '0억') return cleanPrice(price.split('|')[0].trim());
+    return firstMin === lastMax ? cleanPrice(firstMin) : `${cleanPrice(firstMin)}~${cleanPrice(lastMax)}`;
   }
 
   if(price.includes('~')){
     const parts = price.split('~').map(p => p.trim()).filter(Boolean);
-    const first = parts[0];
-    const last = parts[parts.length - 1];
+    const first = cleanPrice(parts[0]);
+    const last = cleanPrice(parts[parts.length - 1]);
     return first === last ? first : `${first}~${last}`;
   }
 
-  return price;
+  return cleanPrice(price);
 }
 
 /* ══ 히어로 ══ */
@@ -1944,7 +1947,7 @@ function renderListings(){
         <div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div>
         <div style="text-align:center"><div class="meta-label">세대수</div><div class="meta-val">${l.units}세대</div></div>
         ${l.sched&&(l.sched.includes('선착순')||l.sched.includes('선착'))
-          ? `<div style="text-align:right"><div class="meta-label">계약</div><div class="meta-val" style="font-size:11px;color:#92400E;background:#FEF3C7;padding:2px 7px;border-radius:20px">선착순</div></div>`
+          ? `<div></div>`
           : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>`
         }
       </div>
