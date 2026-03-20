@@ -40,7 +40,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .nav-item span{font-size:10px;font-weight:500;color:var(--ink-5);transition:all .2s}
 .nav-item.active span{color:var(--accent);font-weight:700}
 .nav-item.active svg{color:var(--accent);transform:translateY(-1px)}
-.nav-item.consult.active svg,.nav-item.consult.active span{color:var(--gold)}
+.nav-item.consult.active svg,.nav-item.consult.active span{color:var(--accent)}
 
 /* ══ 공통 컴포넌트 ══ */
 .page-header{background:var(--bg-card);padding:18px 20px 14px;position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(0,0,0,.06)}
@@ -59,14 +59,15 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 
 /* ══ 홈 히어로 — 리디자인 ══ */
-.hero{background:var(--ink-2);padding:0 20px 0;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,#0A0E1A,#1A2236,#0F1A2E,#0A0E1A);background-size:400% 400%;animation:heroShift 10s ease infinite;padding:0 20px 0;position:relative;overflow:hidden}
+@keyframes heroShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .hero-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/Cfilter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");opacity:.4}
 .hero-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.3) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
 .hero-glow2{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
 .hero-inner{position:relative;z-index:1;padding:24px 0 20px}
 .hero-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .hero-appname{font-size:13px;font-weight:800;color:white;letter-spacing:-.3px}
-.hero-appname span{color:var(--mint)}
+.hero-appname span{color:var(--accent)}
 /* 조건 카드 */
 .cond-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:16px;margin-bottom:0;cursor:pointer}
 .cond-card-top{display:flex;align-items:center;justify-content:space-between}
@@ -1732,6 +1733,7 @@ function getMaxP(l){
   return maxVal;
 }
 function gap(l){const saleP=getMaxP(l);const g=l.mktP-saleP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};}
+function isLottoListing(l){ return l.lotto || gap(l).g >= 10000; }
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
@@ -1971,7 +1973,7 @@ function calcProb(l, p, selectedType){
   const myTypes = types.map(t=>t.l);
 
   const eligMatch = (l.elig||[]).some(e => myTypes.includes(e));
-  const isLotto = l.lotto;
+  const isLotto = isLottoListing(l);
 
   let prob, reasons = [];
 
@@ -2113,7 +2115,7 @@ function calcProb(l, p, selectedType){
 function pClass(v){return v>=20?'hi':v>=5?'mi':'lo';}
 function pColor(v){return v>=20?'#059669':v>=5?'#D97706':'#DC2626';}
 function typeBadge(l){
-  if(l.lotto)return`<span class="badge badge-lotto">🎰 로또청약</span>`;
+  if(isLottoListing(l))return`<span class="badge badge-lotto">🎰 로또청약</span>`;
   if(l.type==='public')return`<span class="badge badge-public">공공분양</span>`;
   return`<span class="badge badge-private">민간분양</span>`;
 }
@@ -2193,6 +2195,18 @@ function numToUkChun(manwon){
   if(uk > 0) return uk+'억';
   if(chun > 0) return chun+'천';
   return '';
+}
+function daysText(d,fmt){
+  if(d===0){
+    if(fmt==='badge') return '오늘';
+    if(fmt==='remain') return '오늘 마감';
+    if(fmt==='d') return 'D-Day';
+    return '오늘';
+  }
+  if(fmt==='badge') return 'D-'+d;
+  if(fmt==='remain') return d+'일 남음';
+  if(fmt==='d') return 'D-'+d;
+  return d+'일';
 }
 function cardPrice(price){
   if(!price) return '';
@@ -2279,7 +2293,7 @@ function updateHero(){
   // 마감임박 배너
   const urgSaved=listings.filter(l=>savedIds.has(l.id)&&l.days<=3);
   const aEl=document.getElementById('alert-area');
-  aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail(${urgSaved[0].id})"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">마감 ${urgSaved[0].days}일 전!</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
+  aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail(${urgSaved[0].id})"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">${urgSaved[0].days===0?'오늘 마감!':'마감 '+urgSaved[0].days+'일 전!'}</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
 
   renderRecommend();
 }
@@ -2299,14 +2313,14 @@ function renderRecommend(){
     return;
   }
   const tl=calcTypes(P).map(t=>t.l);
-  const matched=listings.filter(l=>!l.lotto&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e)));
   if(!matched.length){c.innerHTML='<div class="notice" style="cursor:default">현재 조건에 맞는 진행 중 공고가 없어요. 전체 공고를 확인해보세요.</div>';return;}
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${l.days>=0&&l.days<=3?`<span class="badge badge-urgent">${daysText(l.days,'badge')}</span>`:''}${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
-      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}">${l.days}일 남음</span></div>
+      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}">${daysText(l.days,'remain')}</span></div>
     </div>`;
   }).join('')}</div>`;
 }
@@ -2315,6 +2329,9 @@ function renderRecommend(){
 function renderListings(){
   const cont=document.getElementById('listings');
   const lb=document.getElementById('lotto-banner');
+  const lottoTab=document.getElementById('tab-lotto');
+  const hasLotto=listings.some(l=>isLottoListing(l));
+  if(lottoTab) lottoTab.style.display=hasLotto?'':'none';
   const nb=document.getElementById('api-notice-banner');
   if(nb){
     nb.innerHTML = '';
@@ -2323,14 +2340,14 @@ function renderListings(){
   const sort=document.getElementById('sort-sel').value;
   const q=srchQ.toLowerCase();
 
-  const activeLotto = listings.filter(l=>l.lotto);
+  const activeLotto = listings.filter(l=>isLottoListing(l));
   lb.innerHTML = curFilter==='lotto' && activeLotto.length
     ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
     : '';
   let fl=listings;
   if(curFilter==='public') fl=listings.filter(l=>l.type==='public');
   else if(curFilter==='private') fl=listings.filter(l=>l.type==='private');
-  else if(curFilter==='lotto') fl=listings.filter(l=>l.lotto);
+  else if(curFilter==='lotto') fl=listings.filter(l=>isLottoListing(l));
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터
   if(selectedRegions.size>0) fl=fl.filter(l=>selectedRegions.has(l.region));
@@ -2351,7 +2368,7 @@ function renderListings(){
   cont.innerHTML=fl.map((l,idx)=>{
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
     const prob=calcProb(l,P);
-    const wrHTML=l.lotto
+    const wrHTML=isLottoListing(l)
       ?`<div class="wr-badge lotto">추첨</div>`
       :prob!==null
         ?`<div class="wr-badge known">예상 당첨률 <b>${prob}%</b></div>`
@@ -2360,7 +2377,7 @@ function renderListings(){
     return`<div class="card card-anim" style="animation-delay:${idx*0.06}s" onclick="showDetail('${l.id}')">
       <div class="card-top">
         <div class="card-badges">
-          ${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}
+          ${l.days>=0&&l.days<=3?`<span class="badge badge-urgent">${daysText(l.days,'badge')}</span>`:''}
           ${typeBadge(l)}
         </div>
         <button class="bm-btn ${savedIds.has(l.id)?'saved':'unsaved'}" onclick="toggleSave(event,${l.id})">${bmSVG}</button>
@@ -2374,7 +2391,7 @@ function renderListings(){
         <div style="text-align:center"><div class="meta-label">세대수</div><div class="meta-val">${l.units}세대</div></div>
         ${(()=>{
           const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
-          return isFirstCome ? '' : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>`;
+          return isFirstCome ? '' : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${daysText(l.days)}</div></div>`;
         })()}
       </div>
       ${wrHTML}
@@ -2590,7 +2607,7 @@ function animateDashVal(id, target){
 }
 function renderMyCondDashboard(){
   const p=P, score=calcScore(p), types=calcTypes(p), tl=types.map(t=>t.l);
-  const matched=listings.filter(l=>!l.lotto&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e)));
   const typeDescs={'생애최초':{desc:'세대원 전원 첫 주택'},'신생아특공':{desc:'만 2세 이하 자녀 보유'},'다자녀특공':{desc:'미성년 자녀 3명 이상'},'청년특공':{desc:'만 39세 이하 미혼'},'일반공급':{desc:'무주택 세대구성원'}};
   document.getElementById('mycond-body').innerHTML=`
     <div class="dash-hero">
@@ -2611,12 +2628,12 @@ function renderMyCondDashboard(){
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
       <div class="dash-section-title">✨ 지금 신청 가능한 공고 ${matched.length}건</div>
-      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">D-${l.days}</span></div></div>`;}).join('')}
+      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">${daysText(l.days,'d')}</span></div></div>`;}).join('')}
       ${matched.length>5?`<div style="text-align:center;font-size:13px;color:var(--accent);font-weight:600;padding:12px;cursor:pointer" onclick="showScreen('home')">전체 ${matched.length}건 보기 →</div>`:''}
     </div>`:''}
     <div class="dash-section" style="margin-top:20px">
       <div class="dash-section-title">🏆 가점 커트라인 비교</div>
-      ${listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=score.total-l.cut,ok=d>=0;return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:12px;color:var(--ink-4)">커트라인 ${l.cut}점</span><span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:${ok?'var(--public-light)':'var(--red-light)'};color:${ok?'var(--public)':'var(--red)'}">${ok?`+${d}점 통과`:`${d}점 부족`}</span></div></div>`;}).join('')}
+      ${listings.filter(l=>!isLottoListing(l)&&l.cut>0).map(l=>{const d=score.total-l.cut,ok=d>=0;return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:12px;color:var(--ink-4)">커트라인 ${l.cut}점</span><span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:${ok?'var(--public-light)':'var(--red-light)'};color:${ok?'var(--public)':'var(--red)'}">${ok?`+${d}점 통과`:`${d}점 부족`}</span></div></div>`;}).join('')}
     </div>
     <div style="height:120px"></div>`;
   setTimeout(()=>{
@@ -2647,7 +2664,7 @@ function showAlarmList(){
             <div style="font-size:14px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
             <div style="font-size:12px;color:var(--ink-4);margin-top:3px">📍 ${l.loc}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days<=3?`D-${l.days} 마감임박!`:`D-${l.days}`}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days<=3?(l.days===0?'오늘 마감!':`D-${l.days} 마감임박!`):`D-${l.days}`}</span>
               <span style="font-size:12px;color:var(--ink-4)">${cardPrice(l.price)}</span>
             </div>
           </div>`).join('')}
@@ -2789,7 +2806,7 @@ async function showDetail(id, fromSwipe=false){
 
   // ★★★ [하드코딩 — 수정 금지] 상세 헤더 뱃지: 어두운 배경에서 보이게 흰색 글씨 ★★★
   const detBadgeStyle = 'display:inline-block;margin-bottom:10px;color:white !important;background:rgba(255,255,255,.18) !important;border:1px solid rgba(255,255,255,.3) !important';
-  document.getElementById('det-badges').innerHTML=`${l.days>0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">D-${l.days}</span>`:''}${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
+  document.getElementById('det-badges').innerHTML=`${l.days>=0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">${daysText(l.days,'badge')}</span>`:''}${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
   // ★★★ [하드코딩 끝] ★★★
   document.getElementById('det-title').textContent=cleanName(l.name);
   document.getElementById('det-loc').textContent='📍 '+l.loc;
@@ -2861,20 +2878,20 @@ async function showDetail(id, fromSwipe=false){
           </div>`).join('');
         const uid = 'price-detail-'+l.id;
         return `<div class="info-row" style="flex-direction:column;gap:0;align-items:stretch">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="info-rl" style="width:auto">분양가</span>
-            <span class="info-rv" style="flex:none">${rangeText}</span>
-          </div>
+          <span class="info-rl" style="width:auto;margin-bottom:6px">평형별 분양가</span>
           ${parsed.length > 1 ? `
-          <div style="position:relative;margin-top:8px">
-            <div id="${uid}" style="max-height:44px;overflow:hidden;transition:max-height .3s ease;position:relative">
-              ${detailRows}
+          <div style="margin-top:0">
+            <div style="position:relative">
+              <div id="${uid}" style="max-height:44px;overflow:hidden;transition:max-height .3s ease">
+                ${detailRows}
+              </div>
+              <div id="${uid}-fade" style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,white);pointer-events:none;transition:opacity .3s"></div>
             </div>
-            <div id="${uid}-fade" style="position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,white);pointer-events:none;transition:opacity .3s"></div>
-            <div style="text-align:center;padding-top:4px">
-              <span id="${uid}-btn" style="font-size:11px;color:var(--accent);font-weight:600;cursor:pointer" onclick="togglePriceDetail('${uid}')">평형별 상세 ▾</span>
+            <div style="text-align:center;padding-top:6px;position:relative;z-index:1">
+              <span id="${uid}-btn" style="font-size:12px;color:var(--accent);font-weight:700;cursor:pointer;padding:4px 12px" onclick="togglePriceDetail('${uid}')">평형별 상세 ▾</span>
             </div>
-          </div>` : ''}
+          </div>` : `
+          <div style="margin-top:0">${detailRows}</div>`}
         </div>`;
       }
       return `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">공고 확인 필요</span></div>`;
@@ -2884,7 +2901,7 @@ async function showDetail(id, fromSwipe=false){
       const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
       const deadlineRow = isFirstCome
         ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약 종료 시 마감</span></div>`
-        : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>`;
+        : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${daysText(l.days,'remain')})</span></div>`;
       // ★★★ [하드코딩 — 수정 금지] 일정: 계약 제거, 화살표/슬래시 → 줄바꿈 ★★★
       let schedText = (l.sched||'');
       // 계약 관련 내용 제거
@@ -2897,57 +2914,7 @@ async function showDetail(id, fromSwipe=false){
     })()}
   </div>
 
-  <!-- 2. 📈 시세 차익 분석 -->
-  <div class="info-card" style="margin-top:14px">
-    <div class="info-card-title">📈 시세 차익 분석</div>
-    ${l.noMktP ? `
-      <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
-      <div class="gap-chart" id="det-gap-chart">
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
-        </div>
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">주변 시세</div>
-          <div class="gap-bar-track" style="background:var(--bg-2);display:flex;align-items:center;justify-content:center">
-            <span style="font-size:9px;font-weight:600;color:var(--ink-5);text-align:center">시세 정보 없음</span>
-          </div>
-          <div class="gap-bar-val" style="color:var(--ink-5)">—</div>
-        </div>
-      </div>
-    ` : `
-      <div class="gap-chart" id="det-gap-chart">
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
-        </div>
-        <div class="gap-bar-row">
-          <div class="gap-bar-label">주변 시세</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
-          <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
-        <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
-        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
-      </div>
-    `}
-    ${(l.priceFactors&&l.priceFactors.length)?`
-    <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
-      <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${(l.priceFactors||[]).map(f=>`
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon}</span>
-          <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
-        </div>`).join('')}
-      </div>
-    </div>`:''}
-  </div>
-
-  <!-- 3. 청약 자격 + 🎯 신청 가능한 전형 -->
+  <!-- 2. 청약 자격 + 🎯 신청 가능한 전형 -->
   <div class="info-card" style="margin-top:14px">
     <div class="info-card-title">📋 청약 자격</div>
     <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
@@ -3000,6 +2967,56 @@ async function showDetail(id, fromSwipe=false){
             </div>`).join('')}
         </div>`;
     })()}
+  </div>
+
+  <!-- 3. 📈 시세 차익 분석 -->
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📈 시세 차익 분석</div>
+    ${l.noMktP ? `
+      <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
+      <div class="gap-chart" id="det-gap-chart">
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
+        </div>
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">주변 시세</div>
+          <div class="gap-bar-track" style="background:var(--bg-2);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:9px;font-weight:600;color:var(--ink-5);text-align:center">시세 정보 없음</span>
+          </div>
+          <div class="gap-bar-val" style="color:var(--ink-5)">—</div>
+        </div>
+      </div>
+    ` : `
+      <div class="gap-chart" id="det-gap-chart">
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
+        </div>
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">주변 시세</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
+          <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
+        <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
+        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
+      </div>
+    `}
+    ${(l.priceFactors&&l.priceFactors.length)?`
+    <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
+      <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(l.priceFactors||[]).map(f=>`
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon}</span>
+          <span style="font-size:12px;color:var(--ink-3);line-height:1.55">${f.text}</span>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
   </div>
 
   <!-- 4. 📊 당첨 예상 확률 + 🏆 가점 커트라인 -->
@@ -3068,7 +3085,7 @@ async function showDetail(id, fromSwipe=false){
     })()}
   </div>`
   :/* ★★★ [하드코딩 — 수정 금지] 예상 당첨률 CTA: 파란색 배경 + '내 당첨률 확인하기' 텍스트 ★★★ */
-  `<div style="margin:14px 0 0;padding:18px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()"><div style="font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:12px">내 당첨률 확인하기</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--accent-dark)">내 조건을 입력하면 예상 당첨률을 알려드려요</span><span style="display:inline-block;margin-top:4px;padding:8px 20px;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700">조건 설정하기 →</span></div></div>`
+  `<div style="margin:14px 0 0;padding:18px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()"><div style="font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:12px">내 당첨률 확인하기</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--accent-dark)">내 조건을 입력하면 예상 당첨률을 알려드려요</span><span style="display:inline-block;margin-top:4px;padding:8px 20px;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700">조건 설정하기</span></div></div>`
   /* ★★★ [하드코딩 끝] ★★★ */}
   ${l.cut?`<div class="info-card" style="margin-top:14px">
     <div class="info-card-title">🏆 가점 커트라인 비교</div>
@@ -3281,7 +3298,7 @@ function updateScoreScreen(){
     <div class="score-row"><span class="score-rl">부양가족 수 (${parseInt(p.dependents||0)}명)</span><span class="score-pts">${dS}</span><span class="score-mx">/ 35점</span></div>
     <div class="score-row"><span class="score-rl">청약통장 기간 (약 ${Math.floor(parseInt(p.depCount||0)/12)}년)</span><span class="score-pts">${aS}</span><span class="score-mx">/ 17점</span></div>
     <div class="score-row" style="background:var(--accent-light)"><span class="score-rl" style="font-weight:800;color:var(--accent)">총 가점</span><span class="score-pts" style="font-size:18px">${total}</span><span class="score-mx" style="color:var(--accent-dark)">/ 84점</span></div>`;
-  document.getElementById('cutline-list').innerHTML=listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=total-l.cut;const ok=d>=0;return`<div class="cut-row" onclick="showDetail('${l.id}')"><div class="cut-name">${cleanName(l.name)}</div><div class="cut-score">${l.cut}점</div><div class="cut-diff ${ok?'ok':'no'}">${ok?`+${d}점`:`${d}점`}</div></div>`;}).join('');
+  document.getElementById('cutline-list').innerHTML=listings.filter(l=>!isLottoListing(l)&&l.cut>0).map(l=>{const d=total-l.cut;const ok=d>=0;return`<div class="cut-row" onclick="showDetail('${l.id}')"><div class="cut-name">${cleanName(l.name)}</div><div class="cut-score">${l.cut}점</div><div class="cut-diff ${ok?'ok':'no'}">${ok?`+${d}점`:`${d}점`}</div></div>`;}).join('');
 
   // 가점 올리기 팁 — 현재 점수 기반으로 우선순위 추천
   const nh=parseInt(p.noHomeYears||0), dep=parseInt(p.dependents||0), acc=parseInt(p.depCount||0);
@@ -3367,7 +3384,7 @@ function showCalEvs(day){
   listings.forEach(l=>{[[l.aS,'ac','접수 시작'],[l.aE,'ug','접수 마감'],[l.aD,'an','당첨 발표']].forEach(([ds,type,label])=>{if(!ds)return;const d=new Date(ds);if(d.getFullYear()===calYear&&d.getMonth()===calMonth&&d.getDate()===day)evs.push({type,label,l});});});
   const el=document.getElementById('cal-evs');
   if(!evs.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink-5);font-size:13px">${day}일에 예정된 일정이 없어요</div>`;return;}
-  el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--ink-4);margin-bottom:8px">${calMonth+1}월 ${day}일 일정</div>`+evs.map(e=>`<div class="cal-ev" onclick="showDetail(${e.l.id})"><div class="cal-ev-dot ${e.type}"></div><div><div class="cal-ev-name">${cleanName(e.l.name)}</div><div class="cal-ev-type">${e.label}</div></div><div class="cal-ev-d">${e.l.days}일 남음</div></div>`).join('');
+  el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--ink-4);margin-bottom:8px">${calMonth+1}월 ${day}일 일정</div>`+evs.map(e=>`<div class="cal-ev" onclick="showDetail(${e.l.id})"><div class="cal-ev-dot ${e.type}"></div><div><div class="cal-ev-name">${cleanName(e.l.name)}</div><div class="cal-ev-type">${e.label}</div></div><div class="cal-ev-d">${daysText(e.l.days,'remain')}</div></div>`).join('');
 }
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 
@@ -3375,9 +3392,9 @@ function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(cal
 function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
-  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고에 즐겨찾기를 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">공고 보러 가기</button></div>`;return;}
+  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고에 즐겨찾기를 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">공고 보러 가기</button></div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
-  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div></div></div>`;}).join('')}</div>`;
+  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
 }
 
 /* ══ 컨설팅 ══ */
@@ -3385,7 +3402,7 @@ function updateConsult(){
   const pl=document.getElementById('prob-list');
   const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
   if(!hasConditions){pl.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 설정하면 예상 당첨률을 분석해드려요</div>';return;}
-  pl.innerHTML=listings.filter(l=>!l.lotto).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div>${l._probReason?`<div style="font-size:10px;color:var(--ink-5);margin-top:2px;padding-left:2px">📐 ${l._probReason}</div>`:''}</div>`;}).join('');
+  pl.innerHTML=listings.filter(l=>!isLottoListing(l)).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div>${l._probReason?`<div style="font-size:10px;color:var(--ink-5);margin-top:2px;padding-left:2px">📐 ${l._probReason}</div>`:''}</div>`;}).join('');
 }
 
 /* ══ 마이페이지 ══ */
@@ -4049,7 +4066,7 @@ async function loadLiveData(){
     showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
-    const normalListings = parsed.filter(l => !l.lotto && l.id);
+    const normalListings = parsed.filter(l => !isLottoListing(l) && l.id);
     const enrichPromises = normalListings.map(async (l) => {
       const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
       const [comp, cut] = await Promise.all([
@@ -4429,7 +4446,7 @@ async function renderAdminList(){
       <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
         <div style="flex:1">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
-          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
+          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · ${daysText(l.days,'d')}</div>
         </div>
         <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
       </div>`).join('');
