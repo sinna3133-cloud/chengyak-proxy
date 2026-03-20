@@ -857,7 +857,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="hero-glow"></div>
     <div class="hero-glow2"></div>
     <div class="hero-inner">
-      <div id="api-indicator" class="api-ind-mock" style="display:none" onclick="openApiSetup()">목업 데이터</div>
       <!-- 닉네임 + 응원 문구 -->
       <div style="margin-bottom:16px;position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
         <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:900;color:white;letter-spacing:-.4px;white-space:nowrap"></div>
@@ -1091,8 +1090,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico">🏆</span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-new">NEW</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico">📅</span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico">📖</span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showToast('알림 설정은 준비 중이에요! 🔔')"><span class="menu-ico">🔔</span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="openApiSetup()"><span class="menu-ico">🔌</span><span class="menu-txt">청약홈 API 연동</span><span id="api-menu-badge" class="api-menu-badge-off">미연동</span><span class="menu-arr">›</span></div>
   <div class="menu-section-label">고객센터</div>
   <div style="padding:20px 20px 8px;display:grid;grid-template-columns:1fr 1fr;row-gap:32px">
     <div class="sup-link" onclick="showSupport('notice')">공지사항</div>
@@ -2321,14 +2318,7 @@ function showDetail(id, fromSwipe=false){
         +'</div>';
     })()}
   </div>`
-  :`<div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
-    <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:12px">내 당첨 예상 확률</div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;cursor:pointer;text-align:center" onclick="openWrSheet()">
-      <div style="font-size:52px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div>
-      <span style="font-size:13px;font-weight:600;color:var(--ink-4)">조건을 설정하면 당첨 확률을 알려드려요</span>
-      <span style="font-size:13px;font-weight:700;color:var(--accent);background:white;padding:8px 20px;border-radius:20px;box-shadow:0 2px 8px rgba(0,102,255,.15)">조건 설정하기 →</span>
-    </div>
-  </div>`}
+  :`<div style="margin:14px 0 0;padding:14px 18px;background:var(--bg);border:1.5px dashed var(--ink-5);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center" onclick="openWrSheet()"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--ink-4)">예상 당첨률을 알고 싶으신가요?</span><span style="font-size:13px;font-weight:700;color:var(--accent)">조건 설정하기 →</span></div>`}
   ${l.cut?`<div class="info-card" style="margin-top:14px">
     <div class="info-card-title">🏆 가점 커트라인 비교</div>
     <div class="cut-chart" style="padding:12px 18px 12px">
@@ -2880,7 +2870,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
    ※ 인증키: Decoding 키 사용 (이미지의 '일반 인증키')
 ══════════════════════════════════════ */
 
-let apiKey = localStorage.getItem('cheongyak_api_key') || '';
+let apiKey = 'b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51';
 let apiConnected = false;
 let liveListings = [];
 let sheetPrices = {}; // 단지명 → {price, minP, mktP, factors}
@@ -2926,28 +2916,11 @@ async function loadSheetFactors(){
   
 /* API 상태 업데이트 */
 function updateApiStatus(){
-  const ind   = document.getElementById('api-indicator');
-  const badge = document.getElementById('api-menu-badge');
-  if(!ind) return;
-  if(apiConnected){
-    ind.style.display='block';
-    ind.className='api-ind-live';
-    ind.textContent='실시간 연동 ●';
-    if(badge){ badge.className='api-menu-badge-on'; badge.textContent='연동됨'; }
-  } else {
-    ind.style.display='none'; // 목업일 땐 숨김
-    if(badge){ badge.className='api-menu-badge-off'; badge.textContent='미연동'; }
-  }
+  // UI 표시 없음 — 자동 연동
 }
 
-function openApiSetup(){
-  const inp = document.getElementById('api-key-input');
-  if(inp && apiKey) inp.value = apiKey;
-  document.getElementById('api-setup-ov').classList.add('open');
-}
-function closeApiSetup(){
-  document.getElementById('api-setup-ov').classList.remove('open');
-}
+function openApiSetup(){}
+function closeApiSetup(){}
 
 async function connectApi(){
   const key = document.getElementById('api-key-input').value.trim();
@@ -3189,7 +3162,6 @@ async function loadLiveData(){
 
       apiConnected = false;
       updateApiStatus();
-      showToast('API 응답이 비어있어요 — 목업 데이터로 표시해요');
       return;
     }
 
@@ -3204,12 +3176,11 @@ async function loadLiveData(){
     updateApiStatus();
     renderListings();
     renderRecommend();
-    showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
     const normalListings = parsed.filter(l => !l.lotto && l.id);
     const enrichPromises = normalListings.map(async (l) => {
-      const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
+      const pblancNo = l.id;
       const [comp, cut] = await Promise.all([
         fetchCmpetRate(apiKey, pblancNo),
         fetchCutScore(apiKey,  pblancNo)
@@ -3227,13 +3198,11 @@ async function loadLiveData(){
     renderListings();
     updateConsult();
     updateScoreScreen();
-    showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
 
   } catch(e){
     console.error('loadLiveData error:', e);
     apiConnected = false;
     updateApiStatus();
-    showToast('API 오류 — 목업 데이터로 표시해요');
   }
 }
 
