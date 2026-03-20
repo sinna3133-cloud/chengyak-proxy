@@ -1756,6 +1756,12 @@ function calcScore(p){
   return{total:nhS+dS+aS,nhS,dS,aS};
 }
 
+/* ══ 단지명 정리 ══ */
+function cleanName(name){
+  if(!name) return name;
+  return name.replace(/\s*공공분양주택\s*/g, '').trim();
+}
+
 /* ══ 히어로 ══ */
 function updateHero(){
   const p=P;
@@ -1821,7 +1827,7 @@ function renderRecommend(){
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
       <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${l.days>0&&l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
-      <div class="rec-name">${l.name}</div><div class="rec-loc">📍 ${l.loc}</div>
+      <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
       <div class="rec-bottom"><span class="rec-price">${l.price.split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}">${l.days}일 남음</span></div>
     </div>`;
   }).join('')}</div>`;
@@ -1886,7 +1892,7 @@ function renderListings(){
         </div>
         <button class="bm-btn ${savedIds.has(l.id)?'saved':'unsaved'}" onclick="toggleSave(event,${l.id})">${bmSVG}</button>
       </div>
-      <div class="card-name">${l.name}</div>
+      <div class="card-name">${cleanName(l.name)}</div>
       <div class="card-loc">📍 ${l.loc}</div>
       ${gapPill(l)}
       <div class="card-sep"></div>
@@ -2060,12 +2066,12 @@ function renderMyCondDashboard(){
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
       <div class="dash-section-title">✨ 지금 신청 가능한 공고 ${matched.length}건</div>
-      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${l.name}</div><div class="dash-match-loc">📍 ${l.loc}</div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">D-${l.days}</span></div></div>`;}).join('')}
+      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">D-${l.days}</span></div></div>`;}).join('')}
       ${matched.length>5?`<div style="text-align:center;font-size:13px;color:var(--accent);font-weight:600;padding:12px;cursor:pointer" onclick="showScreen('home')">전체 ${matched.length}건 보기 →</div>`:''}
     </div>`:''}
     <div class="dash-section" style="margin-top:20px">
       <div class="dash-section-title">🏆 가점 커트라인 비교</div>
-      ${listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=score.total-l.cut,ok=d>=0;return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${l.name}</div><div class="dash-match-loc">📍 ${l.loc}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:12px;color:var(--ink-4)">커트라인 ${l.cut}점</span><span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:${ok?'var(--public-light)':'var(--red-light)'};color:${ok?'var(--public)':'var(--red)'}">${ok?`+${d}점 통과`:`${d}점 부족`}</span></div></div>`;}).join('')}
+      ${listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=score.total-l.cut,ok=d>=0;return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc">📍 ${l.loc}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:12px;color:var(--ink-4)">커트라인 ${l.cut}점</span><span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:${ok?'var(--public-light)':'var(--red-light)'};color:${ok?'var(--public)':'var(--red)'}">${ok?`+${d}점 통과`:`${d}점 부족`}</span></div></div>`;}).join('')}
     </div>
     <div style="height:120px"></div>`;
   setTimeout(()=>{
@@ -2093,7 +2099,7 @@ function showAlarmList(){
       <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:10px">
         ${alarmListings.map(l=>`
           <div onclick="document.getElementById('alarm-overlay').remove();showDetail('${l.id}')" style="background:var(--bg-card);border-radius:14px;border:1px solid rgba(0,0,0,.07);padding:16px;cursor:pointer">
-            <div style="font-size:14px;font-weight:700;color:var(--ink)">${l.name}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
             <div style="font-size:12px;color:var(--ink-4);margin-top:3px">📍 ${l.loc}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
               <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days<=3?`D-${l.days} 마감임박!`:`D-${l.days}`}</span>
@@ -2124,7 +2130,7 @@ function showDetail(id, fromSwipe=false){
   const monthly=Math.round(loan*.04/12),canAfford=cash>=dep;
 
   document.getElementById('det-badges').innerHTML=`${l.days>0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">D-${l.days}</span>`:''}${typeBadge(l).replace('class="badge','class="badge" style="display:inline-block;margin-bottom:10px"')}`;
-  document.getElementById('det-title').textContent=l.name;
+  document.getElementById('det-title').textContent=cleanName(l.name);
   document.getElementById('det-loc').textContent='📍 '+l.loc;
   document.getElementById('det-body').innerHTML=`
 
@@ -2370,7 +2376,7 @@ function syncDetailAlarmBtn(id){
   if(!btn) return;
   btn.classList.toggle('on', alarmIds.has(id));
 }
-function shareDetail(id){const l=listings.find(x=>x.id===id);const text=`[쉬운청약] ${l.name}\n📍 ${l.loc}\n💰 ${l.price}\n📅 마감: ${l.deadline}`;if(navigator.share)navigator.share({title:l.name,text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));}
+function shareDetail(id){const l=listings.find(x=>x.id===id);const text=`[쉬운청약] ${cleanName(l.name)}\n📍 ${l.loc}\n💰 ${l.price}\n📅 마감: ${l.deadline}`;if(navigator.share)navigator.share({title:l.name,text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));}
 /* ══ 상세 스와이프 ══ */
 let _touchStartX = 0;
 let _touchStartY = 0;
@@ -2445,7 +2451,7 @@ function updateScoreScreen(){
     <div class="score-row"><span class="score-rl">부양가족 수 (${parseInt(p.dependents||0)}명)</span><span class="score-pts">${dS}</span><span class="score-mx">/ 35점</span></div>
     <div class="score-row"><span class="score-rl">청약통장 기간 (약 ${Math.floor(parseInt(p.depCount||0)/12)}년)</span><span class="score-pts">${aS}</span><span class="score-mx">/ 17점</span></div>
     <div class="score-row" style="background:var(--accent-light)"><span class="score-rl" style="font-weight:800;color:var(--accent)">총 가점</span><span class="score-pts" style="font-size:18px">${total}</span><span class="score-mx" style="color:var(--accent-dark)">/ 84점</span></div>`;
-  document.getElementById('cutline-list').innerHTML=listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=total-l.cut;const ok=d>=0;return`<div class="cut-row" onclick="showDetail('${l.id}')"><div class="cut-name">${l.name}</div><div class="cut-score">${l.cut}점</div><div class="cut-diff ${ok?'ok':'no'}">${ok?`+${d}점`:`${d}점`}</div></div>`;}).join('');
+  document.getElementById('cutline-list').innerHTML=listings.filter(l=>!l.lotto&&l.cut>0).map(l=>{const d=total-l.cut;const ok=d>=0;return`<div class="cut-row" onclick="showDetail('${l.id}')"><div class="cut-name">${cleanName(l.name)}</div><div class="cut-score">${l.cut}점</div><div class="cut-diff ${ok?'ok':'no'}">${ok?`+${d}점`:`${d}점`}</div></div>`;}).join('');
 
   // 가점 올리기 팁 — 현재 점수 기반으로 우선순위 추천
   const nh=parseInt(p.noHomeYears||0), dep=parseInt(p.dependents||0), acc=parseInt(p.depCount||0);
@@ -2531,7 +2537,7 @@ function showCalEvs(day){
   listings.forEach(l=>{[[l.aS,'ac','접수 시작'],[l.aE,'ug','접수 마감'],[l.aD,'an','당첨 발표']].forEach(([ds,type,label])=>{if(!ds)return;const d=new Date(ds);if(d.getFullYear()===calYear&&d.getMonth()===calMonth&&d.getDate()===day)evs.push({type,label,l});});});
   const el=document.getElementById('cal-evs');
   if(!evs.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink-5);font-size:13px">${day}일에 예정된 일정이 없어요</div>`;return;}
-  el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--ink-4);margin-bottom:8px">${calMonth+1}월 ${day}일 일정</div>`+evs.map(e=>`<div class="cal-ev" onclick="showDetail(${e.l.id})"><div class="cal-ev-dot ${e.type}"></div><div><div class="cal-ev-name">${e.l.name}</div><div class="cal-ev-type">${e.label}</div></div><div class="cal-ev-d">${e.l.days}일 남음</div></div>`).join('');
+  el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--ink-4);margin-bottom:8px">${calMonth+1}월 ${day}일 일정</div>`+evs.map(e=>`<div class="cal-ev" onclick="showDetail(${e.l.id})"><div class="cal-ev-dot ${e.type}"></div><div><div class="cal-ev-name">${cleanName(e.l.name)}</div><div class="cal-ev-type">${e.label}</div></div><div class="cal-ev-d">${e.l.days}일 남음</div></div>`).join('');
 }
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 
@@ -2540,7 +2546,7 @@ function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
   if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고에 즐겨찾기를 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">공고 보러 가기</button></div>`;return;}
-  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}${l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${l.name}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${l.price}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div></div></div>`;}).join('')}</div>`;
+  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}${l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${l.price}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div></div></div>`;}).join('')}</div>`;
 }
 
 /* ══ 컨설팅 ══ */
@@ -2548,7 +2554,7 @@ function updateConsult(){
   const pl=document.getElementById('prob-list');
   const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
   if(!hasConditions){pl.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 설정하면 예상 당첨률을 분석해드려요</div>';return;}
-  pl.innerHTML=listings.filter(l=>!l.lotto).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${l.name}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div></div>`;}).join('');
+  pl.innerHTML=listings.filter(l=>!l.lotto).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div></div>`;}).join('');
 }
 
 /* ══ 마이페이지 ══ */
@@ -3476,7 +3482,7 @@ function renderAdminList(){
     el.innerHTML = saved.map(l => `
       <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${l.name}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
           <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
         </div>
         <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
