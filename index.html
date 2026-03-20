@@ -2267,18 +2267,17 @@ function showDetail(id, fromSwipe=false){
         const tokens = labelPart.split(/\s+/).filter(Boolean);
         let bestLabel = '';
         if(tokens.length >= 1){
-          // 첫 번째 토큰 정규화: "33Am²" → "33A", "59㎡" → "59㎡"
-          let first = tokens[0].replace(/m²/g,'㎡').replace(/m2/g,'㎡');
-          // ㎡ 없으면 숫자+알파벳 형태에 붙이기
-          const clean = first.replace(/㎡/g,'');
-          if(/^\d{2,3}[A-Za-z]?$/.test(clean)){
-            bestLabel = /[A-Za-z]/.test(clean) ? clean : clean+'㎡';
-          } else if(/^[A-Za-z]+\d+$/.test(clean)){
-            // "A33" → "33A" 변환
-            const m = clean.match(/^([A-Za-z]+)(\d+)$/);
-            if(m) bestLabel = m[2]+m[1];
+          // 첫 번째 토큰 정규화: 모든 라벨에 ㎡ 통일
+          let first = tokens[0].replace(/m²/g,'').replace(/m2/g,'').replace(/㎡/g,'').trim();
+          if(/^\d{2,3}[A-Za-z]?$/.test(first)){
+            // "59" → "59㎡", "84A" → "84A㎡", "33A" → "33A㎡"
+            bestLabel = first + '㎡';
+          } else if(/^[A-Za-z]+\d+$/.test(first)){
+            // "A33" → "33A㎡"
+            const m = first.match(/^([A-Za-z]+)(\d+)$/);
+            if(m) bestLabel = m[2]+m[1]+'㎡';
           } else {
-            bestLabel = first;
+            bestLabel = first.includes('㎡') ? first : first+'㎡';
           }
         }
         // 금액 포맷 + 최소값 계산 (정렬용)
@@ -2319,7 +2318,9 @@ function showDetail(id, fromSwipe=false){
       const deadlineRow = isFirstCome
         ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약 종료 시 마감</span></div>`
         : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>`;
-      const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>`;
+      // ★★★ [하드코딩 — 수정 금지] 일정: 화살표/슬래시 → 줄바꿈 통일 ★★★
+      const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(/\s*→\s*/g,'<br>').replace(/\s*\/\s*/g,'<br>')}</span></div>`;
+      // ★★★ [하드코딩 끝] ★★★
       return deadlineRow + schedRow;
     })()}
   </div>
@@ -3528,15 +3529,15 @@ async function onAdminFileSelect(event){
   "loc": "위치 (시/구/동)",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private",
-  "price": "분양가 (예: 3억~5억원, 평형별이면 | 로 구분: 84A 3억5천|101B 4억2천)",
-  "minP": 분양가 최저값 만원 단위 숫자,
+  "price": "평형별 분양가 (반드시 | 로 구분. 라벨은 전용면적㎡ 사용. 예: 59㎡ 5억1천|84A㎡ 7억4천). 범위가 있으면 ~로 구분: 59㎡ 3억2천~3억5천|84A㎡ 4억1천~4억3천",
+  "minP": 전체 평형 중 분양가 최저값 만원 단위 숫자,
   "mktP": 주변 시세 만원 단위 숫자 (공고문에 없으면 0),
   "deadline": "청약 접수 마감일 YYYY-MM-DD",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
   "units": 총 세대수 숫자,
   "qual": "신청 자격 한 줄 요약",
   "inc": "소득 기준 한 줄 요약",
-  "sched": "주요 일정 (접수~발표~계약)",
+  "sched": "주요 일정 (반드시 이 형식: 접수: YYYY-MM-DD ~ YYYY-MM-DD / 발표: YYYY-MM-DD / 계약: YYYY-MM-DD ~ YYYY-MM-DD)",
   "aS": "청약 접수 시작일 YYYY-MM-DD",
   "aE": "청약 접수 종료일 YYYY-MM-DD",
   "aD": "당첨자 발표일 YYYY-MM-DD",
@@ -3574,6 +3575,21 @@ async function onAdminFileSelect(event){
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
+    // ★★★ [하드코딩 — 수정 금지] PDF 추출 데이터를 API 형식과 통일 ★★★
+    // sched 형식 통일: 화살표(→) → 슬래시(/) 로 변환해서 API 형식에 맞춤
+    let normalizedSched = parsed.sched || '';
+    normalizedSched = normalizedSched.replace(/\s*→\s*/g, ' / ');
+    // aS/aE/aD에서 sched 재생성 (API 형식과 동일)
+    if(parsed.aS && parsed.aE){
+      normalizedSched = `접수: ${parsed.aS} ~ ${parsed.aE}`;
+      if(parsed.aD) normalizedSched += ` / 발표: ${parsed.aD}`;
+      // 기존 sched에 계약 정보가 있으면 추가
+      const contractMatch = (parsed.sched||'').match(/계약[:\s]*([0-9.\-~\s]+)/);
+      if(contractMatch) normalizedSched += ` / 계약: ${contractMatch[1].trim()}`;
+    }
+    // deadline: API는 마감일 YYYY-MM-DD 형식
+    const normalizedDeadline = parsed.deadline || parsed.aE || '';
+
     _adminExtracted = {
       ...parsed,
       id: Date.now(),
@@ -3583,8 +3599,11 @@ async function onAdminFileSelect(event){
       comp: 10,
       days: parsed.aE ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : 0,
       priceFactors: [],
-      price: parsed.price || '공고 확인 필요'
+      price: parsed.price || '공고 확인 필요',
+      sched: normalizedSched,
+      deadline: normalizedDeadline
     };
+    // ★★★ [하드코딩 끝] ★★★
 
     statusEl.style.background = 'var(--public-light)';
     statusEl.style.border = '1px solid rgba(5,150,105,.3)';
