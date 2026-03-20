@@ -1775,10 +1775,11 @@ function cardPrice(price){
     return cleanPrice(price);
   }
   const parts = price.split('|').map(p => p.trim());
-  // 각 파트에서 숫자 시작 위치부터 금액만 추출 (예: "59㎡ 5억 1천" → "5억 1천")
+  // 공백 기준으로 첫 토큰(평형명) 제거 후 나머지가 금액
+  // 예: "61㎡ 8억 8천" → "8억 8천", "112B㎡ 17억 8천" → "17억 8천"
   const prices = parts.map(p => {
-    const idx = p.search(/[0-9]/);
-    return cleanPrice(idx > 0 ? p.slice(idx).trim() : p);
+    const spaceIdx = p.indexOf(' ');
+    return cleanPrice(spaceIdx > 0 ? p.slice(spaceIdx + 1).trim() : p);
   });
   const first = prices[0];
   const last = prices[prices.length - 1];
