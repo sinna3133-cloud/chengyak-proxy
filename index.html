@@ -1774,7 +1774,7 @@ function cleanPrice(p){
   return p.replace(/만원/g, '').replace(/원$/g, '').trim();
 }
 
-/* ══ 가격 문자열 → 숫자(만원) 변환 ══ */
+/* ★★★ [하드코딩 — 수정 금지] 가격 문자열 → 숫자(만원) 변환 ★★★ */
 function priceToNum(p){
   if(!p) return 0;
   p = p.replace(/,/g,'').trim();
@@ -1782,13 +1782,20 @@ function priceToNum(p){
   if(/[0-9]+천원/.test(p)) return Math.round(parseInt(p) * 0.1); // 천원 → 만원
   let result = 0;
   const uk = p.match(/([0-9.]+)억/);
-  const chun = p.match(/([0-9]+)천/);
+  const chun = p.match(/([0-9]+)천(?!원)/);
   const man = p.match(/([0-9]+)만/);
   if(uk) result += parseFloat(uk[1]) * 10000;
   if(chun) result += parseInt(chun[1]) * 1000;
   if(man) result += parseInt(man[1]);
+  // "3억6613" 처럼 억 뒤에 단위 없는 숫자가 있으면 만원 단위로 처리
+  if(uk && !chun && !man){
+    const afterUk = p.slice(p.indexOf('억')+1).trim();
+    const trailing = afterUk.match(/^(\d{3,})/); // 3자리 이상 숫자
+    if(trailing) result += parseInt(trailing[1]);
+  }
   return result;
 }
+/* ★★★ [하드코딩 끝] ★★★ */
 
 /* ★★★ [하드코딩 — 수정 금지] 카드용 가격: 최저~최고, 0억 0천 형식 ★★★ */
 function numToUkChun(manwon){
@@ -2249,46 +2256,50 @@ function showDetail(id, fromSwipe=false){
         return str;
       }
       function parsePricePart(raw){
-        // "33Am² 84A 3억6,613~3억8,951" 같은 형식 파싱
-        // 또는 "84A 3억5천" 같은 정상 형식
+        // "33Am² 84A 3억6,613~3억8,951" 또는 "84A 3억5천" 파싱
         raw = raw.trim();
-        // 금액 시작점 찾기: 첫 번째 숫자+억 패턴
+        // 금액 시작점: 첫 번째 숫자+억 패턴
         const priceStart = raw.search(/\d+억/);
-        if(priceStart < 0) return { label: '', amt: formatToUkChun(cleanPrice(raw)) };
+        if(priceStart < 0) return { label: '', amt: formatToUkChun(cleanPrice(raw)), minVal: 0 };
         const labelPart = raw.slice(0, priceStart).trim();
         const amtPart = raw.slice(priceStart).trim();
-        // 라벨에서 면적 추출: "33Am²" "84A" 등에서 숫자 기반 면적 찾기
-        // 여러 토큰이 있을 수 있음 (예: "33Am² 84A")
+        // 라벨: 첫 번째 토큰을 사용 (유닛 타입 = 고유 식별자)
         const tokens = labelPart.split(/\s+/).filter(Boolean);
         let bestLabel = '';
-        for(const t of tokens){
-          const clean = t.replace(/[m²㎡\s]/g,'');
-          // 숫자+알파벳 형태 (84A, 59, 101B 등)
+        if(tokens.length >= 1){
+          // 첫 번째 토큰 정규화: "33Am²" → "33A", "59㎡" → "59㎡"
+          let first = tokens[0].replace(/m²/g,'㎡').replace(/m2/g,'㎡');
+          // ㎡ 없으면 숫자+알파벳 형태에 붙이기
+          const clean = first.replace(/㎡/g,'');
           if(/^\d{2,3}[A-Za-z]?$/.test(clean)){
-            bestLabel = clean.includes('A')||clean.includes('B')||clean.includes('C') ? clean : clean+'㎡';
-            break;
+            bestLabel = /[A-Za-z]/.test(clean) ? clean : clean+'㎡';
+          } else if(/^[A-Za-z]+\d+$/.test(clean)){
+            // "A33" → "33A" 변환
+            const m = clean.match(/^([A-Za-z]+)(\d+)$/);
+            if(m) bestLabel = m[2]+m[1];
+          } else {
+            bestLabel = first;
           }
         }
-        // 못 찾으면 마지막 토큰에서 시도
-        if(!bestLabel && tokens.length){
-          const last = tokens[tokens.length-1].replace(/[m²㎡\s]/g,'');
-          if(/\d/.test(last)) bestLabel = last + '㎡';
-          else bestLabel = last;
-        }
-        // 금액 포맷: ~로 구분된 범위이면 각각 변환
-        let formattedAmt;
+        // 금액 포맷 + 최소값 계산 (정렬용)
+        let formattedAmt, minVal = 0;
         if(amtPart.includes('~')){
-          formattedAmt = amtPart.split('~').map(a=>formatToUkChun(a.trim())).join('~');
+          const parts = amtPart.split('~').map(a=>a.trim());
+          formattedAmt = parts.map(a=>formatToUkChun(a)).join('~');
+          minVal = priceToNum(parts[0]);
         } else {
           formattedAmt = formatToUkChun(amtPart);
+          minVal = priceToNum(amtPart);
         }
-        return { label: bestLabel, amt: formattedAmt };
+        return { label: bestLabel, amt: formattedAmt, minVal };
       }
       // ★★★ [하드코딩 끝] ★★★
       const priceParts = l.price ? l.price.split('|') : [];
       if(priceParts.length >= 1 && l.price){
-        const cards = priceParts.map(p => {
-          const { label: size, amt } = parsePricePart(p);
+        // 파싱 후 최저가 기준 오름차순 정렬
+        const parsed = priceParts.map(p => parsePricePart(p));
+        parsed.sort((a,b) => a.minVal - b.minVal);
+        const cards = parsed.map(({ label: size, amt }) => {
           return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
             ${size ? `<div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>` : ''}
             <div style="font-size:13px;font-weight:700;color:var(--accent)">${amt}</div>
