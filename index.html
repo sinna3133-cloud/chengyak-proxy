@@ -2205,23 +2205,28 @@ function showDetail(id, fromSwipe=false){
   <!-- 1. 📋 분양 정보 -->
   <div class="info-card" style="margin-top:14px">
     <div class="info-card-title">📋 분양 정보</div>
-    ${l.price && l.price.includes('|')
-      ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
+    ${(()=>{
+      // 평형별 카드로 표시 (단일 평형 포함)
+      const priceParts = l.price ? l.price.split('|') : [];
+      if(priceParts.length >= 1 && l.price){
+        const cards = priceParts.map(p => {
+          p = p.trim();
+          const spaceIdx = p.indexOf(' ');
+          const size = spaceIdx > 0 ? p.slice(0, spaceIdx) : '';
+          const amt = spaceIdx > 0 ? cleanPrice(p.slice(spaceIdx+1).trim()) : cleanPrice(p);
+          return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
+            ${size ? `<div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>` : ''}
+            <div style="font-size:13px;font-weight:700;color:var(--accent)">${amt}</div>
+          </div>`;
+        }).join('');
+        const cols = priceParts.length === 1 ? 'repeat(1,1fr)' : 'repeat(2,1fr)';
+        return `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
           <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
-            ${l.price.split('|').map(p=>{
-              const parts = p.trim().split(' ');
-              const size = parts[0]||'';
-              const price = parts.slice(1).join(' ')||p;
-              return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
-                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
-                <div style="font-size:13px;font-weight:700;color:var(--accent)">${cleanPrice(price)}</div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>`
-      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${cleanPrice(l.price)}</span></div>`
-    }
+          <div style="display:grid;grid-template-columns:${cols};gap:8px;width:100%">${cards}</div>
+        </div>`;
+      }
+      return `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">공고 확인 필요</span></div>`;
+    })()}
     <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
     ${(()=>{
       const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
