@@ -605,14 +605,14 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 #splash.hide{animation:splashOut .5s ease forwards}
 @keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 .splash-logo{font-size:52px;font-weight:400;color:white;letter-spacing:-1px;font-family:'Black Han Sans',sans-serif}
-.splash-logo span{color:var(--mint)}
+.splash-logo span{color:var(--accent)}
 .splash-sub{font-size:14px;color:rgba(255,255,255,.5);font-weight:400;letter-spacing:.2px}
 .splash-dot{display:flex;gap:6px;margin-top:8px}
 .splash-dot div{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
 .splash-dot div:nth-child(1){animation:dotPulse 1.2s .0s infinite}
 .splash-dot div:nth-child(2){animation:dotPulse 1.2s .2s infinite}
 .splash-dot div:nth-child(3){animation:dotPulse 1.2s .4s infinite}
-@keyframes dotPulse{0%,100%{background:rgba(255,255,255,.3)}50%{background:var(--mint)}}
+@keyframes dotPulse{0%,100%{background:rgba(255,255,255,.3)}50%{background:var(--accent)}}
 
 /* ══ 지역 필터 ══ */
 .region-filter-wrap{padding:8px 20px 0}
@@ -2685,6 +2685,23 @@ function _extractByTypeVal(pipeStr, targetSize, isFloat){
   return best.val > 0 ? best.val : null;
 }
 
+function togglePriceDetail(uid){
+  const el = document.getElementById(uid);
+  const fade = document.getElementById(uid+'-fade');
+  const btn = document.getElementById(uid+'-btn');
+  if(!el) return;
+  const isOpen = el.style.maxHeight && el.style.maxHeight !== '44px';
+  if(isOpen){
+    el.style.maxHeight = '44px';
+    if(fade) fade.style.opacity = '1';
+    if(btn) btn.textContent = '평형별 상세 ▾';
+  } else {
+    el.style.maxHeight = el.scrollHeight + 'px';
+    if(fade) fade.style.opacity = '0';
+    if(btn) btn.textContent = '접기 ▴';
+  }
+}
+
 function selectSizeChip(el, id, size){
   const wrap = el.parentElement;
   wrap.querySelectorAll('.det-chip').forEach(c => c.classList.remove('det-chip-on'));
@@ -2832,19 +2849,32 @@ async function showDetail(id, fromSwipe=false){
       // ★★★ [하드코딩 끝] ★★★
       const priceParts = l.price ? l.price.split('|') : [];
       if(priceParts.length >= 1 && l.price){
-        // 파싱 후 최저가 기준 오름차순 정렬
         const parsed = priceParts.map(p => parsePricePart(p));
         parsed.sort((a,b) => a.minVal - b.minVal);
-        const cards = parsed.map(({ label: size, amt }) => {
-          return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
-            ${size ? `<div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>` : ''}
-            <div style="font-size:13px;font-weight:700;color:var(--accent)">${amt}</div>
-          </div>`;
-        }).join('');
-        const cols = priceParts.length === 1 ? 'repeat(1,1fr)' : 'repeat(2,1fr)';
-        return `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
-          <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
-          <div style="display:grid;grid-template-columns:${cols};gap:8px;width:100%">${cards}</div>
+        const minAmt = parsed[0]?.amt || '';
+        const maxAmt = parsed[parsed.length-1]?.amt || '';
+        const rangeText = parsed.length === 1 ? minAmt : `${minAmt} ~ ${maxAmt}`;
+        const detailRows = parsed.map(({label:size, amt}) =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.04)">
+            <span style="font-size:12px;color:var(--ink-4)">${size||'-'}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--ink-3)">${amt}</span>
+          </div>`).join('');
+        const uid = 'price-detail-'+l.id;
+        return `<div class="info-row" style="flex-direction:column;gap:0;align-items:stretch">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="info-rl" style="width:auto">분양가</span>
+            <span class="info-rv" style="flex:none">${rangeText}</span>
+          </div>
+          ${parsed.length > 1 ? `
+          <div style="position:relative;margin-top:8px">
+            <div id="${uid}" style="max-height:44px;overflow:hidden;transition:max-height .3s ease;position:relative">
+              ${detailRows}
+            </div>
+            <div id="${uid}-fade" style="position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,white);pointer-events:none;transition:opacity .3s"></div>
+            <div style="text-align:center;padding-top:4px">
+              <span id="${uid}-btn" style="font-size:11px;color:var(--accent);font-weight:600;cursor:pointer" onclick="togglePriceDetail('${uid}')">평형별 상세 ▾</span>
+            </div>
+          </div>` : ''}
         </div>`;
       }
       return `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">공고 확인 필요</span></div>`;
@@ -2934,17 +2964,16 @@ async function showDetail(id, fromSwipe=false){
       };
 
       if(!hasConditions) return `
-        <div style="position:relative;overflow:hidden;min-height:120px">
-          <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px;opacity:.35;pointer-events:none">
+        <div style="position:relative;overflow:hidden;min-height:80px">
+          <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px;opacity:.3;pointer-events:none">
             ${l.elig.map(e=>`
               <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
                 <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
                 <div style="font-size:11px;color:var(--ink-4)">${defaultDescs[e]||''}</div>
               </div>`).join('')}
           </div>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.45);padding:20px;text-align:center;cursor:pointer" onclick="openWizard()">
-            <div style="font-size:14px;font-weight:800;color:var(--accent);margin-bottom:8px">내 조건에 맞는 전형을 확인해보세요</div>
-            <div style="padding:10px 24px;background:var(--accent);color:white;border-radius:12px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,102,255,.3)">조건 설정하기</div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.4);padding:16px;text-align:center">
+            <span style="font-size:13px;font-weight:700;color:var(--ink-4)">🔒 아래에서 조건을 설정하면 확인할 수 있어요</span>
           </div>
         </div>`;
 
