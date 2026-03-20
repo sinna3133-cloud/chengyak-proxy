@@ -3165,9 +3165,16 @@ async function loadLiveData(){
       return;
     }
 
-    // 우선 목록 먼저 표시 (경쟁률 로드 전)
-    // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
-    listings.splice(0, listings.length, ...parsed);
+    // Supabase 관리자 공고 로드 후 병합
+    let adminRows = [];
+    try { adminRows = await supaGetListings(); } catch(e){}
+    const adminListings = adminRows.map(row => { const l = supaToListing(row); l.name = cleanName(l.name); return l; });
+
+    // 청약홈 API 공고 + 관리자 공고 병합 (이름 중복 제거, 관리자 공고 우선 상단)
+    const apiNames = parsed.map(p => p.name);
+    const adminOnly = adminListings.filter(a => !apiNames.includes(a.name));
+    const merged = [...adminOnly, ...parsed];
+    listings.splice(0, listings.length, ...merged);
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
@@ -3624,8 +3631,6 @@ function removeAdminListing(id){
     .catch(e => showToast('❌ 삭제 실패: ' + e.message));
 }
 
-// 앱 시작 시 Supabase에서 관리자 공고 로드
-restoreAdminListings();
 
 </script>
 </body>
