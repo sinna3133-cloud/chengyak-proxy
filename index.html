@@ -1790,13 +1790,30 @@ function priceToNum(p){
   return result;
 }
 
-/* ══ 카드용 가격 표시 (최저~최고, 평형 제거) ══ */
+/* ★★★ [하드코딩 — 수정 금지] 카드용 가격: 최저~최고, 0억 0천 형식 ★★★ */
+function numToUkChun(manwon){
+  // 만원 단위 숫자 → "0억 0천" 형식
+  if(!manwon || manwon <= 0) return '';
+  const uk = Math.floor(manwon / 10000);
+  const chun = Math.round((manwon % 10000) / 1000);
+  if(uk > 0 && chun > 0) return uk+'억 '+chun+'천';
+  if(uk > 0) return uk+'억';
+  if(chun > 0) return chun+'천';
+  return '';
+}
 function cardPrice(price){
   if(!price) return '';
 
-  // 평형명 제거 후 금액만 추출 (첫 공백 이후)
+  // 금액 문자열에서 금액 부분만 추출 (평형명, 타입코드 제거)
   const extractAmt = p => {
     p = p.trim();
+    // 금액 시작점 찾기: 첫 번째 숫자+억 패턴
+    const priceStart = p.search(/\d+억/);
+    if(priceStart >= 0) return p.slice(priceStart).trim();
+    // 만원/천원 패턴
+    const numStart = p.search(/\d+[만천]/);
+    if(numStart >= 0) return p.slice(numStart).trim();
+    // 평형명 이후 금액
     const spaceIdx = p.indexOf(' ');
     const amt = spaceIdx > 0 ? p.slice(spaceIdx + 1).trim() : p;
     return cleanPrice(amt);
@@ -1821,11 +1838,14 @@ function cardPrice(price){
   // 숫자로 변환해서 최저/최고 찾기
   const nums = allPrices.map(p => ({label: p, val: priceToNum(p)}));
   nums.sort((a,b) => a.val - b.val);
-  const minLabel = nums[0].label;
-  const maxLabel = nums[nums.length-1].label;
 
-  return minLabel === maxLabel ? minLabel : `${minLabel}~${maxLabel}`;
+  // 0억 0천 형식으로 표시
+  const minFmt = numToUkChun(nums[0].val) || nums[0].label;
+  const maxFmt = numToUkChun(nums[nums.length-1].val) || nums[nums.length-1].label;
+
+  return minFmt === maxFmt ? minFmt : `${minFmt}~${maxFmt}`;
 }
+/* ★★★ [하드코딩 끝] ★★★ */
 
 /* ══ 히어로 ══ */
 function updateHero(){
@@ -2201,27 +2221,74 @@ function showDetail(id, fromSwipe=false){
   <div class="info-card" style="margin-top:14px">
     <div class="info-card-title">📋 분양 정보</div>
     ${(()=>{
-      // 평형별 카드로 표시 (단일 평형 포함)
-      // ★★★ [하드코딩 — 수정 금지] 평형 라벨 정규화 함수 ★★★
-      // API 자동연동/PDF 업로드 무관하게 항상 평형(㎡) 형식으로 표시
-      function normalizeSizeLabel(raw) {
-        if (!raw) return '';
+      // ★★★ [하드코딩 — 수정 금지] 평형별 분양가 파싱 & 표시 ★★★
+      // API/PDF 무관하게 라벨은 평형(㎡)으로, 금액은 0억 0천 형식으로 표시
+      function formatToUkChun(str){
+        // 금액 문자열을 "0억 0천" 형식으로 통일
+        if(!str) return str;
+        str = str.replace(/,/g,'').trim();
+        // 이미 억/천 형식이면 그대로
+        if(/^\d+억/.test(str) && !/\d{4,}/.test(str.replace(/억|천|만/g,''))) return str;
+        // "3억6613" → 3억 + 6613만 → "3억 6천"
+        const ukMatch = str.match(/(\d+)억\s*(\d+)/);
+        if(ukMatch){
+          const uk = parseInt(ukMatch[1]);
+          const rest = parseInt(ukMatch[2]);
+          // rest가 4자리 이상이면 만원 단위
+          if(rest >= 1000) return uk+'억 '+Math.round(rest/1000)+'천';
+          if(rest > 0) return uk+'억 '+rest+'천';
+          return uk+'억';
+        }
+        // 숫자만 있으면 만원 단위로 간주
+        const num = parseInt(str);
+        if(!isNaN(num) && num > 10000){
+          const u = Math.floor(num/10000);
+          const c = Math.round((num%10000)/1000);
+          return c > 0 ? u+'억 '+c+'천' : u+'억';
+        }
+        return str;
+      }
+      function parsePricePart(raw){
+        // "33Am² 84A 3억6,613~3억8,951" 같은 형식 파싱
+        // 또는 "84A 3억5천" 같은 정상 형식
         raw = raw.trim();
-        if (raw.includes('㎡') || raw.includes('m²') || raw.includes('m2')) return raw;
-        if (/^\d/.test(raw)) return raw + (raw.includes('㎡')?'':'㎡');
-        const m = raw.match(/^([A-Za-z]+)(\d+)$/);
-        if (m) return m[2] + m[1] + '㎡';
-        return raw;
+        // 금액 시작점 찾기: 첫 번째 숫자+억 패턴
+        const priceStart = raw.search(/\d+억/);
+        if(priceStart < 0) return { label: '', amt: formatToUkChun(cleanPrice(raw)) };
+        const labelPart = raw.slice(0, priceStart).trim();
+        const amtPart = raw.slice(priceStart).trim();
+        // 라벨에서 면적 추출: "33Am²" "84A" 등에서 숫자 기반 면적 찾기
+        // 여러 토큰이 있을 수 있음 (예: "33Am² 84A")
+        const tokens = labelPart.split(/\s+/).filter(Boolean);
+        let bestLabel = '';
+        for(const t of tokens){
+          const clean = t.replace(/[m²㎡\s]/g,'');
+          // 숫자+알파벳 형태 (84A, 59, 101B 등)
+          if(/^\d{2,3}[A-Za-z]?$/.test(clean)){
+            bestLabel = clean.includes('A')||clean.includes('B')||clean.includes('C') ? clean : clean+'㎡';
+            break;
+          }
+        }
+        // 못 찾으면 마지막 토큰에서 시도
+        if(!bestLabel && tokens.length){
+          const last = tokens[tokens.length-1].replace(/[m²㎡\s]/g,'');
+          if(/\d/.test(last)) bestLabel = last + '㎡';
+          else bestLabel = last;
+        }
+        // 금액 포맷: ~로 구분된 범위이면 각각 변환
+        let formattedAmt;
+        if(amtPart.includes('~')){
+          formattedAmt = amtPart.split('~').map(a=>formatToUkChun(a.trim())).join('~');
+        } else {
+          formattedAmt = formatToUkChun(amtPart);
+        }
+        return { label: bestLabel, amt: formattedAmt };
       }
       // ★★★ [하드코딩 끝] ★★★
       const priceParts = l.price ? l.price.split('|') : [];
       if(priceParts.length >= 1 && l.price){
         const cards = priceParts.map(p => {
-          p = p.trim();
-          const spaceIdx = p.indexOf(' ');
-          const rawSize = spaceIdx > 0 ? p.slice(0, spaceIdx) : '';
-          const size = normalizeSizeLabel(rawSize);
-          const amt = spaceIdx > 0 ? cleanPrice(p.slice(spaceIdx+1).trim()) : cleanPrice(p);
+          const { label: size, amt } = parsePricePart(p);
           return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
             ${size ? `<div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>` : ''}
             <div style="font-size:13px;font-weight:700;color:var(--accent)">${amt}</div>
