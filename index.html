@@ -296,16 +296,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .pri-btn:active{transform:scale(.98)}
 .sec-btn{width:100%;padding:14px;background:var(--bg);color:var(--ink-3);border:1.5px solid rgba(0,0,0,.1);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
 
-/* ══ 상세 아코디언 ══ */
-.det-acc{margin-top:14px;background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);box-shadow:var(--shadow-xs);overflow:hidden}
-.det-acc-head{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--bg);transition:background .15s;-webkit-user-select:none;user-select:none}
-.det-acc-head:active{background:var(--bg-2)}
-.det-acc-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
-.det-acc-chev{font-size:12px;color:var(--ink-4);transition:transform .25s;flex-shrink:0}
-.det-acc.open .det-acc-chev{transform:rotate(180deg)}
-.det-acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
-.det-acc.open .det-acc-body{max-height:3000px}
-
 /* ══ 가점 ══ */
 .score-hero{background:var(--ink-2);padding:24px 20px;position:relative;overflow:hidden}
 .score-hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);top:-100px;right:-60px;pointer-events:none}
@@ -2789,9 +2779,8 @@ async function showDetail(id, fromSwipe=false){
   document.getElementById('det-body').innerHTML=`
 
   <!-- 1. 📋 분양 정보 -->
-  <div class="det-acc open" style="margin-top:14px">
-    <div class="det-acc-head" onclick="this.parentElement.classList.toggle('open')"><span class="det-acc-title">📋 분양 정보</span><span class="det-acc-chev">▼</span></div>
-    <div class="det-acc-body"><div class="det-acc-inner">
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📋 분양 정보</div>
     ${(()=>{
       // ★★★ [하드코딩 — 수정 금지] 평형별 분양가 파싱 & 표시 ★★★
       // API/PDF 무관하게 라벨은 평형(㎡)으로, 금액은 0억 0천 형식으로 표시
@@ -2876,12 +2865,11 @@ async function showDetail(id, fromSwipe=false){
       // ★★★ [하드코딩 끝] ★★★
       return deadlineRow + schedRow;
     })()}
-  </div></div></div>
+  </div>
 
   <!-- 2. 📈 시세 차익 분석 -->
-  <div class="det-acc" style="margin-top:14px">
-    <div class="det-acc-head" onclick="this.parentElement.classList.toggle('open')"><span class="det-acc-title">📈 시세 차익 분석</span><span class="det-acc-chev">▼</span></div>
-    <div class="det-acc-body"><div class="det-acc-inner">
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📈 시세 차익 분석</div>
     ${l.noMktP ? `
       <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
       <div class="gap-chart" id="det-gap-chart">
@@ -2927,15 +2915,14 @@ async function showDetail(id, fromSwipe=false){
         </div>`).join('')}
       </div>
     </div>`:''}
-  </div></div></div>
+  </div>
 
   <!-- 3. 청약 자격 + 🎯 신청 가능한 전형 -->
-  <div class="det-acc" style="margin-top:14px">
-    <div class="det-acc-head" onclick="this.parentElement.classList.toggle('open')"><span class="det-acc-title">📋 청약 자격 · 신청 가능 전형</span><span class="det-acc-chev">▼</span></div>
-    <div class="det-acc-body"><div class="det-acc-inner">
-    <div style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.05)"><span class="info-rl">신청 자격</span> <span class="info-rv">${l.qual}</span></div>
-    <div style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.05)"><span class="info-rl">소득 기준</span> <span class="info-rv">${l.inc}</span></div>
-    <div style="padding:10px 18px;font-size:14px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.06);background:var(--bg)">🎯 신청 가능한 전형</div>
+  <div class="info-card" style="margin-top:14px">
+    <div class="info-card-title">📋 청약 자격</div>
+    <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
+    <div class="info-row" style="border-bottom:none"><span class="info-rl">소득 기준</span><span class="info-rv">${l.inc}</span></div>
+    <div class="info-card-title" style="border-top:1px solid rgba(0,0,0,.06)">🎯 신청 가능한 전형</div>
     ${/* ★★★ [하드코딩 — 수정 금지] 전형별 상세 자격 진단 UI ★★★ */
     (()=>{
       const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
@@ -2979,7 +2966,7 @@ async function showDetail(id, fromSwipe=false){
             </div>`).join('')}
         </div>`;
     })()}
-  </div></div></div>
+  </div>
 
   <!-- 4. 📊 당첨 예상 확률 + 🏆 가점 커트라인 -->
   ${prob!==null?`
@@ -3068,15 +3055,14 @@ async function showDetail(id, fromSwipe=false){
   </div>`:''}
 
   <!-- 5. 💰 내 자금 계획 -->
-  ${P.cash?`<div class="det-acc" style="margin-top:14px">
-    <div class="det-acc-head" onclick="this.parentElement.classList.toggle('open')"><span class="det-acc-title">💰 내 자금 계획</span><span class="det-acc-chev">▼</span></div>
-    <div class="det-acc-body"><div class="det-acc-inner">
+  ${P.cash?`<div class="fund-card" style="margin-top:14px">
+    <div class="fund-header">💰 내 자금 계획</div>
     <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
     <div class="fund-row"><span class="fund-rl">계약금 (10%)</span><span class="fund-rv ${canAfford?'ok':'no'}">${(dep/10000).toFixed(1)}억 ${canAfford?'✓':'✗ 부족'}</span></div>
     <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억 무이자대출</span></div>
     <div class="fund-row"><span class="fund-rl">필요 대출</span><span class="fund-rv ${lr<=70?'':'no'}">${(loan/10000).toFixed(1)}억 (LTV ${lr}%)</span></div>
     <div style="padding:12px 18px;background:${canAfford?'var(--public-light)':'var(--red-light)'}"><span style="font-size:13px;font-weight:700;color:${canAfford?'var(--public)':'var(--red)'}">${canAfford?`✓ 계약금 납부 가능! 월 상환 약 ${monthly.toLocaleString()}만원`:`✗ 계약금 ${Math.max(0,dep-cash).toLocaleString()}만원 부족`}</span></div>
-  </div></div></div>`:''}
+  </div>`:''}
 
   <!-- 6. 청약홈 버튼 -->
   <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 신청하기</a>`;
