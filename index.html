@@ -2367,6 +2367,12 @@ function numToUkChun(manwon){
   return '';
 }
 function daysText(d,fmt){
+  if(d===null||d===undefined||d>9999){
+    if(fmt==='badge') return '선착순';
+    if(fmt==='remain') return '선착순 계약';
+    if(fmt==='d') return '선착순';
+    return '선착순';
+  }
   if(d===0){
     if(fmt==='badge') return '오늘';
     if(fmt==='remain') return '오늘 마감';
@@ -2834,7 +2840,7 @@ function showAlarmList(){
             <div style="font-size:14px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
             <div style="font-size:12px;color:var(--ink-4);margin-top:3px">📍 ${l.loc}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days<=3?(l.days===0?'오늘 마감!':`D-${l.days} 마감임박!`):`D-${l.days}`}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days===null||l.days>9999?'선착순 계약':l.days<=3?(l.days===0?'오늘 마감!':`D-${l.days} 마감임박!`):`D-${l.days}`}</span>
               <span style="font-size:12px;color:var(--ink-4)">${cardPrice(l.price)}</span>
             </div>
           </div>`).join('')}
@@ -3068,12 +3074,14 @@ async function showDetail(id, fromSwipe=false){
     })()}
     <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
     ${(()=>{
-      const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
+      const isFirstCome = (l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))) || l.days===null || l.days>9999 || (l.deadline && l.deadline.startsWith('9999'));
       const deadlineRow = isFirstCome
-        ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약 종료 시 마감</span></div>`
-        : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${daysText(l.days,'remain')})</span></div>`;
+        ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약</span></div>`
+        : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days!==null&&l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${daysText(l.days,'remain')})</span></div>`;
       // ★★★ [하드코딩 — 수정 금지] 일정: 계약 제거, 화살표/슬래시 → 줄바꿈 ★★★
       let schedText = (l.sched||'');
+      // 9999 날짜 제거
+      schedText = schedText.replace(/9999[-.]?12[-.]?31/g,'미정').replace(/9999[^\s,]*/g,'미정');
       // 계약 관련 내용 제거
       schedText = schedText.replace(/\s*[→\/]\s*계약[^→\/]*/gi,'').replace(/계약[^→\/]*/gi,'').trim();
       // 화살표/슬래시 → 줄바꿈
@@ -4291,7 +4299,8 @@ function parseAptItem(item, isLotto=false){
   }
 
   const endDate  = parseDate(rceptEnd);
-  const daysLeft = endDate ? Math.max(0, Math.ceil((endDate - today) / 86400000)) : 0;
+  const isUndetermined = !endDate || endDate.getFullYear() >= 9000;
+  const daysLeft = isUndetermined ? null : Math.max(0, Math.ceil((endDate - today) / 86400000));
 
   // 지역 코드 매핑
   const RGN_KR = {'서울':'seoul','경기':'gyeonggi','인천':'incheon','부산':'busan','대전':'daejeon','세종':'sejong'};
@@ -4376,7 +4385,7 @@ async function loadLiveData(){
       ...lottoItems.map(i => parseAptItem(i, true)),
       ...aptItems.map(i   => parseAptItem(i, false))
     ];
-    const parsed = allParsed.filter(l => l.days > 0 && !l.name.includes('임대'));
+    const parsed = allParsed.filter(l => (l.days === null || l.days > 0) && !l.name.includes('임대'));
 
     if(parsed.length === 0){
 
@@ -4466,7 +4475,8 @@ const _initToday = new Date();
 listings.forEach(l => {
   if(l.deadline){
     const end = new Date(l.deadline);
-    l.days = Math.ceil((end - _initToday) / 86400000);
+    if(end.getFullYear() >= 9000){ l.days = null; }
+    else { l.days = Math.ceil((end - _initToday) / 86400000); }
   }
 });
 restoreRegions();
@@ -4730,7 +4740,7 @@ async function onAdminFileSelect(event){
       cutByType: parsed.cutByType || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
-      days: parsed.aE ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : 0,
+      days: parsed.aE && !String(parsed.aE).startsWith('9999') ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : null,
       priceFactors: [],
       price: parsed.price || '공고 확인 필요',
       sched: normalizedSched,
