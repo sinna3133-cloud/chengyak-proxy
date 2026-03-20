@@ -1001,6 +1001,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="det-header-top">
       <button class="det-back" onclick="goBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
       <div style="display:flex;gap:8px;align-items:center">
+        <button class="det-bell" id="det-delete-btn" onclick="deleteFromDetail()" style="display:none;background:var(--red)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
         <button class="det-bell" id="det-share-btn" onclick="shareDetail()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
@@ -3286,6 +3289,9 @@ async function showDetail(id, fromSwipe=false){
   <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 신청하기</a>`;
   showScreen('detail');
   syncDetailAlarmBtn(l.id);
+  // 어드민: 삭제 버튼 표시
+  const detDelBtn = document.getElementById('det-delete-btn');
+  if(detDelBtn) detDelBtn.style.display = isAdmin ? 'flex' : 'none';
   // 당첨률 반원 게이지 애니메이션
   setTimeout(()=>{
     if(prob!==null){
@@ -3389,6 +3395,36 @@ function shareDetail(){
   const text = `[쉬운청약] ${cleanName(l.name)}\n📍 ${l.loc}\n💰 ${cardPrice(l.price)}\n📅 마감: ${l.deadline}`;
   if(navigator.share) navigator.share({title:l.name,text}).catch(()=>{});
   else if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));
+}
+
+function deleteFromDetail(){
+  if(!isAdmin) return;
+  const id = _detailCurrentId;
+  if(!id) return;
+  const l = listings.find(x => String(x.id) === String(id));
+  if(!l) return;
+  if(!confirm(`"${cleanName(l.name)}" 공고를 삭제하시겠어요?`)) return;
+  const numId = parseInt(id) || id;
+  const src = l._src || '';
+  // listings에서 제거
+  const idx = listings.findIndex(x => String(x.id) === String(id));
+  if(idx > -1) listings.splice(idx, 1);
+  // PDF 서버 공고면 서버에서도 삭제
+  if(src === 'pdf'){
+    fetch(LISTINGS_API, {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id: numId })
+    }).catch(()=>{});
+  }
+  // 삭제 ID 기억
+  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  if(!deleted.includes(numId)){ deleted.push(numId); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
+  // 홈으로 돌아가기
+  renderListings();
+  updateHero();
+  goBack();
+  showToast('공고를 삭제했어요');
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 /* ══ 상세 스와이프 ══ */
@@ -4492,11 +4528,13 @@ window.updateHero = function(){
 
 /* ══ 관리자 모드 ══ */
 let _adminExtracted = null;
+let isAdmin = false;
 
 // URL 파라미터로 관리자 진입
 (function checkAdminParam(){
   const params = new URLSearchParams(window.location.search);
   if(params.get('admin') === '1234'){
+    isAdmin = true;
     setTimeout(()=>openAdmin(), 500);
   }
 })();
