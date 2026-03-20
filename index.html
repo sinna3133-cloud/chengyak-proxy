@@ -263,6 +263,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .det-bell svg{width:18px;height:18px;stroke:white;fill:none;transition:all .2s}
 .det-bell.on{background:rgba(245,166,35,.35);border-color:rgba(245,166,35,.7)}
 .det-bell.on svg{stroke:var(--gold);fill:var(--gold)}
+#det-save-btn.on{background:rgba(245,166,35,.35);border-color:rgba(245,166,35,.7)}
 .det-title{font-size:22px;font-weight:900;color:white;line-height:1.3;letter-spacing:-.4px;position:relative;z-index:1}
 .det-loc{font-size:14px;color:rgba(255,255,255,.65);margin-top:6px;position:relative;z-index:1}
 .det-body{padding:0 20px}
@@ -524,6 +525,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ══ 상세 그래프 ══ */
 /* 반원 게이지 (당첨률) */
+.det-chip{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;color:var(--accent-dark);background:rgba(0,102,255,.08);border:1.5px solid rgba(0,102,255,.15);cursor:pointer;transition:all .2s}
+.det-chip-on{background:var(--accent);color:white !important;border-color:var(--accent)}
 .prob-gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:16px 0 8px}
 .prob-gauge-svg{width:160px;height:88px;overflow:visible}
 .prob-gauge-bg{fill:none;stroke:rgba(0,102,255,.12);stroke-width:14;stroke-linecap:round}
@@ -802,6 +805,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-title">청약 통장 정보를<br>입력해주세요</div>
     <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
     <div class="wiz-field">
+      <label class="wiz-label">청약통장 가입기간</label>
+      <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-accYears" placeholder="예: 5"/><span class="unit">년</span></div>
+      <div class="wiz-accuracy-hint">
+        <span>📊 가입 2년 이상이면 투기과열지구 1순위 자격이에요</span>
+      </div>
+    </div>
+    <div class="wiz-field">
       <label class="wiz-label">납입 횟수</label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-dc" placeholder="예: 24"/><span class="unit">회</span></div>
       <div class="wiz-accuracy-hint">
@@ -811,6 +821,20 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-field">
       <label class="wiz-label">납입 총액</label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-da" placeholder="예: 1500"/><span class="unit">만원</span></div>
+    </div>
+    <div class="wiz-field">
+      <label class="wiz-label">관심 평형</label>
+      <div class="region-chips" id="wiz-size-chips" style="padding:0">
+        <label class="region-chip" onclick="clearWizSizes()">전체</label>
+        <label class="region-chip" onclick="toggleWizSize('20')">20평 (59㎡)</label>
+        <label class="region-chip" onclick="toggleWizSize('25')">25평 (74㎡)</label>
+        <label class="region-chip" onclick="toggleWizSize('30')">30평 (84㎡)</label>
+        <label class="region-chip" onclick="toggleWizSize('34')">34평 (102㎡)</label>
+        <label class="region-chip" onclick="toggleWizSize('40')">40평 (115㎡)</label>
+      </div>
+      <div class="wiz-accuracy-hint" style="margin-top:10px">
+        <span>📊 선택한 평형의 경쟁률로 당첨 확률을 더 정확하게 분석해드려요</span>
+      </div>
     </div>
     <div class="wiz-field">
       <label class="wiz-label">희망 지역</label>
@@ -955,9 +979,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="det-header">
     <div class="det-header-top">
       <button class="det-back" onclick="goBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <button class="det-bell" id="det-bell-btn" onclick="toggleDetailAlarm()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="det-bell" id="det-share-btn" onclick="shareDetail()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="det-bell" id="det-save-btn" onclick="toggleSaveFromDetailIcon()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="det-bell" id="det-bell-btn" onclick="toggleDetailAlarm()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+      </div>
     </div>
     <div id="det-badges"></div>
     <div class="det-title" id="det-title"></div>
@@ -1360,11 +1392,12 @@ const GLOSSARY = [
 ];
 
 /* ══ 상태 ══ */
-let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',household:'',isNoHome:true,region:'',dependents:0};
+let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',household:'',isNoHome:true,region:'',dependents:0,accYears:'',prefSizes:[]};
 let savedIds = new Set();
 let alarmIds  = new Set(); // 알림 설정된 공고 ID
 let curFilter = 'all';
 let selectedRegions = new Set(); // 선택된 지역 Set
+let selectedSizes = new Set(); // 선택된 관심 평형 Set
 let srchQ = '';
 let prevScreen = 'home';
 const scrollPositions = {};
@@ -1385,6 +1418,7 @@ function openWizard(){
   if(P.cash) document.getElementById('w-cash').value=P.cash;
   if(P.noHomeYears) document.getElementById('w-nohome').value=P.noHomeYears;
   if(P.depCount) document.getElementById('w-dc').value=P.depCount;
+  if(P.accYears) document.getElementById('w-accYears').value=P.accYears;
   if(P.depAmt) document.getElementById('w-da').value=P.depAmt;
   if(P.household) document.getElementById('w-household').value=P.household;
   wDep = parseInt(P.dependents)||0;
@@ -1393,6 +1427,7 @@ function openWizard(){
   renderChildDates();
   onBirthChange();
   setTimeout(_updateWizRegionUI, 50);
+  setTimeout(_updateWizSizeUI, 50);
   showWizStep(1);
 }
 
@@ -1614,8 +1649,10 @@ function saveWizard(){
   P.cash    = document.getElementById('w-cash').value;
   P.noHomeYears = document.getElementById('w-nohome').value;
   P.depCount= document.getElementById('w-dc').value;
+  P.accYears= document.getElementById('w-accYears').value;
   P.depAmt  = document.getElementById('w-da').value;
   P.region  = [...selectedRegions][0] || '';
+  P.prefSizes = [...selectedSizes];
   P.household=document.getElementById('w-household').value;
   P.dependents=wDep;
   if(!P.name) P.name=RETRO[Math.floor(Math.random()*RETRO.length)];
@@ -1671,7 +1708,29 @@ function toggleCond(){
 }
 
 /* ══ 유틸 ══ */
-function gap(l){const g=l.mktP-l.minP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0};}
+/* ★★★ [하드코딩 — 수정 금지] 시세차익 분석: 최고 분양가(maxP) 기준 ★★★ */
+function getMaxP(l){
+  // price 문자열에서 모든 가격을 파싱하여 최대값 반환
+  if(l._maxP) return l._maxP;
+  let maxVal = l.minP || 0;
+  const priceStr = l.price || '';
+  if(priceStr){
+    // | 구분된 평형별 가격에서 모든 가격 추출
+    const parts = priceStr.split('|');
+    parts.forEach(part => {
+      // ~로 구분된 범위가 있으면 뒤쪽(최대값) 사용
+      const rangeParts = part.split('~');
+      rangeParts.forEach(rp => {
+        const val = priceToNum(rp);
+        if(val > maxVal) maxVal = val;
+      });
+    });
+  }
+  l._maxP = maxVal;
+  return maxVal;
+}
+function gap(l){const saleP=getMaxP(l);const g=l.mktP-saleP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};}
+/* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
   // 맞벌이면 합산소득, 아니면 본인소득
@@ -1708,6 +1767,140 @@ function calcTypes(p){
   return t;
 }
 
+/* ★★★ [하드코딩 — 수정 금지] 전형별 상세 자격 진단 ★★★
+   PDF에서 추출한 eligDetail과 사용자 조건(P)을 비교하여
+   전형별 신청 가능 여부 + 상세 사유를 반환
+   반환: [{ type, eligible, reasons:[], warnings:[], desc }]
+*/
+function calcEligDetail(l, p){
+  const results = [];
+  const eligList = l.elig || [];
+  const details = l.eligDetail || [];
+  const inc = parseInt(p.isDual ? (p.totalIncome||p.income||0) : (p.income||0));
+  const nh = parseInt(p.noHomeYears||0);
+  const yr = parseInt(p.byear||0);
+  const age = yr ? new Date().getFullYear() - yr : 0;
+  const ch = parseInt(p.children||0);
+  const accYr = parseInt(p.accYears||0);
+  const depCnt = parseInt(p.depCount||0);
+  const h = parseInt(p.household||3);
+  const base100 = (URBAN_INCOME_100[Math.min(h,8)]||721) * 12;
+  const incPct = inc > 0 ? Math.round(inc/base100*100) : 0;
+  const hasNewborn = (p.childDates||[]).some(c => {
+    if(!c.year||!c.month) return false;
+    const birth = new Date(parseInt(c.year), parseInt(c.month)-1, 1);
+    return (new Date()-birth)/(86400000) <= 730;
+  });
+  const myTypes = calcTypes(p).map(t => t.l);
+
+  // 기본 전형 조건 테이블 (PDF에 eligDetail이 없을 때 fallback)
+  const defaultRules = {
+    '생애최초':    { noHome:true, incPct:130, married:'any', note:'세대원 전원 무주택, 5년 이상 소득세 납부 이력' },
+    '신생아특공':  { noHome:true, newborn:true, incPct:160, note:'입주자모집공고일 기준 만 2세 이하 자녀' },
+    '다자녀특공':  { noHome:true, children:3, note:'미성년 자녀 3명 이상' },
+    '청년특공':    { noHome:true, ageMax:39, married:'excluded', note:'만 19~39세 미혼 무주택자' },
+    '신혼부부특공':{ noHome:true, married:'required', incPct:140, note:'혼인 7년 이내, 6세 이하 자녀' },
+    '노부모부양':  { noHome:true, noHomeYears:3, note:'만 65세 이상 직계존속 3년 이상 부양' },
+    '일반공급':    { noHome:true, accMonths:24, note:'무주택 세대구성원, 청약통장 가입' },
+    '무순위(줍줍)':{ noHome:false, note:'만 19세 이상 누구나 신청 가능' },
+  };
+
+  eligList.forEach(typeName => {
+    // PDF에서 추출한 상세 조건 또는 기본 조건 사용
+    const pdfRule = details.find(d => d.type === typeName) || {};
+    const defRule = defaultRules[typeName] || {};
+    const rule = { ...defRule, ...Object.fromEntries(Object.entries(pdfRule).filter(([k,v]) => v && v !== 0 && v !== '0' && v !== 'any' && v !== false)) };
+
+    const reasons = []; // 충족 사유
+    const fails = [];   // 미충족 사유
+    let eligible = true;
+
+    // 무주택 체크
+    if(rule.noHome){
+      if(p.isNoHome){ reasons.push('무주택 ✓'); }
+      else { eligible = false; fails.push('무주택 조건 미충족'); }
+    }
+
+    // 무주택 기간
+    const reqNH = parseInt(rule.noHomeYears) || 0;
+    if(reqNH > 0){
+      if(nh >= reqNH){ reasons.push(`무주택 ${nh}년 ✓`); }
+      else { eligible = false; fails.push(`무주택 ${reqNH}년 이상 필요 (현재 ${nh}년)`); }
+    }
+
+    // 소득 기준
+    const reqIncPct = parseInt(rule.incPct) || 0;
+    if(reqIncPct > 0 && inc > 0){
+      if(incPct <= reqIncPct){ reasons.push(`소득 ${incPct}% (${reqIncPct}% 이하) ✓`); }
+      else { eligible = false; fails.push(`소득 ${incPct}% > 기준 ${reqIncPct}%`); }
+    }
+    const reqIncLimit = parseInt(rule.incLimit) || 0;
+    if(reqIncLimit > 0 && inc > 0){
+      if(inc <= reqIncLimit){ reasons.push(`소득 ${inc}만원 (${reqIncLimit}만원 이하) ✓`); }
+      else { eligible = false; fails.push(`소득 ${inc}만원 > 기준 ${reqIncLimit}만원`); }
+    }
+
+    // 혼인 여부
+    if(rule.married === 'required'){
+      if(p.marriage === '기혼'){ reasons.push('기혼 ✓'); }
+      else { eligible = false; fails.push('기혼 조건 필요'); }
+    }
+    if(rule.married === 'excluded'){
+      if(p.marriage === '미혼'){ reasons.push('미혼 ✓'); }
+      else { eligible = false; fails.push('미혼 조건 필요'); }
+    }
+
+    // 나이 제한
+    const ageMax = parseInt(rule.ageMax) || 0;
+    const ageMin = parseInt(rule.ageMin) || 0;
+    if(ageMax > 0 && age > 0){
+      if(age <= ageMax){ reasons.push(`만 ${age}세 (${ageMax}세 이하) ✓`); }
+      else { eligible = false; fails.push(`만 ${age}세 > 기준 ${ageMax}세`); }
+    }
+    if(ageMin > 0 && age > 0){
+      if(age >= ageMin){ reasons.push(`만 ${age}세 (${ageMin}세 이상) ✓`); }
+      else { eligible = false; fails.push(`만 ${age}세 < 기준 ${ageMin}세`); }
+    }
+
+    // 자녀 수
+    const reqCh = parseInt(rule.children) || 0;
+    if(reqCh > 0){
+      if(ch >= reqCh){ reasons.push(`자녀 ${ch}명 (${reqCh}명 이상) ✓`); }
+      else { eligible = false; fails.push(`자녀 ${ch}명 < 기준 ${reqCh}명`); }
+    }
+
+    // 신생아
+    if(rule.newborn === true || rule.newborn === 'true'){
+      if(hasNewborn){ reasons.push('만 2세 이하 자녀 ✓'); }
+      else { eligible = false; fails.push('만 2세 이하 자녀 없음'); }
+    }
+
+    // 청약통장 납입횟수
+    const reqAcc = parseInt(rule.accMonths) || 0;
+    if(reqAcc > 0 && depCnt > 0){
+      if(depCnt >= reqAcc){ reasons.push(`납입 ${depCnt}회 (${reqAcc}회 이상) ✓`); }
+      else { eligible = false; fails.push(`납입 ${depCnt}회 < 기준 ${reqAcc}회`); }
+    }
+
+    // 자산
+    const reqAssets = parseInt(rule.assets) || 0;
+    if(reqAssets > 0){ reasons.push(`자산 ${reqAssets}만원 이하 기준`); }
+
+    results.push({
+      type: typeName,
+      eligible,
+      reasons: eligible ? reasons : fails,
+      desc: rule.note || rule.desc || '',
+      fromPdf: !!details.find(d => d.type === typeName)
+    });
+  });
+
+  // eligible 먼저, 그 다음 ineligible 정렬
+  results.sort((a,b) => (b.eligible?1:0) - (a.eligible?1:0));
+  return results;
+}
+/* ★★★ [하드코딩 끝] ★★★ */
+
 function countUp(el, target, duration=600){
   const start = parseInt(el.textContent)||0;
   if(start===target){el.classList.add('num-pop');setTimeout(()=>el.classList.remove('num-pop'),300);return;}
@@ -1723,16 +1916,198 @@ function countUp(el, target, duration=600){
     el.textContent = Math.round(cur);
   },16);
 }
-function calcProb(l,p){
+/* ★★★ [하드코딩 — 수정 금지] 유사단지 데이터 캐시 & 사전 로드 ★★★ */
+const _similarCache = {};
+async function enrichListingWithHistory(l){
+  // PDF 업로드 공고에 경쟁률/커트라인이 없을 때 유사단지 데이터로 보완
+  if(l._historyEnriched) return;
+  l._historyEnriched = true;
+  const cacheKey = l.loc || l.name || '';
+  if(!cacheKey) return;
+  if(_similarCache[cacheKey]){
+    const c = _similarCache[cacheKey];
+    if(!l.comp || l.comp <= 1) l.comp = c.avgComp || l.comp;
+    if(!l.cut || l.cut <= 0) l.cut = c.avgCut || l.cut;
+    l._historySource = c;
+    return;
+  }
+  const hist = await fetchSimilarComp(l);
+  if(hist){
+    _similarCache[cacheKey] = hist;
+    if(!l.comp || l.comp <= 1) l.comp = hist.avgComp || l.comp;
+    if(!l.cut || l.cut <= 0) l.cut = hist.avgCut || l.cut;
+    l._historySource = hist;
+  }
+}
+/* ★★★ [하드코딩 끝] ★★★ */
+
+/* ★★★ [하드코딩 — 수정 금지] 당첨률 정교화 v2 (6가지 보정 팩터 통합) ★★★ */
+
+// 지역별 보정 계수 테이블
+const REGION_FACTOR = {
+  seoul:1.35, gyeonggi:1.15, incheon:1.05, sejong:1.10,
+  busan:0.95, daejeon:0.90, daegu:0.90, gwangju:0.85,
+  ulsan:0.85, gangwon:0.75, chungnam:0.80, jeonnam:0.75
+};
+// 서울 세부 지역 (강남권 추가 보정)
+const SEOUL_HOT = ['강남','서초','송파','용산','성동','마포','영등포','양천'];
+
+function calcProb(l, p, selectedType){
   const hasConditions = p.noHomeYears || p.depCount || p.income || p.byear;
   if(!hasConditions) return null;
-  let b=Math.max(0.5,100/l.comp);
-  const nh=parseInt(p.noHomeYears||0),dc=parseInt(p.depCount||0),inc=parseInt(p.income||0);
-  if(nh>=5)b*=1.5;else if(nh>=3)b*=1.2;
-  if(dc>=24)b*=1.3;else if(dc>=12)b*=1.1;
-  if(l.type==='public'&&inc<=4000)b*=1.4;
-  return Math.min(95,Math.round(b*10)/10);
+
+  const score = calcScore(p);
+  const myScore = score.total;
+  const comp = parseFloat(l._selectedComp || l.comp) || 10;
+  const cut = parseInt(l._selectedCut || l.cut) || 0;
+  const nh = parseInt(p.noHomeYears||0);
+  const inc = parseInt(p.income||0);
+  const accYr = parseInt(p.accYears||0);
+  const depCnt = parseInt(p.depCount||0);
+  const units = parseInt(l.units)||0;
+  const types = calcTypes(p);
+  const myTypes = types.map(t=>t.l);
+
+  const eligMatch = (l.elig||[]).some(e => myTypes.includes(e));
+  const isLotto = l.lotto;
+
+  let prob, reasons = [];
+
+  // ── A. 1순위/2순위 판별 (청약통장 가입기간 기반) ──
+  let rankPenalty = 1;
+  const isHotZone = (l.region==='seoul' || l.region==='gyeonggi' || l.region==='incheon' || l.region==='sejong');
+  if(accYr > 0){
+    if(isHotZone && accYr < 2){
+      rankPenalty = 0.3; // 투기과열지구 2순위 → 확률 대폭 하락
+      reasons.push('2순위(가입 2년 미만)');
+    } else if(!isHotZone && accYr < 1){
+      rankPenalty = 0.4;
+      reasons.push('2순위(가입 1년 미만)');
+    } else {
+      reasons.push('1순위');
+    }
+  }
+  // 납입 횟수 체크도 추가
+  if(depCnt > 0 && isHotZone && depCnt < 24){
+    rankPenalty = Math.min(rankPenalty, 0.5);
+    if(!reasons.includes('2순위(가입 2년 미만)')) reasons.push('납입 24회 미만');
+  }
+
+  // ── B. 기본 확률 계산 (유형별) ──
+  if(isLotto){
+    const base = Math.min(95, Math.round(100 / comp * 10) / 10);
+    prob = Math.max(0.5, base);
+    reasons.push(`무순위 추첨 경쟁률 ${comp}:1`);
+
+  } else if(selectedType && ['신혼부부특공','생애최초','신생아특공','다자녀특공','청년특공'].includes(selectedType)){
+    // ── 특별공급: 소득+자산 기준 (가점제 아님) ──
+    let specProb = 50;
+    // 소득 기준 충족도
+    if(inc > 0){
+      if(selectedType==='생애최초' && inc <= 13000) specProb += 15;
+      else if(selectedType==='신혼부부특공' && inc <= 14000) specProb += 15;
+      else if(selectedType==='신생아특공' && inc <= 14000) specProb += 15;
+      else if(inc <= 10000) specProb += 10;
+    }
+    // 무주택 보너스
+    if(nh >= 5) specProb += 10;
+    else if(nh >= 3) specProb += 5;
+    // 경쟁률 반영
+    specProb = specProb * Math.min(1, 8 / comp);
+    prob = Math.max(0.5, Math.min(90, specProb));
+    reasons.push(`${selectedType} 소득·자산 기준`);
+
+  } else if(l.type === 'public'){
+    if(!eligMatch){
+      prob = 0.5;
+      reasons.push('신청 가능한 전형 없음');
+    } else if(cut > 0){
+      const diff = myScore - cut;
+      const sigmoid = 1 / (1 + Math.exp(-diff / 3));
+      const compFactor = Math.min(1, 10 / comp);
+      prob = Math.round(sigmoid * compFactor * 95 * 10) / 10;
+      prob = Math.max(0.5, Math.min(95, prob));
+      reasons.push(`가점 ${myScore}점 vs 커트라인 ${cut}점`);
+    } else {
+      const estCut = comp >= 30 ? 65 : comp >= 15 ? 55 : comp >= 5 ? 45 : 35;
+      const diff = myScore - estCut;
+      const sigmoid = 1 / (1 + Math.exp(-diff / 4));
+      const compFactor = Math.min(1, 10 / comp);
+      prob = Math.round(sigmoid * compFactor * 90 * 10) / 10;
+      prob = Math.max(0.5, Math.min(90, prob));
+      reasons.push(`가점 ${myScore}점 (추정 커트 ~${estCut}점)`);
+      if(l._historySource) reasons.push(`${l._historySource.region} ${l._historySource.sampleCount}개 단지 참고`);
+    }
+    if(inc > 0 && inc <= 3000){ prob = Math.min(95, prob * 1.15); reasons.push('저소득 가산'); }
+    else if(inc > 0 && inc <= 4000){ prob = Math.min(95, prob * 1.05); }
+
+  } else {
+    // ── 민간분양: 가점 40% + 추첨 60% ──
+    if(!eligMatch){
+      prob = 0.5;
+      reasons.push('신청 가능한 전형 없음');
+    } else {
+      const scoreRatio = Math.min(1, myScore / 70);
+      const scorePart = scoreRatio * 0.4;
+      const lotPart = (1 / comp) * 0.6;
+      prob = Math.round((scorePart + lotPart) * 100 * 10) / 10;
+      prob = Math.max(0.5, Math.min(95, prob));
+      reasons.push(`가점 ${myScore}점(40%) + 추첨(60%)`);
+    }
+  }
+
+  // ── C. 시세차익 보정: 갭이 클수록 경쟁 치열 ──
+  const _maxP = getMaxP(l);
+  if(_maxP && l.mktP && l.mktP > _maxP && !isLotto){
+    const gapPct = Math.round((l.mktP - _maxP) / l.mktP * 100);
+    if(gapPct >= 30){ prob *= 0.75; reasons.push(`시세차익 ${gapPct}% → 고경쟁`); }
+    else if(gapPct >= 20){ prob *= 0.85; reasons.push(`시세차익 ${gapPct}%`); }
+    else if(gapPct >= 10){ prob *= 0.92; }
+  }
+
+  // ── D. 세대수(공급 물량) 보정: 대단지일수록 유리 ──
+  if(units > 0 && !isLotto){
+    if(units >= 1000){ prob *= 1.15; reasons.push(`대단지 ${units}세대`); }
+    else if(units >= 500){ prob *= 1.08; }
+    else if(units <= 100){ prob *= 0.90; reasons.push(`소규모 ${units}세대`); }
+  }
+
+  // ── E. 지역별 보정 계수 ──
+  const rgn = l.region || '';
+  const rgnFactor = REGION_FACTOR[rgn] || 1;
+  if(rgnFactor !== 1 && !isLotto){
+    // 서울 강남권 추가 보정
+    let localFactor = rgnFactor;
+    if(rgn === 'seoul'){
+      const loc = l.loc || '';
+      if(SEOUL_HOT.some(g => loc.includes(g))){
+        localFactor = 1.50; // 강남권은 더 치열
+        reasons.push('서울 강남권 보정');
+      } else {
+        reasons.push('서울 지역 보정');
+      }
+    }
+    // 보정 방향: 경쟁 치열한 지역 → 확률 하락
+    if(localFactor > 1) prob /= localFactor;
+    else prob *= (1 / localFactor); // 비수도권 → 확률 상승
+  }
+
+  // ── F. 1순위/2순위 반영 ──
+  if(rankPenalty < 1 && !isLotto){
+    prob *= rankPenalty;
+  }
+
+  // ── G. 무주택 기간 보너스 (전 유형 공통) ──
+  if(nh >= 10) prob = Math.min(95, prob * 1.08);
+  else if(nh >= 5) prob = Math.min(95, prob * 1.04);
+
+  prob = Math.max(0.5, Math.min(95, Math.round(prob * 10) / 10));
+
+  l._probReason = reasons.join(' · ');
+  l._probFactors = { rankPenalty, rgnFactor, units, accYr, selectedType };
+  return prob;
 }
+/* ★★★ [하드코딩 끝] ★★★ */
 function pClass(v){return v>=20?'hi':v>=5?'mi':'lo';}
 function pColor(v){return v>=20?'#059669':v>=5?'#D97706':'#DC2626';}
 function typeBadge(l){
@@ -1742,8 +2117,8 @@ function typeBadge(l){
 }
 function gapPill(l){
   if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
-  const{g,pct}=gap(l);const up=g>0;
-  return`<div class="gap-pill"><div class="gap-nums"><b>${(l.minP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
+  const{g,pct,saleP}=gap(l);const up=g>0;
+  return`<div class="gap-pill"><div class="gap-nums"><b>${(saleP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
 }
 function calcScore(p){
   const nh=parseInt(p.noHomeYears||0),dep=parseInt(p.dependents||0),acc=parseInt(p.depCount||0);
@@ -2076,6 +2451,75 @@ function _updateRegionUI(){
   else { cnt.textContent=selectedRegions.size+'개 선택'; cnt.className='cnt'; }
 }
 
+/* ★★★ [하드코딩 — 수정 금지] 관심 평형 칩 토글 로직 ★★★ */
+// 평형(평) → 전용면적(㎡) 매핑 테이블
+const SIZE_MAP = {
+  '20': {py:20, sqm:59, label:'20평 (59㎡)'},
+  '25': {py:25, sqm:74, label:'25평 (74㎡)'},
+  '30': {py:30, sqm:84, label:'30평 (84㎡)'},
+  '34': {py:34, sqm:102, label:'34평 (102㎡)'},
+  '40': {py:40, sqm:115, label:'40평 (115㎡)'}
+};
+
+function toggleWizSize(code){
+  if(selectedSizes.has(code)) selectedSizes.delete(code);
+  else selectedSizes.add(code);
+  _updateWizSizeUI();
+  localStorage.setItem('selectedSizes', JSON.stringify([...selectedSizes]));
+}
+function clearWizSizes(){
+  selectedSizes.clear();
+  _updateWizSizeUI();
+  localStorage.setItem('selectedSizes', '[]');
+}
+function _updateWizSizeUI(){
+  document.querySelectorAll('#wiz-size-chips .region-chip').forEach(chip=>{
+    const label = chip.textContent.trim();
+    if(label === '전체'){
+      chip.classList.toggle('checked', selectedSizes.size === 0);
+      return;
+    }
+    const code = Object.keys(SIZE_MAP).find(k => SIZE_MAP[k].label === label);
+    if(code) chip.classList.toggle('checked', selectedSizes.has(code));
+  });
+}
+function restoreSizes(){
+  try{
+    const saved = localStorage.getItem('selectedSizes');
+    if(saved) JSON.parse(saved).forEach(c => selectedSizes.add(c));
+  }catch(e){}
+}
+
+// 공고의 평형 목록에서 사용자 관심 평형과 가장 가까운 면적 찾기
+function findClosestSize(listing){
+  if(!selectedSizes.size) return null;
+  // 사용자가 선택한 평형의 ㎡ 값들
+  const prefSqms = [...selectedSizes].map(k => SIZE_MAP[k]?.sqm || 0).filter(v => v > 0);
+  if(!prefSqms.length) return null;
+  // 공고에서 평형 목록 추출 (compByType, cutByType, 또는 price에서)
+  const sources = [x => x.compByType, x => x.cutByType, x => x.price];
+  let avail = [];
+  for(const fn of sources){
+    const val = fn(listing);
+    if(!val || !val.includes('|')) continue;
+    val.split('|').forEach(s => {
+      const m = s.trim().match(/^(\d+[A-Z]?)㎡?/i);
+      if(m) avail.push({ label: m[0].replace(/㎡$/,''), sqm: parseInt(m[1]) });
+    });
+    if(avail.length) break;
+  }
+  if(!avail.length) return null;
+  // 가장 가까운 면적 찾기 (첫 번째 선택 평형 기준)
+  const target = prefSqms[0];
+  let best = avail[0], bestDiff = Math.abs(avail[0].sqm - target);
+  for(const a of avail){
+    const diff = Math.abs(a.sqm - target);
+    if(diff < bestDiff){ best = a; bestDiff = diff; }
+  }
+  return best;
+}
+/* ★★★ [하드코딩 끝] ★★★ */
+
 function _updateWizRegionUI(){
   document.querySelectorAll('#wiz-region-chips .region-chip').forEach(chip=>{
     const label=chip.textContent.trim();
@@ -2215,15 +2659,102 @@ function openNudge(){ document.getElementById('nudge-ov').classList.add('open');
 function closeNudge(e){ if(!e || e.target===document.getElementById('nudge-ov')) document.getElementById('nudge-ov').classList.remove('open'); }
 function openWrSheet(){ openNudge(); }
 
+/* ★★★ [하드코딩 — 수정 금지] 평형/전형 선택 칩 → 확률 재계산 ★★★ */
+
+// compByType/cutByType 파이프 문자열에서 특정 사이즈의 값 추출 (근접 매칭 지원)
+function _extractByTypeVal(pipeStr, targetSize, isFloat){
+  if(!pipeStr || !targetSize) return null;
+  const entries = pipeStr.split('|').map(s => {
+    const m = s.trim().match(/^(\d+)[A-Z]?/i);
+    const vM = s.trim().match(/[\s]+([\d.]+)/);
+    return m ? { sqm: parseInt(m[1]), val: vM ? (isFloat ? parseFloat(vM[1]) : parseInt(vM[1])) : 0 } : null;
+  }).filter(Boolean);
+  if(!entries.length) return null;
+  const targetSqm = parseInt(targetSize) || 0;
+  // 1) 정확히 일치하는 면적 먼저
+  const exact = entries.find(e => e.sqm === targetSqm);
+  if(exact && exact.val > 0) return exact.val;
+  // 2) 가장 가까운 면적으로 fallback
+  let best = entries[0], bestDiff = Math.abs(entries[0].sqm - targetSqm);
+  for(const e of entries){
+    const diff = Math.abs(e.sqm - targetSqm);
+    if(diff < bestDiff){ best = e; bestDiff = diff; }
+  }
+  return best.val > 0 ? best.val : null;
+}
+
+function selectSizeChip(el, id, size){
+  const wrap = el.parentElement;
+  wrap.querySelectorAll('.det-chip').forEach(c => c.classList.remove('det-chip-on'));
+  el.classList.add('det-chip-on');
+  const l = listings.find(x => String(x.id) === String(id));
+  if(!l) return;
+  if(size){
+    // 근접 매칭으로 경쟁률/커트라인 추출
+    const compVal = _extractByTypeVal(l.compByType, size, true);
+    const cutVal = _extractByTypeVal(l.cutByType, size, false);
+    if(compVal) l._selectedComp = compVal; else delete l._selectedComp;
+    if(cutVal) l._selectedCut = cutVal; else delete l._selectedCut;
+  } else {
+    delete l._selectedComp;
+    delete l._selectedCut;
+  }
+  recalcDetailProb(l);
+}
+
+function selectTypeChip(el, id, etype){
+  const wrap = el.parentElement;
+  wrap.querySelectorAll('.det-chip').forEach(c => c.classList.remove('det-chip-on'));
+  el.classList.add('det-chip-on');
+  const l = listings.find(x => String(x.id) === String(id));
+  if(!l) return;
+  l._selectedType = etype || '';
+  recalcDetailProb(l);
+}
+
+function recalcDetailProb(l){
+  const prob = calcProb(l, P, l._selectedType || '');
+  if(prob === null) return;
+  // 게이지 업데이트
+  const numEl = document.getElementById('det-prob-num');
+  const fillEl = document.getElementById('det-gauge-fill');
+  const reasonEl = document.getElementById('det-prob-reason');
+  if(numEl){ numEl.textContent = prob + '%'; numEl.setAttribute('fill', pColor(prob)); }
+  if(fillEl){
+    fillEl.setAttribute('stroke', pColor(prob));
+    const offset = 188.5 * (1 - prob / 100);
+    fillEl.style.transition = 'stroke-dashoffset .6s ease';
+    fillEl.setAttribute('stroke-dashoffset', offset);
+  }
+  if(reasonEl && l._probReason){
+    reasonEl.textContent = '📐 산출 근거: ' + l._probReason;
+  }
+}
+/* ★★★ [하드코딩 끝] ★★★ */
+
 /* ══ 상세 ══ */
-function showDetail(id, fromSwipe=false){
+async function showDetail(id, fromSwipe=false){
+  _detailCurrentId = id;
   const l=listings.find(x=>String(x.id)===String(id));
   if(!fromSwipe){
     prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
     window._prevScrollY = window.scrollY;
   }
+  // ★★★ [하드코딩 — 수정 금지] 유사단지 데이터로 경쟁률/커트라인 보완 ★★★
+  await enrichListingWithHistory(l);
+  // ★★★ [하드코딩 — 수정 금지] 관심 평형 자동 매칭: 사용자 선택 평형과 가장 가까운 면적 적용 ★★★
+  if(selectedSizes.size > 0){
+    const closest = findClosestSize(l);
+    if(closest){
+      const compVal = _extractByTypeVal(l.compByType, String(closest.sqm), true);
+      const cutVal = _extractByTypeVal(l.cutByType, String(closest.sqm), false);
+      if(compVal) l._selectedComp = compVal;
+      if(cutVal) l._selectedCut = cutVal;
+      l._autoMatchedSize = closest.label;
+    }
+  }
   const prob=calcProb(l,P);
-  const{g,pct}=gap(l);
+  const{g,pct,saleP}=gap(l);
   const price=l.minP,dep=Math.round(price*.1),mid=Math.round(price*.6),rem=price-dep-mid;
   const cash=parseInt(P.cash||0),loan=Math.max(0,price-cash),lr=Math.round(loan/price*100);
   const monthly=Math.round(loan*.04/12),canAfford=cash>=dep;
@@ -2332,9 +2863,9 @@ function showDetail(id, fromSwipe=false){
       <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
       <div class="gap-chart" id="det-gap-chart">
         <div class="gap-bar-row">
-          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-label">분양가 (최고)</div>
           <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-          <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
           <div class="gap-bar-label">주변 시세</div>
@@ -2347,9 +2878,9 @@ function showDetail(id, fromSwipe=false){
     ` : `
       <div class="gap-chart" id="det-gap-chart">
         <div class="gap-bar-row">
-          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-label">분양가 (최고)</div>
           <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-          <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+          <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
           <div class="gap-bar-label">주변 시세</div>
@@ -2381,49 +2912,46 @@ function showDetail(id, fromSwipe=false){
     <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
     <div class="info-row" style="border-bottom:none"><span class="info-rl">소득 기준</span><span class="info-rv">${l.inc}</span></div>
     <div class="info-card-title" style="border-top:1px solid rgba(0,0,0,.06)">🎯 신청 가능한 전형</div>
-    ${(()=>{
-      const typeDesc = {
-        '생애최초':    { desc:'세대원 전원 처음 집 사는 분', reason:'소득 기준 초과 또는 주택 소유 이력이 있어요' },
-        '신생아특공':  { desc:'만 2세 이하 자녀가 있는 분', reason:'만 2세 이하 자녀가 없어요' },
-        '다자녀특공':  { desc:'미성년 자녀 3명 이상인 분', reason:'미성년 자녀가 3명 미만이에요' },
-        '청년특공':    { desc:'만 39세 이하 미혼 무주택자', reason:'나이·혼인 조건이 맞지 않아요' },
-        '신혼부부특공':{ desc:'혼인 7년 이내 신혼부부', reason:'혼인 기간 조건이 맞지 않아요' },
-        '노부모부양':  { desc:'만 65세 이상 부모를 부양 중인 분', reason:'부모 부양 조건이 맞지 않아요' },
-        '일반공급':    { desc:'무주택 세대구성원', reason:'무주택 조건이 맞지 않아요' },
-        '무순위(줍줍)':{ desc:'만 19세 이상 누구나', reason:'' },
-      };
+    ${/* ★★★ [하드코딩 — 수정 금지] 전형별 상세 자격 진단 UI ★★★ */
+    (()=>{
       const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
-      const myTypes = calcTypes(P).map(t => t.l);
-      const matched = l.elig.filter(e => myTypes.includes(e));
-      const unmatched = l.elig.filter(e => !myTypes.includes(e));
+      const defaultDescs = {
+        '생애최초':'세대원 전원 처음 집 사는 분','신생아특공':'만 2세 이하 자녀가 있는 분',
+        '다자녀특공':'미성년 자녀 3명 이상인 분','청년특공':'만 39세 이하 미혼 무주택자',
+        '신혼부부특공':'혼인 7년 이내 신혼부부','노부모부양':'만 65세 이상 부모 부양',
+        '일반공급':'무주택 세대구성원','무순위(줍줍)':'만 19세 이상 누구나'
+      };
 
       if(!hasConditions) return `
         <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
           ${l.elig.map(e=>`
             <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
               <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
-              <div style="font-size:11px;color:var(--ink-4)">${(typeDesc[e]||{}).desc||''}</div>
+              <div style="font-size:11px;color:var(--ink-4)">${defaultDescs[e]||''}</div>
             </div>`).join('')}
           <div style="padding:10px 12px;background:var(--accent-light);border-radius:10px;font-size:12px;color:var(--accent);font-weight:600;text-align:center;cursor:pointer" onclick="openWizard()">조건을 설정하면 내가 신청 가능한 전형을 알려드려요</div>
         </div>`;
 
+      const eligResults = calcEligDetail(l, P);
       return `
         <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
-          ${matched.map(e=>`
-            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
-              <div style="width:24px;height:24px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0;font-weight:800">✓</div>
-              <div style="flex:1">
-                <div style="font-size:14px;font-weight:800;color:var(--public)">${e}</div>
-                <div style="font-size:12px;color:#059669;margin-top:2px">${(typeDesc[e]||{}).desc||''}</div>
+          ${eligResults.map(r => r.eligible ? `
+            <div style="padding:12px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0;font-weight:800">✓</div>
+                <div style="font-size:14px;font-weight:800;color:var(--public)">${r.type}</div>
+                ${r.fromPdf?'<span style="font-size:9px;padding:2px 6px;background:rgba(5,150,105,.15);border-radius:4px;color:var(--public);font-weight:600">공고 기준</span>':''}
               </div>
-            </div>`).join('')}
-          ${unmatched.map(e=>`
-            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
-              <div style="width:24px;height:24px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
-              <div style="flex:1">
-                <div style="font-size:14px;font-weight:700;color:var(--ink-4)">${e}</div>
-                <div style="font-size:12px;color:var(--ink-5);margin-top:2px">${(typeDesc[e]||{}).reason||'조건이 맞지 않아요'}</div>
+              <div style="font-size:12px;color:#059669;line-height:1.6;padding-left:34px">${r.desc}</div>
+              ${r.reasons.length?`<div style="margin-top:6px;padding-left:34px;display:flex;flex-wrap:wrap;gap:4px">${r.reasons.map(rs=>`<span style="font-size:10px;padding:3px 8px;background:rgba(5,150,105,.1);border-radius:6px;color:var(--public);font-weight:600">${rs}</span>`).join('')}</div>`:''}
+            </div>` : `
+            <div style="padding:12px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
+                <div style="font-size:14px;font-weight:700;color:var(--ink-4)">${r.type}</div>
               </div>
+              <div style="font-size:12px;color:var(--ink-5);line-height:1.6;padding-left:34px">${r.desc}</div>
+              ${r.reasons.length?`<div style="margin-top:6px;padding-left:34px;display:flex;flex-wrap:wrap;gap:4px">${r.reasons.map(rs=>`<span style="font-size:10px;padding:3px 8px;background:rgba(220,38,38,.08);border-radius:6px;color:var(--red);font-weight:600">${rs}</span>`).join('')}</div>`:''}
             </div>`).join('')}
         </div>`;
     })()}
@@ -2433,6 +2961,40 @@ function showDetail(id, fromSwipe=false){
   ${prob!==null?`
   <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
     <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
+    ${/* ★★★ [하드코딩 — 수정 금지] 평형 선택 칩 + 전형 선택 칩 ★★★ */
+    (()=>{
+      // 평형 칩: compByType 또는 price에서 평형 목록 추출
+      const sizeLabels = [];
+      if(l.compByType){
+        l.compByType.split('|').forEach(s=>{
+          const m = s.match(/^([^\s]+)/);
+          if(m) sizeLabels.push(m[1]);
+        });
+      } else if(l.price && l.price.includes('|')){
+        l.price.split('|').forEach(s=>{
+          const m = s.trim().match(/^([^\s]+)/);
+          if(m) sizeLabels.push(m[1]);
+        });
+      }
+      const autoMatch = l._autoMatchedSize || '';
+      const sizeChips = sizeLabels.length > 1
+        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-size-chips">`
+          + `<span class="det-chip ${!autoMatch?'det-chip-on':''}" onclick="selectSizeChip(this,'${l.id}','')" data-size="">전체</span>`
+          + sizeLabels.map(s=>`<span class="det-chip ${s===autoMatch?'det-chip-on':''}" onclick="selectSizeChip(this,'${l.id}','${s}')" data-size="${s}">${s}</span>`).join('')
+          + (autoMatch && !sizeLabels.includes(autoMatch) ? '' : '')
+          + `</div>`
+          + (autoMatch ? `<div style="font-size:10px;color:var(--accent);margin-bottom:4px">📌 관심 평형(${[...selectedSizes].map(k=>SIZE_MAP[k]?.label||'').join(', ')}) 기준 자동 선택</div>` : '')
+        : '';
+      // 전형 칩: 특공 vs 일반
+      const eligList = l.elig || [];
+      const specials = eligList.filter(e => e!=='일반공급' && e!=='무순위(줍줍)');
+      const typeChips = specials.length > 0
+        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 6px" id="det-type-chips">`
+          + `<span class="det-chip det-chip-on" onclick="selectTypeChip(this,'${l.id}','')" data-etype="">일반공급</span>`
+          + specials.map(s=>`<span class="det-chip" onclick="selectTypeChip(this,'${l.id}','${s}')" data-etype="${s}">${s}</span>`).join('')
+          + `</div>` : '';
+      return sizeChips + typeChips;
+    })()}
     <div class="prob-gauge-wrap">
       <svg class="prob-gauge-svg" viewBox="0 0 160 100" style="height:96px">
         <path class="prob-gauge-bg" d="M20,80 A60,60 0 0,1 140,80"/>
@@ -2445,6 +3007,8 @@ function showDetail(id, fromSwipe=false){
         <text x="140" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">100%</text>
       </svg>
     </div>
+    ${/* ★★★ [하드코딩 — 수정 금지] 확률 산출 근거 표시 ★★★ */
+    l._probReason ? `<div id="det-prob-reason" style="margin-top:8px;padding:8px 12px;background:rgba(0,102,255,.06);border-radius:8px;font-size:11px;color:var(--ink-3);line-height:1.5">📐 산출 근거: ${l._probReason}</div>` : ''}
     ${(()=>{
       const tips=[];
       const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
@@ -2489,10 +3053,8 @@ function showDetail(id, fromSwipe=false){
     <div style="padding:12px 18px;background:${canAfford?'var(--public-light)':'var(--red-light)'}"><span style="font-size:13px;font-weight:700;color:${canAfford?'var(--public)':'var(--red)'}">${canAfford?`✓ 계약금 납부 가능! 월 상환 약 ${monthly.toLocaleString()}만원`:`✗ 계약금 ${Math.max(0,dep-cash).toLocaleString()}만원 부족`}</span></div>
   </div>`:''}
 
-  <!-- 6. 🏠 청약홈 버튼 -->
-  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">🏠 청약홈에서 신청하기</a>
-  <button class="pri-btn" style="margin-top:10px;background:${savedIds.has(l.id)?'var(--gold)':'var(--bg)'};color:${savedIds.has(l.id)?'white':'var(--ink-3)'};box-shadow:none;border:1.5px solid ${savedIds.has(l.id)?'var(--gold)':'rgba(0,0,0,.1)'}" onclick="toggleSaveFromDetail(${l.id})">${savedIds.has(l.id)?'즐겨찾기 저장됨':'즐겨찾기 저장'}</button>
-  <button class="sec-btn" onclick="shareDetail(${l.id})">📤 이 공고 공유하기</button>`;
+  <!-- 6. 청약홈 버튼 -->
+  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 신청하기</a>`;
   showScreen('detail');
   syncDetailAlarmBtn(l.id);
   // 당첨률 반원 게이지 애니메이션
@@ -2522,8 +3084,9 @@ function showDetail(id, fromSwipe=false){
     if(l.noMktP){
       if(barSale) barSale.style.width='70%'; // 분양가 바만 표시
     } else {
-      const maxVal=Math.max(l.minP,l.mktP);
-      if(barSale) barSale.style.width=(l.minP/maxVal*100)+'%';
+      const gapSaleP=getMaxP(l);
+      const maxVal=Math.max(gapSaleP,l.mktP);
+      if(barSale) barSale.style.width=(gapSaleP/maxVal*100)+'%';
       if(barMkt) barMkt.style.width=(l.mktP/maxVal*100)+'%';
     }
     // 커트라인 바 애니메이션
@@ -2537,11 +3100,8 @@ function showDetail(id, fromSwipe=false){
     }
   }, 200);
 }
-function toggleSaveFromDetail(id){
-  if(savedIds.has(id)){savedIds.delete(id);showToast('즐겨찾기에서 제거했어요');}
-  else{savedIds.add(id);showToast('즐겨찾기에 저장했어요');}
-  showDetail(id);
-}
+/* toggleSaveFromDetail은 toggleSaveFromDetailIcon으로 대체됨 */
+/* ★★★ [하드코딩 끝] ★★★ */
 
 function toggleDetailAlarm(){
   const btn = document.getElementById('det-bell-btn');
@@ -2564,8 +3124,45 @@ function syncDetailAlarmBtn(id){
   const btn = document.getElementById('det-bell-btn');
   if(!btn) return;
   btn.classList.toggle('on', alarmIds.has(id));
+  // 즐겨찾기 아이콘 상태 동기화
+  const saveBtn = document.getElementById('det-save-btn');
+  if(saveBtn){
+    const isSaved = savedIds.has(parseInt(id)||id);
+    saveBtn.classList.toggle('on', isSaved);
+    if(isSaved){
+      saveBtn.querySelector('svg').setAttribute('fill','var(--gold)');
+      saveBtn.querySelector('svg').setAttribute('stroke','var(--gold)');
+    } else {
+      saveBtn.querySelector('svg').setAttribute('fill','none');
+      saveBtn.querySelector('svg').setAttribute('stroke','white');
+    }
+  }
 }
-function shareDetail(id){const l=listings.find(x=>x.id===id);const text=`[쉬운청약] ${cleanName(l.name)}\n📍 ${l.loc}\n💰 ${cardPrice(l.price)}\n📅 마감: ${l.deadline}`;if(navigator.share)navigator.share({title:l.name,text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));}
+
+/* ★★★ [하드코딩 — 수정 금지] 상세 헤더 즐겨찾기/공유 아이콘 ★★★ */
+let _detailCurrentId = null;
+
+function toggleSaveFromDetailIcon(){
+  const id = _detailCurrentId;
+  if(!id) return;
+  const isSaved = savedIds.has(id);
+  if(isSaved){ savedIds.delete(id); showToast('즐겨찾기에서 제거했어요'); }
+  else { savedIds.add(id); showToast('즐겨찾기에 저장했어요'); }
+  syncDetailAlarmBtn(id);
+  renderSaved();
+  updateHero();
+}
+
+function shareDetail(){
+  const id = _detailCurrentId;
+  if(!id) return;
+  const l = listings.find(x => String(x.id) === String(id));
+  if(!l) return;
+  const text = `[쉬운청약] ${cleanName(l.name)}\n📍 ${l.loc}\n💰 ${cardPrice(l.price)}\n📅 마감: ${l.deadline}`;
+  if(navigator.share) navigator.share({title:l.name,text}).catch(()=>{});
+  else if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));
+}
+/* ★★★ [하드코딩 끝] ★★★ */
 /* ══ 상세 스와이프 ══ */
 let _touchStartX = 0;
 let _touchStartY = 0;
@@ -2735,7 +3332,8 @@ function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
   if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고에 즐겨찾기를 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">공고 보러 가기</button></div>`;return;}
-  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}${l.days<=3?`<span class="badge badge-urgent">D-${l.days}</span>`:''}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div></div></div>`;}).join('')}</div>`;
+  /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
+  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div></div></div>`;}).join('')}</div>`;
 }
 
 /* ══ 컨설팅 ══ */
@@ -2743,7 +3341,7 @@ function updateConsult(){
   const pl=document.getElementById('prob-list');
   const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
   if(!hasConditions){pl.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 설정하면 예상 당첨률을 분석해드려요</div>';return;}
-  pl.innerHTML=listings.filter(l=>!l.lotto).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div></div>`;}).join('');
+  pl.innerHTML=listings.filter(l=>!l.lotto).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div>${l._probReason?`<div style="font-size:10px;color:var(--ink-5);margin-top:2px;padding-left:2px">📐 ${l._probReason}</div>`:''}</div>`;}).join('');
 }
 
 /* ══ 마이페이지 ══ */
@@ -3195,6 +3793,71 @@ async function fetchCutScore(key, pblancNo){
   }
 }
 
+/* ★★★ [하드코딩 — 수정 금지] 유사 단지 경쟁률/커트라인 히스토리 조회 ★★★
+   같은 지역(시/구)의 최근 6개월 경쟁률·커트라인을 조회하여 평균값 반환
+   → calcProb에서 커트라인/경쟁률 데이터 없는 PDF 공고에 활용
+── */
+async function fetchSimilarComp(listing){
+  if(!apiKey || !apiConnected) return null;
+  try {
+    // 최근 6개월 범위 날짜 계산
+    const now = new Date();
+    const sixAgo = new Date(now);
+    sixAgo.setMonth(sixAgo.getMonth() - 6);
+    const fmtD = d => d.toISOString().slice(0,10);
+
+    // 1) 최근 APT 분양 목록 조회 (50건)
+    const listUrl = `${API_APT}?serviceKey=${encodeURIComponent(apiKey)}&page=1&perPage=50`;
+    const listRes = await fetch(PROXY + encodeURIComponent(listUrl));
+    const listBody = await listRes.json();
+    const allItems = listBody?.data || [];
+    if(!allItems.length) return null;
+
+    // 2) 같은 지역 필터 (공급지역명에 listing.loc의 시/구 포함)
+    const locParts = (listing.loc||'').split(/[\s,/]/);
+    const gu = locParts.find(s => s.endsWith('구') || s.endsWith('시') || s.endsWith('군')) || '';
+    const si = locParts[0] || '';
+
+    const similar = allItems.filter(item => {
+      const rgn = item['공급지역명'] || item.SUBSCRPT_AREA_CODE_NM || '';
+      const addr = item['공급위치'] || item.HSSPLY_ADRES || '';
+      const combined = rgn + ' ' + addr;
+      return gu && combined.includes(gu) || si && combined.includes(si);
+    });
+
+    if(!similar.length) return null;
+
+    // 3) 각 유사단지의 공고번호로 경쟁률/커트라인 조회 (최대 5건)
+    const results = [];
+    const targets = similar.slice(0, 5);
+    for(const item of targets){
+      const pNo = item['공고번호'] || item.PBLANC_NO || '';
+      if(!pNo) continue;
+      const [compVal, cutVal] = await Promise.all([
+        fetchCmpetRate(apiKey, pNo),
+        fetchCutScore(apiKey, pNo)
+      ]);
+      if(compVal || cutVal) results.push({ comp: compVal, cut: cutVal });
+    }
+
+    if(!results.length) return null;
+
+    // 4) 평균 계산
+    const comps = results.map(r => r.comp).filter(Boolean);
+    const cuts = results.map(r => r.cut).filter(Boolean);
+    return {
+      avgComp: comps.length ? Math.round(comps.reduce((a,b)=>a+b,0) / comps.length * 10) / 10 : null,
+      avgCut: cuts.length ? Math.round(cuts.reduce((a,b)=>a+b,0) / cuts.length) : null,
+      sampleCount: results.length,
+      region: gu || si
+    };
+  } catch(e) {
+    console.warn('유사단지 조회 실패:', e.message);
+    return null;
+  }
+}
+/* ★★★ [하드코딩 끝] ★★★ */
+
 /* ── API 응답 필드 정규화
    odcloud 응답은 camelCase 또는 한글 필드명으로 옴
    예: 주택명, 공급지역명, 청약접수시작일, 청약접수종료일, 당첨자발표일 등
@@ -3404,6 +4067,7 @@ listings.forEach(l => {
   }
 });
 restoreRegions();
+restoreSizes();
 updateHero();
 renderListings();
 
@@ -3541,8 +4205,15 @@ async function onAdminFileSelect(event){
   "aS": "청약 접수 시작일 YYYY-MM-DD",
   "aE": "청약 접수 종료일 YYYY-MM-DD",
   "aD": "당첨자 발표일 YYYY-MM-DD",
-  "elig": ["생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/일반공급/무순위(줍줍) 중 해당하는 것들"],
+  "elig": ["생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/노부모부양/일반공급/무순위(줍줍) 중 해당하는 것들"],
+  "eligDetail": [
+    {"type":"전형명","incLimit":"소득 상한 만원(연간). 없으면 0","incPct":"도시근로자 소득 기준 퍼센트(예:100,130,160). 없으면 0","ageMin":0,"ageMax":0,"married":"필수여부(required/excluded/any)","noHome":"무주택 필수여부(true/false)","noHomeYears":"최소 무주택 기간 년. 없으면 0","children":"최소 자녀수. 없으면 0","newborn":"신생아 필수여부(true/false)","accMonths":"최소 청약통장 납입횟수. 없으면 0","assets":"자산 상한 만원. 없으면 0","note":"추가 조건 한줄 요약"}
+  ],
   "cut": 예상 가점 커트라인 숫자 없으면 0,
+  "comp": 예상 경쟁률 숫자 (공고문에 없으면 0. 예: 1순위 경쟁률 15.3이면 15.3),
+  "compByType": "평형별 경쟁률 (있으면. 예: 59㎡ 12.5|84A㎡ 18.3). 없으면 빈 문자열",
+  "cutByType": "평형별 가점 커트라인 (있으면. 예: 59㎡ 58|84A㎡ 62). 없으면 빈 문자열",
+  "prevComp": "이전 차수 경쟁률 정보 (있으면. 예: 1차 경쟁률 25:1). 없으면 빈 문자열",
   "ai": {
     "q": "신청 자격 쉬운 설명 1~2문장",
     "p": "분양가 쉬운 설명 1~2문장",
@@ -3596,7 +4267,10 @@ async function onAdminFileSelect(event){
       lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
       mktP: parsed.minP ? Math.round(parsed.minP * 1.3) : 0,
       noMktP: !parsed.minP || !parsed.mktP || String(parsed.mktP).trim() === '-' || parsed.mktP === 0,
-      comp: 10,
+      comp: parseFloat(parsed.comp) || 10,
+      compByType: parsed.compByType || '',
+      cutByType: parsed.cutByType || '',
+      eligDetail: parsed.eligDetail || [],
       days: parsed.aE ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : 0,
       priceFactors: [],
       price: parsed.price || '공고 확인 필요',
