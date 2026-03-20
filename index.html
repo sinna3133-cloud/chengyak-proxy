@@ -857,6 +857,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="hero-glow"></div>
     <div class="hero-glow2"></div>
     <div class="hero-inner">
+      <div id="api-indicator" class="api-ind-mock" style="display:none" onclick="openApiSetup()">목업 데이터</div>
       <!-- 닉네임 + 응원 문구 -->
       <div style="margin-bottom:16px;position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
         <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:900;color:white;letter-spacing:-.4px;white-space:nowrap"></div>
@@ -1090,6 +1091,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico">🏆</span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-new">NEW</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico">📅</span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico">📖</span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showToast('알림 설정은 준비 중이에요! 🔔')"><span class="menu-ico">🔔</span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="openApiSetup()"><span class="menu-ico">🔌</span><span class="menu-txt">청약홈 API 연동</span><span id="api-menu-badge" class="api-menu-badge-off">미연동</span><span class="menu-arr">›</span></div>
   <div class="menu-section-label">고객센터</div>
   <div style="padding:20px 20px 8px;display:grid;grid-template-columns:1fr 1fr;row-gap:32px">
     <div class="sup-link" onclick="showSupport('notice')">공지사항</div>
@@ -1739,7 +1742,6 @@ function typeBadge(l){
 }
 function gapPill(l){
   if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
-  if(!l.minP || l.minP === 0) return`<div class="gap-pill"><div class="gap-nums"><b>${l.price||'분양가 확인 필요'}</b></div></div>`;
   const{g,pct}=gap(l);const up=g>0;
   return`<div class="gap-pill"><div class="gap-nums"><b>${(l.minP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
 }
@@ -1765,48 +1767,64 @@ function cleanPrice(p){
   if(!p) return p;
   // 천원 단위 숫자 (예: 255,150천원 → 약 2.6억)
   if(/[0-9,]+천원/.test(p)){
-    const num = parseInt(p.replace(/,/g,'')) * 1000;
-    const uk = Math.round(num / 100000000 * 10) / 10;
+    const num = parseInt(p.replace(/,/g,'')) * 1000; // 천원 → 원
+    const uk = Math.round(num / 100000000 * 10) / 10; // 억 단위
     return uk + '억';
   }
-  // 천원 → 천 (단위 변경)
-  p = p.replace(/천원/g, '천');
-  p = p.replace(/만원/g, '만');
-  // 숫자와 단위 사이 불필요한 공백 정리
-  p = p.replace(/\s+(억|천|만)/g, '$1');
-  return p.trim();
+  return p.replace(/만원/g, '').replace(/원$/g, '').trim();
+}
+
+/* ══ 가격 문자열 → 숫자(만원) 변환 ══ */
+function priceToNum(p){
+  if(!p) return 0;
+  p = p.replace(/,/g,'').trim();
+  // 천원 단위: 255150천원
+  if(/[0-9]+천원/.test(p)) return Math.round(parseInt(p) * 0.1); // 천원 → 만원
+  let result = 0;
+  const uk = p.match(/([0-9.]+)억/);
+  const chun = p.match(/([0-9]+)천/);
+  const man = p.match(/([0-9]+)만/);
+  if(uk) result += parseFloat(uk[1]) * 10000;
+  if(chun) result += parseInt(chun[1]) * 1000;
+  if(man) result += parseInt(man[1]);
+  return result;
 }
 
 /* ══ 카드용 가격 표시 (최저~최고, 평형 제거) ══ */
 function cardPrice(price){
   if(!price) return '';
 
-  // 숫자+단위 추출 헬퍼 (평형명 제거)
+  // 평형명 제거 후 금액만 추출 (첫 공백 이후)
   const extractAmt = p => {
-    const trimmed = p.trim();
-    // 앞에 평형명(숫자+㎡ 등)이 있으면 제거
-    const noType = trimmed.replace(/^[0-9]+[A-Z㎡-]*[A-Z]?\s+/i, '').trim();
-    return noType || trimmed;
+    p = p.trim();
+    const spaceIdx = p.indexOf(' ');
+    const amt = spaceIdx > 0 ? p.slice(spaceIdx + 1).trim() : p;
+    return cleanPrice(amt);
   };
 
-  if(price.includes('|')){
-    const parts = price.split('|').map(p => extractAmt(p.trim())).filter(Boolean);
-    const firstPart = parts[0];
-    const firstMin = firstPart.includes('~') ? firstPart.split('~')[0].trim() : firstPart;
-    const lastPart = parts[parts.length - 1];
-    const lastMax = lastPart.includes('~') ? lastPart.split('~').pop().trim() : lastPart;
-    if(!firstMin || !lastMax || firstMin === '0억' || lastMax === '0억') return cleanPrice(price.split('|')[0].trim());
-    return firstMin === lastMax ? cleanPrice(firstMin) : `${cleanPrice(firstMin)}~${cleanPrice(lastMax)}`;
-  }
+  // 모든 금액 조각 수집 (| 와 ~ 모두 분해)
+  let allPrices = [];
+  const parts = price.includes('|') ? price.split('|') : [price];
+  parts.forEach(part => {
+    const amt = extractAmt(part);
+    if(amt.includes('~')){
+      amt.split('~').forEach(a => { if(a.trim()) allPrices.push(cleanPrice(a.trim())); });
+    } else {
+      if(amt.trim()) allPrices.push(amt);
+    }
+  });
 
-  if(price.includes('~')){
-    const parts = price.split('~').map(p => p.trim()).filter(Boolean);
-    const first = cleanPrice(parts[0]);
-    const last = cleanPrice(parts[parts.length - 1]);
-    return first === last ? first : `${first}~${last}`;
-  }
+  // 유효한 값만 (0이 아닌)
+  allPrices = allPrices.filter(p => priceToNum(p) > 0);
+  if(!allPrices.length) return cleanPrice(price);
 
-  return cleanPrice(price);
+  // 숫자로 변환해서 최저/최고 찾기
+  const nums = allPrices.map(p => ({label: p, val: priceToNum(p)}));
+  nums.sort((a,b) => a.val - b.val);
+  const minLabel = nums[0].label;
+  const maxLabel = nums[nums.length-1].label;
+
+  return minLabel === maxLabel ? minLabel : `${minLabel}~${maxLabel}`;
 }
 
 /* ══ 히어로 ══ */
@@ -1946,10 +1964,7 @@ function renderListings(){
       <div class="card-meta">
         <div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div>
         <div style="text-align:center"><div class="meta-label">세대수</div><div class="meta-val">${l.units}세대</div></div>
-        ${l.sched&&(l.sched.includes('선착순')||l.sched.includes('선착'))
-          ? `<div></div>`
-          : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>`
-        }
+        <div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>
       </div>
       ${wrHTML}
     </div>`;
@@ -2191,19 +2206,28 @@ function showDetail(id, fromSwipe=false){
       ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
           <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
-            ${l.price.split('|').map((p,i)=>{
+            ${l.price.split('|').map(p=>{
+              const parts = p.trim().split(' ');
+              const size = parts[0]||'';
+              const price = parts.slice(1).join(' ')||p;
               return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
-                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${i+1}안</div>
-                <div style="font-size:13px;font-weight:700;color:var(--accent)">${p.trim()}</div>
+                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent)">${cleanPrice(price)}</div>
               </div>`;
             }).join('')}
           </div>
         </div>`
-      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price||'공고 확인 필요'}</span></div>`
+      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${cleanPrice(l.price)}</span></div>`
     }
     <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
-    <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)${l.sched&&(l.sched.includes('선착순')||l.sched.includes('선착'))?' <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:#FEF3C7;color:#92400E;margin-left:6px">선착순 계약</span>':''}</span></div>
-    <div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>
+    ${(()=>{
+      const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
+      const deadlineRow = isFirstCome
+        ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="display:flex;align-items:center;gap:8px;font-weight:700"><span style="color:var(--gold)">${l.deadline} (${l.days}일 남음)</span><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:#FEF3C7;color:#92400E">선착순 계약</span></span></div>`
+        : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>`;
+      const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>`;
+      return deadlineRow + schedRow;
+    })()}
   </div>
 
   <!-- 2. 📈 시세 차익 분석 -->
@@ -2874,7 +2898,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
    ※ 인증키: Decoding 키 사용 (이미지의 '일반 인증키')
 ══════════════════════════════════════ */
 
-let apiKey = 'b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51';
+let apiKey = localStorage.getItem('cheongyak_api_key') || '';
 let apiConnected = false;
 let liveListings = [];
 let sheetPrices = {}; // 단지명 → {price, minP, mktP, factors}
@@ -2898,9 +2922,7 @@ async function loadSheetFactors(){
       const name       = row.c[0]?.v ? String(row.c[0].v).trim() : '';
       const price      = row.c[1]?.v?.trim() || '';
       const minP       = parseInt(row.c[2]?.v) || 0;
-      const mktPRaw    = row.c[3]?.v ? String(row.c[3].v).trim() : '';
-      const mktP       = (mktPRaw === '-' || mktPRaw === '') ? 0 : (parseInt(mktPRaw) || 0);
-      const noMktP     = mktPRaw === '-' || mktPRaw === '' || mktP === 0;
+      const mktP       = parseInt(row.c[3]?.v) || 0;
       const factorsRaw = row.c[4]?.v ? String(row.c[4].v).trim() : '';
       const factors    = factorsRaw
         ? factorsRaw.split('|').map(f => {
@@ -2913,7 +2935,7 @@ async function loadSheetFactors(){
           }).filter(f => f && f.icon && f.text)
         : [];
       if(!name) return;
-      sheetPrices[name] = {price, minP, mktP, noMktP, factors};
+      sheetPrices[name] = {price, minP, mktP, factors};
     });
     const keys = Object.keys(sheetPrices);
     console.log('✓ 시트 로드:', keys);
@@ -2922,11 +2944,28 @@ async function loadSheetFactors(){
   
 /* API 상태 업데이트 */
 function updateApiStatus(){
-  // UI 표시 없음 — 자동 연동
+  const ind   = document.getElementById('api-indicator');
+  const badge = document.getElementById('api-menu-badge');
+  if(!ind) return;
+  if(apiConnected){
+    ind.style.display='block';
+    ind.className='api-ind-live';
+    ind.textContent='실시간 연동 ●';
+    if(badge){ badge.className='api-menu-badge-on'; badge.textContent='연동됨'; }
+  } else {
+    ind.style.display='none'; // 목업일 땐 숨김
+    if(badge){ badge.className='api-menu-badge-off'; badge.textContent='미연동'; }
+  }
 }
 
-function openApiSetup(){}
-function closeApiSetup(){}
+function openApiSetup(){
+  const inp = document.getElementById('api-key-input');
+  if(inp && apiKey) inp.value = apiKey;
+  document.getElementById('api-setup-ov').classList.add('open');
+}
+function closeApiSetup(){
+  document.getElementById('api-setup-ov').classList.remove('open');
+}
 
 async function connectApi(){
   const key = document.getElementById('api-key-input').value.trim();
@@ -3115,7 +3154,7 @@ function parseAptItem(item, isLotto=false){
     name, loc, type, region, lotto: isLotto,
     price:    priceLabel,
     minP,
-    mktP:     sheetPrice?.mktP || 0,
+    mktP:     (sheetPrice && !sheetPrice.noMktP) ? (sheetPrice.mktP || Math.round(minP * 1.3)) : 0,
     deadline: toStr(rceptEnd),
     days:     daysLeft,
     size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
@@ -3129,7 +3168,7 @@ function parseAptItem(item, isLotto=false){
     aE:       toStr(rceptEnd),
     aD:       toStr(pblancDe),
     elig,
-    noMktP: sheetPrice ? sheetPrice.noMktP : true,
+    noMktP: !sheetPrice?.mktP || sheetPrice?.mktP === 0 || String(sheetPrice?.mktP).trim() === '-',
     priceFactors: sheetPrice?.factors || [],
     ai:{
       q: isLotto
@@ -3168,29 +3207,27 @@ async function loadLiveData(){
 
       apiConnected = false;
       updateApiStatus();
+      showToast('API 응답이 비어있어요 — 목업 데이터로 표시해요');
       return;
     }
 
-    // Supabase 관리자 공고 로드 후 병합
-    let adminRows = [];
-    try { adminRows = await supaGetListings(); } catch(e){}
-    const adminListings = adminRows.map(row => { const l = supaToListing(row); l.name = cleanName(l.name); return l; });
-
-    // 청약홈 API 공고 + 관리자 공고 병합 (이름 중복 제거, 관리자 공고 우선 상단)
-    const apiNames = parsed.map(p => p.name);
-    const adminOnly = adminListings.filter(a => !apiNames.includes(a.name));
-    const merged = [...adminOnly, ...parsed];
+    // 우선 목록 먼저 표시 (경쟁률 로드 전)
+    // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
+    const adminSaved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name));
+    const merged = [...parsed, ...adminOnly];
     listings.splice(0, listings.length, ...merged);
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
     renderListings();
     renderRecommend();
+    showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
 
     // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
     const normalListings = parsed.filter(l => !l.lotto && l.id);
     const enrichPromises = normalListings.map(async (l) => {
-      const pblancNo = l.id;
+      const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
       const [comp, cut] = await Promise.all([
         fetchCmpetRate(apiKey, pblancNo),
         fetchCutScore(apiKey,  pblancNo)
@@ -3208,11 +3245,13 @@ async function loadLiveData(){
     renderListings();
     updateConsult();
     updateScoreScreen();
+    showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
 
   } catch(e){
     console.error('loadLiveData error:', e);
     apiConnected = false;
     updateApiStatus();
+    showToast('API 오류 — 목업 데이터로 표시해요');
   }
 }
 
@@ -3346,6 +3385,19 @@ async function onAdminFileSelect(event){
   statusEl.style.color = '#92400E';
   statusEl.textContent = '📄 ' + file.name + ' 읽는 중... Claude가 분석하고 있어요';
 
+  // 파일 크기 체크 (5MB 초과 시 경고)
+  const MAX_SIZE = 5 * 1024 * 1024;
+  if(file.size > MAX_SIZE) {
+    const statusEl = document.getElementById('admin-status');
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'var(--red-light)';
+    statusEl.style.border = '1px solid rgba(240,64,64,.3)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `❌ PDF 파일이 너무 커요 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하 파일을 사용해주세요. 청약홈에서 모집공고문 요약본을 다운로드해보세요.`;
+    document.getElementById('admin-drop').style.display = 'block';
+    return;
+  }
+
   try {
     const base64 = await new Promise((res, rej) => {
       const reader = new FileReader();
@@ -3356,25 +3408,23 @@ async function onAdminFileSelect(event){
 
     const prompt = `다음 청약 공고문 PDF에서 아래 항목들을 추출해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
 
-중요: 날짜는 공고문에 적힌 연도를 그대로 써줘. 임의로 변경하지 마.
-중요: minP는 분양가 중 가장 낮은 금액을 만원 단위 숫자로 반드시 입력해줘. (예: 3억2천만원 → 32000)
-
 {
   "name": "단지명",
   "loc": "위치 (시/구/동)",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private",
-  "price": "분양가만 입력 (평형명 제외, 예: 7억4천~9억2천원. 평형별로 다를 경우 가격만 | 로 구분: 3억5천|4억2천|5억1천)",
-  "minP": 분양가 최저값 만원 단위 숫자 (예: 32000),
-  "deadline": "청약 접수 마감일 YYYY-MM-DD (공고문 연도 그대로)",
+  "price": "분양가 (예: 3억~5억원, 평형별이면 | 로 구분: 84A 3억5천|101B 4억2천)",
+  "minP": 분양가 최저값 만원 단위 숫자,
+  "mktP": 주변 시세 만원 단위 숫자 (공고문에 없으면 0),
+  "deadline": "청약 접수 마감일 YYYY-MM-DD",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
   "units": 총 세대수 숫자,
   "qual": "신청 자격 한 줄 요약",
   "inc": "소득 기준 한 줄 요약",
   "sched": "주요 일정 (접수~발표~계약)",
-  "aS": "청약 접수 시작일 YYYY-MM-DD (공고문 연도 그대로)",
-  "aE": "청약 접수 종료일 YYYY-MM-DD (공고문 연도 그대로)",
-  "aD": "당첨자 발표일 YYYY-MM-DD (공고문 연도 그대로)",
+  "aS": "청약 접수 시작일 YYYY-MM-DD",
+  "aE": "청약 접수 종료일 YYYY-MM-DD",
+  "aD": "당첨자 발표일 YYYY-MM-DD",
   "elig": ["생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/일반공급/무순위(줍줍) 중 해당하는 것들"],
   "cut": 예상 가점 커트라인 숫자 없으면 0,
   "ai": {
@@ -3456,116 +3506,15 @@ async function onAdminFileSelect(event){
   }
 }
 
-/* ══ Supabase 연동 ══ */
-const SUPA_URL = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
-const SUPA_KEY = 'sb_publishable_gkacChfhO0tpdotsVTa_WA_0DNGQQO5';
-
-async function supaFetch(path, options={}){
-  const res = await fetch(`${SUPA_URL}/rest/v1/${path}`, {
-    ...options,
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': `Bearer ${SUPA_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-      ...(options.headers||{})
-    }
-  });
-  if(!res.ok) throw new Error(await res.text());
-  const text = await res.text();
-  return text ? JSON.parse(text) : [];
-}
-
-async function supaGetListings(){
-  return await supaFetch('listings?order=created_at.desc');
-}
-
-async function supaInsertListing(l){
-  return await supaFetch('listings', {
-    method: 'POST',
-    body: JSON.stringify({
-      id: l.id,
-      name: l.name,
-      loc: l.loc,
-      region: l.region,
-      type: l.type,
-      lotto: l.lotto,
-      price: l.price,
-      minp: l.minP,
-      mktp: l.mktP,
-      deadline: l.deadline,
-      days: l.days,
-      size: l.size,
-      units: l.units,
-      comp: l.comp,
-      cut: l.cut,
-      qual: l.qual,
-      inc: l.inc,
-      sched: l.sched,
-      "as": l.aS,
-      ae: l.aE,
-      ad: l.aD,
-      elig: l.elig,
-      ai: l.ai,
-      pricefactors: l.priceFactors||[]
-    })
-  });
-}
-
-async function supaDeleteListing(id){
-  return await supaFetch(`listings?id=eq.${id}`, { method: 'DELETE' });
-}
-
-function supaToListing(row){
-  return {
-    id: row.id,
-    name: row.name,
-    loc: row.loc,
-    region: row.region,
-    type: row.type,
-    lotto: row.lotto,
-    price: row.price,
-    minP: row.minp,
-    mktP: row.mktp,
-    deadline: row.deadline,
-    days: row.days,
-    size: row.size,
-    units: row.units,
-    comp: row.comp,
-    cut: row.cut,
-    qual: row.qual,
-    inc: row.inc,
-    sched: row.sched,
-    aS: row.as,
-    aE: row.ae,
-    aD: row.ad,
-    elig: row.elig,
-    ai: row.ai,
-    priceFactors: row.pricefactors||[]
-  };
-}
-
-// 앱 시작 시 Supabase에서 관리자 공고 로드
-async function restoreAdminListings(){
-  try {
-    const rows = await supaGetListings();
-    rows.forEach(row => {
-      const l = supaToListing(row);
-      l.name = cleanName(l.name);
-      if(!listings.find(x => x.id === l.id)) listings.unshift(l);
-    });
-    renderListings();
-    renderRecommend();
-  } catch(e){ console.warn('Supabase 로드 실패:', e.message); }
-}
-
 function confirmAdminData(force=false){
   if(!_adminExtracted) return;
 
-  // 중복 체크 — Supabase 기준
+  // 중복 체크
   if(!force){
-    const isDuplicate = listings.some(l => l.name === _adminExtracted.name);
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    const isDuplicate = saved.some(l => l.name === _adminExtracted.name);
     if(isDuplicate){
+      // 팝업 표시
       const existing = document.getElementById('dup-confirm-ov');
       if(existing) existing.remove();
       const ov = document.createElement('div');
@@ -3588,57 +3537,64 @@ function confirmAdminData(force=false){
     }
   }
 
-  // Supabase에 저장
-  supaInsertListing(_adminExtracted)
-    .then(()=>{
-      listings.unshift(_adminExtracted);
-      showToast('✓ 공고가 추가됐어요!');
-      resetAdmin();
-      renderAdminList();
-      renderListings();
-      renderRecommend();
-    })
-    .catch(e=>{
-      showToast('❌ 저장 실패: ' + e.message);
-    });
+  listings.unshift(_adminExtracted);
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings') || '[]');
+    saved.unshift(_adminExtracted);
+    localStorage.setItem('admin_listings', JSON.stringify(saved));
+  } catch(e){}
+  showToast('✓ 공고가 추가됐어요!');
+  resetAdmin();
+  renderAdminList();
+  renderListings();
+  renderRecommend();
 }
 
 function renderAdminList(){
-  supaGetListings().then(rows => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
     const el = document.getElementById('admin-list');
     const countEl = document.getElementById('admin-count');
-    if(!el||!countEl) return;
-    countEl.textContent = rows.length;
-    if(!rows.length){
+    countEl.textContent = saved.length;
+    if(!saved.length){
       el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
       return;
     }
-    el.innerHTML = rows.map(row => {
-      const l = supaToListing(row);
-      return `
-        <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
-            <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
-          </div>
-          <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
-        </div>`;
-    }).join('');
-  }).catch(()=>{});
+    el.innerHTML = saved.map(l => `
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
+          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
+        </div>
+        <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
+      </div>`).join('');
+  } catch(e){}
 }
 
 function removeAdminListing(id){
-  supaDeleteListing(id)
-    .then(()=>{
-      const idx = listings.findIndex(l => l.id === id);
-      if(idx > -1) listings.splice(idx, 1);
-      renderAdminList();
-      renderListings();
-      showToast('공고를 삭제했어요');
-    })
-    .catch(e => showToast('❌ 삭제 실패: ' + e.message));
+  const idx = listings.findIndex(l => l.id === id);
+  if(idx > -1) listings.splice(idx, 1);
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    localStorage.setItem('admin_listings', JSON.stringify(saved.filter(s => s.id !== id)));
+  } catch(e){}
+  renderAdminList();
+  renderListings();
+  showToast('공고를 삭제했어요');
 }
 
+// 앱 시작 시 저장된 관리자 공고 복원 (단지명 정리 포함)
+(function restoreAdminListings(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    // 저장된 공고 단지명 정리 후 다시 저장
+    const cleaned = saved.map(l => ({ ...l, name: cleanName(l.name) }));
+    localStorage.setItem('admin_listings', JSON.stringify(cleaned));
+    cleaned.forEach(l => {
+      if(!listings.find(x => x.id === l.id)) listings.unshift(l);
+    });
+  } catch(e){}
+})();
 
 </script>
 </body>
