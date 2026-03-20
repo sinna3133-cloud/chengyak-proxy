@@ -3167,10 +3167,7 @@ async function loadLiveData(){
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
     // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
-    const adminSaved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
-    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name));
-    const merged = [...parsed, ...adminOnly];
-    listings.splice(0, listings.length, ...merged);
+    listings.splice(0, listings.length, ...parsed);
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
@@ -3444,15 +3441,116 @@ async function onAdminFileSelect(event){
   }
 }
 
+/* ══ Supabase 연동 ══ */
+const SUPA_URL = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
+const SUPA_KEY = 'sb_publishable_gkacChfhO0tpdotsVTa_WA_0DNGQQO5';
+
+async function supaFetch(path, options={}){
+  const res = await fetch(`${SUPA_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(options.headers||{})
+    }
+  });
+  if(!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+async function supaGetListings(){
+  return await supaFetch('listings?order=created_at.desc');
+}
+
+async function supaInsertListing(l){
+  return await supaFetch('listings', {
+    method: 'POST',
+    body: JSON.stringify({
+      id: l.id,
+      name: l.name,
+      loc: l.loc,
+      region: l.region,
+      type: l.type,
+      lotto: l.lotto,
+      price: l.price,
+      minp: l.minP,
+      mktp: l.mktP,
+      deadline: l.deadline,
+      days: l.days,
+      size: l.size,
+      units: l.units,
+      comp: l.comp,
+      cut: l.cut,
+      qual: l.qual,
+      inc: l.inc,
+      sched: l.sched,
+      as: l.aS,
+      ae: l.aE,
+      ad: l.aD,
+      elig: l.elig,
+      ai: l.ai,
+      pricefactors: l.priceFactors||[]
+    })
+  });
+}
+
+async function supaDeleteListing(id){
+  return await supaFetch(`listings?id=eq.${id}`, { method: 'DELETE' });
+}
+
+function supaToListing(row){
+  return {
+    id: row.id,
+    name: row.name,
+    loc: row.loc,
+    region: row.region,
+    type: row.type,
+    lotto: row.lotto,
+    price: row.price,
+    minP: row.minp,
+    mktP: row.mktp,
+    deadline: row.deadline,
+    days: row.days,
+    size: row.size,
+    units: row.units,
+    comp: row.comp,
+    cut: row.cut,
+    qual: row.qual,
+    inc: row.inc,
+    sched: row.sched,
+    aS: row.as,
+    aE: row.ae,
+    aD: row.ad,
+    elig: row.elig,
+    ai: row.ai,
+    priceFactors: row.pricefactors||[]
+  };
+}
+
+// 앱 시작 시 Supabase에서 관리자 공고 로드
+async function restoreAdminListings(){
+  try {
+    const rows = await supaGetListings();
+    rows.forEach(row => {
+      const l = supaToListing(row);
+      l.name = cleanName(l.name);
+      if(!listings.find(x => x.id === l.id)) listings.unshift(l);
+    });
+    renderListings();
+    renderRecommend();
+  } catch(e){ console.warn('Supabase 로드 실패:', e.message); }
+}
+
 function confirmAdminData(force=false){
   if(!_adminExtracted) return;
 
-  // 중복 체크
+  // 중복 체크 — Supabase 기준
   if(!force){
-    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
-    const isDuplicate = saved.some(l => l.name === _adminExtracted.name);
+    const isDuplicate = listings.some(l => l.name === _adminExtracted.name);
     if(isDuplicate){
-      // 팝업 표시
       const existing = document.getElementById('dup-confirm-ov');
       if(existing) existing.remove();
       const ov = document.createElement('div');
@@ -3475,64 +3573,59 @@ function confirmAdminData(force=false){
     }
   }
 
-  listings.unshift(_adminExtracted);
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_listings') || '[]');
-    saved.unshift(_adminExtracted);
-    localStorage.setItem('admin_listings', JSON.stringify(saved));
-  } catch(e){}
-  showToast('✓ 공고가 추가됐어요!');
-  resetAdmin();
-  renderAdminList();
-  renderListings();
-  renderRecommend();
+  // Supabase에 저장
+  supaInsertListing(_adminExtracted)
+    .then(()=>{
+      listings.unshift(_adminExtracted);
+      showToast('✓ 공고가 추가됐어요!');
+      resetAdmin();
+      renderAdminList();
+      renderListings();
+      renderRecommend();
+    })
+    .catch(e=>{
+      showToast('❌ 저장 실패: ' + e.message);
+    });
 }
 
 function renderAdminList(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+  supaGetListings().then(rows => {
     const el = document.getElementById('admin-list');
     const countEl = document.getElementById('admin-count');
-    countEl.textContent = saved.length;
-    if(!saved.length){
+    if(!el||!countEl) return;
+    countEl.textContent = rows.length;
+    if(!rows.length){
       el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
       return;
     }
-    el.innerHTML = saved.map(l => `
-      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
-          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
-        </div>
-        <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
-      </div>`).join('');
-  } catch(e){}
+    el.innerHTML = rows.map(row => {
+      const l = supaToListing(row);
+      return `
+        <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
+            <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · D-${l.days}</div>
+          </div>
+          <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
+        </div>`;
+    }).join('');
+  }).catch(()=>{});
 }
 
 function removeAdminListing(id){
-  const idx = listings.findIndex(l => l.id === id);
-  if(idx > -1) listings.splice(idx, 1);
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
-    localStorage.setItem('admin_listings', JSON.stringify(saved.filter(s => s.id !== id)));
-  } catch(e){}
-  renderAdminList();
-  renderListings();
-  showToast('공고를 삭제했어요');
+  supaDeleteListing(id)
+    .then(()=>{
+      const idx = listings.findIndex(l => l.id === id);
+      if(idx > -1) listings.splice(idx, 1);
+      renderAdminList();
+      renderListings();
+      showToast('공고를 삭제했어요');
+    })
+    .catch(e => showToast('❌ 삭제 실패: ' + e.message));
 }
 
-// 앱 시작 시 저장된 관리자 공고 복원 (단지명 정리 포함)
-(function restoreAdminListings(){
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
-    // 저장된 공고 단지명 정리 후 다시 저장
-    const cleaned = saved.map(l => ({ ...l, name: cleanName(l.name) }));
-    localStorage.setItem('admin_listings', JSON.stringify(cleaned));
-    cleaned.forEach(l => {
-      if(!listings.find(x => x.id === l.id)) listings.unshift(l);
-    });
-  } catch(e){}
-})();
+// 앱 시작 시 Supabase에서 관리자 공고 로드
+restoreAdminListings();
 
 </script>
 </body>
