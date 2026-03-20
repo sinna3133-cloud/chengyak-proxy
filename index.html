@@ -2186,22 +2186,12 @@ function showDetail(id, fromSwipe=false){
     </div>`:''}
   </div>
 
-  <!-- 3. 청약 자격 (톤다운) + 🎯 신청 가능한 전형 -->
+  <!-- 3. 청약 자격 + 🎯 신청 가능한 전형 -->
   <div class="info-card" style="margin-top:14px">
-    <!-- 청약 자격 — 톤다운 -->
-    <div class="info-card-title" style="color:var(--ink-4);font-size:13px">청약 자격</div>
-    <div style="padding:4px 18px 12px;border-bottom:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:var(--ink-5)">신청 자격</span>
-        <span style="font-size:12px;color:var(--ink-4);text-align:right;flex:1;margin-left:12px">${l.qual}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:var(--ink-5)">소득 기준</span>
-        <span style="font-size:12px;color:var(--ink-4);text-align:right;flex:1;margin-left:12px">${l.inc}</span>
-      </div>
-    </div>
-    <!-- 신청 가능한 전형 -->
-    <div class="info-card-title">🎯 신청 가능한 전형</div>
+    <div class="info-card-title">📋 청약 자격</div>
+    <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
+    <div class="info-row" style="border-bottom:none"><span class="info-rl">소득 기준</span><span class="info-rv">${l.inc}</span></div>
+    <div class="info-card-title" style="border-top:1px solid rgba(0,0,0,.06)">🎯 신청 가능한 전형</div>
     ${(()=>{
       const typeDesc = {
         '생애최초':    { desc:'세대원 전원 처음 집 사는 분', reason:'소득 기준 초과 또는 주택 소유 이력이 있어요' },
