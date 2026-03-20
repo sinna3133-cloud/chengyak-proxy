@@ -3502,11 +3502,14 @@ function removeAdminListing(id){
   showToast('공고를 삭제했어요');
 }
 
-// 앱 시작 시 저장된 관리자 공고 복원
+// 앱 시작 시 저장된 관리자 공고 복원 (단지명 정리 포함)
 (function restoreAdminListings(){
   try {
     const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
-    saved.forEach(l => {
+    // 저장된 공고 단지명 정리 후 다시 저장
+    const cleaned = saved.map(l => ({ ...l, name: cleanName(l.name) }));
+    localStorage.setItem('admin_listings', JSON.stringify(cleaned));
+    cleaned.forEach(l => {
       if(!listings.find(x => x.id === l.id)) listings.unshift(l);
     });
   } catch(e){}
