@@ -2892,7 +2892,9 @@ async function loadSheetFactors(){
       const name       = row.c[0]?.v ? String(row.c[0].v).trim() : '';
       const price      = row.c[1]?.v?.trim() || '';
       const minP       = parseInt(row.c[2]?.v) || 0;
-      const mktP       = parseInt(row.c[3]?.v) || 0;
+      const mktPRaw    = row.c[3]?.v ? String(row.c[3].v).trim() : '';
+      const mktP       = (mktPRaw === '-' || mktPRaw === '') ? 0 : (parseInt(mktPRaw) || 0);
+      const noMktP     = mktPRaw === '-' || mktPRaw === '' || mktP === 0;
       const factorsRaw = row.c[4]?.v ? String(row.c[4].v).trim() : '';
       const factors    = factorsRaw
         ? factorsRaw.split('|').map(f => {
@@ -2905,7 +2907,7 @@ async function loadSheetFactors(){
           }).filter(f => f && f.icon && f.text)
         : [];
       if(!name) return;
-      sheetPrices[name] = {price, minP, mktP, factors};
+      sheetPrices[name] = {price, minP, mktP, noMktP, factors};
     });
     const keys = Object.keys(sheetPrices);
     console.log('✓ 시트 로드:', keys);
@@ -3121,7 +3123,7 @@ function parseAptItem(item, isLotto=false){
     aE:       toStr(rceptEnd),
     aD:       toStr(pblancDe),
     elig,
-    noMktP: !sheetPrice?.mktP || sheetPrice?.mktP === 0 || String(sheetPrice?.mktP).trim() === '-',
+    noMktP: sheetPrice ? sheetPrice.noMktP : true,
     priceFactors: sheetPrice?.factors || [],
     ai:{
       q: isLotto
@@ -3348,23 +3350,25 @@ async function onAdminFileSelect(event){
 
     const prompt = `다음 청약 공고문 PDF에서 아래 항목들을 추출해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
 
+중요: 날짜는 공고문에 적힌 연도를 그대로 써줘. 임의로 변경하지 마.
+중요: minP는 분양가 중 가장 낮은 금액을 만원 단위 숫자로 반드시 입력해줘. (예: 3억2천만원 → 32000)
+
 {
   "name": "단지명",
   "loc": "위치 (시/구/동)",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private",
   "price": "분양가만 입력 (평형명 제외, 예: 7억4천~9억2천원. 평형별로 다를 경우 가격만 | 로 구분: 3억5천|4억2천|5억1천)",
-  "minP": 분양가 최저값 만원 단위 숫자,
-  "mktP": 주변 시세 만원 단위 숫자 (공고문에 없으면 0),
-  "deadline": "청약 접수 마감일 YYYY-MM-DD",
+  "minP": 분양가 최저값 만원 단위 숫자 (예: 32000),
+  "deadline": "청약 접수 마감일 YYYY-MM-DD (공고문 연도 그대로)",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
   "units": 총 세대수 숫자,
   "qual": "신청 자격 한 줄 요약",
   "inc": "소득 기준 한 줄 요약",
   "sched": "주요 일정 (접수~발표~계약)",
-  "aS": "청약 접수 시작일 YYYY-MM-DD",
-  "aE": "청약 접수 종료일 YYYY-MM-DD",
-  "aD": "당첨자 발표일 YYYY-MM-DD",
+  "aS": "청약 접수 시작일 YYYY-MM-DD (공고문 연도 그대로)",
+  "aE": "청약 접수 종료일 YYYY-MM-DD (공고문 연도 그대로)",
+  "aD": "당첨자 발표일 YYYY-MM-DD (공고문 연도 그대로)",
   "elig": ["생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/일반공급/무순위(줍줍) 중 해당하는 것들"],
   "cut": 예상 가점 커트라인 숫자 없으면 0,
   "ai": {
