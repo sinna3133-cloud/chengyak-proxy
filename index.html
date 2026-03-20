@@ -857,7 +857,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="hero-glow"></div>
     <div class="hero-glow2"></div>
     <div class="hero-inner">
-      <div id="api-indicator" class="api-ind-mock" style="display:none">목업 데이터</div>
+      <div id="api-indicator" style="display:none"></div>
       <!-- 닉네임 + 응원 문구 -->
       <div style="margin-bottom:16px;position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
         <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:900;color:white;letter-spacing:-.4px;white-space:nowrap"></div>
@@ -2968,17 +2968,11 @@ async function loadSheetFactors(){
   
 /* API 상태 업데이트 */
 function updateApiStatus(){
-  const ind   = document.getElementById('api-indicator');
+  // api-indicator는 유저에게 노출하지 않음
   const badge = document.getElementById('api-menu-badge');
-  if(!ind) return;
-  if(apiConnected){
-    ind.style.display='block';
-    ind.className='api-ind-live';
-    ind.textContent='실시간 연동 ●';
-    if(badge){ badge.className='api-menu-badge-on'; badge.textContent='연동됨'; }
-  } else {
-    ind.style.display='none'; // 목업일 땐 숨김
-    if(badge){ badge.className='api-menu-badge-off'; badge.textContent='미연동'; }
+  if(badge){
+    badge.className = apiConnected ? 'api-menu-badge-on' : 'api-menu-badge-off';
+    badge.textContent = apiConnected ? '연동됨' : '미연동';
   }
 }
 
@@ -3534,7 +3528,7 @@ async function onAdminFileSelect(event){
   }
 }
 
-const LISTINGS_API = 'https://chengyak-proxy-okmj.vercel.app/api/listings';
+const LISTINGS_API = 'https://chengyak-proxy.vercel.app/api/listings';
 
 async function confirmAdminData(force=false){
   if(!_adminExtracted) return;
