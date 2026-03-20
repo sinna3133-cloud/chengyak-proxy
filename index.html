@@ -1245,10 +1245,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         </div>
       </div>
 
-      <!-- 등록된 공고 목록 -->
+      <!-- 등록된 공고 목록 (서버 저장) -->
       <div style="margin-top:24px;border-top:1px solid rgba(0,0,0,.06);padding-top:16px">
-        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:10px">등록된 공고 <span id="admin-count" style="color:var(--accent)">0</span>건</div>
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:10px">PDF 업로드 공고 <span id="admin-count" style="color:var(--accent)">0</span>건</div>
         <div id="admin-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- 전체 공고 관리 -->
+      <div style="margin-top:24px;border-top:1px solid rgba(0,0,0,.06);padding-top:16px">
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:4px">전체 공고 관리</div>
+        <div style="font-size:11px;color:var(--ink-4);margin-bottom:10px">앱에 표시되는 모든 공고를 관리할 수 있어요</div>
+        <div id="admin-all-list" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
     </div>
   </div>
@@ -1888,7 +1895,7 @@ function calcEligDetail(l, p){
     '다자녀특공':  { noHome:true, children:3, note:'미성년 자녀 3명 이상' },
     '청년특공':    { noHome:true, ageMax:39, married:'excluded', note:'만 19~39세 미혼 무주택자' },
     '신혼부부특공':{ noHome:true, married:'required', incPct:140, note:'혼인 7년 이내, 6세 이하 자녀' },
-    '노부모부양':  { noHome:true, noHomeYears:3, note:'만 65세 이상 직계존속 3년 이상 부양' },
+    '노부모부양':  { noHome:true, noHomeYears:3, elderParent:true, note:'만 65세 이상 직계존속 3년 이상 부양' },
     '일반공급':    { noHome:true, accMonths:24, note:'무주택 세대구성원, 청약통장 가입' },
     '무순위(줍줍)':{ noHome:false, note:'만 19세 이상 누구나 신청 가능' },
   };
@@ -1912,14 +1919,14 @@ function calcEligDetail(l, p){
     // 무주택 체크
     if(rule.noHome){
       if(p.isNoHome){ reasons.push('무주택 ✓'); }
-      else { eligible = false; fails.push('무주택 조건 미충족'); }
+      else { eligible = false; fails.push('무주택이어야 해요'); }
     }
 
     // 무주택 기간
     const reqNH = parseInt(rule.noHomeYears) || 0;
     if(reqNH > 0){
       if(nh >= reqNH){ reasons.push(`무주택 ${nh}년 ✓`); }
-      else { eligible = false; fails.push(`무주택 ${reqNH}년 이상 필요 (현재 ${nh}년)`); }
+      else { eligible = false; fails.push(`무주택 기간이 ${reqNH}년 이상이어야 해요 (현재 ${nh}년)`); }
     }
 
     // 소득 기준 (신생아 가산 반영: 생애최초/신혼부부/신생아특공에 +10%p~+20%p)
@@ -1931,23 +1938,23 @@ function calcEligDetail(l, p){
         reasons.push(applyNbBonus ? `소득 ${incPct}% (${reqIncPct}%+${nbBonusElig}%p 신생아가산=${effIncPct}% 이하) ✓` : `소득 ${incPct}% (${reqIncPct}% 이하) ✓`);
       } else {
         eligible = false;
-        fails.push(applyNbBonus ? `소득 ${incPct}% > 기준 ${effIncPct}% (${reqIncPct}%+${nbBonusElig}%p 신생아가산)` : `소득 ${incPct}% > 기준 ${reqIncPct}%`);
+        fails.push(applyNbBonus ? `소득이 기준(${effIncPct}%)을 초과해요 (현재 ${incPct}%)` : `소득이 기준(${reqIncPct}%)을 초과해요 (현재 ${incPct}%)`);
       }
     }
     const reqIncLimit = parseInt(rule.incLimit) || 0;
     if(reqIncLimit > 0 && inc > 0){
       if(inc <= reqIncLimit){ reasons.push(`소득 ${inc}만원 (${reqIncLimit}만원 이하) ✓`); }
-      else { eligible = false; fails.push(`소득 ${inc}만원 > 기준 ${reqIncLimit}만원`); }
+      else { eligible = false; fails.push(`소득이 기준(${reqIncLimit}만원)을 초과해요 (현재 ${inc}만원)`); }
     }
 
     // 혼인 여부
     if(rule.married === 'required'){
       if(p.marriage === '기혼'){ reasons.push('기혼 ✓'); }
-      else { eligible = false; fails.push('기혼 조건 필요'); }
+      else { eligible = false; fails.push('기혼이어야 해요'); }
     }
     if(rule.married === 'excluded'){
       if(p.marriage === '미혼'){ reasons.push('미혼 ✓'); }
-      else { eligible = false; fails.push('미혼 조건 필요'); }
+      else { eligible = false; fails.push('미혼이어야 해요'); }
     }
 
     // 나이 제한
@@ -1955,38 +1962,44 @@ function calcEligDetail(l, p){
     const ageMin = parseInt(rule.ageMin) || 0;
     if(ageMax > 0 && age > 0){
       if(age <= ageMax){ reasons.push(`만 ${age}세 (${ageMax}세 이하) ✓`); }
-      else { eligible = false; fails.push(`만 ${age}세 > 기준 ${ageMax}세`); }
+      else { eligible = false; fails.push(`만 ${ageMax}세 이하여야 해요 (현재 만 ${age}세)`); }
     }
     if(ageMin > 0 && age > 0){
       if(age >= ageMin){ reasons.push(`만 ${age}세 (${ageMin}세 이상) ✓`); }
-      else { eligible = false; fails.push(`만 ${age}세 < 기준 ${ageMin}세`); }
+      else { eligible = false; fails.push(`만 ${ageMin}세 이상이어야 해요 (현재 만 ${age}세)`); }
     }
 
     // 자녀 수
     const reqCh = parseInt(rule.children) || 0;
     if(reqCh > 0){
       if(ch >= reqCh){ reasons.push(`자녀 ${ch}명 (${reqCh}명 이상) ✓`); }
-      else { eligible = false; fails.push(`자녀 ${ch}명 < 기준 ${reqCh}명`); }
+      else { eligible = false; fails.push(`미성년 자녀가 ${reqCh}명 이상이어야 해요 (현재 ${ch}명)`); }
     }
 
     // 신생아
     if(rule.newborn === true || rule.newborn === 'true'){
       if(hasNewborn){ reasons.push('만 2세 이하 자녀 ✓'); }
-      else { eligible = false; fails.push('만 2세 이하 자녀 없음'); }
+      else { eligible = false; fails.push('만 2세 이하 자녀가 있어야 해요'); }
+    }
+
+    // 노부모 부양
+    if(rule.elderParent === true || rule.elderParent === 'true'){
+      if(p.elderParent){ reasons.push('만 65세 이상 부모 부양 ✓'); }
+      else { eligible = false; fails.push('만 65세 이상 직계존속을 3년 이상 부양해야 해요'); }
     }
 
     // 청약통장 납입횟수
     const reqAcc = parseInt(rule.accMonths) || 0;
     if(reqAcc > 0 && depCnt > 0){
       if(depCnt >= reqAcc){ reasons.push(`납입 ${depCnt}회 (${reqAcc}회 이상) ✓`); }
-      else { eligible = false; fails.push(`납입 ${depCnt}회 < 기준 ${reqAcc}회`); }
+      else { eligible = false; fails.push(`납입 횟수가 ${reqAcc}회 이상이어야 해요 (현재 ${depCnt}회)`); }
     }
 
     // 청약통장 가입기간
     const reqAccYr = parseInt(rule.accYears) || 0;
     if(reqAccYr > 0 && accYr > 0){
       if(accYr >= reqAccYr){ reasons.push(`통장 ${accYr}년 (${reqAccYr}년 이상) ✓`); }
-      else { eligible = false; fails.push(`통장 ${accYr}년 < 기준 ${reqAccYr}년`); }
+      else { eligible = false; fails.push(`청약통장 가입기간이 ${reqAccYr}년 이상이어야 해요 (현재 ${accYr}년)`); }
     }
 
     // 거주지역 요건 (정보 표시만, 자동 판정 어려움)
@@ -3101,28 +3114,24 @@ async function showDetail(id, fromSwipe=false){
       const eligResults = calcEligDetail(l, P);
       return `
         <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
-          ${eligResults.map(r => r.eligible ? `
-            <div style="padding:12px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0;font-weight:800">✓</div>
-                <div style="font-size:14px;font-weight:800;color:var(--public)">${r.type}${r.sub?` <span style="font-size:11px;font-weight:600;color:var(--accent)">${r.sub}</span>`:''}</div>
-                ${r.subNote?`<span style="font-size:9px;padding:2px 6px;background:var(--accent-light);border-radius:4px;color:var(--accent);font-weight:600">${r.subNote}</span>`:''}
-                ${r.fromPdf?'<span style="font-size:9px;padding:2px 6px;background:rgba(5,150,105,.15);border-radius:4px;color:var(--public);font-weight:600">공고 기준</span>':''}
+          ${eligResults.map(r => {
+            if(r.eligible){
+              const condBadges = r.reasons.filter(s => !s.includes('소득') || s.includes('소득세'));
+              return `<div style="padding:10px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;font-weight:800">✓</div>
+                <div style="font-size:13px;font-weight:800;color:var(--public);flex:1">${r.type}${r.sub?` <span style="font-weight:600;color:var(--accent)">${r.sub}</span>`:''}</div>
               </div>
-              <div style="font-size:12px;color:#059669;line-height:1.6;padding-left:34px">${r.desc}</div>
-              ${r.reasons.length?`<div style="margin-top:6px;padding-left:34px;display:flex;flex-wrap:wrap;gap:4px">${r.reasons.map(rs=>`<span style="font-size:10px;padding:3px 8px;background:rgba(5,150,105,.1);border-radius:6px;color:var(--public);font-weight:600">${rs}</span>`).join('')}</div>`:''}
-              ${r.tiers&&r.tiers.length?`<div style="margin-top:8px;padding-left:34px"><div style="font-size:10px;font-weight:700;color:var(--ink-4);margin-bottom:4px">📋 공고 선정 단계</div>${r.tiers.map(tier=>{
-                const isMatch = r.matchedTier && r.matchedTier.step === tier.step;
-                return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px;${isMatch?'font-weight:700;color:var(--accent)':'color:var(--ink-4)'}"><span style="width:14px;text-align:center">${isMatch?'▶':tier.step}</span><span style="flex:1">${tier.name}${tier.pct?' ('+tier.pct+'%)':''}</span><span>${tier.note||''}</span></div>`;
-              }).join('')}</div>`:''}</div>` : `
-            <div style="padding:12px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                <div style="width:24px;height:24px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
-                <div style="font-size:14px;font-weight:700;color:var(--ink-4)">${r.type}</div>
+              ${condBadges.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding-left:30px">${condBadges.map(b=>`<span style="font-size:10px;padding:2px 7px;background:rgba(5,150,105,.1);border-radius:4px;color:var(--public);font-weight:600">${b}</span>`).join('')}</div>`:''}
+            </div>`;}
+            else { return `<div style="padding:10px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:${r.reasons.length?'6px':'0'}">
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
+                <div style="font-size:13px;font-weight:700;color:var(--ink-4)">${r.type}</div>
               </div>
-              <div style="font-size:12px;color:var(--ink-5);line-height:1.6;padding-left:34px">${r.desc}</div>
-              ${r.reasons.length?`<div style="margin-top:6px;padding-left:34px;display:flex;flex-wrap:wrap;gap:4px">${r.reasons.map(rs=>`<span style="font-size:10px;padding:3px 8px;background:rgba(220,38,38,.08);border-radius:6px;color:var(--red);font-weight:600">${rs}</span>`).join('')}</div>`:''}
-            </div>`).join('')}
+              ${r.reasons.length?`<div style="font-size:11px;color:var(--ink-5);line-height:1.7;padding-left:30px">${r.reasons.join(', ')}</div>`:''}
+            </div>`;}
+          }).join('')}
         </div>`;
     })()}
   </div>
@@ -3735,6 +3744,7 @@ function showScreen(name){
 function renderEditCond(){
   const p = P;
   wDep = parseInt(p.dependents||0);
+  const isMarried = p.marriage==='기혼';
   document.getElementById('editcond-body').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:20px">
       <div>
@@ -3748,9 +3758,20 @@ function renderEditCond(){
       <div>
         <div class="wiz-label">혼인 여부</div>
         <div class="wiz-radio-grp" style="margin-top:8px">
-          <div class="wiz-radio ${p.marriage==='미혼'?'on':''}" onclick="wRadio(this,'marriage')">미혼</div>
-          <div class="wiz-radio ${p.marriage==='기혼'?'on':''}" onclick="wRadio(this,'marriage')">기혼</div>
-          <div class="wiz-radio ${p.marriage==='이혼·사별'?'on':''}" onclick="wRadio(this,'marriage')">이혼·사별</div>
+          <div class="wiz-radio ${p.marriage==='미혼'?'on':''}" onclick="ecMarriage(this)">미혼</div>
+          <div class="wiz-radio ${p.marriage==='기혼'?'on':''}" onclick="ecMarriage(this)">기혼</div>
+          <div class="wiz-radio ${p.marriage==='이혼·사별'?'on':''}" onclick="ecMarriage(this)">이혼·사별</div>
+        </div>
+      </div>
+      <div id="ec-marriage-year-wrap" style="display:${isMarried?'block':'none'}">
+        <div class="wiz-label">혼인신고 연도</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-marriageYear" value="${p.marriageYear||''}" placeholder="예: 2022"/><span class="unit">년</span></div>
+      </div>
+      <div id="ec-dual-wrap" style="display:${isMarried?'block':'none'}">
+        <div class="wiz-label">맞벌이 여부</div>
+        <div class="wiz-radio-grp" style="margin-top:8px">
+          <div class="wiz-radio ${!p.isDual?'on':''}" onclick="ecDual(this)">외벌이</div>
+          <div class="wiz-radio ${p.isDual?'on':''}" onclick="ecDual(this)">맞벌이</div>
         </div>
       </div>
       <div>
@@ -3774,8 +3795,21 @@ function renderEditCond(){
         </div>
       </div>
       <div>
+        <div class="wiz-label">자녀 수</div>
+        <div class="wiz-stepper" style="margin-top:8px">
+          <button class="step-btn" onclick="ecChildren(-1)">−</button>
+          <div class="step-val" id="ec-ch">${parseInt(p.children||0)}명</div>
+          <button class="step-btn" onclick="ecChildren(1)">+</button>
+        </div>
+        <div id="ec-child-dates" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+      <div>
         <div class="wiz-label">연간 소득</div>
         <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-income" value="${p.income||''}" placeholder="예: 4500"/><span class="unit">만원</span></div>
+      </div>
+      <div id="ec-total-income-wrap" style="display:${p.isDual?'block':'none'}">
+        <div class="wiz-label">부부 합산 소득</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-totalIncome" value="${p.totalIncome||''}" placeholder="예: 8000"/><span class="unit">만원</span></div>
       </div>
       <div>
         <div class="wiz-label">보유 현금 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">예·적금 포함</span></div>
@@ -3790,8 +3824,12 @@ function renderEditCond(){
         <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div>
       </div>
       <div>
+        <div class="wiz-label">청약통장 가입기간</div>
+        <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-accYears" value="${p.accYears||''}" placeholder="예: 5"/><span class="unit">년</span></div>
+      </div>
+      <div>
         <div class="wiz-label">세대원 수</div>
-        <select class="wiz-sel" id="ec-household" style="margin-top:8px">
+        <select class="wiz-sel" id="ec-household" style="margin-top:8px" onchange="ecHouseholdChange()">
           <option value="">선택하세요</option>
           <option value="1" ${p.household==='1'?'selected':''}>1인</option>
           <option value="2" ${p.household==='2'?'selected':''}>2인</option>
@@ -3800,11 +3838,84 @@ function renderEditCond(){
           <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option>
         </select>
       </div>
+      <div id="ec-elder-wrap" style="display:${parseInt(p.household||0)>=2?'block':'none'}">
+        <div class="wiz-label">만 65세 이상 부모 부양 여부</div>
+        <div class="wiz-radio-grp" style="margin-top:8px">
+          <div class="wiz-radio ${!p.elderParent?'on':''}" onclick="ecElderParent(this)">아니오</div>
+          <div class="wiz-radio ${p.elderParent?'on':''}" onclick="ecElderParent(this)">예 (3년 이상 부양)</div>
+        </div>
+      </div>
+      <div>
+        <div class="wiz-label">거주 지역</div>
+        <select class="wiz-sel" id="ec-region" style="margin-top:8px">
+          <option value="">선택하세요</option>
+          <option value="seoul" ${p.region==='seoul'?'selected':''}>서울</option>
+          <option value="gyeonggi" ${p.region==='gyeonggi'?'selected':''}>경기</option>
+          <option value="incheon" ${p.region==='incheon'?'selected':''}>인천</option>
+          <option value="busan" ${p.region==='busan'?'selected':''}>부산</option>
+          <option value="daejeon" ${p.region==='daejeon'?'selected':''}>대전</option>
+          <option value="sejong" ${p.region==='sejong'?'selected':''}>세종</option>
+          <option value="daegu" ${p.region==='daegu'?'selected':''}>대구</option>
+          <option value="gwangju" ${p.region==='gwangju'?'selected':''}>광주</option>
+          <option value="ulsan" ${p.region==='ulsan'?'selected':''}>울산</option>
+          <option value="gangwon" ${p.region==='gangwon'?'selected':''}>강원</option>
+          <option value="chungnam" ${p.region==='chungnam'?'selected':''}>충남</option>
+          <option value="jeonnam" ${p.region==='jeonnam'?'selected':''}>전남</option>
+        </select>
+      </div>
     </div>`;
+  ecRenderChildDates();
+}
+let ecChildCount = 0;
+let ecChildDates = [];
+function ecChildren(dir){
+  ecChildCount = Math.max(0, ecChildCount + dir);
+  document.getElementById('ec-ch').textContent = ecChildCount + '명';
+  while(ecChildDates.length < ecChildCount) ecChildDates.push({year:'',month:''});
+  ecChildDates = ecChildDates.slice(0, ecChildCount);
+  ecRenderChildDatesUI();
+}
+function ecRenderChildDates(){
+  ecChildCount = parseInt(P.children||0);
+  ecChildDates = (P.childDates||[]).map(c=>({year:c.year||'',month:c.month||''})).slice(0, ecChildCount);
+  while(ecChildDates.length < ecChildCount) ecChildDates.push({year:'',month:''});
+  ecRenderChildDatesUI();
+}
+function ecRenderChildDatesUI(){
+  const wrap = document.getElementById('ec-child-dates');
+  if(!wrap) return;
+  if(ecChildCount === 0){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = ecChildDates.map((c,i) => `
+    <div style="display:flex;gap:6px;align-items:center">
+      <span style="font-size:12px;color:var(--ink-4);min-width:50px">${i+1}번째</span>
+      <input type="number" class="wiz-inp" style="flex:1" placeholder="출생년도" value="${c.year||''}" oninput="ecChildDates[${i}].year=this.value"/>
+      <input type="number" class="wiz-inp" style="flex:1" placeholder="월" value="${c.month||''}" oninput="ecChildDates[${i}].month=this.value"/>
+    </div>`).join('');
+}
+function ecMarriage(el){
+  el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+  const isM = el.textContent==='기혼';
+  document.getElementById('ec-marriage-year-wrap').style.display = isM?'block':'none';
+  document.getElementById('ec-dual-wrap').style.display = isM?'block':'none';
+  if(!isM) document.getElementById('ec-total-income-wrap').style.display='none';
+}
+function ecDual(el){
+  el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+  const isDual = el.textContent==='맞벌이';
+  document.getElementById('ec-total-income-wrap').style.display = isDual?'block':'none';
+}
+function ecElderParent(el){
+  el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+}
+function ecHouseholdChange(){
+  const h = parseInt(document.getElementById('ec-household').value||0);
+  document.getElementById('ec-elder-wrap').style.display = h>=2?'block':'none';
 }
 
 function saveEditCond(){
-
   P.byear      = document.getElementById('ec-by').value;
   P.bmonth     = document.getElementById('ec-bm').value;
   P.bday       = document.getElementById('ec-bd').value;
@@ -3815,6 +3926,40 @@ function saveEditCond(){
   P.depAmt     = document.getElementById('ec-da').value;
   P.household  = document.getElementById('ec-household').value;
   P.dependents = wDep;
+  P.accYears   = document.getElementById('ec-accYears').value;
+  P.region     = document.getElementById('ec-region').value;
+
+  // 혼인 관련
+  const marriageRadio = document.querySelector('#editcond-body .wiz-radio-grp .wiz-radio.on');
+  if(marriageRadio){
+    const sections = document.querySelectorAll('#editcond-body .wiz-radio-grp');
+    const marriageGrp = sections[0]; // first radio group is marriage
+    const selM = marriageGrp.querySelector('.wiz-radio.on');
+    if(selM) P.marriage = selM.textContent;
+  }
+  const myEl = document.getElementById('ec-marriageYear');
+  P.marriageYear = myEl ? myEl.value : '';
+
+  // 맞벌이
+  const dualGrp = document.getElementById('ec-dual-wrap');
+  if(dualGrp){
+    const selD = dualGrp.querySelector('.wiz-radio.on');
+    P.isDual = selD ? selD.textContent==='맞벌이' : false;
+  }
+  const totalIncEl = document.getElementById('ec-totalIncome');
+  if(totalIncEl) P.totalIncome = totalIncEl.value;
+
+  // 자녀
+  P.children = ecChildCount;
+  P.childDates = ecChildDates.slice(0, ecChildCount);
+
+  // 노부모 부양
+  const elderGrp = document.getElementById('ec-elder-wrap');
+  if(elderGrp){
+    const selE = elderGrp.querySelector('.wiz-radio.on');
+    P.elderParent = selE ? selE.textContent.startsWith('예') : false;
+  }
+
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen();
   showScreen('my');
   showToast('조건이 저장됐어요 ✓');
@@ -4211,10 +4356,13 @@ async function loadLiveData(){
     try {
       const adminRes = await fetch(LISTINGS_API);
       const adminData = await adminRes.json();
-      adminSaved = (adminData.listings||[]).map(l => ({...l, name: cleanName(l.name)}));
+      adminSaved = (adminData.listings||[]).map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
     } catch(e){}
-    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name));
-    const merged = [...parsed, ...adminOnly];
+    parsed.forEach(l => l._src = 'api');
+    const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name) && !deleted.includes(a.id));
+    const filteredParsed = parsed.filter(l => !deleted.includes(l.id));
+    const merged = [...filteredParsed, ...adminOnly];
     listings.splice(0, listings.length, ...merged);
     liveListings = parsed;
     apiConnected = true;
@@ -4623,7 +4771,7 @@ async function confirmAdminData(force=false){
     }
 
     if(data.listings){
-      const adminListings = data.listings.map(l => ({...l, name: cleanName(l.name)}));
+      const adminListings = data.listings.map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
       adminListings.forEach(l => { if(!listings.find(x=>x.id===l.id)) listings.unshift(l); });
     }
     showToast('✓ 공고가 추가됐어요!');
@@ -4646,19 +4794,40 @@ async function renderAdminList(){
     countEl.textContent = saved.length;
     if(!saved.length){
       el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
-      return;
+    } else {
+      el.innerHTML = saved.map(l => `
+        <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
+            <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · ${daysText(l.days,'d')}</div>
+          </div>
+          <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
+        </div>`).join('');
     }
-    el.innerHTML = saved.map(l => `
-      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
-          <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · ${daysText(l.days,'d')}</div>
-        </div>
-        <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button>
-      </div>`).join('');
   } catch(e){
     el.innerHTML = '<div style="font-size:13px;color:var(--red);text-align:center;padding:12px">목록 로드 실패</div>';
   }
+  // 전체 공고 관리 목록
+  renderAdminAllList();
+}
+function renderAdminAllList(){
+  const el = document.getElementById('admin-all-list');
+  if(!el) return;
+  if(!listings.length){
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">표시할 공고가 없어요</div>';
+    return;
+  }
+  el.innerHTML = listings.map(l => {
+    const src = l._src==='api' ? 'API' : l._src==='pdf' ? 'PDF' : '기본';
+    const srcColor = l._src==='api' ? 'var(--accent)' : l._src==='pdf' ? 'var(--gold)' : 'var(--ink-4)';
+    return `<div style="background:var(--bg);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cleanName(l.name)}</div>
+        <div style="font-size:10px;color:var(--ink-4);margin-top:1px">${l.loc||''} <span style="color:${srcColor};font-weight:600">${src}</span></div>
+      </div>
+      <button onclick="adminDeleteListing(${l.id},'${l._src||''}')" style="background:var(--red-light);border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:11px;color:var(--red);font-weight:600;white-space:nowrap">삭제</button>
+    </div>`;
+  }).join('');
 }
 
 async function removeAdminListing(id){
@@ -4676,14 +4845,37 @@ async function removeAdminListing(id){
   showToast('공고를 삭제했어요');
 }
 
+function adminDeleteListing(id, src){
+  if(!confirm('이 공고를 삭제하시겠어요?')) return;
+  const idx = listings.findIndex(l => l.id === id);
+  if(idx > -1) listings.splice(idx, 1);
+  // PDF 서버 저장 공고면 서버에서도 삭제
+  if(src === 'pdf'){
+    fetch(LISTINGS_API, {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id })
+    }).catch(()=>{});
+  }
+  // 삭제된 ID 기억 (새로고침 시 다시 로드 방지)
+  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
+  renderAdminList();
+  renderListings();
+  updateHero();
+  showToast('공고를 삭제했어요');
+}
+
 // 앱 시작 시 서버에서 관리자 공고 불러오기 (백그라운드 실행)
 setTimeout(async () => {
   try {
     const res = await fetch(LISTINGS_API);
     const data = await res.json();
-    const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name)}));
+    const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
+    const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
     let added = false;
     saved.forEach(l => {
+      if(deleted.includes(l.id)) return;
       if(!listings.find(x => x.id === l.id)){ listings.unshift(l); added = true; }
     });
     if(added){ renderListings(); renderRecommend(); }
