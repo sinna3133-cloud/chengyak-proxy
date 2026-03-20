@@ -1777,24 +1777,34 @@ function cleanPrice(p){
 /* ══ 카드용 가격 표시 (최저~최고, 평형 제거) ══ */
 function cardPrice(price){
   if(!price) return '';
-  // | 구분자가 있는 경우 → 첫번째와 마지막만 사용
+
+  // 평형명 제거 후 금액만 추출 (예: "74㎡ 3억2천~3억4천" → "3억2천~3억4천")
+  const extractAmt = p => {
+    const spaceIdx = p.indexOf(' ');
+    const amt = spaceIdx > 0 ? p.slice(spaceIdx + 1).trim() : p;
+    return cleanPrice(amt);
+  };
+
+  // | 구분자가 있는 경우: 각 파트에서 최저/최고 추출
   if(price.includes('|')){
     const parts = price.split('|').map(p => p.trim());
-    const extractAmt = p => {
-      const spaceIdx = p.indexOf(' ');
-      return cleanPrice(spaceIdx > 0 ? p.slice(spaceIdx + 1).trim() : p);
-    };
-    const first = extractAmt(parts[0]);
-    const last = extractAmt(parts[parts.length - 1]);
-    return first === last ? first : `${first}~${last}`;
+    // 첫 파트의 최저값
+    const firstAmt = extractAmt(parts[0]);
+    const firstMin = firstAmt.includes('~') ? firstAmt.split('~')[0] : firstAmt;
+    // 마지막 파트의 최고값
+    const lastAmt = extractAmt(parts[parts.length - 1]);
+    const lastMax = lastAmt.includes('~') ? lastAmt.split('~').pop() : lastAmt;
+    return firstMin === lastMax ? firstMin : `${firstMin}~${lastMax}`;
   }
-  // ~ 구분자가 있는 경우 → 첫번째와 마지막만 사용
+
+  // ~ 구분자만 있는 경우: 첫번째와 마지막만 사용
   if(price.includes('~')){
     const parts = price.split('~').map(p => cleanPrice(p.trim())).filter(Boolean);
     const first = parts[0];
     const last = parts[parts.length - 1];
     return first === last ? first : `${first}~${last}`;
   }
+
   return cleanPrice(price);
 }
 
