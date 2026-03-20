@@ -1739,6 +1739,7 @@ function typeBadge(l){
 }
 function gapPill(l){
   if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
+  if(!l.minP || l.minP === 0) return`<div class="gap-pill"><div class="gap-nums"><b>${l.price||'분양가 확인 필요'}</b></div></div>`;
   const{g,pct}=gap(l);const up=g>0;
   return`<div class="gap-pill"><div class="gap-nums"><b>${(l.minP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
 }
@@ -2184,18 +2185,15 @@ function showDetail(id, fromSwipe=false){
       ? `<div class="info-row" style="flex-direction:column;gap:8px;align-items:flex-start">
           <span class="info-rl" style="width:auto;margin-bottom:4px">평형별 분양가</span>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
-            ${l.price.split('|').map(p=>{
-              const parts = p.trim().split(' ');
-              const size = parts[0]||'';
-              const price = parts.slice(1).join(' ')||p;
+            ${l.price.split('|').map((p,i)=>{
               return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
-                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
-                <div style="font-size:13px;font-weight:700;color:var(--accent)">${cleanPrice(price)}</div>
+                <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${i+1}안</div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent)">${p.trim()}</div>
               </div>`;
             }).join('')}
           </div>
         </div>`
-      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${cleanPrice(l.price)}</span></div>`
+      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price||'공고 확인 필요'}</span></div>`
     }
     <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
     <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
