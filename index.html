@@ -1762,12 +1762,24 @@ function cleanName(name){
   return name.replace(/\s*공공분양주택\s*/g, '').trim();
 }
 
+/* ══ 가격 문자열 정리 (만원 단위 제거) ══ */
+function cleanPrice(p){
+  if(!p) return p;
+  return p.replace(/만원/g, '').trim();
+}
+
 /* ══ 카드용 가격 표시 (최저~최고) ══ */
 function cardPrice(price){
   if(!price) return '';
-  if(!price.includes('|')) return price;
+  if(!price.includes('|')){
+    return cleanPrice(price);
+  }
   const parts = price.split('|').map(p => p.trim());
-  const prices = parts.map(p => p.replace(/^\S+\s*/, '').trim()); // 평형 제거, 금액만
+  // 각 파트에서 숫자 시작 위치부터 금액만 추출 (예: "59㎡ 5억 1천" → "5억 1천")
+  const prices = parts.map(p => {
+    const idx = p.search(/[0-9]/);
+    return cleanPrice(idx > 0 ? p.slice(idx).trim() : p);
+  });
   const first = prices[0];
   const last = prices[prices.length - 1];
   return first === last ? first : `${first}~${last}`;
@@ -2158,12 +2170,12 @@ function showDetail(id, fromSwipe=false){
               const price = parts.slice(1).join(' ')||p;
               return `<div style="background:var(--accent-light);border-radius:10px;padding:10px 12px;text-align:center">
                 <div style="font-size:11px;color:var(--ink-4);margin-bottom:4px">${size}</div>
-                <div style="font-size:13px;font-weight:700;color:var(--accent)">${price}</div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent)">${cleanPrice(price)}</div>
               </div>`;
             }).join('')}
           </div>
         </div>`
-      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${l.price}</span></div>`
+      : `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">${cleanPrice(l.price)}</span></div>`
     }
     <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
     <div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>
