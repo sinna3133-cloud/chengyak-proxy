@@ -2934,15 +2934,15 @@ async function showDetail(id, fromSwipe=false){
       };
 
       if(!hasConditions) return `
-        <div style="position:relative;overflow:hidden">
-          <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px;filter:blur(2px);opacity:.5;pointer-events:none">
+        <div style="position:relative;overflow:hidden;min-height:120px">
+          <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px;opacity:.35;pointer-events:none">
             ${l.elig.map(e=>`
               <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
                 <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
                 <div style="font-size:11px;color:var(--ink-4)">${defaultDescs[e]||''}</div>
               </div>`).join('')}
           </div>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);padding:20px;text-align:center;cursor:pointer" onclick="openWizard()">
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.45);padding:20px;text-align:center;cursor:pointer" onclick="openWizard()">
             <div style="font-size:14px;font-weight:800;color:var(--accent);margin-bottom:8px">내 조건에 맞는 전형을 확인해보세요</div>
             <div style="padding:10px 24px;background:var(--accent);color:white;border-radius:12px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,102,255,.3)">조건 설정하기</div>
           </div>
