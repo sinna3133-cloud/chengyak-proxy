@@ -2241,23 +2241,40 @@ function showDetail(id, fromSwipe=false){
   <!-- 2. 📈 시세 차익 분석 -->
   <div class="info-card" style="margin-top:14px">
     <div class="info-card-title">📈 시세 차익 분석</div>
-    ${l.noMktP?`<div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>`:''}
-    <div class="gap-chart" id="det-gap-chart">
-      <div class="gap-bar-row">
-        <div class="gap-bar-label">분양가</div>
-        <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
-        <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+    ${l.noMktP ? `
+      <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
+      <div class="gap-chart" id="det-gap-chart">
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+        </div>
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">주변 시세</div>
+          <div class="gap-bar-track" style="background:var(--bg-2);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:12px;font-weight:700;color:var(--ink-5)">? 시세 정보 없음</span>
+          </div>
+          <div class="gap-bar-val" style="color:var(--ink-5)">—</div>
+        </div>
       </div>
-      <div class="gap-bar-row">
-        <div class="gap-bar-label">주변 시세</div>
-        <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
-        <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
+    ` : `
+      <div class="gap-chart" id="det-gap-chart">
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">분양가</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-val">${(l.minP/10000).toFixed(1)}억</div>
+        </div>
+        <div class="gap-bar-row">
+          <div class="gap-bar-label">주변 시세</div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-mkt" style="background:var(--ink-4)"></div></div>
+          <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
+        </div>
       </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
-      <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
-      <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
-    </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
+        <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
+        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
+      </div>
+    `}
     ${(l.priceFactors&&l.priceFactors.length)?`
     <div style="margin-top:0;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06)">
       <div style="font-size:12px;font-weight:700;color:var(--ink-4);margin-bottom:8px;letter-spacing:.3px">집값 상승 요인</div>
@@ -2413,9 +2430,13 @@ function showDetail(id, fromSwipe=false){
     // 시세 바 애니메이션
     const barSale=document.getElementById('bar-sale');
     const barMkt=document.getElementById('bar-mkt');
-    const maxVal=Math.max(l.minP,l.mktP);
-    if(barSale) barSale.style.width=(l.minP/maxVal*100)+'%';
-    if(barMkt) barMkt.style.width=(l.mktP/maxVal*100)+'%';
+    if(l.noMktP){
+      if(barSale) barSale.style.width='70%'; // 분양가 바만 표시
+    } else {
+      const maxVal=Math.max(l.minP,l.mktP);
+      if(barSale) barSale.style.width=(l.minP/maxVal*100)+'%';
+      if(barMkt) barMkt.style.width=(l.mktP/maxVal*100)+'%';
+    }
     // 커트라인 바 애니메이션
     if(l.cut){
       const myScore=calcScore(P).total;
