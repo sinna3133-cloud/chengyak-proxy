@@ -3151,7 +3151,11 @@ async function loadLiveData(){
     }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
-    listings.splice(0, listings.length, ...parsed);
+    // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
+    const adminSaved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name));
+    const merged = [...parsed, ...adminOnly];
+    listings.splice(0, listings.length, ...merged);
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
@@ -3425,8 +3429,37 @@ async function onAdminFileSelect(event){
   }
 }
 
-function confirmAdminData(){
+function confirmAdminData(force=false){
   if(!_adminExtracted) return;
+
+  // 중복 체크
+  if(!force){
+    const saved = JSON.parse(localStorage.getItem('admin_listings')||'[]');
+    const isDuplicate = saved.some(l => l.name === _adminExtracted.name);
+    if(isDuplicate){
+      // 팝업 표시
+      const existing = document.getElementById('dup-confirm-ov');
+      if(existing) existing.remove();
+      const ov = document.createElement('div');
+      ov.id = 'dup-confirm-ov';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;display:flex;align-items:center;justify-content:center;max-width:430px;margin:0 auto;padding:24px';
+      ov.innerHTML = `
+        <div style="background:white;border-radius:20px;padding:28px 24px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.2)">
+          <div style="font-size:22px;text-align:center;margin-bottom:12px">⚠️</div>
+          <div style="font-size:16px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:8px">이미 동일 공고가 등록되어 있습니다</div>
+          <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.6;margin-bottom:24px">
+            <b style="color:var(--ink)">${_adminExtracted.name}</b>이<br>이미 등록되어 있어요. 그래도 업로드하시겠습니까?
+          </div>
+          <div style="display:flex;gap:10px">
+            <button onclick="document.getElementById('dup-confirm-ov').remove()" style="flex:1;padding:14px;background:var(--bg);color:var(--ink-3);border:1.5px solid rgba(0,0,0,.1);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">취소</button>
+            <button onclick="document.getElementById('dup-confirm-ov').remove();confirmAdminData(true)" style="flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">등록</button>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+      return;
+    }
+  }
+
   listings.unshift(_adminExtracted);
   try {
     const saved = JSON.parse(localStorage.getItem('admin_listings') || '[]');
