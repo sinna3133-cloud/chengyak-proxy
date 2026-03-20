@@ -1785,12 +1785,21 @@ function priceToNum(p){
   const chun = p.match(/([0-9]+)천(?!원)/);
   const man = p.match(/([0-9]+)만/);
   if(uk) result += parseFloat(uk[1]) * 10000;
-  if(chun) result += parseInt(chun[1]) * 1000;
+  if(chun){
+    const chVal = parseInt(chun[1]);
+    if(uk && chVal > 9){
+      // "3억920천" → 920천은 AI 추출 오류, 920만원으로 처리
+      // (정상: 1천~9천 = 1000만~9000만, 10 이상은 만원 단위 오기)
+      result += chVal;
+    } else {
+      result += chVal * 1000;
+    }
+  }
   if(man) result += parseInt(man[1]);
   // "3억6613" 처럼 억 뒤에 단위 없는 숫자가 있으면 만원 단위로 처리
   if(uk && !chun && !man){
     const afterUk = p.slice(p.indexOf('억')+1).trim();
-    const trailing = afterUk.match(/^(\d{3,})/); // 3자리 이상 숫자
+    const trailing = afterUk.match(/^(\d{3,})/);
     if(trailing) result += parseInt(trailing[1]);
   }
   return result;
@@ -2219,7 +2228,10 @@ function showDetail(id, fromSwipe=false){
   const cash=parseInt(P.cash||0),loan=Math.max(0,price-cash),lr=Math.round(loan/price*100);
   const monthly=Math.round(loan*.04/12),canAfford=cash>=dep;
 
-  document.getElementById('det-badges').innerHTML=`${l.days>0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">D-${l.days}</span>`:''}${typeBadge(l).replace('class="badge','class="badge" style="display:inline-block;margin-bottom:10px"')}`;
+  // ★★★ [하드코딩 — 수정 금지] 상세 헤더 뱃지: 어두운 배경에서 보이게 흰색 글씨 ★★★
+  const detBadgeStyle = 'display:inline-block;margin-bottom:10px;color:white !important;background:rgba(255,255,255,.18) !important;border:1px solid rgba(255,255,255,.3) !important';
+  document.getElementById('det-badges').innerHTML=`${l.days>0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">D-${l.days}</span>`:''}${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
+  // ★★★ [하드코딩 끝] ★★★
   document.getElementById('det-title').textContent=cleanName(l.name);
   document.getElementById('det-loc').textContent='📍 '+l.loc;
   document.getElementById('det-body').innerHTML=`
@@ -2231,28 +2243,11 @@ function showDetail(id, fromSwipe=false){
       // ★★★ [하드코딩 — 수정 금지] 평형별 분양가 파싱 & 표시 ★★★
       // API/PDF 무관하게 라벨은 평형(㎡)으로, 금액은 0억 0천 형식으로 표시
       function formatToUkChun(str){
-        // 금액 문자열을 "0억 0천" 형식으로 통일
+        // 금액 문자열을 항상 "0억 0천" 형식으로 통일
+        // priceToNum으로 만원 단위 숫자 변환 → numToUkChun으로 포맷
         if(!str) return str;
-        str = str.replace(/,/g,'').trim();
-        // 이미 억/천 형식이면 그대로
-        if(/^\d+억/.test(str) && !/\d{4,}/.test(str.replace(/억|천|만/g,''))) return str;
-        // "3억6613" → 3억 + 6613만 → "3억 6천"
-        const ukMatch = str.match(/(\d+)억\s*(\d+)/);
-        if(ukMatch){
-          const uk = parseInt(ukMatch[1]);
-          const rest = parseInt(ukMatch[2]);
-          // rest가 4자리 이상이면 만원 단위
-          if(rest >= 1000) return uk+'억 '+Math.round(rest/1000)+'천';
-          if(rest > 0) return uk+'억 '+rest+'천';
-          return uk+'억';
-        }
-        // 숫자만 있으면 만원 단위로 간주
-        const num = parseInt(str);
-        if(!isNaN(num) && num > 10000){
-          const u = Math.floor(num/10000);
-          const c = Math.round((num%10000)/1000);
-          return c > 0 ? u+'억 '+c+'천' : u+'억';
-        }
+        const val = priceToNum(str);
+        if(val > 0) return numToUkChun(val);
         return str;
       }
       function parsePricePart(raw){
@@ -2318,8 +2313,13 @@ function showDetail(id, fromSwipe=false){
       const deadlineRow = isFirstCome
         ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약 종료 시 마감</span></div>`
         : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>`;
-      // ★★★ [하드코딩 — 수정 금지] 일정: 화살표/슬래시 → 줄바꿈 통일 ★★★
-      const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(/\s*→\s*/g,'<br>').replace(/\s*\/\s*/g,'<br>')}</span></div>`;
+      // ★★★ [하드코딩 — 수정 금지] 일정: 계약 제거, 화살표/슬래시 → 줄바꿈 ★★★
+      let schedText = (l.sched||'');
+      // 계약 관련 내용 제거
+      schedText = schedText.replace(/\s*[→\/]\s*계약[^→\/]*/gi,'').replace(/계약[^→\/]*/gi,'').trim();
+      // 화살표/슬래시 → 줄바꿈
+      schedText = schedText.replace(/\s*→\s*/g,'<br>').replace(/\s*\/\s*/g,'<br>');
+      const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${schedText}</span></div>`;
       // ★★★ [하드코딩 끝] ★★★
       return deadlineRow + schedRow;
     })()}
@@ -2404,7 +2404,7 @@ function showDetail(id, fromSwipe=false){
               <div style="font-size:13px;font-weight:700;color:var(--ink);flex:1">${e}</div>
               <div style="font-size:11px;color:var(--ink-4)">${(typeDesc[e]||{}).desc||''}</div>
             </div>`).join('')}
-          <div style="padding:10px 12px;background:var(--accent-light);border-radius:10px;font-size:12px;color:var(--accent);font-weight:600;text-align:center;cursor:pointer" onclick="openWizard()">조건을 설정하면 내가 신청 가능한 전형을 알려드려요 →</div>
+          <div style="padding:10px 12px;background:var(--accent-light);border-radius:10px;font-size:12px;color:var(--accent);font-weight:600;text-align:center;cursor:pointer" onclick="openWizard()">조건을 설정하면 내가 신청 가능한 전형을 알려드려요</div>
         </div>`;
 
       return `
