@@ -1964,7 +1964,10 @@ function renderListings(){
       <div class="card-meta">
         <div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div>
         <div style="text-align:center"><div class="meta-label">세대수</div><div class="meta-val">${l.units}세대</div></div>
-        <div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>
+        ${(()=>{
+          const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
+          return isFirstCome ? '' : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${l.days}일</div></div>`;
+        })()}
       </div>
       ${wrHTML}
     </div>`;
@@ -2223,7 +2226,7 @@ function showDetail(id, fromSwipe=false){
     ${(()=>{
       const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
       const deadlineRow = isFirstCome
-        ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="display:flex;align-items:center;gap:8px;font-weight:700"><span style="color:var(--gold)">${l.deadline} (${l.days}일 남음)</span><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:#FEF3C7;color:#92400E">선착순 계약</span></span></div>`
+        ? `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="font-weight:700;color:var(--ink-3)">선착순 계약 종료 시 마감</span></div>`
         : `<div class="info-row"><span class="info-rl">청약 마감</span><span class="info-rv" style="color:${l.days<=7?'var(--gold)':'inherit'};font-weight:700">${l.deadline} (${l.days}일 남음)</span></div>`;
       const schedRow = isFirstCome ? '' : `<div class="info-row"><span class="info-rl">일정</span><span class="info-rv" style="line-height:1.8">${l.sched.replace(' / ','<br>').replace('/ ','<br>')}</span></div>`;
       return deadlineRow + schedRow;
