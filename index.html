@@ -3602,19 +3602,19 @@ renderListings();
 showToast(‘공고를 삭제했어요’);
 }
 
-// 앱 시작 시 서버에서 관리자 공고 불러오기
-(async function restoreAdminListings(){
+// 앱 시작 시 서버에서 관리자 공고 불러오기 (백그라운드 실행)
+setTimeout(async () => {
 try {
 const res = await fetch(LISTINGS_API);
 const data = await res.json();
 const saved = (data.listings||[]).map(l => ({…l, name: cleanName(l.name)}));
+let added = false;
 saved.forEach(l => {
-if(!listings.find(x => x.id === l.id)) listings.unshift(l);
+if(!listings.find(x => x.id === l.id)){ listings.unshift(l); added = true; }
 });
-renderListings();
-renderRecommend();
+if(added){ renderListings(); renderRecommend(); }
 } catch(e){ console.warn(‘관리자 공고 로드 실패:’, e); }
-})();
+}, 2000);
 
 </script>
 </body>
