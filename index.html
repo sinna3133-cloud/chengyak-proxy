@@ -4447,7 +4447,15 @@ async function loadLiveData(){
     const adminOnly = adminSaved.filter(a => !parsed.some(p => norm(p.name) === norm(a.name)) && !deleted.includes(a.id));
     const filteredParsed = parsed.filter(l => !deleted.includes(l.id));
     const merged = [...filteredParsed, ...adminOnly];
-    listings.splice(0, listings.length, ...merged);
+    // 최종 중복 제거: 같은 이름 공고는 첫 번째(API 우선)만 유지
+    const seen = new Set();
+    const deduped = merged.filter(l => {
+      const key = norm(l.name);
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    listings.splice(0, listings.length, ...deduped);
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
