@@ -173,28 +173,24 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2단계: 국토부 실거래가 조회 (최근 3개월)
+    // 2단계: 국토부 실거래가 조회 (최근 6개월, 병렬)
     const now = new Date();
     let allDeals = [];
 
-    for (let i = 0; i < 3; i++) {
+    const monthUrls = [];
+    for (let i = 0; i < 6; i++) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const dealYmd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
-
-      const url = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade`
+      monthUrls.push({ dealYmd, url: `https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade`
         + `?serviceKey=${encodeURIComponent(molitKey)}`
-        + `&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=200`;
+        + `&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=500` });
+    }
 
-      const response = await fetch(url);
-      const text = await response.text();
+    function parseDeals(text, dealYmd) {
+      const deals = [];
       const items = text.match(/<item>([\s\S]*?)<\/item>/g) || [];
-
       for (const item of items) {
-        const get = (tag) => {
-          const m = item.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
-          return m ? m[1].trim() : '';
-        };
-
+        const get = (tag) => { const m = item.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`)); return m ? m[1].trim() : ''; };
         const aptNm = get('aptNm') || get('아파트');
         const excluUseAr = parseFloat(get('excluUseAr') || get('전용면적') || '0');
         const dealAmount = get('dealAmount') || get('거래금액') || '0';
@@ -204,16 +200,23 @@ export default async function handler(req, res) {
         const dealYear = get('dealYear') || get('년') || dealYmd.slice(0, 4);
         const dealMonth = get('dealMonth') || get('월') || dealYmd.slice(4);
         const dealDay = get('dealDay') || get('일') || '1';
-
         if (aptNm && dealAmountNum > 0) {
-          allDeals.push({
-            name: aptNm, size: excluUseAr, price: dealAmountNum,
-            dong: umdNm, jibun,
-            date: `${dealYear}-${String(dealMonth).padStart(2, '0')}-${String(dealDay).padStart(2, '0')}`,
-          });
+          deals.push({ name: aptNm, size: excluUseAr, price: dealAmountNum, dong: umdNm, jibun,
+            date: `${dealYear}-${String(dealMonth).padStart(2, '0')}-${String(dealDay).padStart(2, '0')}` });
         }
       }
+      return deals;
     }
+
+    // 6개월 동시 조회
+    const monthResults = await Promise.all(monthUrls.map(async ({ dealYmd, url }) => {
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        return parseDeals(text, dealYmd);
+      } catch(e) { return []; }
+    }));
+    for (const deals of monthResults) allDeals.push(...deals);
 
     if (allDeals.length === 0) {
       // 디버깅: 마지막 API 응답 일부 표시
@@ -234,25 +237,47 @@ export default async function handler(req, res) {
     // 유니크 아파트명 추출 (API 호출 최소화)
     const uniqueApts = [...new Set(filtered.map(d => `${d.dong}|${d.name}`))];
 
-    // 최대 30개 아파트까지만 좌표 조회
+    // 최대 30개 아파트까지 좌표 조회 (5개씩 병렬)
     const aptCoords = {};
-    for (const key of uniqueApts.slice(0, 30)) {
-      const [dong, aptName] = key.split('|');
-      const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
-      if (coord) aptCoords[key] = coord;
+    const aptSlice = uniqueApts.slice(0, 30);
+    for (let i = 0; i < aptSlice.length; i += 5) {
+      const batch = aptSlice.slice(i, i + 5);
+      await Promise.all(batch.map(async key => {
+        const [dong, aptName] = key.split('|');
+        const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
+        if (coord) aptCoords[key] = coord;
+      }));
     }
 
-    // 반경 필터
-    const withinRadius = filtered.filter(d => {
+    // 반경 필터 — 단계별 확장 (요청 반경 → 500m → 1km → 2km → 구 전체)
+    const radiusSteps = [...new Set([radiusKm, 0.5, 1, 2])].filter(r => r >= radiusKm).sort((a,b) => a - b);
+    let results = [];
+    let usedRadiusLabel = '';
+
+    // 거리 계산 캐시
+    const distCache = {};
+    for (const d of filtered) {
       const key = `${d.dong}|${d.name}`;
       const coord = aptCoords[key];
-      if (!coord) return false;
-      return distKm(targetCoord.lat, targetCoord.lng, coord.lat, coord.lng) <= radiusKm;
-    });
+      if (coord) distCache[key] = distKm(targetCoord.lat, targetCoord.lng, coord.lat, coord.lng);
+    }
 
-    // 반경 내 결과가 너무 적으면 동 단위로 fallback
-    const results = withinRadius.length >= 3 ? withinRadius : filtered;
-    const usedRadius = withinRadius.length >= 3;
+    for (const r of radiusSteps) {
+      const within = filtered.filter(d => {
+        const key = `${d.dong}|${d.name}`;
+        return distCache[key] !== undefined && distCache[key] <= r;
+      });
+      if (within.length >= 3) {
+        results = within;
+        usedRadiusLabel = `${r}km`;
+        break;
+      }
+    }
+    // 모든 반경에서 부족하면 구 전체
+    if (results.length === 0) {
+      results = filtered;
+      usedRadiusLabel = `${gu} 전체 (반경 내 데이터 부족)`;
+    }
 
     // 5단계: 시세 산출 (중위값)
     results.sort((a, b) => b.date.localeCompare(a.date));
@@ -267,7 +292,7 @@ export default async function handler(req, res) {
       max: prices[prices.length - 1],
       min: prices[0],
       sampleCount: recent.length,
-      radiusUsed: usedRadius ? `${radiusKm}km` : `${gu} 전체 (반경 내 데이터 부족)`,
+      radiusUsed: usedRadiusLabel,
       targetCoord,
       recentDeals: recent.slice(0, 5).map(d => ({
         name: d.name, size: d.size, price: d.price, date: d.date,
