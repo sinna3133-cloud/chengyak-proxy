@@ -4439,7 +4439,12 @@ async function loadLiveData(){
     try {
       const adminRes = await fetch(LISTINGS_API);
       const adminData = await adminRes.json();
-      adminSaved = (adminData.listings||[]).map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
+      adminSaved = (adminData.listings||[]).map(l => {
+        delete l._maxP; // 캐시된 가격 초기화
+        l.mktP = 0;     // 시세는 autoFetchMarketPrices에서 자동 조회
+        l.noMktP = true;
+        return {...l, name: cleanName(l.name), _src:'pdf'};
+      });
     } catch(e){}
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
@@ -4676,7 +4681,10 @@ async function onAdminFileSelect(event){
     const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
 
 ★ 핵심 주의사항 ★
-- 분양가: '주택형별 공급금액' 표의 '계' 또는 '합계' 컬럼만 사용. 단위가 천원이면 만원 환산 (741,000천원 = 74100만원 = 7억4천1백만원)
+- 분양가: '공급금액' 표의 '계' 컬럼만 사용. 반드시 만원 단위로 환산할 것!
+  · 단위가 '원'이면 ÷10000 (1,772,550,000원 = 177255만원 = 17억7천만원)
+  · 단위가 '천원'이면 ÷10 (741,000천원 = 74100만원 = 7억4천만원)
+  · 단위가 '만원'이면 그대로 사용
 - 소득기준: 공고에 명시된 도시근로자 월평균소득 대비 %를 정확히 추출
 - 자산기준: 부동산(토지+건물) 가액, 자동차 가액을 반드시 추출
 - 거주지역: 해당 지역 거주 요건(기간 포함)이 있으면 반드시 추출
