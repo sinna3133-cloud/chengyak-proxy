@@ -3098,7 +3098,8 @@ async function showDetail(id, fromSwipe=false){
       }
       return `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">공고 확인 필요</span></div>`;
     })()}
-    <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units}세대</span></div>
+    <div class="info-row"><span class="info-rl">총 세대수</span><span class="info-rv">${l.units ? l.units+'세대' : '공고 확인 필요'}</span></div>
+    ${l.recruitUnits ? `<div class="info-row"><span class="info-rl">모집인원</span><span class="info-rv">${l.recruitUnits}세대</span></div>` : ''}
     ${(()=>{
       const isFirstCome = (l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))) || l.days===null || l.days>9999 || (l.deadline && l.deadline.startsWith('9999'));
       const deadlineRow = isFirstCome
@@ -4423,7 +4424,7 @@ function parseAptItem(item, isLotto=false){
   const rceptEnd  = item['청약접수종료일'] || item.RCEPT_ENDDE || item.GNRL_RCEPT_ENDDE || item.rceptEndde || '';
   const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
   const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
-  const unitsRaw  = item['공급규모']     || item['세대수']      || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || 0;
+  const unitsRaw  = item['전체세대수'] || item['총세대수'] || item['공급규모'] || item['세대수'] || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || item.houseTotsHhldco || item.HOUSE_TOTS_HSHLDCO || 0;
   const priceRaw  = item['분양가'] || item['최고분양가'] || item['분양가(계)'] || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || item.suplyAmount || item.SUPLY_AMOUNT || item.houseAmt || item.HOUSE_AMT || 0;
 
   // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
@@ -4500,6 +4501,7 @@ function parseAptItem(item, isLotto=false){
     deadline: toStr(rceptEnd),
     days:     daysLeft,
     size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
+    recruitUnits: 0, // PDF 파싱 시 채워짐
     units,
     comp:     10,  // 경쟁률은 별도 API (15098905) 필요
     cut:      0,
@@ -4858,7 +4860,8 @@ async function onAdminFileSelect(event){
   "mktP": 주변 시세 만원 단위 숫자 (없으면 0),
   "deadline": "청약 접수 마감일 YYYY-MM-DD",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
-  "units": 총 세대수 숫자,
+  "units": 총 세대수 숫자 (단지 전체 세대수),
+  "recruitUnits": 이번 공고 모집인원 숫자 (특별공급+일반공급 합산. 총 세대수와 다를 수 있음),
   "qual": "신청 자격 핵심 요약 (거주지역 요건, 세대주 요건, 무주택 요건 포함). 예: 서울 거주 무주택 세대구성원, 청약통장 2년+24회 납입",
   "inc": "소득 기준 핵심 요약. 전형별 소득기준이 다르면 범위로 표시. 예: 특공 100~160% / 일반 100%(60㎡이하)",
   "sched": "접수: YYYY-MM-DD ~ YYYY-MM-DD / 발표: YYYY-MM-DD / 계약: YYYY-MM-DD ~ YYYY-MM-DD",
@@ -4996,7 +4999,7 @@ async function onAdminFileSelect(event){
           ['단지명', parsed.name],
           ['위치', parsed.loc],
           ['분양가', parsed.price],
-          ['세대수', (parsed.units||'?') + '세대'],
+          ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ? ` (모집 ${parsed.recruitUnits}세대)` : '')],
           ['마감일', parsed.aE],
           ['신청 전형', (parsed.elig||[]).join(', ')],
           ['소득 기준', parsed.inc],
