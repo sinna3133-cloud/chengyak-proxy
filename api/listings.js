@@ -41,9 +41,34 @@ module.exports = async function handler(req, res) {
       const raw = await redis('GET', 'admin_listings');
       const listings = raw ? JSON.parse(raw) : [];
 
-      const isDup = listings.some(function(l) { return l.name === listing.name; });
-      if (isDup && !force) {
+      function normName(s) {
+        return (s || '')
+          .replace(/[\s\u00A0\u3000\u200B]+/g, '')
+          .replace(/공공분양주택/g, '')
+          .replace(/\(.*?\)/g, '')
+          .normalize('NFC')
+          .toLowerCase();
+      }
+
+      const dupIdx = listings.findIndex(function(l) {
+        return String(l.id) === String(listing.id) || normName(l.name) === normName(listing.name);
+      });
+
+      if (dupIdx > -1 && !force) {
         return res.status(409).json({ duplicate: true });
+      }
+
+      if (dupIdx > -1 && force) {
+        // PDF 내용으로 기존 공고 덮어쓰기 (id, mktP 유지)
+        var old = listings[dupIdx];
+        listings[dupIdx] = Object.assign({}, listing, {
+          id: old.id,
+          mktP: listing.mktP || old.mktP || 0,
+          _src: 'pdf',
+          _updatedAt: new Date().toISOString()
+        });
+        await redis('SET', 'admin_listings', JSON.stringify(listings));
+        return res.status(200).json({ overwritten: true, listings: [listings[dupIdx]] });
       }
 
       listings.unshift(listing);
