@@ -2299,13 +2299,14 @@ function calcProb(l, p, selectedType){
 function pClass(v){return v>=20?'hi':v>=5?'mi':'lo';}
 function pColor(v){return v>=20?'#059669':v>=5?'#D97706':'#DC2626';}
 function typeBadge(l){
-  // 로또(무순위) 뱃지는 lotto 플래그 + 분양가 없는 경우에만
-  // 분양가 있으면 공공/민간으로 표기
-  const isLotto = l.lotto;
-  const hasNoPrice = !l.minP || l.minP === 0;
-  if(isLotto && hasNoPrice) return`<span class="badge badge-lotto">🎰 로또청약</span>`;
-  if(l.type==='public') return`<span class="badge badge-public">공공분양</span>`;
-  return`<span class="badge badge-private">민간분양</span>`;
+  const isLotto = isLottoListing(l);
+  const typeBadgeHtml = l.type==='public'
+    ? `<span class="badge badge-public">공공분양</span>`
+    : `<span class="badge badge-private">민간분양</span>`;
+  if(isLotto){
+    return`<span class="badge badge-lotto">🎰 로또청약</span> ${typeBadgeHtml}`;
+  }
+  return typeBadgeHtml;
 }
 function gapPill(l){
   if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
@@ -2539,9 +2540,10 @@ function renderListings(){
     ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
     : '';
   let fl=listings;
-  if(curFilter==='public') fl=listings.filter(l=>l.type==='public');
-  else if(curFilter==='private') fl=listings.filter(l=>l.type==='private');
+  if(curFilter==='public') fl=listings.filter(l=>l.type==='public' && !isLottoListing(l));
+  else if(curFilter==='private') fl=listings.filter(l=>l.type==='private' && !isLottoListing(l));
   else if(curFilter==='lotto') fl=listings.filter(l=>isLottoListing(l));
+  // 전체 탭: 로또청약 공고는 한 번만 (중복 제거 — 이미 listings에 하나만 있음)
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터
   if(selectedRegions.size>0) fl=fl.filter(l=>selectedRegions.has(l.region));
@@ -5166,21 +5168,7 @@ function adminDeleteListing(id, src){
   showToast('공고를 삭제했어요');
 }
 
-// 앱 시작 시 서버에서 관리자 공고 불러오기 (백그라운드 실행)
-setTimeout(async () => {
-  try {
-    const res = await fetch(LISTINGS_API);
-    const data = await res.json();
-    const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
-    const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-    let added = false;
-    saved.forEach(l => {
-      if(deleted.includes(l.id)) return;
-      if(!listings.find(x => x.id === l.id)){ listings.unshift(l); added = true; }
-    });
-    if(added){ renderListings(); renderRecommend(); }
-  } catch(e){ console.warn('관리자 공고 로드 실패:', e); }
-}, 2000);
+// 관리자 공고는 loadLiveData()에서 이름 기준 병합으로 처리 (중복 방지)
 
 </script>
 </body>
