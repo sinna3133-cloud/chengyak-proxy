@@ -353,9 +353,33 @@ if (results.length === 0) {
   usedRadiusLabel = `${gu} 전체 (반경 내 데이터 부족)`;
 }
 
-// 5단계: 시세 산출 — 최근 30건 중위값 (보정식 없음)
-results.sort((a, b) => b.date.localeCompare(a.date));
-const recent = results.slice(0, 30);
+// 5단계: 단지별 거래 건수 집계 → 소규모 단지 우선순위 필터
+// 거래 5건 이상(중대단지) → 2~4건(소단지) → 1건(최후) 순으로 단계적 시도
+const dealCountByApt = {};
+results.forEach(d => {
+  const key = `${d.dong}|${d.name}`;
+  dealCountByApt[key] = (dealCountByApt[key] || 0) + 1;
+});
+
+function getAptTier(key) {
+  const cnt = dealCountByApt[key] || 0;
+  if (cnt >= 5) return 1; // 중대단지 우선
+  if (cnt >= 2) return 2; // 소단지
+  return 3;               // 소규모 (최후순위)
+}
+
+let finalResults = results;
+for (const maxTier of [1, 2, 3]) {
+  const candidate = results.filter(d => getAptTier(`${d.dong}|${d.name}`) <= maxTier);
+  if (candidate.length >= 3) {
+    finalResults = candidate;
+    break;
+  }
+}
+
+// 6단계: 시세 산출 — 최근 30건 중위값 (보정식 없음)
+finalResults.sort((a, b) => b.date.localeCompare(a.date));
+const recent = finalResults.slice(0, 30);
 const prices = recent.map(d => d.price).sort((a, b) => a - b);
 const median = prices[Math.floor(prices.length / 2)];
 const avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
