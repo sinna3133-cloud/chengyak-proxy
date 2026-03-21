@@ -1,15 +1,14 @@
 /**
- * 국토부 실거래가 API → 주변 시세(mktP) 자동 조회
+ * 국토부 실거래가 + 카카오 지오코딩 → 반경 1km 시세 자동 조회
  *
- * 사용법: GET /api/market-price?dong=서초동&gu=서초구&size=84
+ * GET /api/market-price?loc=서울 서초구 반포동&size=84&name=래미안원베일리
  *
- * 국토부 아파트 실거래가 상세 조회 API
- * https://www.data.go.kr/data/15057511/openapi.do
- *
- * 환경변수: MOLIT_API_KEY (국토부 공공데이터 API 인증키, Decoding 키)
+ * 환경변수:
+ *   MOLIT_API_KEY  — 국토부 공공데이터 API 인증키 (Decoding 키)
+ *   KAKAO_REST_KEY — 카카오 REST API 키
  */
 
-// 구/군 → 법정동코드(5자리) 매핑
+// 구/군 → 법정동코드(5자리)
 const LAWD_MAP = {
   // 서울
   '종로구':'11110','중구':'11140','용산구':'11170','성동구':'11200',
@@ -17,109 +16,130 @@ const LAWD_MAP = {
   '강북구':'11305','도봉구':'11320','노원구':'11350','은평구':'11380',
   '서대문구':'11410','마포구':'11440','양천구':'11470','강서구':'11500',
   '구로구':'11530','금천구':'11545','영등포구':'11560','동작구':'11590',
-  '관악구':'11620','서초구':'11650','강남구':'11680','송파구':'11710',
-  '강동구':'11740',
+  '관악구':'11620','서초구':'11650','강남구':'11680','송파구':'11710','강동구':'11740',
   // 경기 주요
-  '수원시장안구':'41111','수원시권선구':'41113','수원시팔달구':'41115',
-  '수원시영통구':'41117','성남시수정구':'41131','성남시중원구':'41133',
-  '성남시분당구':'41135','고양시덕양구':'41281','고양시일산동구':'41285',
-  '고양시일산서구':'41287','용인시처인구':'41461','용인시기흥구':'41463',
-  '용인시수지구':'41465','화성시':'41590','광교':'41117',
-  '과천시':'41290','안양시만안구':'41171','안양시동안구':'41173',
-  '하남시':'41450','광명시':'41210','의왕시':'41430',
+  '수원시장안구':'41111','수원시권선구':'41113','수원시팔달구':'41115','수원시영통구':'41117',
+  '성남시수정구':'41131','성남시중원구':'41133','성남시분당구':'41135',
+  '고양시덕양구':'41281','고양시일산동구':'41285','고양시일산서구':'41287',
+  '용인시처인구':'41461','용인시기흥구':'41463','용인시수지구':'41465',
+  '화성시':'41590','과천시':'41290','하남시':'41450','광명시':'41210',
+  '안양시만안구':'41171','안양시동안구':'41173','의왕시':'41430',
+  '평택시':'41220','김포시':'41570','파주시':'41480','남양주시':'41360',
+  '구리시':'41310','시흥시':'41390','안산시상록구':'41271','안산시단원구':'41273',
+  '의정부시':'41150','양주시':'41630',
   // 인천
-  '부평구':'28237','미추홀구':'28177','남동구':'28200',
-  '연수구':'28185','서구':'28260','계양구':'28245','중구':'28110',
-  '동구':'28140','영종':'28710',
+  '부평구':'28237','미추홀구':'28177','남동구':'28200','연수구':'28185',
+  '서구':'28260','계양구':'28245','중구':'28110','동구':'28140',
   // 부산
-  '부산진구':'26230','해운대구':'26350','수영구':'26410',
-  '남구':'26290','동래구':'26260','연제구':'26380',
-  '사하구':'26380','금정구':'26320','북구':'26320',
-  '사상구':'26440','강서구':'26440',
+  '부산진구':'26230','해운대구':'26350','수영구':'26410','남구':'26290',
+  '동래구':'26260','연제구':'26380','사하구':'26530','금정구':'26320',
+  '북구':'26440','사상구':'26500','강서구':'26440',
   // 대전
   '유성구':'30200','서구':'30170','중구':'30110','동구':'30140','대덕구':'30230',
   // 세종
   '세종시':'36110',
+  // 대구
+  '수성구':'27260','달서구':'27290','북구':'27230','중구':'27110',
+  // 광주
+  '광산구':'29200','북구':'29170','서구':'29140',
+  // 충남/충북
+  '천안시서북구':'44133','천안시동남구':'44131','청주시상당구':'43111','청주시서원구':'43112',
 };
 
-// 주소에서 구/군 추출
+// 주소 → 구 추출
 function extractGu(loc) {
-  // "서울 서초구 반포동" → "서초구"
-  // "경기 수원시 영통구" → "수원시영통구"
-  // "부산광역시 부산진구 범천동" → "부산진구"
-  const parts = loc.replace(/특별시|광역시|도/g, '').trim().split(/\s+/);
-
-  // 시+구 형태 (수원시 영통구)
+  const clean = loc.replace(/특별시|광역시|특별자치시|특별자치도|도\s/g, '').trim();
+  const parts = clean.split(/\s+/);
   for (let i = 0; i < parts.length - 1; i++) {
-    if (parts[i].endsWith('시') && parts[i+1].endsWith('구')) {
-      return parts[i] + parts[i+1];
-    }
+    if (parts[i].endsWith('시') && parts[i+1].endsWith('구')) return parts[i] + parts[i+1];
   }
-  // 구 형태
   for (const p of parts) {
-    if (p.endsWith('구') || p.endsWith('시')) return p;
+    if (p.endsWith('구')) return p;
+    if (p.endsWith('시') && !p.includes('광역') && !p.includes('특별')) return p;
   }
-  return parts[1] || parts[0] || '';
+  return parts[1] || '';
 }
 
-// 주소에서 동 추출
-function extractDong(loc) {
-  const parts = loc.split(/\s+/);
-  for (const p of parts) {
-    if (p.endsWith('동') || p.endsWith('읍') || p.endsWith('면')) return p;
+// 두 좌표 간 거리 (km) — Haversine
+function distKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// 카카오 지오코딩: 주소 → {lat, lng}
+async function geocode(address, kakaoKey) {
+  const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`;
+  const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
+  const data = await res.json();
+  if (data.documents && data.documents.length > 0) {
+    return { lat: parseFloat(data.documents[0].y), lng: parseFloat(data.documents[0].x) };
   }
-  return '';
+  // 키워드 검색 fallback
+  const url2 = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(address)}`;
+  const res2 = await fetch(url2, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
+  const data2 = await res2.json();
+  if (data2.documents && data2.documents.length > 0) {
+    return { lat: parseFloat(data2.documents[0].y), lng: parseFloat(data2.documents[0].x) };
+  }
+  return null;
+}
+
+// 아파트명 → 좌표 (캐시용)
+const geoCache = {};
+async function geocodeApt(aptName, dong, gu, kakaoKey) {
+  const key = `${gu} ${dong} ${aptName}`;
+  if (geoCache[key]) return geoCache[key];
+  const result = await geocode(key, kakaoKey);
+  if (result) geoCache[key] = result;
+  return result;
 }
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const apiKey = process.env.MOLIT_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'MOLIT_API_KEY not set' });
+  const molitKey = process.env.MOLIT_API_KEY;
+  const kakaoKey = process.env.KAKAO_REST_KEY;
+  if (!molitKey) return res.status(500).json({ error: 'MOLIT_API_KEY not set' });
+  if (!kakaoKey) return res.status(500).json({ error: 'KAKAO_REST_KEY not set' });
 
-  const { loc, size, name } = req.query;
-  // loc: "서울 서초구 반포동" 또는 gu/dong 직접 전달
-  // size: 전용면적 (84 등)
-  // name: 단지명 (선택, 더 정확한 매칭용)
+  const { loc, size, name, radius } = req.query;
+  const radiusKm = parseFloat(radius) || 1; // 기본 반경 1km
 
-  const gu = req.query.gu || extractGu(loc || '');
-  const dong = req.query.dong || extractDong(loc || '');
+  if (!loc) return res.status(400).json({ error: 'loc parameter required (예: 서울 서초구 반포동)' });
+
+  const gu = req.query.gu || extractGu(loc);
   const lawdCd = LAWD_MAP[gu];
-
   if (!lawdCd) {
-    return res.status(400).json({
-      error: `법정동코드를 찾을 수 없어요: "${gu}"`,
-      availableGu: Object.keys(LAWD_MAP).slice(0, 20)
-    });
+    return res.status(400).json({ error: `법정동코드를 찾을 수 없어요: "${gu}"` });
   }
 
   try {
-    // 최근 6개월 실거래가 조회
-    const now = new Date();
-    const months = [];
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push(`${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`);
+    // 1단계: 공고 위치 좌표 확인
+    const targetCoord = await geocode(name ? `${loc} ${name}` : loc, kakaoKey);
+    if (!targetCoord) {
+      return res.status(400).json({ error: `주소 좌표를 찾을 수 없어요: "${loc}"` });
     }
 
+    // 2단계: 국토부 실거래가 조회 (최근 3개월)
+    const now = new Date();
     let allDeals = [];
 
-    // 최근 3개월만 조회 (API 호출 최소화)
-    for (const dealYmd of months.slice(0, 3)) {
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const dealYmd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
+
       const url = `http://openapi.molit.go.kr/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&LAWD_CD=${lawdCd}`
-        + `&DEAL_YMD=${dealYmd}`
-        + `&pageNo=1&numOfRows=100`;
+        + `?serviceKey=${encodeURIComponent(molitKey)}`
+        + `&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=200`;
 
       const response = await fetch(url);
       const text = await response.text();
-
-      // XML 파싱 (간단한 정규식)
       const items = text.match(/<item>([\s\S]*?)<\/item>/g) || [];
 
       for (const item of items) {
@@ -132,84 +152,77 @@ export default async function handler(req, res) {
         const excluUseAr = parseFloat(get('excluUseAr') || get('전용면적') || '0');
         const dealAmount = get('dealAmount') || get('거래금액') || '0';
         const dealAmountNum = parseInt(dealAmount.replace(/,/g, '').trim());
-        const jibun = get('jibun') || get('지번') || '';
-        const dealDay = get('dealDay') || get('일') || '';
-        const dealMonth = get('dealMonth') || get('월') || dealYmd.slice(4);
-        const dealYear = get('dealYear') || get('년') || dealYmd.slice(0, 4);
         const umdNm = get('umdNm') || get('법정동') || '';
+        const jibun = get('jibun') || get('지번') || '';
+        const dealYear = get('dealYear') || get('년') || dealYmd.slice(0, 4);
+        const dealMonth = get('dealMonth') || get('월') || dealYmd.slice(4);
+        const dealDay = get('dealDay') || get('일') || '1';
 
         if (aptNm && dealAmountNum > 0) {
           allDeals.push({
-            name: aptNm,
-            size: excluUseAr,
-            price: dealAmountNum, // 만원 단위
-            dong: umdNm,
-            jibun,
+            name: aptNm, size: excluUseAr, price: dealAmountNum,
+            dong: umdNm, jibun,
             date: `${dealYear}-${String(dealMonth).padStart(2, '0')}-${String(dealDay).padStart(2, '0')}`,
           });
         }
       }
     }
 
-    // 필터링
+    if (allDeals.length === 0) {
+      return res.json({ mktP: null, message: '실거래 데이터가 없어요', query: { gu, lawdCd } });
+    }
+
+    // 3단계: 면적 필터 (±10㎡)
     const targetSize = parseFloat(size || '84');
-    const sizeRange = 10; // ±10㎡
+    let filtered = allDeals.filter(d => Math.abs(d.size - targetSize) <= 10);
+    if (filtered.length === 0) filtered = allDeals; // 면적 매칭 안 되면 전체
 
-    let filtered = allDeals;
+    // 4단계: 각 거래의 아파트 좌표 조회 → 반경 필터
+    // 유니크 아파트명 추출 (API 호출 최소화)
+    const uniqueApts = [...new Set(filtered.map(d => `${d.dong}|${d.name}`))];
 
-    // 동 필터
-    if (dong) {
-      const dongFiltered = allDeals.filter(d => d.dong.includes(dong.replace(/동$/, '')));
-      if (dongFiltered.length > 0) filtered = dongFiltered;
+    // 최대 30개 아파트까지만 좌표 조회
+    const aptCoords = {};
+    for (const key of uniqueApts.slice(0, 30)) {
+      const [dong, aptName] = key.split('|');
+      const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
+      if (coord) aptCoords[key] = coord;
     }
 
-    // 면적 필터
-    const sizeFiltered = filtered.filter(d =>
-      Math.abs(d.size - targetSize) <= sizeRange
-    );
-    if (sizeFiltered.length > 0) filtered = sizeFiltered;
+    // 반경 필터
+    const withinRadius = filtered.filter(d => {
+      const key = `${d.dong}|${d.name}`;
+      const coord = aptCoords[key];
+      if (!coord) return false;
+      return distKm(targetCoord.lat, targetCoord.lng, coord.lat, coord.lng) <= radiusKm;
+    });
 
-    // 단지명 매칭 (있으면 우선)
-    if (name) {
-      const nameKeywords = name.replace(/[0-9A-Za-z]/g, '').split(/\s+/).filter(w => w.length >= 2);
-      const nameFiltered = filtered.filter(d =>
-        nameKeywords.some(kw => d.name.includes(kw))
-      );
-      if (nameFiltered.length > 0) filtered = nameFiltered;
-    }
+    // 반경 내 결과가 너무 적으면 동 단위로 fallback
+    const results = withinRadius.length >= 3 ? withinRadius : filtered;
+    const usedRadius = withinRadius.length >= 3;
 
-    // 시세 산출 (최근 거래 기준 중위값)
-    filtered.sort((a, b) => b.date.localeCompare(a.date));
-    const recent = filtered.slice(0, 20);
-
-    if (recent.length === 0) {
-      return res.json({
-        mktP: null,
-        message: `${gu} ${dong} 주변 ${targetSize}㎡ 실거래 데이터가 없어요`,
-        totalDeals: allDeals.length,
-        lawdCd,
-      });
-    }
-
+    // 5단계: 시세 산출 (중위값)
+    results.sort((a, b) => b.date.localeCompare(a.date));
+    const recent = results.slice(0, 30);
     const prices = recent.map(d => d.price).sort((a, b) => a - b);
     const median = prices[Math.floor(prices.length / 2)];
     const avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
-    const max = prices[prices.length - 1];
-    const min = prices[0];
 
     return res.json({
-      mktP: median,        // 중위 시세 (만원)
-      avg,                  // 평균
-      max,                  // 최고가
-      min,                  // 최저가
+      mktP: median,
+      avg,
+      max: prices[prices.length - 1],
+      min: prices[0],
       sampleCount: recent.length,
+      radiusUsed: usedRadius ? `${radiusKm}km` : `${gu} 전체 (반경 내 데이터 부족)`,
+      targetCoord,
       recentDeals: recent.slice(0, 5).map(d => ({
-        name: d.name,
-        size: d.size,
-        price: d.price,
-        date: d.date,
+        name: d.name, size: d.size, price: d.price, date: d.date,
+        dist: aptCoords[`${d.dong}|${d.name}`]
+          ? distKm(targetCoord.lat, targetCoord.lng, aptCoords[`${d.dong}|${d.name}`].lat, aptCoords[`${d.dong}|${d.name}`].lng).toFixed(2) + 'km'
+          : '?',
       })),
-      query: { gu, dong, size: targetSize, lawdCd },
+      query: { gu, size: targetSize, radius: radiusKm, lawdCd },
     });
 
   } catch (err) {
