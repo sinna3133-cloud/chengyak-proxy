@@ -4082,7 +4082,7 @@ const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
 
 async function autoFetchMarketPrices(){
   // 시세(mktP)가 없거나 noMktP인 공고에 대해 자동 조회
-  const targets = listings.filter(l => (l.noMktP || !l.mktP || l.mktP <= 0) && l.loc && l.minP > 0);
+  const targets = listings.filter(l => (l.noMktP || !l.mktP || l.mktP <= 0) && l.loc);
   if(!targets.length) return;
   console.log(`시세 자동조회: ${targets.length}건`);
 
@@ -4444,17 +4444,38 @@ async function loadLiveData(){
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
     const norm = s => (s||'').replace(/\s+/g,'').replace(/공공분양주택/g,'');
-    const adminOnly = adminSaved.filter(a => !parsed.some(p => norm(p.name) === norm(a.name)) && !deleted.includes(a.id));
-    const filteredParsed = parsed.filter(l => !deleted.includes(l.id));
-    const merged = [...filteredParsed, ...adminOnly];
-    // 최종 중복 제거: 같은 이름 공고는 첫 번째(API 우선)만 유지
-    const seen = new Set();
-    const deduped = merged.filter(l => {
+    // PDF 삭제 적용
+    const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
+    // API + PDF 전체를 이름 기준으로 병합 (API 베이스 + PDF 보충)
+    const nameMap = new Map();
+    // 1) API 먼저 등록
+    parsed.forEach(l => {
       const key = norm(l.name);
-      if(seen.has(key)) return false;
-      seen.add(key);
-      return true;
+      if(!nameMap.has(key)) nameMap.set(key, {...l});
     });
+    // 2) PDF 데이터로 보충/추가
+    validAdmin.forEach(l => {
+      const key = norm(l.name);
+      const existing = nameMap.get(key);
+      if(!existing){
+        // API에 없는 공고 → PDF 데이터 그대로 추가
+        nameMap.set(key, {...l});
+      } else {
+        // API에 있는 공고 → PDF의 더 상세한 데이터로 보충
+        if(l.minP && !existing.minP) existing.minP = l.minP;
+        if(l.price && l.price !== '공고 확인 필요' && (!existing.price || existing.price === '공고 확인 필요')) existing.price = l.price;
+        if(l.loc && l.loc.length > (existing.loc||'').length) existing.loc = l.loc;
+        if(l.eligDetail && l.eligDetail.length) existing.eligDetail = l.eligDetail;
+        if(l.eligTiers && l.eligTiers.length) existing.eligTiers = l.eligTiers;
+        if(l.inc && !existing.inc) existing.inc = l.inc;
+        if(l.qual && l.qual !== '공고 확인 필요' && (!existing.qual || existing.qual.includes('확인 필요'))) existing.qual = l.qual;
+        if(l.sched && !existing.sched) existing.sched = l.sched;
+        if(l.compByType && !existing.compByType) existing.compByType = l.compByType;
+        if(l.cutByType && !existing.cutByType) existing.cutByType = l.cutByType;
+        if(l.size && !existing.size) existing.size = l.size;
+      }
+    });
+    const deduped = [...nameMap.values()];
     listings.splice(0, listings.length, ...deduped);
     liveListings = parsed;
     apiConnected = true;
