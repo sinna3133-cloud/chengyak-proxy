@@ -120,7 +120,33 @@ export default async function handler(req, res) {
 
   if (!loc) return res.status(400).json({ error: 'loc parameter required (예: 서울 서초구 반포동)' });
 
-  const gu = req.query.gu || extractGu(loc);
+  // 주소 자동 보정: 카카오 지오코딩으로 정확한 구/동 확인
+  let gu = req.query.gu || extractGu(loc);
+  let correctedLoc = loc;
+  try {
+    // 동 이름 추출 (예: "서울특별시 강남구 서초동" → "서초동")
+    const parts = loc.split(/\s+/);
+    const dongPart = parts.find(p => p.endsWith('동') || p.endsWith('읍') || p.endsWith('면'));
+    const searchQuery = name || dongPart || loc;
+
+    const addrUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(searchQuery)}`;
+    const addrRes = await fetch(addrUrl, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
+    const addrData = await addrRes.json();
+
+    if (addrData.documents && addrData.documents.length > 0) {
+      const doc = addrData.documents[0];
+      // road_address_name 또는 address_name에서 정확한 구 추출
+      const addr = doc.road_address_name || doc.address_name || '';
+      const correctedGu = extractGu(addr);
+      if (correctedGu && LAWD_MAP[correctedGu]) {
+        if (correctedGu !== gu) {
+          correctedLoc = addr;
+        }
+        gu = correctedGu;
+      }
+    }
+  } catch(e) { /* 보정 실패 시 원래 구 사용 */ }
+
   const lawdCd = LAWD_MAP[gu];
   if (!lawdCd) {
     return res.status(400).json({ error: `법정동코드를 찾을 수 없어요: "${gu}"` });
@@ -129,8 +155,8 @@ export default async function handler(req, res) {
   try {
     // 1단계: 공고 위치 좌표 확인 (여러 검색어 시도)
     const queries = [];
-    if (name) queries.push(name, `${loc} ${name}`, `${gu} ${name}`);
-    queries.push(loc);
+    if (name) queries.push(name, `${correctedLoc} ${name}`, `${gu} ${name}`);
+    queries.push(correctedLoc, loc);
 
     let targetCoord = null;
     let matchedQuery = '';
