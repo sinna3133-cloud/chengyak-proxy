@@ -1793,6 +1793,14 @@ function getMaxP(l){
   return maxVal;
 }
 function gap(l){const saleP=getMaxP(l);const g=l.mktP-saleP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};}
+function fmtManwon(v){
+  // 만원 단위 → "X억 Y천" 형식
+  const uk=Math.floor(v/10000);const rem=v%10000;const chun=Math.floor(rem/1000);
+  if(uk>0&&chun>0)return`${uk}억 ${chun}천`;
+  if(uk>0)return`${uk}억`;
+  if(chun>0)return`${chun}천만`;
+  return`${v}만`;
+}
 function isLottoListing(l){ return l.lotto || (l.mktP > 0 && !l.noMktP && gap(l).g >= 10000); }
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
@@ -2298,7 +2306,7 @@ function typeBadge(l){
 function gapPill(l){
   if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
   const{g,pct,saleP}=gap(l);const up=g>0;
-  return`<div class="gap-pill"><div class="gap-nums"><b>${(saleP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`-${pct}%`:`+${Math.abs(pct)}%`}</div></div>`;
+  return`<div class="gap-pill"><div class="gap-nums"><b>${(saleP/10000).toFixed(1)}억</b><span>→ 시세 ${(l.mktP/10000).toFixed(1)}억</span></div><div class="gap-badge ${up?'up':'dn'}">${up?`${pct}% 저렴`:`${Math.abs(pct)}% 비쌈`}</div></div>`;
 }
 function calcScore(p){
   const nh=parseInt(p.noHomeYears||0),dep=parseInt(p.dependents||0),acc=parseInt(p.depCount||0);
@@ -3187,7 +3195,7 @@ async function showDetail(id, fromSwipe=false){
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
         <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
-        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">약 ${g>0?'-':'+'} ${Math.abs(g/10000).toFixed(1)}억 (${pct}%)</span>
+        <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">${g>0?`약 ${fmtManwon(Math.abs(g))} 저렴해요 🎉`:`약 ${fmtManwon(Math.abs(g))} 비싸요`}</span>
       </div>
       ${(l._recentDeals&&l._recentDeals.length)?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:10px 18px 12px">
@@ -4102,10 +4110,10 @@ async function autoFetchMarketPrices(){
   // 수도권 여부 판별 → 반경 결정
   const isCapital = loc => /서울|경기|인천|과천|성남|고양|용인|화성|수원|안양|의왕|광명|하남|구리|남양주|김포|파주|시흥|안산|의정부|부천|양주|평택|광주시/.test(loc||'');
 
-  // 병렬 처리 (5건씩 동시)
+  // 병렬 처리 (10건씩 동시)
   const batch = targets.slice(0, 20);
-  for(let i = 0; i < batch.length; i += 5){
-    const chunk = batch.slice(i, i + 5);
+  for(let i = 0; i < batch.length; i += 10){
+    const chunk = batch.slice(i, i + 10);
     await Promise.all(chunk.map(async l => {
       try {
         // 분양가 최대 평수와 매칭되는 가장 큰 면적으로 시세 조회
