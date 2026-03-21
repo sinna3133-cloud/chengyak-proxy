@@ -310,17 +310,14 @@ export default async function handler(req, res) {
     // 유니크 아파트명 추출 (API 호출 최소화)
     const uniqueApts = [...new Set(filtered.map(d => `${d.dong}|${d.name}`))];
 
-    // 최대 30개 아파트까지 좌표 조회 (5개씩 병렬)
+    // 최대 15개 아파트까지 좌표 조회 (10개씩 병렬)
     const aptCoords = {};
-    const aptSlice = uniqueApts.slice(0, 30);
-    for (let i = 0; i < aptSlice.length; i += 5) {
-      const batch = aptSlice.slice(i, i + 5);
-      await Promise.all(batch.map(async key => {
-        const [dong, aptName] = key.split('|');
-        const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
-        if (coord) aptCoords[key] = coord;
-      }));
-    }
+    const aptSlice = uniqueApts.slice(0, 15);
+    await Promise.all(aptSlice.map(async key => {
+      const [dong, aptName] = key.split('|');
+      const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
+      if (coord) aptCoords[key] = coord;
+    }));
 
     // 반경 필터 — 단계별 확장 (요청 반경 → 500m → 1km → 2km → 구 전체)
     const radiusSteps = [...new Set([radiusKm, 0.5, 1, 2])].filter(r => r >= radiusKm).sort((a,b) => a - b);
