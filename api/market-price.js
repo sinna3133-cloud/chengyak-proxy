@@ -71,19 +71,26 @@ function distKm(lat1, lon1, lat2, lon2) {
 
 // 카카오 지오코딩: 주소 → {lat, lng}
 async function geocode(address, kakaoKey) {
-  const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`;
-  const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
-  const data = await res.json();
-  if (data.documents && data.documents.length > 0) {
-    return { lat: parseFloat(data.documents[0].y), lng: parseFloat(data.documents[0].x) };
-  }
-  // 키워드 검색 fallback
-  const url2 = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(address)}`;
-  const res2 = await fetch(url2, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
-  const data2 = await res2.json();
-  if (data2.documents && data2.documents.length > 0) {
-    return { lat: parseFloat(data2.documents[0].y), lng: parseFloat(data2.documents[0].x) };
-  }
+  // 1) 키워드 검색 먼저 (아파트명 포함 시 더 정확)
+  try {
+    const url1 = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(address)}`;
+    const res1 = await fetch(url1, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
+    const data1 = await res1.json();
+    if (data1.documents && data1.documents.length > 0) {
+      return { lat: parseFloat(data1.documents[0].y), lng: parseFloat(data1.documents[0].x) };
+    }
+  } catch(e) {}
+
+  // 2) 주소 검색 fallback
+  try {
+    const url2 = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`;
+    const res2 = await fetch(url2, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
+    const data2 = await res2.json();
+    if (data2.documents && data2.documents.length > 0) {
+      return { lat: parseFloat(data2.documents[0].y), lng: parseFloat(data2.documents[0].x) };
+    }
+  } catch(e) {}
+
   return null;
 }
 
@@ -120,10 +127,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1단계: 공고 위치 좌표 확인
-    const targetCoord = await geocode(name ? `${loc} ${name}` : loc, kakaoKey);
+    // 1단계: 공고 위치 좌표 확인 (여러 검색어 시도)
+    const queries = [];
+    if (name) queries.push(name, `${loc} ${name}`, `${gu} ${name}`);
+    queries.push(loc);
+
+    let targetCoord = null;
+    let matchedQuery = '';
+    for (const q of queries) {
+      targetCoord = await geocode(q, kakaoKey);
+      if (targetCoord) { matchedQuery = q; break; }
+    }
+
     if (!targetCoord) {
-      return res.status(400).json({ error: `주소 좌표를 찾을 수 없어요: "${loc}"` });
+      return res.status(400).json({
+        error: `주소 좌표를 찾을 수 없어요`,
+        tried: queries,
+        hint: 'KAKAO_REST_KEY가 유효한지, 카카오 앱에서 REST API 활성화했는지 확인하세요'
+      });
     }
 
     // 2단계: 국토부 실거래가 조회 (최근 3개월)
