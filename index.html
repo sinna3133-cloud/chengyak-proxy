@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+]<!DOCTYPE html> 
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -71,7 +71,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* 조건 카드 */
 .cond-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:16px;margin-bottom:0;cursor:pointer}
 .cond-card-top{display:flex;align-items:center;justify-content:space-between}
-.cond-card-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase}
+.cond-card-label{font-size:14px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.3px}
 .cond-chevron{color:rgba(255,255,255,.4);font-size:14px;transition:transform .2s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
@@ -617,7 +617,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .sp-icon-g{animation:spBounce .28s cubic-bezier(.34,1.7,.64,1) 1.28s both}
 @keyframes spBounce{from{transform:scale(1)}50%{transform:scale(1.06)}to{transform:scale(1)}}
 /* 텍스트 */
-.splash-logo{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;font-weight:900;font-size:16px;color:#0A0E1A;letter-spacing:-.3px;margin-top:12px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
+.splash-logo{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;font-weight:900;font-size:25px;color:#0A0E1A;letter-spacing:-.5px;margin-top:14px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
 .splash-logo span{color:#0066FF}
 @keyframes spTextUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* 로딩바 */
@@ -647,7 +647,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 <!-- ══ 스플래시 ══ -->
 <div id="splash">
-  <svg width="54" height="50" viewBox="0 0 90 82" overflow="visible" style="display:block">
+  <svg width="68" height="63" viewBox="0 0 90 82" overflow="visible" style="display:block">
     <defs>
       <linearGradient id="spRG" x1="0%" y1="0%" x2="60%" y2="100%">
         <stop offset="0%" stop-color="#3B8FFF"/><stop offset="100%" stop-color="#0062F0"/>
@@ -950,7 +950,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
           <div class="cond-chevron" id="cond-chev">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
-          <span style="font-size:11px;color:rgba(255,255,255,.35)">조건 설정 후 전형이 표시돼요</span>
+
         </div>
         <div class="cond-detail" id="cond-detail">
           <div class="cond-grid">
@@ -1810,15 +1810,21 @@ function toggleCond(){
 /* ══ 유틸 ══ */
 /* ★★★ [하드코딩 — 수정 금지] 시세차익 분석: 최고 분양가(maxP) 기준 ★★★ */
 function getMaxP(l){
-  // price 문자열에서 모든 가격을 파싱하여 최대값 반환
+  // price 문자열에서 모든 가격을 파싱하여 최대값 반환 (항상 만원 단위)
   if(l._maxP) return l._maxP;
-  let maxVal = l.minP || 0;
+  // minP 폴백: API에서 원 단위로 들어온 경우 만원으로 정규화
+  function safeMinP(v){
+    const n = parseFloat(String(v||0).replace(/,/g,'')) || 0;
+    if(n <= 0) return 0;
+    if(n >= 100000000) return Math.round(n / 10000); // 원 → 만원
+    if(n < 1000 && n >= 1) return Math.round(n * 10000); // 억 → 만원
+    return n;
+  }
+  let maxVal = safeMinP(l.minP);
   const priceStr = l.price || '';
-  if(priceStr){
-    // | 구분된 평형별 가격에서 모든 가격 추출
+  if(priceStr && priceStr !== '공고 확인 필요'){
     const parts = priceStr.split('|');
     parts.forEach(part => {
-      // ~로 구분된 범위가 있으면 뒤쪽(최대값) 사용
       const rangeParts = part.split('~');
       rangeParts.forEach(rp => {
         const val = priceToNum(rp);
@@ -2521,7 +2527,7 @@ function updateHero(){
   const types = isCondSet ? calcTypes(p) : [];
   document.getElementById('type-pills').innerHTML=types.length
     ?types.map(t=>`<span class="type-pill ${t.c}">${t.l}</span>`).join('')
-    :'<span style="font-size:11px;color:rgba(255,255,255,.35)">조건 설정 후 전형이 표시돼요</span>';
+    :'';
 
   // 마감임박 배너
   const urgSaved=listings.filter(l=>savedIds.has(l.id)&&l.days<=3);
@@ -4501,14 +4507,15 @@ function parseAptItem(item, isLotto=false){
 
   const sheetPrice = sheetPrices[name];
 
-  // lttotTopAmount는 API마다 단위가 다름 (만원/원/합계 등)
-  // 200000만원(20억) 초과 시 원단위로 판단해 만원으로 환산, 100조 이상은 오류값으로 무시
+  // lttotTopAmount는 API마다 단위가 다름 (만원/원/억 등)
+  // 자릿수 기반으로 단위 추정: 원(9자리↑)→÷10000, 억(1~999)→×10000, 나머지 만원 그대로
   function sanitizePriceRaw(raw) {
-    const n = parseInt(raw) || 0;
+    const n = parseFloat(String(raw||0).replace(/,/g,'')) || 0;
     if (n <= 0) return 0;
-    if (n >= 1000000000000) return 0;
-    if (n > 200000) return Math.round(n / 10000); // 20억만원 초과 → 원단위
-    return n;
+    if (n >= 1000000000000) return 0;          // 100조 이상 오류
+    if (n >= 100000000) return Math.round(n / 10000); // 원 단위 → 만원
+    if (n < 1000 && n >= 1) return Math.round(n * 10000); // 억 단위 → 만원
+    return n; // 만원 단위 그대로
   }
   const minP  = sheetPrice?.minP || sanitizePriceRaw(priceRaw);
   const units = parseInt(unitsRaw) || 0;
@@ -4622,7 +4629,7 @@ async function loadLiveData(){
       const adminRes = await fetch(LISTINGS_API);
       const adminData = await adminRes.json();
       adminSaved = (adminData.listings||[]).map(l => {
-        delete l._maxP; // 캐시된 가격 초기화
+        delete l._maxP; delete l._minPSanitized; // 캐시 완전 초기화
         l.mktP = 0;     // 시세는 autoFetchMarketPrices에서 자동 조회
         l.noMktP = true;
         return {...l, name: cleanName(l.name), _src:'pdf'};
@@ -4661,7 +4668,7 @@ async function loadLiveData(){
         nameMap.set(key, {...l});
       } else {
         // API에 있는 공고 → PDF의 더 상세한 데이터로 보충
-        if(l.minP) existing.minP = l.minP; // PDF minP 항상 우선
+        if(l.minP) { existing.minP = l.minP; delete existing._maxP; } // PDF minP 항상 우선, 캐시 초기화
         if(l.price && l.price !== '공고 확인 필요') existing.price = l.price; // PDF price 항상 우선
         if(l.loc) existing.loc = l.loc; // PDF 공급위치 항상 우선
         if(l.eligDetail && l.eligDetail.length) existing.eligDetail = l.eligDetail;
