@@ -4459,7 +4459,7 @@ async function loadLiveData(){
     ];
     const filteredAll = allParsed.filter(l => (l.days === null || l.days > 0) && !l.name.includes('임대'));
     // API 내부 중복 제거 (로또+일반 동시 등장 시 로또 우선)
-    const apiNorm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・]/g,'').normalize('NFC');
+    const apiNorm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
     const apiMap = new Map();
     filteredAll.forEach(l => {
       const key = apiNorm(l.name);
@@ -4501,7 +4501,7 @@ async function loadLiveData(){
     } catch(e){}
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-    const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・]/g,'').normalize('NFC');
+    const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
     // PDF 삭제 적용
     const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
     // 디버깅: norm 키 + 코드포인트 비교
@@ -4761,7 +4761,7 @@ async function onAdminFileSelect(event){
 
 {
   "name": "단지명",
-  "loc": "위치 (시/구/동)",
+  "loc": "공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
   "price": "평형별 분양가 (| 구분, 전용면적㎡ 라벨). 반드시 '계' 컬럼 금액 사용. 예: 59㎡ 5억1천|84A㎡ 7억4천",
