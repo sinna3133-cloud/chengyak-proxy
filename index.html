@@ -1865,7 +1865,7 @@ function calcTypes(p){
 */
 function calcEligDetail(l, p){
   const results = [];
-  const eligList = l.elig || [];
+  const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
   const details = l.eligDetail || [];
   const inc = parseInt(p.isDual ? (p.totalIncome||p.income||0) : (p.income||0));
   const nh = parseInt(p.noHomeYears||0);
@@ -1985,8 +1985,8 @@ function calcEligDetail(l, p){
       else { eligible = false; fails.push('만 2세 이하 자녀가 있어야 해요'); }
     }
 
-    // 노부모 부양
-    if(rule.elderParent === true || rule.elderParent === 'true'){
+    // 노부모 부양 (노부모부양 전형은 반드시 elderParent 체크)
+    if(rule.elderParent === true || rule.elderParent === 'true' || typeName === '노부모부양' || typeName.includes('노부모')){
       if(p.elderParent){ reasons.push('만 65세 이상 부모 부양 ✓'); }
       else { eligible = false; fails.push('만 65세 이상 직계존속을 3년 이상 부양해야 해요'); }
     }
@@ -2055,6 +2055,12 @@ function calcEligDetail(l, p){
     const subType = bestTier ? bestTier.name : (myTypeMatch?.sub || '');
     const subNote = bestTier ? `${bestTier.step}단계 · 소득 ${bestTier.limit}% 이하${bestTier.pct?` (배정 ${bestTier.pct}%)`:''}`
                              : (myTypeMatch?.subNote || '');
+
+    // calcTypes 기반 교차 검증: 사용자 조건상 해당 전형에 자격이 없으면 ineligible
+    if(eligible && !myTypes.includes(typeName)){
+      eligible = false;
+      if(!fails.length) fails.push('현재 입력된 조건으로는 자격이 충족되지 않아요');
+    }
 
     results.push({
       type: typeName,
@@ -3226,7 +3232,7 @@ async function showDetail(id, fromSwipe=false){
           + (autoMatch ? `<div style="font-size:10px;color:var(--accent);margin-bottom:4px">📌 관심 평형(${[...selectedSizes].map(k=>SIZE_MAP[k]?.label||'').join(', ')}) 기준 자동 선택</div>` : '')
         : '';
       // 전형 칩: 특공 vs 일반
-      const eligList = l.elig || [];
+      const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
       const specials = eligList.filter(e => e!=='일반공급' && e!=='무순위(줍줍)');
       const typeChips = specials.length > 0
         ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 6px" id="det-type-chips">`
@@ -3781,9 +3787,14 @@ function showScreen(name){
     const cheerEl=document.getElementById('hero-cheer');
     if(cheerEl) cheerEl.textContent=CHEER[Math.floor(Math.random()*CHEER.length)];
   }
-  // 이전 위치 복원 (홈/상세 왔다갔다 할 때)
-  const savedY=scrollPositions['screen-'+name]||0;
-  window.scrollTo(0, name==='detail'?0:savedY);
+  // 네비 탭 클릭 시 최상단, 상세/복귀는 유지
+  const isNavTab = ['home','mycond','consult','saved','my','score','glossary','calendar','editcond'].includes(name);
+  if(isNavTab){
+    window.scrollTo(0, 0);
+  } else {
+    const savedY=scrollPositions['screen-'+name]||0;
+    window.scrollTo(0, name==='detail'?0:savedY);
+  }
 }
 function renderEditCond(){
   const p = P;
@@ -4483,6 +4494,7 @@ restoreRegions();
 restoreSizes();
 updateHero();
 renderListings();
+window.scrollTo(0, 0);
 
 // 항상 자동 연동
 setTimeout(()=>loadLiveData(), 500);
