@@ -571,9 +571,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 @keyframes navBounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}70%{transform:translateY(-2px)}}
 .nav-item.bouncing svg{animation:navBounce .35s ease}
 
-/* D-N 배지 흔들림 */
+/* 마감임박 흔들림 — 3일 이하 n일 텍스트에 적용 */
 @keyframes badgeShake{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
-.badge-urgent{animation:badgeShake 2.5s ease infinite}
+.rec-d.urgent{animation:badgeShake 2.5s ease infinite;display:inline-block}
 @keyframes qBounce {
   0%, 100% { transform: translateY(0) scale(1); }
   30% { transform: translateY(-10px) scale(1.15); }
@@ -2513,9 +2513,9 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${l.days>=0&&l.days<=3?`<span class="badge badge-urgent">${daysText(l.days,'badge')}</span>`:''}${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
-      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}">${daysText(l.days,'remain')}</span></div>
+      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}${l.days!==null&&l.days<=3?' urgent':''}">${daysText(l.days,'remain')}</span></div>
     </div>`;
   }).join('')}</div>`;
 }
@@ -2573,7 +2573,7 @@ function renderListings(){
     return`<div class="card card-anim" style="animation-delay:${idx*0.06}s" onclick="showDetail('${l.id}')">
       <div class="card-top">
         <div class="card-badges">
-          ${l.days>=0&&l.days<=3?`<span class="badge badge-urgent">${daysText(l.days,'badge')}</span>`:''}
+
           ${typeBadge(l)}
         </div>
         <button class="bm-btn ${savedIds.has(l.id)?'saved':'unsaved'}" onclick="toggleSave(event,${l.id})">${bmSVG}</button>
@@ -2587,7 +2587,7 @@ function renderListings(){
         <div style="text-align:center"><div class="meta-label">세대수</div><div class="meta-val">${l.units}세대</div></div>
         ${(()=>{
           const isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
-          return isFirstCome ? '' : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${daysText(l.days)}</div></div>`;
+          return isFirstCome ? '' : `<div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div>`;
         })()}
       </div>
       ${wrHTML}
@@ -2860,7 +2860,7 @@ function showAlarmList(){
             <div style="font-size:14px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
             <div style="font-size:12px;color:var(--ink-4);margin-top:3px">📍 ${l.loc}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days===null||l.days>9999?'선착순 계약':l.days<=3?(l.days===0?'오늘 마감!':`D-${l.days} 마감임박!`):`D-${l.days}`}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days===null||l.days>9999?'선착순 계약':l.days<=3?(l.days===0?'오늘 마감!':'마감임박!'):'D-'+l.days}</span>
               <span style="font-size:12px;color:var(--ink-4)">${cardPrice(l.price)}</span>
             </div>
           </div>`).join('')}
@@ -3003,7 +3003,7 @@ async function showDetail(id, fromSwipe=false){
 
   // ★★★ [하드코딩 — 수정 금지] 상세 헤더 뱃지: 어두운 배경에서 보이게 흰색 글씨 ★★★
   const detBadgeStyle = 'display:inline-block;margin-bottom:10px;color:white !important;background:rgba(255,255,255,.18) !important;border:1px solid rgba(255,255,255,.3) !important';
-  document.getElementById('det-badges').innerHTML=`${l.days>=0&&l.days<=3?`<span class="badge badge-urgent" style="display:inline-block;margin-bottom:10px;margin-right:6px">${daysText(l.days,'badge')}</span>`:''}${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
+  document.getElementById('det-badges').innerHTML=`${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
   // ★★★ [하드코딩 끝] ★★★
   document.getElementById('det-title').textContent=cleanName(l.name);
   document.getElementById('det-loc').textContent='📍 '+l.loc;
@@ -3645,7 +3645,7 @@ function renderSaved(){
   const sv=listings.filter(l=>savedIds.has(l.id));
   if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고에 즐겨찾기를 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">공고 보러 가기</button></div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
-  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days<=7?'hot':''}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
+  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
 }
 
 /* ══ 컨설팅 ══ */
@@ -4461,12 +4461,12 @@ function parseAptItem(item, isLotto=false){
   const sheetPrice = sheetPrices[name];
 
   // lttotTopAmount는 API마다 단위가 다름 (만원/원/합계 등)
-  // 10억(100000만원) 초과 시 원단위로 판단해 만원으로 환산, 1조 이상은 오류값으로 무시
+  // 1000만원(10000000) 초과 시 원단위로 판단해 만원으로 환산, 100조 이상은 오류값으로 무시
   function sanitizePriceRaw(raw) {
     const n = parseInt(raw) || 0;
     if (n <= 0) return 0;
-    if (n > 100000000) return 0;
-    if (n > 100000) return Math.round(n / 100);
+    if (n >= 1000000000000) return 0;
+    if (n > 10000000) return Math.round(n / 10000);
     return n;
   }
   const minP  = sheetPrice?.minP || sanitizePriceRaw(priceRaw);
@@ -4840,14 +4840,30 @@ async function onAdminFileSelect(event){
     const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
 
 ★ 핵심 주의사항 ★
-- 분양가: '공급금액' 표의 '계' 컬럼만 사용. 반드시 만원 단위로 환산할 것!
-  · 단위가 '원'이면 ÷10000 (1,772,550,000원 = 177255만원 = 17억7천만원)
-  · 단위가 '천원'이면 ÷10 (741,000천원 = 74100만원 = 7억4천만원)
-  · 단위가 '만원'이면 그대로 사용
+
+[분양가 파싱 — 가장 중요]
+- '공급금액' 또는 '공급금액 및 납부일정' 표를 찾아라
+- 표에서 '계' 컬럼(대지비+건축비 합계)의 금액만 사용
+- 단위 변환 필수:
+  · 숫자가 1,000,000,000 수준(9자리) → 원 단위 → ÷10000 하여 만원으로 변환
+    예) 1,222,373,000원 → 122237만원 → 약 12억 2천
+  · 숫자가 100,000 수준(6자리) → 만원 단위 → 그대로 사용
+  · 단위가 '천원'으로 명시 → ÷10 하여 만원으로 변환
+- price 필드: 평형(타입)별 최저층~최고층 범위로 표시. 층별로 다르면 해당 타입의 최저~최고
+  예) 44타입: 2층 84252만원 ~ 15층이상 88500만원 → "44㎡ 8억4천~8억8천"
+  예) 59A타입: 2층 122237만원 ~ 15층이상 130039만원 → "59A㎡ 12억2천~13억"
+- price 구분자: 평형별로 | 로 구분
+- minP: 전체 평형 중 계 컬럼 최저값(만원). 위 예시에서는 44타입 최저층 값
+
+[세대수]
+- units: '총 N세대' 또는 '지상 N층 N개동 총 N세대' 에서 단지 전체 세대수
+- recruitUnits: '일반분양 N세대' 또는 '특별공급 N세대+일반공급 N세대' 합계 (이번 공고 모집인원)
+
+[기타]
 - 소득기준: 공고에 명시된 도시근로자 월평균소득 대비 %를 정확히 추출
-- 자산기준: 부동산(토지+건물) 가액, 자동차 가액을 반드시 추출
-- 거주지역: 해당 지역 거주 요건(기간 포함)이 있으면 반드시 추출
-- 청약통장: 가입기간, 납입횟수 등 요건을 반드시 추출
+- 자산기준: 부동산(토지+건물) 가액을 반드시 추출
+- 거주지역: 해당 지역 거주 요건(기간 포함) 추출
+- 청약통장: 가입기간, 납입횟수 등 요건 추출
 - 당첨자 선정방법: 단계별 소득구분(우선/일반/잔여/추첨)을 꼼꼼하게 추출
 
 {
@@ -4855,7 +4871,7 @@ async function onAdminFileSelect(event){
   "loc": "공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
-  "price": "평형별 분양가 (| 구분, 전용면적㎡ 라벨). 반드시 '계' 컬럼 금액 사용. 예: 59㎡ 5억1천|84A㎡ 7억4천",
+  "price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 예: 44㎡ 8억4천~8억8천|59A㎡ 12억2천~13억|84A㎡ 17억~18억",
   "minP": 전체 평형 중 분양가(계) 최저값 만원 단위 숫자,
   "mktP": 주변 시세 만원 단위 숫자 (없으면 0),
   "deadline": "청약 접수 마감일 YYYY-MM-DD",
@@ -4969,9 +4985,18 @@ async function onAdminFileSelect(event){
     // deadline: API는 마감일 YYYY-MM-DD 형식
     const normalizedDeadline = parsed.deadline || parsed.aE || '';
 
+    // minP 단위 정제 — Claude가 원 단위로 뽑는 경우 만원으로 변환
+    function sanitizeMinP(val) {
+      const n = parseInt(val) || 0;
+      if (n <= 0) return 0;
+      if (n >= 1000000000000) return 0;          // 100조 이상 오류
+      if (n > 10000000) return Math.round(n / 10000); // 1000만원 초과 → 원 단위로 판단, 만원 변환
+      return n;
+    }
     _adminExtracted = {
       ...parsed,
       id: Date.now(),
+      minP: sanitizeMinP(parsed.minP),
       lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
       mktP: 0,
       noMktP: true,
