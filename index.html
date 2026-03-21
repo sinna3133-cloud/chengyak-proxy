@@ -1793,7 +1793,7 @@ function getMaxP(l){
   return maxVal;
 }
 function gap(l){const saleP=getMaxP(l);const g=l.mktP-saleP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};}
-function isLottoListing(l){ return l.lotto || gap(l).g >= 10000; }
+function isLottoListing(l){ return l.lotto || (l.mktP > 0 && !l.noMktP && gap(l).g >= 10000); }
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
   if(!p.name&&!p.byear)return[];
@@ -4443,7 +4443,8 @@ async function loadLiveData(){
     } catch(e){}
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-    const adminOnly = adminSaved.filter(a => !parsed.some(p => p.name === a.name) && !deleted.includes(a.id));
+    const norm = s => (s||'').replace(/\s+/g,'').replace(/공공분양주택/g,'');
+    const adminOnly = adminSaved.filter(a => !parsed.some(p => norm(p.name) === norm(a.name)) && !deleted.includes(a.id));
     const filteredParsed = parsed.filter(l => !deleted.includes(l.id));
     const merged = [...filteredParsed, ...adminOnly];
     listings.splice(0, listings.length, ...merged);
@@ -4775,8 +4776,8 @@ async function onAdminFileSelect(event){
       ...parsed,
       id: Date.now(),
       lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
-      mktP: parsed.minP ? Math.round(parsed.minP * 1.3) : 0,
-      noMktP: !parsed.minP || !parsed.mktP || String(parsed.mktP).trim() === '-' || parsed.mktP === 0,
+      mktP: 0,
+      noMktP: true,
       comp: parseFloat(parsed.comp) || 10,
       compByType: parsed.compByType || '',
       cutByType: parsed.cutByType || '',
