@@ -373,7 +373,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ══ 마이페이지 ══ */
 .my-hero{background:var(--ink-2);padding:28px 20px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden}
 .my-hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none}
-.my-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.25);flex-shrink:0;position:relative;z-index:1}
 .my-name{font-size:19px;font-weight:800;color:white;position:relative;z-index:1}
 .my-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px;position:relative;z-index:1}
 .login-btn{margin-left:auto;background:var(--accent);border:none;padding:9px 16px;border-radius:10px;color:white;font-size:13px;font-weight:700;cursor:pointer;position:relative;z-index:1;white-space:nowrap}
@@ -1127,7 +1126,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 <!-- ══ 마이페이지 ══ -->
 <div class="screen" id="screen-my">
   <div class="my-hero">
-    <div class="my-avatar">👤</div>
     <div style="position:relative;z-index:1">
       <div class="my-name" id="my-name"></div>
       <div class="my-sub">내 청약 조건 관리</div>
@@ -1139,11 +1137,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div style="padding:20px 20px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
-      <button id="edit-cond-btn" onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
+      <button id="edit-cond-btn" onclick="showScreen('editcond')" style="display:none;font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
     </div>
     <div class="my-cond-card" id="my-cond-card">
       <div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div>
-      <button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">조건 설정하러 가기</button>
+      <button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">내 조건 설정하기</button>
     </div>
   </div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico">🏆</span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-new">NEW</span><span class="menu-arr">›</span></div>
@@ -3665,7 +3663,7 @@ function updateMyCondCard(){
   const editBtn = document.getElementById('edit-cond-btn');
   const isCondSet = !!(p.byear || p.income || p.accYears || p.noHomeYears);
   if (editBtn) editBtn.style.display = isCondSet ? '' : 'none';
-  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div><button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">조건 설정하러 가기</button>';return;}
+  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div><button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">내 조건 설정하기</button>';return;}
   const score=calcScore(p).total;
   el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${calcTypes(p).map(t=>`<span class="badge badge-public">${t.l}${t.sub?' ('+t.sub+')':''}</span>`).join('')}</div>
     <div class="cond-grid-2">
@@ -4467,12 +4465,12 @@ function parseAptItem(item, isLotto=false){
   const sheetPrice = sheetPrices[name];
 
   // lttotTopAmount는 API마다 단위가 다름 (만원/원/합계 등)
-  // 1000만원(10000000) 초과 시 원단위로 판단해 만원으로 환산, 100조 이상은 오류값으로 무시
+  // 200000만원(20억) 초과 시 원단위로 판단해 만원으로 환산, 100조 이상은 오류값으로 무시
   function sanitizePriceRaw(raw) {
     const n = parseInt(raw) || 0;
     if (n <= 0) return 0;
     if (n >= 1000000000000) return 0;
-    if (n > 10000000) return Math.round(n / 10000);
+    if (n > 200000) return Math.round(n / 10000); // 20억만원 초과 → 원단위
     return n;
   }
   const minP  = sheetPrice?.minP || sanitizePriceRaw(priceRaw);
@@ -4595,7 +4593,7 @@ async function loadLiveData(){
     } catch(e){}
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-    const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
+    const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택|조합원취소분|취소분|무순위|잔여세대|입주자모집공고/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
     // PDF 삭제 적용
     const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
     // 디버깅: norm 키 + 코드포인트 비교
@@ -4626,8 +4624,8 @@ async function loadLiveData(){
         nameMap.set(key, {...l});
       } else {
         // API에 있는 공고 → PDF의 더 상세한 데이터로 보충
-        if(l.minP && !existing.minP) existing.minP = l.minP;
-        if(l.price && l.price !== '공고 확인 필요' && (!existing.price || existing.price === '공고 확인 필요')) existing.price = l.price;
+        if(l.minP) existing.minP = l.minP; // PDF minP 항상 우선
+        if(l.price && l.price !== '공고 확인 필요') existing.price = l.price; // PDF price 항상 우선
         if(l.loc) existing.loc = l.loc; // PDF 공급위치 항상 우선
         if(l.eligDetail && l.eligDetail.length) existing.eligDetail = l.eligDetail;
         if(l.eligTiers && l.eligTiers.length) existing.eligTiers = l.eligTiers;
@@ -4996,7 +4994,7 @@ async function onAdminFileSelect(event){
       const n = parseInt(val) || 0;
       if (n <= 0) return 0;
       if (n >= 1000000000000) return 0;          // 100조 이상 오류
-      if (n > 10000000) return Math.round(n / 10000); // 1000만원 초과 → 원 단위로 판단, 만원 변환
+      if (n > 200000) return Math.round(n / 10000); // 20억만원 초과 → 원 단위로 판단, 만원 변환
       return n;
     }
     _adminExtracted = {
@@ -5092,11 +5090,15 @@ async function confirmAdminData(force=false){
     }
 
     if(data.listings){
+      const normN = s => (s||'').replace(/\s|\(|\)|조합원취소분|취소분|무순위|잔여세대/g,'').toLowerCase();
       const adminListings = data.listings.map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
       adminListings.forEach(l => {
-        const existIdx = listings.findIndex(x => x.id === l.id);
+        // id 또는 이름 둘 다 비교해서 중복 제거
+        const existIdx = listings.findIndex(x =>
+          x.id === l.id || normN(x.name) === normN(l.name)
+        );
         if(existIdx > -1) {
-          // 기존 공고 자리에서 PDF 데이터로 교체 (id, mktP 유지)
+          // 기존 공고 자리에서 PDF 데이터로 교체 (mktP 유지)
           const oldMktP = listings[existIdx].mktP;
           listings[existIdx] = { ...l, mktP: l.mktP || oldMktP, _src: 'pdf' };
         } else {
@@ -5262,20 +5264,16 @@ function kakaoLogout() {
 
 function applyLoginUI() {
   const area = document.getElementById('kakao-login-area');
-  const av = document.querySelector('.my-avatar');
   const nm = document.getElementById('my-name');
   if (!area) return;
   if (kakaoUser) {
     const displayName = kakaoUser.nickname || P.name;
-    // 아바타는 이모지 유지, my-name에 닉네임
-    if (av) av.innerHTML = '👤';
     if (nm) nm.textContent = displayName + '님';
     // P.name도 동기화
     if (displayName) P.name = displayName;
     area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
     updateHero();
   } else {
-    if (av) av.innerHTML = '👤';
     if (nm) nm.textContent = '';
     area.innerHTML = `<button class="login-btn" onclick="kakaoLogin()">로그인하기</button>`;
   }
