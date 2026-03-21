@@ -4057,7 +4057,8 @@ async function loadSheetFactors(){
       const name       = row.c[0]?.v ? String(row.c[0].v).trim() : '';
       const price      = row.c[1]?.v?.trim() || '';
       const minP       = parseInt(row.c[2]?.v) || 0;
-      const mktP       = parseInt(row.c[3]?.v) || 0;
+      const mktPRaw    = row.c[3]?.v;
+      const mktP       = (mktPRaw && String(mktPRaw).trim() !== '-') ? (parseInt(mktPRaw) || 0) : 0;
       const factorsRaw = row.c[4]?.v ? String(row.c[4].v).trim() : '';
       const factors    = factorsRaw
         ? factorsRaw.split('|').map(f => {
@@ -4376,7 +4377,7 @@ function parseAptItem(item, isLotto=false){
     name, loc, type, region, lotto: isLotto,
     price:    priceLabel,
     minP,
-    mktP:     (sheetPrice && !sheetPrice.noMktP) ? (sheetPrice.mktP || Math.round(minP * 1.3)) : 0,
+    mktP:     (sheetPrice?.mktP && sheetPrice.mktP > 0) ? sheetPrice.mktP : 0,
     deadline: toStr(rceptEnd),
     days:     daysLeft,
     size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
@@ -4915,10 +4916,11 @@ async function confirmAdminData(force=false){
 async function renderAdminList(){
   const el = document.getElementById('admin-list');
   const countEl = document.getElementById('admin-count');
+  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
   try {
     const res = await fetch(LISTINGS_API);
     const data = await res.json();
-    const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name)}));
+    const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name)})).filter(l => !deleted.includes(l.id));
     countEl.textContent = saved.length;
     if(!saved.length){
       el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
@@ -4959,8 +4961,13 @@ function renderAdminAllList(){
 }
 
 async function removeAdminListing(id){
+  if(!confirm('이 공고를 삭제하시겠어요?')) return;
   const idx = listings.findIndex(l => l.id === id);
   if(idx > -1) listings.splice(idx, 1);
+  // 삭제 ID 기억
+  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
+  // 서버 삭제 (응답 기다림)
   try {
     await fetch(LISTINGS_API, {
       method: 'DELETE',
@@ -4970,6 +4977,7 @@ async function removeAdminListing(id){
   } catch(e){}
   renderAdminList();
   renderListings();
+  updateHero();
   showToast('공고를 삭제했어요');
 }
 
