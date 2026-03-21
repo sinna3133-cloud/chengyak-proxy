@@ -387,7 +387,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .sup-link{font-size:15px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:2px 0}
 .sup-link:active{opacity:.4}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
-.menu-txt{font-size:15px;font-weight:500;flex:1}
+.menu-txt{font-size:15px;font-weight:400;flex:1}
 .menu-arr{color:var(--ink-5);font-size:18px}
 .menu-new{font-size:11px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;font-weight:700;margin-right:8px}
 
@@ -926,7 +926,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
             <div><div class="cond-item-label">지역</div><div class="cond-item-val blank" id="cd-region">?</div></div>
           </div>
         </div>
-        <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();openWizard()">⚙ 내 조건 설정하기</button>
+        <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();openWizard()">내 조건 설정하기</button>
       </div>
     </div>
   </div>
@@ -934,12 +934,12 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div id="alert-area"></div>
 
   <div class="section-row" id="rec-section-row">
-    <div class="section-title">✨ 내게 맞는 공고</div>
+    <div class="section-title">내게 맞는 공고</div>
   </div>
   <div id="rec-container"><div class="notice" style="cursor:pointer" onclick="openMyCondition()">⚠️ 조건을 설정하면 맞춤 공고를 추천해드려요!</div></div>
 
   <div class="section-row" style="margin-top:6px">
-    <div class="section-title">📋 전체 공고</div>
+    <div class="section-title">전체 공고</div>
   </div>
   <div class="search-wrap">
     <div class="search-box">
@@ -1133,16 +1133,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div class="my-sub">내 청약 조건 관리</div>
     </div>
     <div id="kakao-login-area" style="margin-left:auto;position:relative;z-index:1">
-      <button class="login-btn" id="kakao-login-btn" onclick="kakaoLogin()" style="background:#FEE500;color:#3C1E1E;display:flex;align-items:center;gap:6px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.9 3.4 3.8-2.5c.96.2 1.97.3 3.1.3 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg>
-        카카오 로그인
-      </button>
+      <button class="login-btn" id="kakao-login-btn" onclick="kakaoLogin()">로그인하기</button>
     </div>
   </div>
   <div style="padding:20px 20px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
-      <button onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
+      <button id="edit-cond-btn" onclick="showScreen('editcond')" style="font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
     </div>
     <div class="my-cond-card" id="my-cond-card">
       <div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div>
@@ -2506,7 +2503,7 @@ function renderRecommend(){
 
   // 조건 수정 버튼: 조건 있을 때만 표시
   if(row){
-    row.innerHTML = `<div class="section-title">✨ 내게 맞는 공고</div>`;
+    row.innerHTML = `<div class="section-title">내게 맞는 공고</div>`;
   }
 
   if(!hasConditions){
@@ -2574,7 +2571,7 @@ function renderListings(){
       ?`<div class="wr-badge lotto">추첨</div>`
       :prob!==null
         ?`<div class="wr-badge known">예상 당첨률 <b>${prob}%</b></div>`
-        :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">예상 당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span>%</div>`;
+        :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">예상 당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
     const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
     return`<div class="card card-anim" style="animation-delay:${idx*0.06}s" onclick="showDetail('${l.id}')">
       <div class="card-top">
@@ -3665,6 +3662,9 @@ function updateConsult(){
 /* ══ 마이페이지 ══ */
 function updateMyCondCard(){
   const p=P,el=document.getElementById('my-cond-card');
+  const editBtn = document.getElementById('edit-cond-btn');
+  const isCondSet = !!(p.byear || p.income || p.accYears || p.noHomeYears);
+  if (editBtn) editBtn.style.display = isCondSet ? '' : 'none';
   if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div><button class="pri-btn" style="margin:12px 0 0;box-shadow:none" onclick="openWizard()">조건 설정하러 가기</button>';return;}
   const score=calcScore(p).total;
   el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${calcTypes(p).map(t=>`<span class="badge badge-public">${t.l}${t.sub?' ('+t.sub+')':''}</span>`).join('')}</div>
@@ -5242,7 +5242,10 @@ async function handleKakaoCallback(code) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     kakaoUser = data;
-    localStorage.setItem('kakaoUser', JSON.stringify(data));
+    // 카카오 닉네임을 앱 닉네임으로 바로 사용
+    kakaoUser.appNickname = data.nickname;
+    P.name = data.nickname;
+    localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
     applyLoginUI();
     showToast(`✓ ${data.nickname}님, 환영해요!`);
   } catch(e) {
@@ -5259,43 +5262,28 @@ function kakaoLogout() {
 
 function applyLoginUI() {
   const area = document.getElementById('kakao-login-area');
+  const av = document.querySelector('.my-avatar');
+  const nm = document.getElementById('my-name');
   if (!area) return;
   if (kakaoUser) {
-    // 로그인 상태: 아바타 + 닉네임 + 로그아웃
-    area.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;position:relative;z-index:1">
-        <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.3)">
-          ${kakaoUser.avatar
-            ? `<img src="${kakaoUser.avatar}" style="width:100%;height:100%;object-fit:cover">`
-            : `<span style="font-size:18px">👤</span>`}
-        </div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:white">${kakaoUser.nickname}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;margin-top:1px" onclick="kakaoLogout()">로그아웃</div>
-        </div>
-      </div>`;
-    // my-avatar 이모지도 교체
-    const av = document.querySelector('.my-avatar');
-    if (av) av.innerHTML = kakaoUser.avatar
-      ? `<img src="${kakaoUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-      : '👤';
-    // my-name 업데이트
-    const nm = document.getElementById('my-name');
-    if (nm) nm.textContent = kakaoUser.nickname + '님';
-  } else {
-    // 비로그인 상태: 카카오 로그인 버튼
-    area.innerHTML = `
-      <button class="login-btn" onclick="kakaoLogin()" style="background:#FEE500;color:#3C1E1E;display:flex;align-items:center;gap:6px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.9 3.4 3.8-2.5c.96.2 1.97.3 3.1.3 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg>
-        카카오 로그인
-      </button>`;
-    const av = document.querySelector('.my-avatar');
+    const displayName = kakaoUser.nickname || P.name;
+    // 아바타는 이모지 유지, my-name에 닉네임
     if (av) av.innerHTML = '👤';
-    const nm = document.getElementById('my-name');
+    if (nm) nm.textContent = displayName + '님';
+    // P.name도 동기화
+    if (displayName) P.name = displayName;
+    area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
+    updateHero();
+  } else {
+    if (av) av.innerHTML = '👤';
     if (nm) nm.textContent = '';
+    area.innerHTML = `<button class="login-btn" onclick="kakaoLogin()">로그인하기</button>`;
   }
 }
 
 </script>
+
+
+
 </body>
 </html>
