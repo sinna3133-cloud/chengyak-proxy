@@ -3077,22 +3077,22 @@ async function showDetail(id, fromSwipe=false){
         const ROW_H = 33; // 행 1개 높이(px) — padding 포함 추정값
         const showRows = 2; // 접혔을 때 보여줄 행 수
         const collapsedH = ROW_H * showRows;
-        return \`<div class="info-row" style="flex-direction:column;gap:0;align-items:stretch">
+        return `<div class="info-row" style="flex-direction:column;gap:0;align-items:stretch">
           <span class="info-rl" style="width:auto;margin-bottom:6px">평형별 분양가</span>
-          \${parsed.length > 1 ? \`
+          ${parsed.length > 1 ? `
           <div style="margin-top:0">
             <div style="position:relative">
-              <div id="\${uid}" style="max-height:\${collapsedH}px;overflow:hidden;transition:max-height .35s ease">
-                \${detailRows}
+              <div id="${uid}" style="max-height:${collapsedH}px;overflow:hidden;transition:max-height .35s ease">
+                ${detailRows}
               </div>
-              <div id="\${uid}-fade" style="position:absolute;bottom:0;left:0;right:0;height:36px;background:linear-gradient(to bottom,transparent,white);pointer-events:none;transition:opacity .3s"></div>
+              <div id="${uid}-fade" style="position:absolute;bottom:0;left:0;right:0;height:36px;background:linear-gradient(to bottom,transparent,white);pointer-events:none;transition:opacity .3s"></div>
             </div>
             <div style="text-align:center;padding-top:4px;position:relative;z-index:1">
-              <span id="\${uid}-btn" style="font-size:12px;color:var(--accent);font-weight:700;cursor:pointer;padding:4px 12px" onclick="togglePriceDetail('\${uid}')">평형별 상세 ▾</span>
+              <span id="${uid}-btn" style="font-size:12px;color:var(--accent);font-weight:700;cursor:pointer;padding:4px 12px" onclick="togglePriceDetail('${uid}')">평형별 상세 ▾</span>
             </div>
-          </div>\` : \`
-          <div style="margin-top:0">\${detailRows}</div>\`}
-        </div>\`;
+          </div>` : `
+          <div style="margin-top:0">${detailRows}</div>`}
+        </div>`;
       }
       return `<div class="info-row"><span class="info-rl">분양가</span><span class="info-rv">공고 확인 필요</span></div>`;
     })()}
