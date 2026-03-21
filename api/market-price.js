@@ -155,7 +155,7 @@ export default async function handler(req, res) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const dealYmd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
 
-      const url = `http://openapi.molit.go.kr/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
+      const url = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
         + `?serviceKey=${encodeURIComponent(molitKey)}`
         + `&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=200`;
 
