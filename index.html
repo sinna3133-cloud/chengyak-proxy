@@ -4077,6 +4077,33 @@ async function loadSheetFactors(){
   } catch(e) { console.warn('시트 로드 실패:', e.message); }
 }
   
+/* ── 국토부 실거래가 시세 자동 조회 ── */
+const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
+
+async function autoFetchMarketPrices(){
+  // 시세(mktP)가 없거나 noMktP인 공고에 대해 자동 조회
+  const targets = listings.filter(l => (l.noMktP || !l.mktP || l.mktP <= 0) && l.loc && l.minP > 0);
+  if(!targets.length) return;
+  console.log(`시세 자동조회: ${targets.length}건`);
+
+  for(const l of targets.slice(0, 10)){ // 최대 10건
+    try {
+      const sizeMatch = (l.size||'').match(/(\d+)/);
+      const size = sizeMatch ? sizeMatch[1] : '84';
+      const url = `${MARKET_API}?loc=${encodeURIComponent(l.loc)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if(data.mktP && data.mktP > 0){
+        l.mktP = data.mktP;
+        l.noMktP = false;
+        l._mktPAuto = true; // 자동 조회 표시
+        console.log(`✓ ${cleanName(l.name)}: 시세 ${(data.mktP/10000).toFixed(1)}억 (${data.sampleCount}건 기준)`);
+      }
+    } catch(e){ console.warn(`시세 조회 실패: ${l.name}`, e.message); }
+  }
+  renderListings();
+}
+
 /* API 상태 업데이트 */
 function updateApiStatus(){
   // api-indicator는 유저에게 노출하지 않음
@@ -4498,6 +4525,9 @@ window.scrollTo(0, 0);
 
 // 항상 자동 연동
 setTimeout(()=>loadLiveData(), 500);
+
+// 시세 자동 조회 (시트 로드 + API 로드 후)
+setTimeout(()=>autoFetchMarketPrices(), 5000);
 
 // ══ 애니메이션 1: 카드 스크롤 진입 (Intersection Observer) ══
 const _cardObserver = new IntersectionObserver((entries) => {
