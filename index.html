@@ -4469,10 +4469,10 @@ async function loadLiveData(){
     parsed.forEach(l => l._src = 'api');
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
     const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').normalize('NFC');
-    console.log('[dedup] API names:', parsed.map(l => `"${norm(l.name)}"`).join(', '));
-    console.log('[dedup] PDF names:', validAdmin.map(l => `"${norm(l.name)}"`).join(', '));
     // PDF 삭제 적용
     const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
+    console.log('[dedup] API names:', parsed.map(l => `"${norm(l.name)}"`).join(', '));
+    console.log('[dedup] PDF names:', validAdmin.map(l => `"${norm(l.name)}"`).join(', '));
     // API + PDF 전체를 이름 기준으로 병합 (API 베이스 + PDF 보충)
     const nameMap = new Map();
     // 1) API 먼저 등록
