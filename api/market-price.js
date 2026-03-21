@@ -190,7 +190,13 @@ export default async function handler(req, res) {
     }
 
     if (allDeals.length === 0) {
-      return res.json({ mktP: null, message: '실거래 데이터가 없어요', query: { gu, lawdCd } });
+      // 디버깅: 마지막 API 응답 일부 표시
+      const lastUrl = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
+        + `?serviceKey=${encodeURIComponent(molitKey)}`
+        + `&LAWD_CD=${lawdCd}&DEAL_YMD=${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}&pageNo=1&numOfRows=5`;
+      const debugRes = await fetch(lastUrl);
+      const debugText = await debugRes.text();
+      return res.json({ mktP: null, message: '실거래 데이터가 없어요', query: { gu, lawdCd }, debug: debugText.slice(0, 500) });
     }
 
     // 3단계: 면적 필터 (±10㎡)
