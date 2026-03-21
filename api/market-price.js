@@ -173,20 +173,6 @@ if (result) geoCache[key] = result;
 return result;
 }
 
-// ★ 신규: 좌표 기준 가장 가까운 지하철역까지 도보 거리(분) 조회
-async function getNearestStationDist(lat, lng, kakaoKey) {
-try {
-const url = `https://dapi.kakao.com/v2/local/search/keyword.json`
-+ `?query=지하철역&x=${lng}&y=${lat}&radius=3000&sort=distance&size=1&category_group_code=SW8`;
-const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${kakaoKey}` } });
-const data = await res.json();
-if (data.documents && data.documents.length > 0) {
-const distM = parseFloat(data.documents[0].distance); // 미터
-return Math.round(distM / 67); // 도보 분 (67m/분 기준)
-}
-} catch(e) {}
-return null;
-}
 
 export default async function handler(req, res) {
 res.setHeader('Access-Control-Allow-Origin', '*');
@@ -316,26 +302,26 @@ if (allDeals.length === 0) {
   return res.json({ mktP: null, message: '실거래 데이터가 없어요', query: { gu, lawdCd }, debug: debugText.slice(0, 500) });
 }
 
-// 3단계: 면적 필터 (±10㎡)
+// 3단계: 면적 필터 — ±5㎡ 없으면 ±8㎡, 없으면 ±10㎡
 const targetSize = parseFloat(size || '84');
-let filtered = allDeals.filter(d => Math.abs(d.size - targetSize) <= 10);
+let filtered = [];
+for (const range of [5, 8, 10]) {
+  filtered = allDeals.filter(d => Math.abs(d.size - targetSize) <= range);
+  if (filtered.length > 0) break;
+}
 if (filtered.length === 0) filtered = allDeals;
 
-// 4단계: 아파트 좌표 조회 → 반경 필터
+// 4단계: 아파트 좌표 조회
 const uniqueApts = [...new Set(filtered.map(d => `${d.dong}|${d.name}`))];
 const aptCoords = {};
-const aptSlice = uniqueApts.slice(0, 15);
+const aptSlice = uniqueApts.slice(0, 20);
 await Promise.all(aptSlice.map(async key => {
   const [dong, aptName] = key.split('|');
   const coord = await geocodeApt(aptName, dong, gu, kakaoKey);
   if (coord) aptCoords[key] = coord;
 }));
 
-// 반경 단계별 확장
-const radiusSteps = [...new Set([radiusKm, 0.5, 1, 2])].filter(r => r >= radiusKm).sort((a,b) => a - b);
-let results = [];
-let usedRadiusLabel = '';
-
+// 거리 캐시 — 좌표 없는 단지도 제외하지 않고 별도 처리
 const distCache = {};
 for (const d of filtered) {
   const key = `${d.dong}|${d.name}`;
@@ -343,77 +329,39 @@ for (const d of filtered) {
   if (coord) distCache[key] = distKm(targetCoord.lat, targetCoord.lng, coord.lat, coord.lng);
 }
 
-for (const r of radiusSteps) {
+// 반경 필터 — 500m 우선, 없으면 1km, 없으면 구 전체
+let results = [];
+let usedRadiusLabel = '';
+
+for (const [r, label] of [[0.5, '500m'], [1.0, '1km']]) {
   const within = filtered.filter(d => {
-    const key = `${d.dong}|${d.name}`;
-    return distCache[key] !== undefined && distCache[key] <= r;
+    const dist = distCache[`${d.dong}|${d.name}`];
+    return dist !== undefined && dist <= r;
   });
   if (within.length >= 3) {
     results = within;
-    usedRadiusLabel = `${r}km`;
+    usedRadiusLabel = label;
     break;
   }
 }
 if (results.length === 0) {
-  results = filtered;
+  // 좌표 조회 성공한 것 중 가장 가까운 순으로 fallback
+  const withDist = filtered
+    .filter(d => distCache[`${d.dong}|${d.name}`] !== undefined)
+    .sort((a, b) => distCache[`${a.dong}|${a.name}`] - distCache[`${b.dong}|${b.name}`]);
+  results = withDist.length >= 3 ? withDist : filtered;
   usedRadiusLabel = `${gu} 전체 (반경 내 데이터 부족)`;
 }
 
-// 5단계: 시세 산출 (중위값)
+// 5단계: 시세 산출 — 최근 30건 중위값 (보정식 없음)
 results.sort((a, b) => b.date.localeCompare(a.date));
 const recent = results.slice(0, 30);
 const prices = recent.map(d => d.price).sort((a, b) => a - b);
 const median = prices[Math.floor(prices.length / 2)];
 const avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
 
-// ─────────────────────────────────────────
-// 6단계: 보정식 적용
-// ─────────────────────────────────────────
-const thisYear = new Date().getFullYear();
-
-// refAge: 실거래 건축년도 평균으로 비교 단지 연식 계산
-const builtYears = recent
-  .map(d => d.builtYear)
-  .filter(y => y > 1970 && y <= thisYear);
-const avgBuiltYear = builtYears.length
-  ? Math.round(builtYears.reduce((a, b) => a + b, 0) / builtYears.length)
-  : thisYear - 10; // 데이터 없으면 10년 기본값
-const refAge = thisYear - avgBuiltYear;
-
-// refDist: 반경 내 비교 단지들의 역거리 평균 (최대 5개)
-const coordsForStation = Object.values(aptCoords).slice(0, 5);
-const stationDists = (await Promise.all(
-  coordsForStation.map(c => getNearestStationDist(c.lat, c.lng, kakaoKey))
-)).filter(d => d !== null);
-const refDist = stationDists.length
-  ? Math.round(stationDists.reduce((a, b) => a + b, 0) / stationDists.length)
-  : 10; // 데이터 없으면 10분 기본값
-
-// targetDist: 분양 단지 역거리
-const targetDist = await getNearestStationDist(targetCoord.lat, targetCoord.lng, kakaoKey) || 10;
-
-// 보정 계수 계산
-const fAge  = (refAge / 3) * 0.05;                        // 연식 보정 (3년당 +5%)
-const fDist = ((refDist - targetDist) / 5) * 0.03;        // 거리 보정 (5분당 ±3%)
-const totalFactor = fAge + fDist;
-
-const rawMktP      = median;                               // 보정 전 시세
-const adjustedMktP = Math.round(rawMktP * (1 + totalFactor)); // 보정 후 시세
-
 return res.json({
-  // ★ 보정 후 시세 (앱의 mktP로 사용)
-  mktP: adjustedMktP,
-
-  // 보정 상세 (디버깅 / 상세 화면 표시용)
-  rawMktP,
-  refAge,
-  refDist,
-  targetDist,
-  fAge:        parseFloat((fAge * 100).toFixed(2)),        // % 단위
-  fDist:       parseFloat((fDist * 100).toFixed(2)),       // % 단위
-  totalFactor: parseFloat((totalFactor * 100).toFixed(2)), // % 단위
-
-  // 기존 필드 유지
+  mktP: median,
   avg,
   max: prices[prices.length - 1],
   min: prices[0],
