@@ -155,7 +155,7 @@ export default async function handler(req, res) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const dealYmd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
 
-      const url = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
+      const url = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade`
         + `?serviceKey=${encodeURIComponent(molitKey)}`
         + `&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=200`;
 
@@ -191,7 +191,7 @@ export default async function handler(req, res) {
 
     if (allDeals.length === 0) {
       // 디버깅: 마지막 API 응답 일부 표시
-      const lastUrl = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev`
+      const lastUrl = `https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade`
         + `?serviceKey=${encodeURIComponent(molitKey)}`
         + `&LAWD_CD=${lawdCd}&DEAL_YMD=${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}&pageNo=1&numOfRows=5`;
       const debugRes = await fetch(lastUrl);
