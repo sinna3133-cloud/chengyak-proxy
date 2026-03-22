@@ -1756,6 +1756,8 @@ function saveWizard(){
   P.marriageYear=document.getElementById('w-marriageYear')?.value||'';
   P.dependents=wDep;
   if(!P.name) P.name=RETRO[Math.floor(Math.random()*RETRO.length)];
+  // Supabase에 조건 저장
+  sbSaveCondition();
 
   // 완료 화면 표시
   const types = calcTypes(P);
@@ -2818,6 +2820,8 @@ function toggleSave(e,id){
     savedIds.delete(id);
     showToast('즐겨찾기에서 제거했어요');
     if(btn){ btn.className='bm-btn unsaved'; btn.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'; }
+    // Supabase 북마크 삭제
+    if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
   } else {
     savedIds.add(id);
     showToast('즐겨찾기에 저장했어요');
@@ -2826,8 +2830,9 @@ function toggleSave(e,id){
       btn.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
       setTimeout(()=>btn.classList.remove('just-saved'), 400);
     }
+    // Supabase 북마크 저장
+    if(kakaoUser?.kakaoId) sbAddBookmark(String(kakaoUser.kakaoId), String(id));
   }
-  // 스크롤 위치 보존하며 즐겨찾기 화면만 업데이트
   renderSaved();
   updateHero();
 }
@@ -3475,8 +3480,15 @@ function toggleSaveFromDetailIcon(){
   if(!rawId) return;
   const id = parseInt(rawId) || rawId;
   const isSaved = savedIds.has(id);
-  if(isSaved){ savedIds.delete(id); showToast('즐겨찾기에서 제거했어요'); }
-  else { savedIds.add(id); showToast('즐겨찾기에 저장했어요'); }
+  if(isSaved){
+    savedIds.delete(id);
+    showToast('즐겨찾기에서 제거했어요');
+    if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
+  } else {
+    savedIds.add(id);
+    showToast('즐겨찾기에 저장했어요');
+    if(kakaoUser?.kakaoId) sbAddBookmark(String(kakaoUser.kakaoId), String(id));
+  }
   syncDetailAlarmBtn(id);
   renderSaved();
   updateHero();
@@ -4100,6 +4112,8 @@ function saveEditCond(){
   }
 
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen();
+  // Supabase에 조건 저장
+  sbSaveCondition();
   showScreen('my');
   showToast('조건이 저장됐어요 ✓');
 }
@@ -5103,6 +5117,107 @@ const LISTINGS_API  = 'https://chengyak-proxy.vercel.app/api/listings';
 const KAKAO_AUTH_API = 'https://chengyak-proxy.vercel.app/api/kakao-auth';
 const KAKAO_CLIENT_ID = '1e18e9aa2270ebaf1d1c1679fdabbb3d'; // 카카오 JavaScript 키
 
+/* ══ Supabase 설정 ══ */
+const SUPABASE_URL  = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZ2RsamNiYmR5dHRmdm1mdnp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NzUwNzUsImV4cCI6MjA4OTU1MTA3NX0.Qxd1CLjnQB7etZ1qi6hKuJDElqOuzvLJCpI3p3_Dcuw';
+
+const sb = {
+  headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json' },
+  async get(table, query='') {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: this.headers });
+    return res.json();
+  },
+  async upsert(table, data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...this.headers, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify(data)
+    });
+    return res.ok;
+  },
+  async delete(table, query) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+      method: 'DELETE', headers: this.headers
+    });
+    return res.ok;
+  }
+};
+
+/* ── Supabase: 프로필 저장 ── */
+async function sbSaveProfile(user) {
+  if (!user?.kakaoId) return;
+  await sb.upsert('profiles', {
+    id: String(user.kakaoId),
+    kakao_id: String(user.kakaoId),
+    nickname: user.nickname,
+    avatar: user.avatar || ''
+  });
+}
+
+/* ── Supabase: 조건 저장 ── */
+async function sbSaveCondition() {
+  if (!kakaoUser?.kakaoId) return;
+  try {
+    const condition = {
+      name: P.name, byear: P.byear, bmonth: P.bmonth, bday: P.bday,
+      income: P.income, cash: P.cash, noHomeYears: P.noHomeYears,
+      depCount: P.depCount, depAmt: P.depAmt, children: P.children,
+      childDates: P.childDates, marriage: P.marriage, marriageYear: P.marriageYear,
+      household: P.household, isNoHome: P.isNoHome, region: P.region,
+      dependents: P.dependents, accYears: P.accYears, prefSizes: P.prefSizes,
+      elderParent: P.elderParent, isDual: P.isDual, spouseIncome: P.spouseIncome,
+      totalIncome: P.totalIncome
+    };
+    await sb.upsert('profiles', {
+      id: String(kakaoUser.kakaoId),
+      kakao_id: String(kakaoUser.kakaoId),
+      nickname: kakaoUser.nickname,
+      avatar: kakaoUser.avatar || '',
+      user_condition: condition
+    });
+  } catch(e) {}
+}
+
+/* ── Supabase: 조건 불러오기 ── */
+async function sbLoadCondition(userId) {
+  try {
+    const rows = await sb.get('profiles', `id=eq.${userId}&select=user_condition,nickname`);
+    if (Array.isArray(rows) && rows.length > 0 && rows[0].user_condition) {
+      const c = rows[0].user_condition;
+      // P 객체에 복원
+      Object.keys(c).forEach(k => { if (c[k] !== undefined && c[k] !== '') P[k] = c[k]; });
+      // 이름 복원
+      if (rows[0].nickname) { P.name = rows[0].nickname; kakaoUser.nickname = rows[0].nickname; }
+      // UI 업데이트
+      updateHero(); renderListings(); updateConsult(); updateMyCondCard();
+      const nm = document.getElementById('my-name');
+      if (nm && P.name) nm.textContent = P.name + '님';
+    }
+  } catch(e) {}
+}
+
+/* ── Supabase: 북마크 불러오기 ── */
+async function sbLoadBookmarks(userId) {
+  try {
+    const rows = await sb.get('bookmarks', `user_id=eq.${userId}&select=listing_id`);
+    if (Array.isArray(rows)) {
+      rows.forEach(r => savedIds.add(r.listing_id));
+      renderListings();
+      renderSaved();
+    }
+  } catch(e) {}
+}
+
+/* ── Supabase: 북마크 추가 ── */
+async function sbAddBookmark(userId, listingId) {
+  await sb.upsert('bookmarks', { user_id: String(userId), listing_id: String(listingId) });
+}
+
+/* ── Supabase: 북마크 삭제 ── */
+async function sbRemoveBookmark(userId, listingId) {
+  await sb.delete('bookmarks', `user_id=eq.${userId}&listing_id=eq.${listingId}`);
+}
+
 async function confirmAdminData(force=false){
   if(!_adminExtracted) return;
 
@@ -5258,30 +5373,29 @@ function adminDeleteListing(id, src){
 /* ══ 카카오 로그인 ══ */
 let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 
-// 앱 시작 시 로그인 상태 복원
+// 앱 시작 시 로그인 상태 복원 — 기기별 localStorage 기반 (서버 미사용)
 (function restoreKakaoSession() {
   try {
-    const saved = localStorage.getItem('kakaoUser');
+    const saved = localStorage.getItem('kakaoUser_v2'); // v2: 기기별 분리 키
     if (saved) {
       kakaoUser = JSON.parse(saved);
       applyLoginUI();
+      // Supabase에서 이 기기의 북마크 불러오기
+      if (kakaoUser?.kakaoId) sbLoadBookmarks(String(kakaoUser.kakaoId));
     }
   } catch(e) {}
   // URL에 code 파라미터가 있으면 카카오 콜백 처리
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   if (code) {
-    history.replaceState({}, '', window.location.pathname); // URL에서 code 제거
+    history.replaceState({}, '', window.location.pathname);
     handleKakaoCallback(code);
   }
 })();
 
 function kakaoLogin() {
-  const clientId = KAKAO_CLIENT_ID;
   const redirectUri = encodeURIComponent('https://chengyak-proxy.vercel.app/');
-  const kakaoAuthUrl =
-    `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
-  window.location.href = kakaoAuthUrl;
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
 }
 
 async function handleKakaoCallback(code) {
@@ -5291,10 +5405,16 @@ async function handleKakaoCallback(code) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     kakaoUser = data;
-    // 카카오 닉네임을 앱 닉네임으로 바로 사용
     kakaoUser.appNickname = data.nickname;
     P.name = data.nickname;
-    localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
+    // 기기별 키로 저장 (v2) — 다른 기기 로그인 정보와 충돌 없음
+    localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
+    // 구버전 키 제거
+    localStorage.removeItem('kakaoUser');
+    // Supabase에 프로필 저장 + 북마크 불러오기
+    await sbSaveProfile(kakaoUser);
+    await sbLoadBookmarks(String(kakaoUser.kakaoId));
+    await sbLoadCondition(String(kakaoUser.kakaoId));
     applyLoginUI();
     showToast(`✓ ${data.nickname}님, 환영해요!`);
   } catch(e) {
@@ -5304,8 +5424,19 @@ async function handleKakaoCallback(code) {
 
 function kakaoLogout() {
   kakaoUser = null;
+  localStorage.removeItem('kakaoUser_v2');
   localStorage.removeItem('kakaoUser');
+  savedIds.clear();
+  // 조건 초기화
+  P.name=''; P.byear=''; P.bmonth=''; P.bday=''; P.income=''; P.cash='';
+  P.noHomeYears=''; P.depCount=''; P.depAmt=''; P.children=0; P.childDates=[];
+  P.marriage='미혼'; P.marriageYear=''; P.household=''; P.isNoHome=true;
+  P.region=''; P.dependents=0; P.accYears=''; P.prefSizes=[];
+  P.elderParent=false; P.isDual=false; P.spouseIncome=''; P.totalIncome='';
   applyLoginUI();
+  renderListings();
+  renderSaved();
+  updateHero();
   showToast('로그아웃 됐어요');
 }
 
@@ -5316,7 +5447,6 @@ function applyLoginUI() {
   if (kakaoUser) {
     const displayName = kakaoUser.nickname || P.name;
     if (nm) nm.textContent = displayName + '님';
-    // P.name도 동기화
     if (displayName) P.name = displayName;
     area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
     updateHero();
