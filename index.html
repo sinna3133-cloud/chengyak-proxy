@@ -4677,18 +4677,21 @@ calMonth = _today.getMonth();
 
 // requestAnimationFrame으로 첫 화면 페인트 후 리스트 렌더
 
-// 스플래시 — 카카오 콜백 리다이렉트 시 즉시 숨김
+// 스플래시
 (function(){
 const s = document.getElementById(‘splash’);
+if (!s) return;
 const isKakaoCallback = new URLSearchParams(window.location.search).get(‘code’);
 if (isKakaoCallback) {
-// 로그인 콜백이면 스플래시 즉시 숨김
 s.style.display = ‘none’;
 } else {
+// 2초 후 무조건 숨김 (애니메이션 실패해도 강제 제거)
 setTimeout(()=>{
 s.classList.add(‘hide’);
-setTimeout(()=>s.style.display=‘none’, 500);
-}, 1800);
+setTimeout(()=>{ s.style.display=‘none’; s.style.visibility=‘hidden’; }, 600);
+}, 2000);
+// 혹시 모르니 3초 후 강제 제거
+setTimeout(()=>{ s.style.display=‘none’; s.style.visibility=‘hidden’; }, 3000);
 }
 })();
 
