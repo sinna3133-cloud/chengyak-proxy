@@ -5249,6 +5249,9 @@ localStorage.removeItem(‘kakaoUser’);
 const params = new URLSearchParams(window.location.search);
 const code = params.get(‘code’);
 if (code) {
+// 스플래시 즉시 숨김
+const sp = document.getElementById(‘splash’);
+if (sp) sp.style.display = ‘none’;
 history.replaceState({}, ‘’, window.location.pathname);
 handleKakaoCallback(code);
 return; // 로컬 복원 건너뜀
@@ -5276,19 +5279,15 @@ localStorage.removeItem(‘kakaoUser_v2’);
 })();
 
 function kakaoLogin() {
-try {
 const redirectUri = encodeURIComponent(‘https://chengyak-proxy.vercel.app/’);
 const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
-showToast(’이동 중: ’ + url.slice(0, 60) + ‘…’);
-setTimeout(() => {
-window.location.href = url;
-}, 300);
-} catch(e) {
-showToast(’❌ 오류: ’ + e.message);
-}
+window.location.replace(url);
 }
 
 async function handleKakaoCallback(code) {
+// 스플래시 확실히 숨김
+const sp = document.getElementById(‘splash’);
+if (sp) { sp.classList.add(‘hide’); setTimeout(() => sp.style.display=‘none’, 300); }
 showToast(‘카카오 로그인 중…’);
 try {
 const res = await fetch(`${KAKAO_AUTH_API}?code=${encodeURIComponent(code)}`);
