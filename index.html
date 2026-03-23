@@ -708,10 +708,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .sp-roof{opacity:0;animation:spRoofIn .45s cubic-bezier(.34,1.4,.64,1) .2s forwards}
 @keyframes spRoofIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 /* 몸통 */
-.sp-body{opacity:0;animation:spBodyIn .4s ease .5s forwards;transform-origin:top center}
-@keyframes spBodyIn{from{opacity:0;transform:scaleY(.5)}to{opacity:1;transform:scaleY(1)}}
+.sp-body{opacity:0;animation:spBodyIn .5s ease .45s forwards}
+@keyframes spBodyIn{from{opacity:0}to{opacity:1}}
 /* 체크 드로우 */
-.sp-check{stroke-dasharray:40;stroke-dashoffset:40;animation:spCheck .45s cubic-bezier(.4,0,.2,1) .85s forwards}
+.sp-check{stroke-dasharray:45;stroke-dashoffset:45;animation:spCheck .45s cubic-bezier(.4,0,.2,1) .85s forwards}
 @keyframes spCheck{to{stroke-dashoffset:0}}
 /* 아이콘 바운스 */
 .sp-icon-g{animation:spBounce .28s cubic-bezier(.34,1.7,.64,1) 1.28s both}
@@ -768,13 +768,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <rect x="16" y="40" width="8" height="7" rx="1.5" fill="white" opacity="0.1"/>
         <rect x="66" y="40" width="8" height="7" rx="1.5" fill="white" opacity="0.1"/>
       </g>
-      <polyline class="sp-check" points="30,57 40,68 60,50"
+      <polyline class="sp-check" points="30,52 40,63 60,45"
         fill="none" stroke="white" stroke-width="6.5"
         stroke-linecap="round" stroke-linejoin="round"/>
     </g>
   </svg>
   <div class="splash-logo">쉬운<span>청약</span></div>
-  <div class="sp-bar-wrap"><div class="sp-bar-track"><div class="sp-bar-fill"></div></div></div>
+
 </div>
 <!-- ══ 설정 화면 ══ -->
 <div class="api-setup-ov" id="api-setup-ov">
@@ -4067,7 +4067,7 @@ function openPremReport(){
         <div style="font-size:22px;text-align:center;margin-bottom:14px">📋</div>
         <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">조건을 먼저 설정해주세요</div>
         <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">소득, 무주택 기간, 청약통장 정보를 입력하면<br>맞춤 전략 리포트를 받을 수 있어요</div>
-        <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;showScreen('my');setTimeout(()=>openWizard(),300);"
+        <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
           style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Noto Sans KR',sans-serif">
           조건 설정하러 가기
         </button>
@@ -4138,7 +4138,7 @@ function _showIntro(){
           style="animation-delay:1.8s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;margin-bottom:10px;font-family:'Noto Sans KR',sans-serif">
           입력한 조건으로 리포트 받기
         </button>
-        <button class="intro-btn" onclick="closeReport();window._fromReportFlow=true;showScreen('my');setTimeout(()=>openWizard(),300);"
+        <button class="intro-btn" onclick="closeReport();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
           style="animation-delay:2s;width:100%;padding:14px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
           조건 수정하고 받기
         </button>
@@ -4349,12 +4349,24 @@ async function generateReport(){
 [로또] ${lottoStr||'없음'}
 [자금] 계약금가능:${(cash*10).toLocaleString()}만원이하 / 부족액:${savingsGap.toLocaleString()}만원 / 월${monthlyNeeded.toLocaleString()}만원씩 2년
 
-5개 섹션, [SECTION:제목] 형식:
-[SECTION:지금 내 상황 진단] 2~3문장, 솔직하게
-[SECTION:이 공고 넣으세요] 매칭 공고 중 1~2개, 추천이유+리스크+결론
-[SECTION:로또청약 기회] 무순위 공고, 없으면 "이번 주는 없어요"
-[SECTION:대출·저축 전략] 가능 대출 종류+한도, 월 저축 목표액
-[SECTION:오늘 할 일] 번호 목록 3~5개`;
+반드시 아래 형식을 정확히 지켜줘. #, ##, ** 같은 마크다운 절대 사용 금지. [SECTION:제목] 태그로만 섹션 구분.
+
+[SECTION:지금 내 상황 진단]
+2~3문장으로 솔직하게 현황 진단
+
+[SECTION:이 공고 넣으세요]
+매칭 공고 중 1~2개 추천, 이유+리스크+결론 포함
+
+[SECTION:로또청약 기회]
+무순위 공고 설명, 없으면 "이번 주는 없어요"
+
+[SECTION:대출·저축 전략]
+가능 대출 종류와 한도, 월 저축 목표액
+
+[SECTION:오늘 할 일]
+1. 첫 번째 할 일
+2. 두 번째 할 일
+3. 세 번째 할 일`;
 
   try {
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
@@ -4856,6 +4868,7 @@ function showScreen(name){
   if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
   if(name==='saved')renderSaved();
   if(name==='consult')updateConsult();
+  if(name==='my')updateMyCondCard();
   if(name==='calendar')renderCalendar();
   if(name==='score')updateScoreScreen();
   // 상세 화면 고정 CTA 표시/숨김
