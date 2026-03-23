@@ -4262,86 +4262,20 @@ async function generateReport(){
     `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
   ).join('\n');
 
-  const prompt = `당신은 대한민국 최고의 청약 전문 컨설턴트예요. 10년 경력의 실전 전문가처럼 말해주세요.
+  const prompt = `청약 전문 컨설턴트예요. 아래 조건으로 맞춤 전략 리포트를 작성해주세요. "~해요" 체로 친근하게, 결론 먼저, 숫자 근거 필수.
 
-핵심 원칙:
-- 결론을 먼저, 이유는 뒤에. "이 공고 넣으세요. 왜냐면..."
-- 모든 판단에 숫자 근거 필수
-- 리스크를 숨기지 마세요. "단, 이 리스크가 있어요" 식으로 솔직하게
-- 애매한 표현 금지. "고려해보세요" 대신 "넣으세요" 또는 "넣지 마세요"
-- "~해요", "~이에요" 체로 친근하게
-- 유저가 이 리포트만 보고 바로 결정할 수 있도록
+[고객] 만 ${age}세 / ${P.marriage||'미혼'} / 가점 ${score.total}점 / ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 소득 ${income.toLocaleString()}만원(${incPct}%) / 현금 ${cash.toLocaleString()}만원 / 통장 ${acc}회(${rank1?'1순위':'2순위'}) / 전형: ${types.join(',')||'없음'}
+[답변] 경험:${expLabel} / 거주:${liveLabel} / 성향:${riskLabel} / 대출:${loanLabel} / 대기:${waitLabel} / 우선:${priorLabel} / 출퇴근:${workLabel} / 미분양:${unsoldLabel}
+[공고] ${matchedStr||'없음'}
+[로또] ${lottoStr||'없음'}
+[자금] 계약금가능:${(cash*10).toLocaleString()}만원이하 / 부족액:${savingsGap.toLocaleString()}만원 / 월${monthlyNeeded.toLocaleString()}만원씩 2년
 
-## ${P.name||'고객'}님 조건
-- 만 ${age}세 / ${P.marriage||'미혼'}${P.marriageYear?` (혼인 ${new Date().getFullYear()-parseInt(P.marriageYear)}년차)`:''}
-- 자녀 ${ch}명 / 부양가족 ${dep}명 / 세대원 ${h}인
-- ${P.isNoHome?'무주택':'유주택'} / 무주택 기간 ${nh}년
-- 연소득 ${income.toLocaleString()}만원 (도시근로자 소득 ${incPct}%)${P.isDual?` / 맞벌이 합산 ${P.totalIncome}만원`:''}
-- 보유 현금 ${cash.toLocaleString()}만원
-- 청약통장 ${acc}회 납입 / ${accYr}년 / ${rank1?'1순위':'2순위'}
-- 청약 가점 ${score.total}점 (무주택 ${score.nhS} + 부양가족 ${score.dS} + 통장 ${score.aS})
-- 신청 가능 전형: ${types.join(', ')||'없음'}
-- 희망 지역: ${regionLabel}
-
-## 인터뷰 답변
-- 청약 경험: ${expLabel} / 거주지: ${liveLabel} / 성향: ${riskLabel}
-- 대출: ${loanLabel} / 대기 가능: ${waitLabel}
-- 우선순위: ${priorLabel} / 출퇴근: ${workLabel}
-- 미분양 고려: ${unsoldLabel}
-
-## 현재 매칭 공고
-${matchedStr||'없음'}
-
-## 로또청약/무순위
-${lottoStr||'없음'}
-
-## 실거래가
-${mktStr||'없음'}
-
-## 자금
-- 계약금(10%) 가능 분양가: ${(cash*10).toLocaleString()}만원 이하
-- 대출 포함 감당 가능: ${maxAffordable.toLocaleString()}만원 이하
-- 계약금 부족액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 모으면 2년 내 가능
-
----
-
-아래 7개 섹션으로 작성해주세요. [SECTION:제목] 형식으로 구분해주세요.
-
-[SECTION:한 줄 진단]
-딱 2~3문장. 가점 ${score.total}점, 현금 ${cash.toLocaleString()}만원이면 지금 할 수 있는 것과 없는 것. 좋은 점도 아쉬운 점도 솔직하게.
-
-[SECTION:지금 당장 이 공고 넣으세요]
-매칭 공고 중 우선순위(${priorLabel}), 출퇴근(${workLabel}), 대기기간(${waitLabel}), 미분양고려(${unsoldLabel}) 반영해서 1~3개만 골라주세요. 청약경험(${expLabel})을 고려해 난이도 조절해주세요.
-각 공고마다:
-- 추천 이유 (수치 포함)
-- 예상 당첨 가능성
-- 주요 리스크 1가지
-- 결론: "넣으세요" / "조건 확인 후 넣으세요" / "이번엔 패스"
-
-[SECTION:로또청약 — 이번 주 놓치면 안 돼요]
-진행 중인 무순위/줍줍 공고. 시세차익 금액 강조. 신청 자격과 마감일 명시. 없으면 "이번 주는 없어요. 다음 기회를 노려요" 라고.
-
-[SECTION:대출 전략 — 얼마까지 가능해요]
-소득 ${income.toLocaleString()}만원 기준:
-- 받을 수 있는 대출 종류와 한도 (디딤돌/특례보금자리/일반 주담대 중 해당하는 것만)
-- 분양가 기준 월 상환액 시뮬레이션
-- 어떤 대출이 유리한지 명확하게
-
-[SECTION:저축 플랜 — 월 얼마씩 모아야 해요]
-계약금 목표 ${depositNeeded.toLocaleString()}만원 기준:
-- 현재 부족액 ${savingsGap.toLocaleString()}만원
-- 1년/2년/3년 목표별 월 저축액
-- 청약통장 월 납입 최적 금액
-- 소득 대비 가능 여부 판단
-
-[SECTION:가점 로드맵 — 언제 몇 점 돼요]
-현재 ${score.total}점 기준:
-- 1년 후 / 3년 후 / 5년 후 예상 가점
-- 그때 공략 가능한 공고 수준
-- 지금 당장 올릴 수 있는 것과 없는 것 구분
-
-[SECTION:오늘 할 일 리스트]
-오늘 / 이번 주 / 이번 달로 나눠서 번호 목록. 각 항목 옆에 예상 소요 시간 포함.`;
+5개 섹션, [SECTION:제목] 형식:
+[SECTION:지금 내 상황 진단] 2~3문장, 솔직하게
+[SECTION:이 공고 넣으세요] 매칭 공고 중 1~2개, 추천이유+리스크+결론
+[SECTION:로또청약 기회] 무순위 공고, 없으면 "이번 주는 없어요"
+[SECTION:대출·저축 전략] 가능 대출 종류+한도, 월 저축 목표액
+[SECTION:오늘 할 일] 번호 목록 3~5개`;
 
   try {
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
@@ -4349,7 +4283,7 @@ ${mktStr||'없음'}
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5',
-        max_tokens: 4000,
+        max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
