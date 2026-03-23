@@ -6,7 +6,6 @@
 <title>쉬운청약</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Cpolygon points='100,28 172,78 100,78' fill='white' opacity='0.07'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Crect x='34' y='76' width='34' height='96' rx='6' fill='white' opacity='0.05'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
@@ -97,6 +96,16 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-item-val.blank{color:rgba(255,255,255,.25)}
 .hero-cta-btn{display:block;width:100%;margin:14px 0 18px;padding:13px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:14px;color:rgba(255,255,255,.9);font-size:var(--t-base);font-weight:600;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px}
 .hero-cta-btn:active{background:rgba(255,255,255,.18);transform:scale(.98)}
+.login-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.login-modal{background:white;width:100%;max-width:430px;border-radius:24px 24px 0 0;padding:28px 20px 40px;animation:slideUp .25s cubic-bezier(.22,1,.36,1)}
+.login-modal-title{font-size:18px;font-weight:900;color:var(--ink);letter-spacing:-.3px;margin-bottom:6px}
+.login-modal-sub{font-size:13px;color:var(--ink-4);margin-bottom:24px;line-height:1.5}
+.login-social-btn{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;transition:all .15s;letter-spacing:-.2px}
+.login-social-btn:active{transform:scale(.98)}
+.login-kakao{background:#FEE500;color:#191919}
+.login-naver{background:#03C75A;color:white}
+.login-modal-close{width:100%;padding:13px;background:var(--bg);border:none;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-4);cursor:pointer;margin-top:4px}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 /* 하단 탭 라인 */
 .hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(255,255,255,.08)}
 
@@ -398,7 +407,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .menu-item:first-of-type{margin-top:8px;border-top:1px solid rgba(0,0,0,.04)}
 .menu-item:active{background:var(--bg)}
 .menu-section-label{padding:22px 20px 8px;font-size:11px;font-weight:700;color:var(--ink-5);letter-spacing:.8px;text-transform:uppercase}
-.sup-link{font-size:14px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:14px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.sup-link{font-size:15px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:2px 0}
 .sup-link:active{opacity:.4}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
 .menu-txt{font-size:15px;font-weight:400;flex:1}
@@ -406,12 +415,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .menu-new{font-size:11px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;font-weight:700;margin-right:8px}
 
 /* ══ 컨설팅 ══ */
-.consult-hero{background:linear-gradient(135deg,#0A0E1A,#1A2236,#0F1A2E);padding:28px 20px 28px;position:relative;overflow:hidden}
-.consult-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,102,255,.25) 0%,transparent 70%);border-radius:50%;pointer-events:none}
-.consult-hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(0,201,160,.15) 0%,transparent 70%);border-radius:50%;pointer-events:none}
-.consult-title{font-size:24px;font-weight:900;color:white;line-height:1.3;position:relative;z-index:1;letter-spacing:-.4px}
-.consult-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:8px;line-height:1.6;position:relative;z-index:1}
-.consult-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,102,255,.2);border:1px solid rgba(0,102,255,.35);border-radius:20px;padding:5px 13px;margin-top:12px;font-size:12px;font-weight:700;color:#60A5FA;position:relative;z-index:1}
+.consult-hero{background:linear-gradient(135deg,#0A0E1A,#1E2535,#2D3A52);padding:28px 20px 24px;position:relative;overflow:hidden}
+.consult-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);border-radius:50%}
+.consult-title{font-size:22px;font-weight:900;color:white;line-height:1.3;position:relative}
+.consult-sub{font-size:13px;color:rgba(255,255,255,.72);margin-top:7px;line-height:1.55}
+.consult-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 13px;margin-top:12px;font-size:12px;font-weight:700;color:white}
 .prob-card{margin:16px 20px 0;background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);overflow:hidden;box-shadow:var(--shadow-sm)}
 .prob-hd{padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:8px}
 .prob-hd-title{font-size:14px;font-weight:800;color:var(--accent-dark)}
@@ -430,17 +438,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .prob-pct.mi{color:#D97706}
 .prob-pct.lo{color:#DC2626}
 .prob-sub{font-size:12px;color:var(--ink-4);margin-top:5px}
-.prem-card{margin:16px 20px 0}
-.prem-inner{background:var(--bg-card);border:1px solid rgba(0,0,0,.07);padding:22px 20px;border-radius:var(--r);position:relative;overflow:hidden;box-shadow:var(--shadow-md)}
-.prem-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0066FF,#00C9A0)}
-.prem-title{font-size:17px;font-weight:900;color:var(--ink);letter-spacing:-.3px}
-.prem-sub{font-size:13px;color:var(--ink-4);margin-top:5px;line-height:1.55}
-.prem-features{display:flex;flex-direction:column;gap:10px;margin-top:16px}
-.prem-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3);font-weight:500}
-.prem-feat::before{content:'';width:18px;height:18px;border-radius:50%;background:var(--accent-light);flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066FF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
-.prem-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
-.prem-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,102,255,.3)}
-.prem-lock{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--mint-light);border:1px solid rgba(0,201,160,.2);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:12px;color:#00A882;font-weight:700}
+.prem-card{margin:14px 20px 0}
+.prem-inner{background:linear-gradient(135deg,#0F0C2E,#1E1B4B,#312E81);padding:22px 20px;border-radius:var(--r);position:relative;overflow:hidden}
+.prem-inner::after{content:'👑';position:absolute;right:18px;top:16px;font-size:40px;opacity:.18}
+.prem-title{font-size:16px;font-weight:800;color:white}
+.prem-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:5px;line-height:1.55}
+.prem-features{display:flex;flex-direction:column;gap:9px;margin-top:15px}
+.prem-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.82)}
+.prem-feat::before{content:'✓';font-weight:800;color:#818CF8}
+.prem-btn{width:100%;padding:14px;background:linear-gradient(135deg,#F59E0B,#D97706);color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:18px;box-shadow:0 4px 16px rgba(245,158,11,.4);transition:all .2s}
+.prem-btn:active{transform:scale(.98)}
+.prem-lock{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--bg);border:1px solid rgba(0,0,0,.07);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:13px;color:var(--ink-4);font-weight:600}
 
 /* ══ 용어사전 ══ */
 .glo-search{padding:12px 20px 0}
@@ -1066,6 +1074,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
             <div><div class="cond-item-label">지역</div><div class="cond-item-val blank" id="cd-region">?</div></div>
           </div>
         </div>
+        <div id="hero-login-nudge" style="display:none">
+          <div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
+          <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
+        </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();openWizard()">조건 설정하기</button>
       </div>
     </div>
@@ -1241,33 +1253,28 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 <!-- ══ 컨설팅 ══ -->
 <div class="screen" id="screen-consult">
   <div class="consult-hero">
-    <div class="consult-title">AI 청약 컨설팅</div>
-    <div class="consult-sub">내 조건을 분석해 최적 청약지와<br>당첨 확률을 AI가 실시간으로 알려드려요</div>
-    <div class="consult-badge">⚡ 내 조건 기반 실시간 분석</div>
+    <div class="consult-title">청약 컨설팅</div>
+    <div class="consult-sub">내 조건으로 어디 청약할지,
+예상 당첨률까지 분석해드려요</div>
+    <div class="consult-badge"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 내 조건 기반 실시간 분석</div>
   </div>
 
   <div class="prem-card">
     <div class="prem-inner">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-        <div style="width:32px;height:32px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </div>
-        <div class="prem-title">AI 맞춤 청약 전략 리포트</div>
+      <div class="prem-title">AI 맞춤 청약 전략 리포트</div>
+      <div style="margin:8px 0 12px;padding:10px 14px;background:rgba(255,255,255,.15);border-radius:10px;border-left:3px solid white">
+        <div style="font-size:13px;font-weight:800;color:white;line-height:1.6">✦ 내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
       </div>
-      <div style="margin:10px 0 0;padding:12px 14px;background:var(--accent-light);border-radius:12px;border-left:3px solid var(--accent)">
-        <div style="font-size:13px;font-weight:700;color:var(--accent-dark);line-height:1.6">내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
-      </div>
-      <div class="prem-sub" style="margin-top:12px">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
-      <div style="height:1px;background:rgba(0,0,0,.06);margin:16px 0"></div>
+      <div class="prem-sub">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
       <div class="prem-features">
         <div class="prem-feat">내 조건 기반 최적 청약지 TOP 5 추천</div>
         <div class="prem-feat">가점 계산 및 경쟁률 심층 분석</div>
         <div class="prem-feat">대출 상품 비교 및 월 상환액 시뮬레이션</div>
         <div class="prem-feat">청약 일정 맞춤 저축 전략 제안</div>
       </div>
-      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">내 청약 전략 리포트 받기</button>
+      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">✦ 내 청약 전략 리포트 받기</button>
     </div>
-    <div class="prem-lock">🆓 지금은 무료로 체험할 수 있어요</div>
+    <div class="prem-lock">지금은 무료로 체험할 수 있어요</div>
   </div>
   <div style="height:100px"></div>
 </div>
@@ -1321,7 +1328,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div class="my-sub">내 조건을 관리하고 전략을 세워봐요</div>
     </div>
     <div id="kakao-login-area" style="margin-left:auto;position:relative;z-index:1">
-      <button class="login-btn" id="kakao-login-btn" onclick="kakaoLogin()">로그인하기</button>
+      <button class="login-btn" id="kakao-login-btn" onclick="openLoginModal()">로그인하기</button>
     </div>
   </div>
   <div style="padding:20px 20px 0">
@@ -1334,16 +1341,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
     </div>
   </div>
-  <div style="height:8px;background:var(--bg);margin-top:20px"></div>
-  <div class="menu-section-label">메뉴</div>
-  <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico">🏆</span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico">📅</span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico">📖</span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showToast('곧 지원 예정이에요 🔔')"><span class="menu-ico">🔔</span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showToast('곧 지원 예정이에요 🔔')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="openApiSetup()" style="display:none"><span class="menu-ico">🔌</span><span class="menu-txt">청약홈 API 연동</span><span id="api-menu-badge" class="api-menu-badge-off">미연동</span><span class="menu-arr">›</span></div>
-  <div style="height:8px;background:var(--bg)"></div>
   <div class="menu-section-label">고객센터</div>
-  <div style="padding:4px 20px 8px;display:grid;grid-template-columns:1fr 1fr;gap:4px">
+  <div style="padding:20px 20px 8px;display:grid;grid-template-columns:1fr 1fr;row-gap:32px">
     <div class="sup-link" onclick="showSupport('notice')">공지사항</div>
     <div class="sup-link" onclick="showSupport('faq')">FAQ</div>
     <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
@@ -1412,7 +1416,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div style="width:40px;height:4px;background:var(--bg-2);border-radius:20px;margin:12px auto 0"></div>
     <div style="padding:20px 24px 12px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div style="font-size:18px;font-weight:900;color:var(--ink)">🔧 관리자 모드</div>
+        <div style="font-size:18px;font-weight:900;color:var(--ink)">관리자 모드</div>
         <div style="font-size:12px;color:var(--ink-4);margin-top:3px">공고문 PDF를 업로드하면 자동으로 데이터를 추출해요</div>
       </div>
       <button onclick="closeAdmin()" style="background:var(--bg);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:18px;color:var(--ink-4)">×</button>
@@ -1422,7 +1426,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div style="padding:20px 24px">
       <div id="admin-drop" onclick="document.getElementById('admin-file-input').click()"
         style="border:2px dashed var(--accent-mid);border-radius:16px;padding:32px 20px;text-align:center;cursor:pointer;background:var(--accent-light);transition:all .2s">
-        <div style="font-size:36px;margin-bottom:10px">📄</div>
+        <div style="margin-bottom:10px;color:var(--ink-4)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <div style="font-size:15px;font-weight:700;color:var(--accent)">공고문 PDF 업로드</div>
         <div style="font-size:12px;color:var(--ink-4);margin-top:5px">탭해서 파일 선택</div>
       </div>
@@ -2678,9 +2682,18 @@ function cardPrice(price){
 function updateHero(){
   const p=P;
   const hasConditions = p.noHomeYears||p.depCount||p.income||p.byear;
-  // 조건 있으면 설정하기 버튼 숨김
+  // 비로그인: 로그인 유도 / 로그인+조건없음: 조건설정 / 로그인+조건있음: 둘 다 숨김
+  const nudgeEl = document.getElementById('hero-login-nudge');
   const ctaBtn = document.getElementById('hero-cta');
-  if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
+  let _isLoggedIn = !!localStorage.getItem('kakaoUser_v2');
+  try { if(kakaoUser) _isLoggedIn = true; } catch(e) {}
+  if (!_isLoggedIn) {
+    if(nudgeEl) nudgeEl.style.display = 'block';
+    if(ctaBtn) ctaBtn.style.display = 'none';
+  } else {
+    if(nudgeEl) nudgeEl.style.display = 'none';
+    if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
+  }
   // 이름 설정 — 카카오 로그인 세션이 있으면 랜덤 이름으로 덮어쓰지 않음
   if(!p.name && !localStorage.getItem('kakaoUser_v2'))p.name=RETRO[Math.floor(Math.random()*RETRO.length)];
   if(p.name) document.getElementById('my-name').textContent=p.name;
@@ -2731,10 +2744,9 @@ function renderRecommend(){
 
   if(!hasConditions){
     c.innerHTML=`<div style="margin:4px 20px 0;padding:24px 20px;background:var(--accent-light);border-radius:18px;text-align:center;cursor:pointer" onclick="openMyCondition()">
-  <div style="font-size:32px;margin-bottom:10px">🏠</div>
+  <div style="margin-bottom:10px;color:var(--accent)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
   <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;letter-spacing:-.3px">내 조건을 설정해보세요</div>
-  <div style="font-size:13px;color:var(--ink-4);line-height:1.6">소득·무주택 기간·청약통장만 입력하면
-딱 맞는 공고를 추천해드려요</div>
+  <div style="font-size:13px;color:var(--ink-4);line-height:1.6">조건 입력하면 맞춤 공고를 추천해드려요</div>
 </div>`;
     return;
   }
@@ -3881,7 +3893,7 @@ function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(cal
 function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
-  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">아직 저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고의 북마크 버튼을
+  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div class="empty-title">아직 저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고의 북마크 버튼을
 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:24px;padding:13px 32px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);">공고 보러 가기</button></div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
   c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
@@ -4440,7 +4452,7 @@ async function generateReport(){
     document.getElementById('report-content').style.display = 'block';
     document.getElementById('report-content').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
-        <div style="font-size:40px;margin-bottom:16px">😥</div>
+        <div style="font-size:40px;margin-bottom:16px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
         <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">리포트 생성에 실패했어요</div>
         <div style="font-size:13px;color:var(--ink-4);margin-bottom:20px">${e.message}</div>
         <button onclick="generateReport()" style="padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">다시 시도</button>
@@ -4770,7 +4782,7 @@ function buildReportHTML(d){
 
   return [
     section('📊', '내 청약 등급', s1, 0),
-    section('🔍', '전형별 자격 진단', s2, 0.06),
+    section('<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>', '전형별 자격 진단', s2, 0.06),
     section('🏠', '지금 신청할 수 있는 공고', s3, 0.12),
     section('🎰', '로또청약 · 무순위', s4, 0.18),
     section('📈', '가점 올리기 로드맵', s5, 0.24),
@@ -4811,6 +4823,122 @@ function renderGlossary(data){
   const g={};data.forEach(item=>{if(!g[item.cat])g[item.cat]=[];g[item.cat].push(item);});
   return Object.entries(g).map(([cat,items])=>`<div class="glo-cat">${cat}</div>`+items.map(item=>`<div class="glo-item" onclick="this.classList.toggle('open')"><div class="glo-term">${item.term}</div><div class="glo-short">${item.short}</div><div class="glo-full">${item.full}</div></div>`).join('')).join('');
 }
+
+function showPolicy(type) {
+  const policies = {
+    tos: {
+      title: '서비스 이용약관',
+      date: '시행일: 2025년 1월 1일',
+      body: `
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제1조 (목적)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">본 약관은 쉬운청약(이하 "서비스")이 제공하는 청약 정보 서비스의 이용에 관한 조건 및 절차, 이용자와 서비스 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제2조 (용어의 정의)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① "서비스"란 쉬운청약이 제공하는 청약 공고 조회, 맞춤 추천, AI 컨설팅 등 일체의 서비스를 말합니다.<br>② "이용자"란 본 약관에 동의하고 서비스를 이용하는 자를 말합니다.<br>③ "회원"이란 서비스에 소셜 계정으로 로그인하여 지속적으로 서비스를 이용하는 자를 말합니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제3조 (약관의 효력 및 변경)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 본 약관은 서비스 화면에 게시하거나 기타 방법으로 이용자에게 공지함으로써 효력이 발생합니다.<br>② 서비스는 관련 법령을 위배하지 않는 범위에서 약관을 변경할 수 있으며, 변경 시 최소 7일 전에 공지합니다.<br>③ 이용자가 변경된 약관에 동의하지 않을 경우 서비스 이용을 중단하고 탈퇴할 수 있습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제4조 (서비스의 제공 및 변경)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 서비스는 다음과 같은 서비스를 제공합니다.<br>- 청약 공고 조회 및 검색<br>- 맞춤 청약 조건 설정 및 추천<br>- AI 기반 청약 전략 컨설팅<br>- 청약 일정 캘린더<br>- 즐겨찾기 및 알림<br>② 서비스는 서비스의 내용을 변경할 수 있으며, 이 경우 변경된 서비스의 내용 및 제공일자를 명시하여 공지합니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제5조 (서비스 이용의 제한)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 다음 각 호에 해당하는 경우 서비스 이용을 제한할 수 있습니다.<br>① 타인의 정보를 도용하거나 허위 정보를 입력한 경우<br>② 서비스 운영을 방해하거나 서버에 과부하를 주는 행위<br>③ 서비스를 이용하여 법령 또는 공서양속에 반하는 행위<br>④ 기타 서비스의 정상적인 운영을 방해하는 행위</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제6조 (정보의 정확성)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 서비스에서 제공하는 청약 공고 정보는 공공데이터 및 외부 API를 기반으로 하며, 실제 청약 공고와 차이가 있을 수 있습니다.<br>② 이용자는 중요한 청약 결정 전 반드시 해당 청약 공고의 공식 채널(청약홈 등)을 통해 정확한 정보를 확인하시기 바랍니다.<br>③ 서비스는 정보의 부정확성으로 인한 이용자의 손해에 대해 책임을 지지 않습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제7조 (AI 컨설팅 서비스)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① AI 청약 전략 리포트는 이용자가 입력한 조건을 기반으로 AI가 생성한 참고 정보입니다.<br>② AI 컨설팅 결과는 투자 조언 또는 청약 당첨을 보장하지 않으며, 최종 결정은 이용자 본인의 판단에 따릅니다.<br>③ 서비스는 AI 컨설팅 결과를 바탕으로 한 이용자의 결정 및 그 결과에 대해 책임을 지지 않습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제8조 (책임의 한계)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 서비스는 천재지변, 불가항력적 사유로 인한 서비스 중단에 대해 책임을 지지 않습니다.<br>② 서비스는 이용자의 귀책사유로 인한 손해에 대해 책임을 지지 않습니다.<br>③ 서비스는 이용자 간 또는 이용자와 제3자 간의 분쟁에 개입하지 않습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제9조 (준거법 및 관할법원)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">본 약관은 대한민국 법률에 따라 해석되며, 서비스 이용으로 발생한 분쟁에 대해서는 민사소송법상의 관할법원을 제1심 관할법원으로 합니다.</p>`
+    },
+    privacy: {
+      title: '개인정보처리방침',
+      date: '시행일: 2025년 1월 1일',
+      body: `
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">쉬운청약(이하 "서비스")은 개인정보보호법 등 관련 법령에 따라 이용자의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제1조 (수집하는 개인정보 항목)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 다음과 같은 개인정보를 수집합니다.<br><br>
+<strong>① 소셜 로그인 시 수집 항목</strong><br>
+- 카카오 로그인: 카카오 고유 식별자, 닉네임<br>
+- 네이버 로그인: 네이버 고유 식별자, 이름<br><br>
+<strong>② 서비스 이용 시 이용자가 직접 입력하는 항목</strong><br>
+- 출생연도, 혼인 여부, 무주택 기간, 청약통장 납입 횟수, 연소득, 보유현금, 부양가족 수, 희망 지역 등 청약 조건 정보<br><br>
+<strong>③ 서비스 이용 과정에서 자동 수집되는 항목</strong><br>
+- 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제2조 (개인정보 수집 및 이용 목적)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 수집한 개인정보를 다음 목적에 이용합니다.<br>① 회원 식별 및 서비스 제공<br>② 맞춤 청약 조건 저장 및 추천 서비스 제공<br>③ 즐겨찾기 동기화<br>④ 서비스 개선 및 통계 분석<br>⑤ 법령 및 서비스 이용약관 위반 행위 방지</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제3조 (개인정보 보유 및 이용기간)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 회원 탈퇴 시 즉시 파기합니다.<br>② 단, 관계 법령에 의해 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보관합니다.<br>- 계약 또는 청약철회 등에 관한 기록: 5년 (전자상거래법)<br>- 소비자 불만 또는 분쟁처리에 관한 기록: 3년 (전자상거래법)<br>- 접속에 관한 기록: 3개월 (통신비밀보호법)</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제4조 (개인정보의 제3자 제공)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다.<br>① 이용자가 사전에 동의한 경우<br>② 법령의 규정에 의거하거나 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제5조 (개인정보 처리 위탁)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 원활한 서비스 제공을 위해 다음과 같이 개인정보 처리 업무를 위탁합니다.<br>① Supabase Inc. - 데이터베이스 저장 및 관리 (위탁 기간: 서비스 이용 기간)<br>② Vercel Inc. - 서버 운영 및 호스팅 (위탁 기간: 서비스 이용 기간)</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제6조 (이용자의 권리)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">이용자는 언제든지 다음과 같은 권리를 행사할 수 있습니다.<br>① 개인정보 열람 요구<br>② 오류 등이 있을 경우 정정 요구<br>③ 삭제 요구<br>④ 처리정지 요구<br><br>위 권리 행사는 서비스 문의하기를 통해 요청하실 수 있으며, 지체 없이 조치하겠습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제7조 (개인정보의 파기)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.<br>① 전자적 파일 형태: 복원이 불가능한 방법으로 영구 삭제<br>② 종이 문서: 분쇄기로 분쇄하거나 소각</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제8조 (쿠키의 운용)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 서비스는 이용자에게 개인화된 서비스를 제공하기 위해 쿠키(cookie)를 사용합니다.<br>② 이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있으나, 이 경우 일부 서비스 이용이 제한될 수 있습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제9조 (개인정보 보호책임자)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 이용자의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.<br><br>- 이메일: saena1004@kakao.com<br><br>이용자는 서비스를 이용하시면서 발생한 모든 개인정보 보호 관련 문의, 불만처리, 피해구제 등에 관한 사항을 개인정보 보호책임자에게 문의하실 수 있습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제10조 (개인정보처리방침의 변경)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">이 개인정보처리방침은 2025년 1월 1일부터 적용되며, 법령·정책 또는 보안기술의 변경에 따라 내용의 추가·삭제 및 수정이 있을 시에는 변경사항의 시행 7일 전부터 서비스 내 공지사항을 통하여 고지합니다.</p>`
+    },
+    youth: {
+      title: '청소년 보호정책',
+      date: '시행일: 2025년 1월 1일',
+      body: `
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">쉬운청약은 청소년이 안전하게 서비스를 이용할 수 있도록 청소년 보호법에 따라 다음과 같이 청소년 보호정책을 운영합니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제1조 (청소년 유해정보 차단)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 청소년에게 유해한 정보가 제공되지 않도록 관리합니다. 쉬운청약은 청약 정보 서비스로서 청소년 유해 매체물에 해당하지 않습니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제2조 (청소년 보호 책임자)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">서비스는 청소년 보호법에 따라 청소년 보호 책임자를 지정합니다.<br><br>- 이메일: saena1004@kakao.com<br><br>청소년 보호와 관련한 문의 및 신고는 위 이메일로 연락해 주시기 바랍니다.</p>
+
+<h3 style="font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px">제3조 (청소년 보호를 위한 노력)</h3>
+<p style="font-size:13px;color:var(--ink-3);line-height:1.8">① 서비스는 청소년에게 건전한 청약 정보를 제공하기 위해 노력합니다.<br>② 서비스는 청소년의 개인정보 보호를 위해 관련 법령을 준수합니다.<br>③ 서비스 이용 중 청소년 보호와 관련된 문제가 발생할 경우 즉시 조치하겠습니다.</p>`
+    }
+  };
+
+  const policy = policies[type];
+  if (!policy) return;
+
+  // 정책 화면 표시
+  const overlay = document.createElement('div');
+  overlay.id = 'policy-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:600;max-width:430px;margin:0 auto;overflow-y:auto;';
+  overlay.innerHTML = `
+    <div style="background:var(--bg-card);padding:18px 20px 14px;position:sticky;top:0;z-index:1;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:12px">
+      <button onclick="document.getElementById('policy-overlay').remove()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--ink)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <div>
+        <div style="font-size:17px;font-weight:900;color:var(--ink);letter-spacing:-.3px">${policy.title}</div>
+        <div style="font-size:12px;color:var(--ink-4);margin-top:2px">${policy.date}</div>
+      </div>
+    </div>
+    <div style="padding:20px 20px 100px">${policy.body}</div>
+  `;
+  document.body.appendChild(overlay);
+}
+
 function showSupport(type){
   const titles={notice:'공지사항',faq:'FAQ',contact:'서비스 문의하기',ad:'광고/제휴 문의',terms:'약관/정책'};
   document.getElementById('support-title').textContent=titles[type];
@@ -4903,13 +5031,11 @@ function showSupport(type){
     terms:`
       <div style="display:flex;flex-direction:column">
         ${[
-          {t:'서비스 이용약관', d:'2025.01.01 시행'},
-          {t:'개인정보처리방침', d:'2025.02.20 시행'},
-          {t:'위치기반서비스 이용약관', d:'2024.06.01 시행'},
-          {t:'청소년 보호정책', d:'2024.06.01 시행'},
-          {t:'오픈소스 라이선스', d:''},
+          {t:'서비스 이용약관', d:'2025.01.01 시행', k:'tos'},
+          {t:'개인정보처리방침', d:'2025.01.01 시행', k:'privacy'},
+          {t:'청소년 보호정책', d:'2025.01.01 시행', k:'youth'},
         ].map(t=>`
-          <div style="padding:16px 0;border-bottom:1px solid rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="showToast('준비 중이에요')">
+          <div style="padding:16px 0;border-bottom:1px solid rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="showPolicy('${t.k}')">
             <div>
               <div style="font-size:14px;font-weight:600;color:var(--ink)">${t.t}</div>
               ${t.d?`<div style="font-size:12px;color:var(--ink-4);margin-top:3px">${t.d}</div>`:''}
@@ -6206,6 +6332,8 @@ async function onAdminFileSelect(event){
 
 const LISTINGS_API  = 'https://chengyak-proxy.vercel.app/api/listings';
 const KAKAO_AUTH_API = 'https://chengyak-proxy.vercel.app/api/kakao-auth';
+const NAVER_AUTH_API = 'https://chengyak-proxy.vercel.app/api/naver-auth';
+const NAVER_CLIENT_ID = 'AuCmg397QoRRwTurztoe';
 const KAKAO_CLIENT_ID = 'e7389d2463e1980b32b680910e373f5e'; // 카카오 REST API 키
 
 /* ══ Supabase 설정 ══ */
@@ -6458,44 +6586,42 @@ function adminDeleteListing(id, src){
 
 // 관리자 공고는 loadLiveData()에서 이름 기준 병합으로 처리 (중복 방지)
 
-/* ══ 카카오 로그인 (JS SDK) ══ */
-let kakaoUser = null;
-
-// JS SDK 초기화 (JavaScript 키 사용)
-const KAKAO_JS_KEY = '1e18e9aa2270ebaf1d1c1679fdabbb3d';
-if (window.Kakao && !window.Kakao.isInitialized()) {
-  window.Kakao.init(KAKAO_JS_KEY);
-}
+/* ══ 카카오 로그인 ══ */
+let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 
 // 앱 시작 시 로그인 상태 복원
 (async function restoreKakaoSession() {
+  // 구버전 오염 키 제거
   localStorage.removeItem('kakaoUser');
-  // SDK authorize 콜백 처리
-  const _params = new URLSearchParams(window.location.search);
-  if (_params.get('code')) {
+
+  // URL에 code 파라미터 있으면 → 카카오 콜백 처리 (이 기기에서 새로 로그인)
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    // 스플래시 즉시 숨김
     const sp = document.getElementById('splash');
     if (sp) sp.style.display = 'none';
-    handleKakaoSDKCallback();
-    return;
+    history.replaceState({}, '', window.location.pathname);
+    handleKakaoCallback(code);
+    return; // 로컬 복원 건너뜀
   }
+
+  // 이 기기에서 저장한 세션 복원
   try {
     const saved = localStorage.getItem('kakaoUser_v2');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed?.kakaoId) {
         kakaoUser = parsed;
-        P.name = kakaoUser.nickname || '';
-        // 닉네임 즉시 DOM 반영
-        const _greetEl = document.getElementById('hero-greeting');
-        const _myNameEl = document.getElementById('my-name');
-        if (_greetEl) _greetEl.textContent = `${P.name}님, 안녕하세요`;
-        if (_myNameEl) _myNameEl.textContent = P.name + '님';
+        P.name = kakaoUser.nickname || kakaoUser.appNickname || '';
         applyLoginUI();
         updateHero();
         renderListings();
-        // Supabase 백그라운드 처리
-        sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
-        sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); });
+        await sbLoadBookmarks(String(kakaoUser.kakaoId));
+        await sbLoadCondition(String(kakaoUser.kakaoId));
+        applyLoginUI();
+        updateHero();
+        updateMyCondCard();
       } else {
         localStorage.removeItem('kakaoUser_v2');
       }
@@ -6505,75 +6631,65 @@ if (window.Kakao && !window.Kakao.isInitialized()) {
   }
 })();
 
-function kakaoLogin() {
-  if (!window.Kakao?.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
-  // SDK 2.x: authorize → 팝업 없이 redirect 방식
-  window.Kakao.Auth.authorize({
-    redirectUri: window.location.origin + '/',
-    prompt: 'login', // 항상 로그인 화면 강제
-  });
+function openLoginModal() {
+  document.getElementById('login-modal').style.display = 'block';
+}
+function closeLoginModal() {
+  document.getElementById('login-modal').style.display = 'none';
 }
 
-async function handleKakaoSDKCallback() {
-  // SDK authorize 후 돌아왔을 때 토큰 교환
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return;
-  history.replaceState({}, '', window.location.pathname);
+function naverLogin() {
+  const state = Math.random().toString(36).substring(2);
+  sessionStorage.setItem('naver_state', state);
+  const redirectUri = encodeURIComponent(window.location.origin + '/');
+  const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${redirectUri}&state=${state}`;
+  window.location.replace(url);
+}
+
+function kakaoLogin() {
+  // 항상 슬래시 포함된 URL 사용 (카카오 등록값과 일치)
+  const redirectUri = encodeURIComponent(window.location.origin + '/');
+  const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
+  window.location.replace(url);
+}
+
+async function handleKakaoCallback(code) {
+  // 스플래시 확실히 숨김
+  const sp = document.getElementById('splash');
+  if (sp) { sp.classList.add('hide'); setTimeout(() => sp.style.display='none', 300); }
   showToast('카카오 로그인 중...');
   try {
-    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: KAKAO_JS_KEY,
-        redirect_uri: window.location.origin + '/',
-        code,
-      })
-    });
-    const tokenData = await tokenRes.json();
-    if (tokenData.error) throw new Error(tokenData.error_description);
-    const accessToken = tokenData.access_token;
-    // 사용자 정보 조회
-    const userRes = await fetch('https://kapi.kakao.com/v2/user/me', {
-      headers: { Authorization: 'Bearer ' + accessToken }
-    });
-    const userData = await userRes.json();
-    const kakaoId = String(userData.id);
-    const nickname = userData.kakao_account?.profile?.nickname || '사용자';
-    const avatar = userData.kakao_account?.profile?.thumbnail_image_url || '';
-    kakaoUser = { kakaoId, nickname, avatar, accessToken };
-    P.name = nickname;
+    const redirectUri = encodeURIComponent(window.location.origin + '/');
+    const res = await fetch(`${KAKAO_AUTH_API}?code=${encodeURIComponent(code)}&redirect_uri=${redirectUri}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    kakaoUser = data;
+    kakaoUser.appNickname = data.nickname;
+    P.name = data.nickname;
+    // 기기별 키로 저장 (v2) — 다른 기기 로그인 정보와 충돌 없음
     localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
+    // 구버전 키 제거
     localStorage.removeItem('kakaoUser');
-    const _greetEl = document.getElementById('hero-greeting');
-    const _myNameEl = document.getElementById('my-name');
-    if (_greetEl) _greetEl.textContent = `${nickname}님, 안녕하세요`;
-    if (_myNameEl) _myNameEl.textContent = nickname + '님';
+    // Supabase에 프로필 저장 + 북마크 불러오기
+    await sbSaveProfile(kakaoUser);
+    await sbLoadBookmarks(String(kakaoUser.kakaoId));
+    await sbLoadCondition(String(kakaoUser.kakaoId));
     applyLoginUI();
     updateHero();
     updateMyCondCard();
     renderListings();
     renderSaved();
     showScreen('home');
-    showToast(`✓ ${nickname}님, 환영해요!`);
-    sbSaveProfile(kakaoUser);
-    sbLoadBookmarks(kakaoId).then(() => { applyLoginUI(); updateHero(); });
-    sbLoadCondition(kakaoId).then(() => { updateMyCondCard(); });
+    showToast(`✓ ${data.nickname}님, 환영해요!`);
   } catch(e) {
     showToast('❌ 로그인 실패: ' + e.message);
   }
 }
 
-async function handleKakaoCallback(code) {}
-
 function kakaoLogout() {
   kakaoUser = null;
   localStorage.removeItem('kakaoUser_v2');
   localStorage.removeItem('kakaoUser');
-  // URL에 남은 code 파라미터 제거 (재로그인 시 자동 로그인 방지)
-  history.replaceState({}, '', window.location.pathname);
   savedIds.clear();
   // 조건 초기화
   P.name=''; P.byear=''; P.bmonth=''; P.bday=''; P.income=''; P.cash='';
@@ -6600,7 +6716,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    area.innerHTML = `<button class="login-btn" onclick="kakaoLogin()">로그인하기</button>`;
+    area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
   }
 }
 
@@ -6608,5 +6724,23 @@ function applyLoginUI() {
 
 
 
+<!-- 로그인 모달 -->
+<div id="login-modal" style="display:none">
+  <div class="login-modal-bg" onclick="closeLoginModal()">
+    <div class="login-modal" onclick="event.stopPropagation()">
+      <div class="login-modal-title">로그인하기</div>
+      <div class="login-modal-sub">로그인하고 맞춤 청약 정보를 받아보세요</div>
+      <button class="login-social-btn login-kakao" onclick="closeLoginModal();kakaoLogin()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#191919"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.91 1.88 5.47 4.72 6.97L5.5 21l4.3-2.26C10.5 18.9 11.24 19 12 19c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>
+        카카오로 로그인하기
+      </button>
+      <button class="login-social-btn login-naver" onclick="closeLoginModal();naverLogin()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+        네이버로 로그인하기
+      </button>
+      <button class="login-modal-close" onclick="closeLoginModal()">닫기</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
