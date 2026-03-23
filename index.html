@@ -3018,9 +3018,6 @@ function openMyCondition(){
 function animateDashVal(id, target){
   const el=document.getElementById(id);
   if(!el)return;
-  el.classList.remove('dash-val-anim');
-  void el.offsetWidth;
-  el.classList.add('dash-val-anim');
   countUp(el, target, 500);
 }
 function renderMyCondDashboard(){
@@ -4349,24 +4346,38 @@ async function generateReport(){
 [로또] ${lottoStr||'없음'}
 [자금] 계약금가능:${(cash*10).toLocaleString()}만원이하 / 부족액:${savingsGap.toLocaleString()}만원 / 월${monthlyNeeded.toLocaleString()}만원씩 2년
 
-반드시 아래 형식을 정확히 지켜줘. #, ##, ** 같은 마크다운 절대 사용 금지. [SECTION:제목] 태그로만 섹션 구분.
+아래 형식을 정확히 지켜줘. 마크다운(#,##,**) 절대 금지. [SECTION:아이콘 제목] 태그로만 섹션 구분.
+각 섹션 첫 줄은 반드시 [HEADLINE:한줄요약] 형식으로 핵심을 재치있고 임팩트 있게 한 문장으로 써줘. 사주처럼 딱 떨어지게.
+그 다음 [STAT:라벨|값] 형식으로 핵심 수치를 1~3개 넣어줘.
+그 다음 본문을 써줘. 중요한 단어는 [BOLD:텍스트] 로 강조.
+항목 나열은 - 로 시작.
+번호 목록은 1. 2. 3. 으로.
 
-[SECTION:지금 내 상황 진단]
-2~3문장으로 솔직하게 현황 진단
+[SECTION:지금 내 상황]
+[HEADLINE:오늘의 청약 운세: 가점은 부족하나 기회는 있다]
+[STAT:청약 가점|${score.total}점][STAT:신청 가능 전형|${types.length}개][STAT:매칭 공고|${matched.length}건]
+현황을 2~3문장으로 솔직하게. 강점과 약점 모두.
 
 [SECTION:이 공고 넣으세요]
-매칭 공고 중 1~2개 추천, 이유+리스크+결론 포함
+[HEADLINE:M월 DD일, [단지명]에 [전형명]으로 넣으세요 — 이유를 한 문장으로]
+[STAT:접수일|M/DD(요일)][STAT:전형|특별/일반공급][STAT:시세차익|?억]
+특별공급이면 특별공급 접수일, 일반공급이면 일반공급 접수일을 명시. 추천 이유, 리스크, 결론 포함. 없으면 "지금 당장 넣을 공고가 없어요" 솔직하게.
 
 [SECTION:로또청약 기회]
-무순위 공고 설명, 없으면 "이번 주는 없어요"
+[HEADLINE:한 줄로 기회 요약]
+[STAT:시세차익|?억][STAT:마감|?일 후]
+무순위 공고 설명. 없으면 "이번 주는 없어요. 다음 기회를 노려요."
 
 [SECTION:대출·저축 전략]
-가능 대출 종류와 한도, 월 저축 목표액
+[HEADLINE:돈 계획 한 줄 요약]
+[STAT:계약금 가능 분양가|?억 이하][STAT:월 저축 목표|?만원]
+대출 종류와 한도, 저축 전략 구체적으로.
 
 [SECTION:오늘 할 일]
-1. 첫 번째 할 일
-2. 두 번째 할 일
-3. 세 번째 할 일`;
+[HEADLINE:지금 당장 시작할 수 있는 것]
+1. 첫 번째 실행 항목
+2. 두 번째 실행 항목
+3. 세 번째 실행 항목`;
 
   try {
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
@@ -4403,76 +4414,106 @@ async function generateReport(){
 }
 
 function renderReportText(text){
-  // [SECTION:제목] 형식 시도
-  if(text.includes('[SECTION:')){
-    const sections = text.split(/\[SECTION:([^\]]+)\]/).filter(s => s.trim());
-    let html = '';
-    for(let i = 0; i < sections.length; i += 2){
-      const title = sections[i]?.trim() || '';
-      const body  = sections[i + 1]?.trim() || '';
-      if(!title && !body) continue;
-      html += `<div class="report-section">
-        ${title ? `<div class="report-section-title">${title}</div>` : ''}
-        <div class="report-section-body">${_parseLines(body)}</div>
-      </div>`;
-    }
-    if(html) return html;
+  // [SECTION:] 파싱
+  const sectionRe = /\[SECTION:([^\]]+)\]/g;
+  if(!text.includes('[SECTION:')) {
+    // fallback: 마크다운 헤더
+    return `<div class="report-section"><div class="report-section-body">${_parseBody(text)}</div></div>`;
   }
-
-  // 마크다운 형식 fallback (# 헤더, ** 볼드 등)
-  const lines = text.split('\n');
+  const parts = text.split(/\[SECTION:[^\]]+\]/);
+  const titles = [...text.matchAll(/\[SECTION:([^\]]+)\]/g)].map(m => m[1]);
   let html = '';
-  let currentTitle = '';
-  let currentBody = [];
+  titles.forEach((title, i) => {
+    const body = (parts[i + 1] || '').trim();
+    if(!body) return;
 
-  function flushSection(){
-    if(!currentTitle && !currentBody.length) return;
-    html += `<div class="report-section">
-      ${currentTitle ? `<div class="report-section-title">${currentTitle}</div>` : ''}
-      <div class="report-section-body">${_parseLines(currentBody.join('\n'))}</div>
+    // HEADLINE 추출
+    const headlineMatch = body.match(/\[HEADLINE:([^\]]+)\]/);
+    const headline = headlineMatch ? headlineMatch[1] : '';
+    const bodyWithout = body.replace(/\[HEADLINE:[^\]]+\]/, '').trim();
+
+    // STAT 추출
+    const stats = [...bodyWithout.matchAll(/\[STAT:([^|\]]+)\|([^\]]+)\]/g)].map(m => ({label: m[1], value: m[2]}));
+    const bodyClean = bodyWithout.replace(/\[STAT:[^\]]+\]/g, '').trim();
+
+    html += `<div class="report-section" style="padding:0;overflow:hidden">
+      <!-- 섹션 헤더 -->
+      <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(0,0,0,.06)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${_sectionIcon(title)}
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.6px;text-transform:uppercase">${_sectionLabel(title)}</div>
+        </div>
+        ${headline ? `<div style="font-size:16px;font-weight:900;color:var(--ink);line-height:1.4;letter-spacing:-.3px">${headline}</div>` : ''}
+      </div>
+      ${stats.length ? `
+      <!-- STAT 수치 -->
+      <div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length,3)},1fr);border-bottom:1px solid rgba(0,0,0,.06)">
+        ${stats.map((s,idx) => `
+          <div style="padding:12px 14px;${idx < stats.length-1 ? 'border-right:1px solid rgba(0,0,0,.06)' : ''}">
+            <div style="font-size:10px;color:var(--ink-5);font-weight:600;letter-spacing:.3px;margin-bottom:4px">${s.label}</div>
+            <div style="font-size:15px;font-weight:900;color:var(--accent);letter-spacing:-.3px">${s.value}</div>
+          </div>`).join('')}
+      </div>` : ''}
+      <!-- 본문 -->
+      <div style="padding:14px 18px">${_parseBody(bodyClean)}</div>
     </div>`;
-    currentTitle = '';
-    currentBody = [];
-  }
-
-  lines.forEach(line => {
-    // ## 또는 # 헤더 → 새 섹션
-    if(/^#{1,3}\s/.test(line)){
-      flushSection();
-      currentTitle = line.replace(/^#{1,3}\s*/, '').replace(/\*\*/g,'').trim();
-    } else {
-      currentBody.push(line);
-    }
   });
-  flushSection();
-
-  return html || `<div class="report-section"><div class="report-section-body">${_parseLines(text)}</div></div>`;
+  return html || `<div class="report-section"><div class="report-section-body">${_parseBody(text)}</div></div>`;
 }
 
-function _parseLines(body){
+function _sectionIcon(title){
+  const t = title || '';
+  if(t.includes('상황') || t.includes('진단'))
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  if(t.includes('공고') || t.includes('넣으세요'))
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  if(t.includes('로또') || t.includes('무순위'))
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  if(t.includes('대출') || t.includes('저축') || t.includes('자금'))
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
+  if(t.includes('할 일') || t.includes('액션') || t.includes('오늘'))
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+}
+
+function _sectionLabel(title){
+  // 이모지 제거하고 순수 텍스트만
+  return (title || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FEFF}\u{1F900}-\u{1F9FF}]/gu, '').trim();
+}
+
+function _parseBody(body){
   return body.split('\n').filter(l => l.trim()).map(l => {
     const t = l.trim();
+    if(!t) return '';
     // 번호 목록
     if(/^\d+[.)\s]/.test(t)){
       const num = t.match(/^(\d+)/)[1];
-      const rest = t.replace(/^\d+[.)\s]+/,'');
-      return `<div style="display:flex;gap:10px;margin:8px 0;padding:10px 12px;background:var(--accent-light);border-radius:10px"><span style="color:var(--accent);font-weight:800;flex-shrink:0">${num}.</span><span style="font-size:13px;color:var(--ink-3);line-height:1.65">${_md(rest)}</span></div>`;
+      const rest = _md(t.replace(/^\d+[.)\s]+/,''));
+      return `<div style="display:flex;gap:10px;align-items:flex-start;margin:8px 0;padding:11px 14px;background:var(--accent-light);border-radius:12px;border-left:3px solid var(--accent)">
+        <span style="color:var(--accent);font-weight:900;font-size:14px;flex-shrink:0;line-height:1.5">${num}</span>
+        <span style="font-size:13px;color:var(--ink-2);line-height:1.65;font-weight:500">${rest}</span>
+      </div>`;
     }
     // 불릿
-    if(/^[-•*]\s/.test(t)){
-      const rest = t.replace(/^[-•*]\s+/,'');
-      return `<div style="display:flex;gap:8px;margin:6px 0"><span style="color:var(--accent);flex-shrink:0;margin-top:2px">•</span><span style="font-size:13px;color:var(--ink-3);line-height:1.65">${_md(rest)}</span></div>`;
+    if(/^[-•]\s/.test(t)){
+      const rest = _md(t.replace(/^[-•]\s+/,''));
+      return `<div style="display:flex;gap:10px;align-items:flex-start;margin:6px 0">
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:7px"></span>
+        <span style="font-size:13px;color:var(--ink-3);line-height:1.7">${rest}</span>
+      </div>`;
     }
-    // 일반 텍스트
-    return `<div style="font-size:13px;color:var(--ink-3);line-height:1.75;margin:4px 0">${_md(t)}</div>`;
+    // 일반
+    return `<div style="font-size:13px;color:var(--ink-3);line-height:1.8;margin:5px 0">${_md(t)}</div>`;
   }).join('');
 }
 
 function _md(s){
   return s
-    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--ink)">$1</strong>')
-    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
-    .replace(/`([^`]+)`/g,'<code style="background:var(--bg-2);padding:1px 5px;border-radius:4px;font-size:12px">$1</code>');
+    .replace(/\[BOLD:([^\]]+)\]/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
+    .replace(/`([^`]+)`/g,'<span style="background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:700">$1</span>');
 }
 
 
