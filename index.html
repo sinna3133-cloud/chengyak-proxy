@@ -405,11 +405,12 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .menu-new{font-size:11px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;font-weight:700;margin-right:8px}
 
 /* ══ 컨설팅 ══ */
-.consult-hero{background:linear-gradient(135deg,#0A0E1A,#1E2535,#2D3A52);padding:28px 20px 24px;position:relative;overflow:hidden}
-.consult-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);border-radius:50%}
-.consult-title{font-size:22px;font-weight:900;color:white;line-height:1.3;position:relative}
-.consult-sub{font-size:13px;color:rgba(255,255,255,.72);margin-top:7px;line-height:1.55}
-.consult-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 13px;margin-top:12px;font-size:12px;font-weight:700;color:white}
+.consult-hero{background:linear-gradient(135deg,#0A0E1A,#1A2236,#0F1A2E);padding:28px 20px 28px;position:relative;overflow:hidden}
+.consult-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,102,255,.25) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.consult-hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(0,201,160,.15) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.consult-title{font-size:24px;font-weight:900;color:white;line-height:1.3;position:relative;z-index:1;letter-spacing:-.4px}
+.consult-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:8px;line-height:1.6;position:relative;z-index:1}
+.consult-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,102,255,.2);border:1px solid rgba(0,102,255,.35);border-radius:20px;padding:5px 13px;margin-top:12px;font-size:12px;font-weight:700;color:#60A5FA;position:relative;z-index:1}
 .prob-card{margin:16px 20px 0;background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);overflow:hidden;box-shadow:var(--shadow-sm)}
 .prob-hd{padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:8px}
 .prob-hd-title{font-size:14px;font-weight:800;color:var(--accent-dark)}
@@ -428,17 +429,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .prob-pct.mi{color:#D97706}
 .prob-pct.lo{color:#DC2626}
 .prob-sub{font-size:12px;color:var(--ink-4);margin-top:5px}
-.prem-card{margin:14px 20px 0}
-.prem-inner{background:linear-gradient(135deg,#0F0C2E,#1E1B4B,#312E81);padding:22px 20px;border-radius:var(--r);position:relative;overflow:hidden}
-.prem-inner::after{content:'👑';position:absolute;right:18px;top:16px;font-size:40px;opacity:.18}
-.prem-title{font-size:16px;font-weight:800;color:white}
-.prem-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:5px;line-height:1.55}
-.prem-features{display:flex;flex-direction:column;gap:9px;margin-top:15px}
-.prem-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.82)}
-.prem-feat::before{content:'✓';font-weight:800;color:#818CF8}
-.prem-btn{width:100%;padding:14px;background:linear-gradient(135deg,#F59E0B,#D97706);color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:18px;box-shadow:0 4px 16px rgba(245,158,11,.4);transition:all .2s}
-.prem-btn:active{transform:scale(.98)}
-.prem-lock{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--bg);border:1px solid rgba(0,0,0,.07);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:13px;color:var(--ink-4);font-weight:600}
+.prem-card{margin:16px 20px 0}
+.prem-inner{background:var(--bg-card);border:1px solid rgba(0,0,0,.07);padding:22px 20px;border-radius:var(--r);position:relative;overflow:hidden;box-shadow:var(--shadow-md)}
+.prem-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0066FF,#00C9A0)}
+.prem-title{font-size:17px;font-weight:900;color:var(--ink);letter-spacing:-.3px}
+.prem-sub{font-size:13px;color:var(--ink-4);margin-top:5px;line-height:1.55}
+.prem-features{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.prem-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3);font-weight:500}
+.prem-feat::before{content:'';width:18px;height:18px;border-radius:50%;background:var(--accent-light);flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066FF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
+.prem-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
+.prem-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,102,255,.3)}
+.prem-lock{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--mint-light);border:1px solid rgba(0,201,160,.2);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:12px;color:#00A882;font-weight:700}
 
 /* ══ 용어사전 ══ */
 .glo-search{padding:12px 20px 0}
@@ -1239,26 +1240,31 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 <!-- ══ 컨설팅 ══ -->
 <div class="screen" id="screen-consult">
   <div class="consult-hero">
-    <div class="consult-title">🏆 청약 컨설팅</div>
-    <div class="consult-sub">내 조건으로 어디 청약할지,
-예상 당첨률까지 분석해드려요</div>
+    <div class="consult-title">AI 청약 컨설팅</div>
+    <div class="consult-sub">내 조건을 분석해 최적 청약지와<br>당첨 확률을 AI가 실시간으로 알려드려요</div>
     <div class="consult-badge">⚡ 내 조건 기반 실시간 분석</div>
   </div>
 
   <div class="prem-card">
     <div class="prem-inner">
-      <div class="prem-title">AI 맞춤 청약 전략 리포트</div>
-      <div style="margin:8px 0 12px;padding:10px 14px;background:rgba(255,255,255,.15);border-radius:10px;border-left:3px solid white">
-        <div style="font-size:13px;font-weight:800;color:white;line-height:1.6">✦ 내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="prem-title">AI 맞춤 청약 전략 리포트</div>
       </div>
-      <div class="prem-sub">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
+      <div style="margin:10px 0 0;padding:12px 14px;background:var(--accent-light);border-radius:12px;border-left:3px solid var(--accent)">
+        <div style="font-size:13px;font-weight:700;color:var(--accent-dark);line-height:1.6">내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
+      </div>
+      <div class="prem-sub" style="margin-top:12px">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
+      <div style="height:1px;background:rgba(0,0,0,.06);margin:16px 0"></div>
       <div class="prem-features">
         <div class="prem-feat">내 조건 기반 최적 청약지 TOP 5 추천</div>
         <div class="prem-feat">가점 계산 및 경쟁률 심층 분석</div>
         <div class="prem-feat">대출 상품 비교 및 월 상환액 시뮬레이션</div>
         <div class="prem-feat">청약 일정 맞춤 저축 전략 제안</div>
       </div>
-      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">✦ 내 청약 전략 리포트 받기</button>
+      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">내 청약 전략 리포트 받기</button>
     </div>
     <div class="prem-lock">🆓 지금은 무료로 체험할 수 있어요</div>
   </div>
@@ -6501,7 +6507,6 @@ function kakaoLogin() {
 }
 
 async function handleKakaoCallback(code) {
-  // 스플래시 확실히 숨김
   const sp = document.getElementById('splash');
   if (sp) { sp.classList.add('hide'); setTimeout(() => sp.style.display='none', 300); }
   showToast('카카오 로그인 중...');
@@ -6513,14 +6518,9 @@ async function handleKakaoCallback(code) {
     kakaoUser = data;
     kakaoUser.appNickname = data.nickname;
     P.name = data.nickname;
-    // 기기별 키로 저장 (v2) — 다른 기기 로그인 정보와 충돌 없음
     localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
-    // 구버전 키 제거
     localStorage.removeItem('kakaoUser');
-    // Supabase에 프로필 저장 + 북마크 불러오기
-    await sbSaveProfile(kakaoUser);
-    await sbLoadBookmarks(String(kakaoUser.kakaoId));
-    await sbLoadCondition(String(kakaoUser.kakaoId));
+    // UI 즉시 업데이트 — Supabase는 백그라운드에서 처리
     applyLoginUI();
     updateHero();
     updateMyCondCard();
@@ -6528,6 +6528,10 @@ async function handleKakaoCallback(code) {
     renderSaved();
     showScreen('home');
     showToast(`✓ ${data.nickname}님, 환영해요!`);
+    // Supabase 백그라운드 처리
+    sbSaveProfile(kakaoUser);
+    sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
+    sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); });
   } catch(e) {
     showToast('❌ 로그인 실패: ' + e.message);
   }
@@ -6537,6 +6541,8 @@ function kakaoLogout() {
   kakaoUser = null;
   localStorage.removeItem('kakaoUser_v2');
   localStorage.removeItem('kakaoUser');
+  // URL에 남은 code 파라미터 제거 (재로그인 시 자동 로그인 방지)
+  history.replaceState({}, '', window.location.pathname);
   savedIds.clear();
   // 조건 초기화
   P.name=''; P.byear=''; P.bmonth=''; P.bday=''; P.income=''; P.cash='';
