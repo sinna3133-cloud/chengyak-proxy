@@ -688,6 +688,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ── 탭바 활성 배경 팝 ── */
 @keyframes navPop{from{transform:translateX(-50%) scale(.5);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
 @keyframes loadDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+/* 리포트 인트로 */
+@keyframes introLineIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.intro-line{opacity:0;animation:introLineIn .5s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes introBtnIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.intro-btn{opacity:0;animation:introBtnIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
 /* 리포트 섹션 스타일 */
 .report-section{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both}
 .report-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.5px}
@@ -3943,13 +3948,43 @@ function initSimulator(){
 /* ══ AI 리포트 인터뷰 + 생성 ══ */
 const REPORT_QUESTIONS = [
   {
+    id: 'experience',
+    q: '청약을 넣어본 적 있어요?',
+    sub: '경험에 맞는 전략을 추천해드려요',
+    options: [
+      { label: '처음이에요', desc: '청약 신청 경험 없음', value: 'first' },
+      { label: '낙첨 경험 있어요', desc: '신청했지만 당첨 안 됨', value: 'failed' },
+      { label: '당첨 이력 있어요', desc: '이전에 당첨된 적 있음', value: 'won' },
+    ]
+  },
+  {
+    id: 'live',
+    q: '지금 어디 살고 계세요?',
+    sub: '거주지에 따라 1순위 자격이 달라져요',
+    options: [
+      { label: '서울', desc: '서울 거주', value: 'seoul' },
+      { label: '경기 · 인천', desc: '수도권 거주', value: 'gyeonggi' },
+      { label: '그 외 지역', desc: '지방 거주', value: 'other' },
+    ]
+  },
+  {
+    id: 'risk',
+    q: '청약 성향은 어떤 편이에요?',
+    sub: '공격적일수록 경쟁률 높은 단지를 추천해요',
+    options: [
+      { label: '안정적으로', desc: '경쟁률 낮고 확실한 곳', value: 'safe' },
+      { label: '어느 정도 도전', desc: '경쟁률 10~30:1 수준', value: 'mid' },
+      { label: '공격적으로', desc: '경쟁률 높아도 좋은 곳', value: 'bold' },
+    ]
+  },
+  {
     id: 'loan',
     q: '대출을 얼마나 활용할 수 있어요?',
     sub: '자금 계획과 추천 공고 가격대에 반영돼요',
     options: [
-      { label: '최소화', desc: '가급적 대출 없이', value: 'min', icon: '🔒' },
-      { label: '적당히', desc: '분양가 40~50% 이내', value: 'mid', icon: '⚖️' },
-      { label: '최대한', desc: '가능한 한 많이', value: 'max', icon: '🚀' },
+      { label: '최소화', desc: '가급적 대출 없이', value: 'min' },
+      { label: '적당히', desc: '분양가 40~50% 이내', value: 'mid' },
+      { label: '최대한', desc: '가능한 한 많이', value: 'max' },
     ]
   },
   {
@@ -3957,9 +3992,9 @@ const REPORT_QUESTIONS = [
     q: '입주까지 기다릴 수 있는 기간은요?',
     sub: '청약 후 실입주까지 보통 2~3년 걸려요',
     options: [
-      { label: '1년 이내', desc: '당장 입주 가능한 곳만', value: '1', icon: '⚡' },
-      { label: '2~3년', desc: '신축 분양도 가능', value: '3', icon: '🏗️' },
-      { label: '5년 이상', desc: '장기 투자도 고려', value: '5', icon: '📅' },
+      { label: '1년 이내', desc: '당장 입주 가능한 곳만', value: '1' },
+      { label: '2~3년', desc: '신축 분양도 가능', value: '3' },
+      { label: '5년 이상', desc: '장기 투자도 고려', value: '5' },
     ]
   },
   {
@@ -3967,10 +4002,10 @@ const REPORT_QUESTIONS = [
     q: '가장 중요한 우선순위는 뭐예요?',
     sub: '이에 맞는 공고를 우선 추천해드려요',
     options: [
-      { label: '시세차익', desc: '나중에 팔았을 때 수익', value: 'profit', icon: '💰' },
-      { label: '실거주', desc: '편하게 오래 살 집', value: 'live', icon: '🏠' },
-      { label: '학군', desc: '자녀 교육 환경', value: 'school', icon: '📚' },
-      { label: '교통', desc: '출퇴근 편의성', value: 'transit', icon: '🚇' },
+      { label: '시세차익', desc: '나중에 팔았을 때 수익', value: 'profit' },
+      { label: '실거주', desc: '편하게 오래 살 집', value: 'live' },
+      { label: '학군', desc: '자녀 교육 환경', value: 'school' },
+      { label: '교통', desc: '출퇴근 편의성', value: 'transit' },
     ]
   },
   {
@@ -3978,10 +4013,20 @@ const REPORT_QUESTIONS = [
     q: '주요 출퇴근 지역은 어디예요?',
     sub: '통근 거리를 고려한 지역을 추천해요',
     options: [
-      { label: '강남/서초', value: 'gangnam', icon: '🏙️' },
-      { label: '여의도/마포', value: 'yeouido', icon: '🌉' },
-      { label: '강북/도심', value: 'CBD', icon: '🏛️' },
-      { label: '경기/기타', value: 'etc', icon: '🗺️' },
+      { label: '강남 · 서초', value: 'gangnam' },
+      { label: '여의도 · 마포', value: 'yeouido' },
+      { label: '강북 · 도심', value: 'CBD' },
+      { label: '경기 · 기타', value: 'etc' },
+    ]
+  },
+  {
+    id: 'unsold',
+    q: '미분양 단지도 고려할 수 있어요?',
+    sub: '선착순 계약 공고 추천 여부에 반영돼요',
+    options: [
+      { label: '괜찮아요', desc: '입지 좋으면 고려 가능', value: 'yes' },
+      { label: '신중하게', desc: '이유가 있으면 고려', value: 'maybe' },
+      { label: '피하고 싶어요', desc: '정식 청약만 선호', value: 'no' },
     ]
   },
 ];
@@ -4010,7 +4055,7 @@ function openPremReport(){
   _reportAnswers = {};
   _reportStep    = 0;
   _openReportOv();
-  _renderQuestion(0);
+  _showIntro();
 }
 
 function _openReportOv(){
@@ -4020,7 +4065,43 @@ function _openReportOv(){
   document.getElementById('report-interview').style.display = 'block';
   document.getElementById('report-loading').style.display  = 'none';
   document.getElementById('report-content').style.display  = 'none';
+  document.getElementById('report-prog-wrap').style.display = 'none';
+  document.getElementById('report-headline').textContent   = '';
+  document.getElementById('report-sub').textContent        = '';
+  document.getElementById('report-nav-title').textContent  = '';
+}
+
+function _showIntro(){
+  const name = P.name || '고객';
+  const el   = document.getElementById('report-interview');
+  // 인트로 라인들 — 순차 페이드인
+  const lines = [
+    { text: `${name}님을 위한`, delay: 0.1 },
+    { text: '맞춤 청약 전략을', delay: 0.55 },
+    { text: '분석해드릴게요.', delay: 1.0 },
+  ];
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;justify-content:flex-end;min-height:60vh;padding-bottom:40px">
+      <div style="margin-bottom:32px">
+        ${lines.map(l => `
+          <div class="intro-line" style="animation-delay:${l.delay}s;font-size:28px;font-weight:900;color:var(--ink);letter-spacing:-.6px;line-height:1.4;margin-bottom:2px">
+            ${l.text}
+          </div>`).join('')}
+        <div class="intro-line" style="animation-delay:1.5s;margin-top:14px;font-size:14px;color:var(--ink-4);line-height:1.7">
+          더 정확한 분석을 위해<br>몇 가지 여쭤볼게요.
+        </div>
+      </div>
+      <button class="intro-btn" onclick="_startInterview()"
+        style="animation-delay:2s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px">
+        시작하기
+      </button>
+    </div>`;
+}
+
+function _startInterview(){
   document.getElementById('report-prog-wrap').style.display = 'block';
+  document.getElementById('report-nav-title').textContent   = '1 / ' + REPORT_QUESTIONS.length;
+  _renderQuestion(0);
 }
 
 function _renderQuestion(step){
@@ -4038,10 +4119,9 @@ function _renderQuestion(step){
       ${q.options.map(opt => `
         <button onclick="reportAnswer('${q.id}','${opt.value}')"
           style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg-card);border:1.5px solid rgba(0,0,0,.07);border-radius:18px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.06);width:100%">
-          <div style="width:44px;height:44px;border-radius:14px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${opt.icon}</div>
-          <div>
-            <div style="font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.2px">${opt.label}</div>
-            ${opt.desc ? `<div style="font-size:12px;color:var(--ink-4);margin-top:2px">${opt.desc}</div>` : ''}
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.2px">${opt.label}</div>
+            ${opt.desc ? `<div style="font-size:12px;color:var(--ink-4);margin-top:3px">${opt.desc}</div>` : ''}
           </div>
           <svg style="margin-left:auto;flex-shrink:0;color:var(--ink-5)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </button>`).join('')}
@@ -4157,10 +4237,14 @@ async function generateReport(){
     return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'}`;
   }).join('\n');
 
+  const expLabel    = {first:'청약 처음', failed:'낙첨 경험 있음', won:'당첨 이력 있음'}[a.experience] || '미응답';
+  const liveLabel   = {seoul:'서울 거주', gyeonggi:'경기·인천 거주', other:'지방 거주'}[a.live || a.region] || '미응답';
+  const riskLabel   = {safe:'안정적', mid:'적당히 도전', bold:'공격적'}[a.risk] || '미응답';
   const loanLabel   = {min:'최소화(가급적 대출 없이)', mid:'적당히(분양가 40~50%)', max:'최대한 활용'}[a.loan] || '미응답';
   const waitLabel   = {1:'1년 이내', 3:'2~3년', 5:'5년 이상'}[a.wait] || '미응답';
   const priorLabel  = {profit:'시세차익 우선', live:'실거주 우선', school:'학군 우선', transit:'교통 우선'}[a.priority] || '미응답';
-  const workLabel   = {gangnam:'강남/서초', yeouido:'여의도/마포', CBD:'강북/도심', etc:'경기/기타'}[a.work] || '미응답';
+  const workLabel   = {gangnam:'강남·서초', yeouido:'여의도·마포', CBD:'강북·도심', etc:'경기·기타'}[a.work] || '미응답';
+  const unsoldLabel = {yes:'미분양 OK', maybe:'신중하게 고려', no:'미분양 제외'}[a.unsold] || '미응답';
 
   // 저축 목표 계산
   const targetPrice  = matched.length > 0 ? getMaxP(matched[0]) : 50000;
@@ -4200,8 +4284,10 @@ async function generateReport(){
 - 희망 지역: ${regionLabel}
 
 ## 인터뷰 답변
+- 청약 경험: ${expLabel} / 거주지: ${liveLabel} / 성향: ${riskLabel}
 - 대출: ${loanLabel} / 대기 가능: ${waitLabel}
 - 우선순위: ${priorLabel} / 출퇴근: ${workLabel}
+- 미분양 고려: ${unsoldLabel}
 
 ## 현재 매칭 공고
 ${matchedStr||'없음'}
@@ -4225,7 +4311,7 @@ ${mktStr||'없음'}
 딱 2~3문장. 가점 ${score.total}점, 현금 ${cash.toLocaleString()}만원이면 지금 할 수 있는 것과 없는 것. 좋은 점도 아쉬운 점도 솔직하게.
 
 [SECTION:지금 당장 이 공고 넣으세요]
-매칭 공고 중 우선순위(${priorLabel}), 출퇴근(${workLabel}), 대기기간(${waitLabel}) 반영해서 1~3개만 골라주세요.
+매칭 공고 중 우선순위(${priorLabel}), 출퇴근(${workLabel}), 대기기간(${waitLabel}), 미분양고려(${unsoldLabel}) 반영해서 1~3개만 골라주세요. 청약경험(${expLabel})을 고려해 난이도 조절해주세요.
 각 공고마다:
 - 추천 이유 (수치 포함)
 - 예상 당첨 가능성
