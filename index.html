@@ -6446,7 +6446,7 @@ function adminDeleteListing(id, src){
 let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 
 // 앱 시작 시 로그인 상태 복원
-(function restoreKakaoSession() {
+(async function restoreKakaoSession() {
   // 구버전 오염 키 제거
   localStorage.removeItem('kakaoUser');
 
@@ -6467,14 +6467,18 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
     const saved = localStorage.getItem('kakaoUser_v2');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // kakaoId 있을 때만 복원 (오염 방지)
       if (parsed?.kakaoId) {
         kakaoUser = parsed;
+        P.name = kakaoUser.nickname || kakaoUser.appNickname || '';
         applyLoginUI();
-        sbLoadBookmarks(String(kakaoUser.kakaoId));
-        sbLoadCondition(String(kakaoUser.kakaoId));
+        updateHero();
+        renderListings();
+        await sbLoadBookmarks(String(kakaoUser.kakaoId));
+        await sbLoadCondition(String(kakaoUser.kakaoId));
+        applyLoginUI();
+        updateHero();
+        updateMyCondCard();
       } else {
-        // 유효하지 않은 데이터면 제거
         localStorage.removeItem('kakaoUser_v2');
       }
     }
@@ -6510,6 +6514,11 @@ async function handleKakaoCallback(code) {
     await sbLoadBookmarks(String(kakaoUser.kakaoId));
     await sbLoadCondition(String(kakaoUser.kakaoId));
     applyLoginUI();
+    updateHero();
+    updateMyCondCard();
+    renderListings();
+    renderSaved();
+    showScreen('home');
     showToast(`✓ ${data.nickname}님, 환영해요!`);
   } catch(e) {
     showToast('❌ 로그인 실패: ' + e.message);
