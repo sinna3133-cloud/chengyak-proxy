@@ -6510,7 +6510,7 @@ function kakaoLogin() {
   // SDK 2.x: authorize → 팝업 없이 redirect 방식
   window.Kakao.Auth.authorize({
     redirectUri: window.location.origin + '/',
-    prompts: 'login', // 항상 로그인 화면 강제
+    prompt: 'login', // 항상 로그인 화면 강제
   });
 }
 
