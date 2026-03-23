@@ -3964,6 +3964,17 @@ function initSimulator(){
 /* ══ AI 리포트 인터뷰 + 생성 ══ */
 const REPORT_QUESTIONS = [
   {
+    id: 'target_region',
+    q: '청약을 넣고 싶은 지역은 어디예요?',
+    sub: '이 범위 안에서만 공고를 추천해드려요',
+    options: [
+      { label: '서울만', desc: '서울 내 공고만', value: 'seoul_only' },
+      { label: '수도권', desc: '서울 · 경기 · 인천', value: 'capital' },
+      { label: '전국', desc: '지방 포함 전체', value: 'nationwide' },
+      { label: '지방만', desc: '수도권 외 지역', value: 'local' },
+    ]
+  },
+  {
     id: 'experience',
     q: '청약을 넣어본 적 있어요?',
     sub: '경험에 맞는 전략을 추천해드려요',
@@ -4303,7 +4314,17 @@ async function generateReport(){
     (m.deals.length ? ` (최근 실거래: ${m.deals.map(d => `${Math.round(d.price/10000*10)/10}억`).join(', ')})` : '')
   ).join('\n');
 
-  const matchedStr = matched.slice(0,5).map(l => {
+  // 희망 지역 필터
+  const _targetRegion = a.target_region || 'nationwide';
+  const _capitalRegs  = ['seoul','gyeonggi','incheon'];
+  const _seoulOnly    = ['seoul'];
+  const matchedFiltered = matched.filter(l => {
+    if(_targetRegion === 'seoul_only')  return _seoulOnly.includes(l.region);
+    if(_targetRegion === 'capital')     return _capitalRegs.includes(l.region);
+    if(_targetRegion === 'local')       return !_capitalRegs.includes(l.region);
+    return true; // nationwide
+  });
+  const matchedStr = matchedFiltered.slice(0,5).map(l => {
     const g = gap(l);
     return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')}`;
   }).join('\n');
@@ -4313,6 +4334,7 @@ async function generateReport(){
     return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'}`;
   }).join('\n');
 
+  const regionTargetLabel = {seoul_only:'서울만', capital:'수도권(서울·경기·인천)', nationwide:'전국', local:'지방'}[a.target_region] || '미응답';
   const expLabel    = {first:'청약 처음', failed:'낙첨 경험 있음', won:'당첨 이력 있음'}[a.experience] || '미응답';
   const liveLabel   = {seoul:'서울 거주', gyeonggi:'경기·인천 거주', other:'지방 거주'}[a.live || a.region] || '미응답';
   const riskLabel   = {safe:'안정적', mid:'적당히 도전', bold:'공격적'}[a.risk] || '미응답';
@@ -4341,13 +4363,14 @@ async function generateReport(){
   const prompt = `청약 전문 컨설턴트예요. 아래 조건으로 맞춤 전략 리포트를 작성해주세요. "~해요" 체로 친근하게, 결론 먼저, 숫자 근거 필수.
 
 [고객] 만 ${age}세 / ${P.marriage||'미혼'} / 가점 ${score.total}점 / ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 소득 ${income.toLocaleString()}만원(${incPct}%) / 현금 ${cash.toLocaleString()}만원 / 통장 ${acc}회(${rank1?'1순위':'2순위'}) / 전형: ${types.join(',')||'없음'}
-[답변] 경험:${expLabel} / 거주:${liveLabel} / 성향:${riskLabel} / 대출:${loanLabel} / 대기:${waitLabel} / 우선:${priorLabel} / 출퇴근:${workLabel} / 미분양:${unsoldLabel}
+[답변] 희망지역:${regionTargetLabel} / 경험:${expLabel} / 거주:${liveLabel} / 성향:${riskLabel} / 대출:${loanLabel} / 대기:${waitLabel} / 우선:${priorLabel} / 출퇴근:${workLabel} / 미분양:${unsoldLabel}
 [공고] ${matchedStr||'없음'}
 [로또] ${lottoStr||'없음'}
 [자금] 계약금가능:${(cash*10).toLocaleString()}만원이하 / 부족액:${savingsGap.toLocaleString()}만원 / 월${monthlyNeeded.toLocaleString()}만원씩 2년
 
-아래 형식을 정확히 지켜줘. 마크다운(#,##,**) 절대 금지. [SECTION:아이콘 제목] 태그로만 섹션 구분.
-각 섹션 첫 줄은 반드시 [HEADLINE:한줄요약] 형식으로 핵심을 재치있고 임팩트 있게 한 문장으로 써줘. 사주처럼 딱 떨어지게.
+공고 추천은 반드시 희망지역(${regionTargetLabel}) 범위 안에서만 해줘. 범위 밖 지역 공고 추천 절대 금지.
+아래 형식을 정확히 지켜줘. 마크다운(#,##,**) 절대 금지. [SECTION:제목] 태그로만 섹션 구분. [STAT:라벨|값] 에서 값은 짧게(최대 5자), 쉼표 절대 금지.
+각 섹션 첫 줄은 반드시 [HEADLINE:한줄요약] 형식으로 핵심을 한 문장으로 써줘. 재치있되 과하지 않게, 자연스러운 구어체로. '~다' 체 금지, '~해요' 체로. 무기, 카드, 승부 같은 과장된 비유 금지.
 그 다음 [STAT:라벨|값] 형식으로 핵심 수치를 1~3개 넣어줘.
 그 다음 본문을 써줘. 중요한 단어는 [BOLD:텍스트] 로 강조.
 항목 나열은 - 로 시작.
@@ -4385,7 +4408,7 @@ async function generateReport(){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
+        max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -4439,11 +4462,13 @@ function renderReportText(text){
     html += `<div class="report-section" style="padding:0;overflow:hidden">
       <!-- 섹션 헤더 -->
       <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(0,0,0,.06)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:32px;height:32px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div style="width:28px;height:28px;border-radius:8px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
             ${_sectionIcon(title)}
           </div>
-          <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.6px;text-transform:uppercase">${_sectionLabel(title)}</div>
+          <div style="display:inline-flex;align-items:center;background:var(--accent-light);border-radius:20px;padding:4px 12px 4px 8px;gap:5px">
+            <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:-.1px">${_sectionLabel(title)}</div>
+          </div>
         </div>
         ${headline ? `<div style="font-size:16px;font-weight:900;color:var(--ink);line-height:1.4;letter-spacing:-.3px">${headline}</div>` : ''}
       </div>
@@ -4452,8 +4477,8 @@ function renderReportText(text){
       <div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length,3)},1fr);border-bottom:1px solid rgba(0,0,0,.06)">
         ${stats.map((s,idx) => `
           <div style="padding:12px 14px;${idx < stats.length-1 ? 'border-right:1px solid rgba(0,0,0,.06)' : ''}">
-            <div style="font-size:10px;color:var(--ink-5);font-weight:600;letter-spacing:.3px;margin-bottom:4px">${s.label}</div>
-            <div style="font-size:15px;font-weight:900;color:var(--accent);letter-spacing:-.3px">${s.value}</div>
+            <div style="font-size:10px;color:var(--ink-5);font-weight:600;letter-spacing:.3px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.label}</div>
+            <div style="font-size:14px;font-weight:900;color:var(--accent);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.value}</div>
           </div>`).join('')}
       </div>` : ''}
       <!-- 본문 -->
@@ -4510,10 +4535,13 @@ function _parseBody(body){
 }
 
 function _md(s){
+  // ] 홀로 남는 경우 제거
   return s
     .replace(/\[BOLD:([^\]]+)\]/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
     .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
-    .replace(/`([^`]+)`/g,'<span style="background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:700">$1</span>');
+    .replace(/`([^`]+)`/g,'<span style="background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:700">$1</span>')
+    .replace(/\]/g,'')  // 남은 ] 제거
+    .replace(/\[/g,''); // 남은 [ 제거
 }
 
 
