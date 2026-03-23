@@ -6,6 +6,7 @@
 <title>쉬운청약</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Cpolygon points='100,28 172,78 100,78' fill='white' opacity='0.07'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Crect x='34' y='76' width='34' height='96' rx='6' fill='white' opacity='0.05'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
@@ -6457,42 +6458,36 @@ function adminDeleteListing(id, src){
 
 // 관리자 공고는 loadLiveData()에서 이름 기준 병합으로 처리 (중복 방지)
 
-/* ══ 카카오 로그인 ══ */
-let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
+/* ══ 카카오 로그인 (JS SDK) ══ */
+let kakaoUser = null;
+
+// JS SDK 초기화 (JavaScript 키 사용)
+const KAKAO_JS_KEY = '1e18e9aa2270ebaf1d1c1679fdabbb3d';
+if (window.Kakao && !window.Kakao.isInitialized()) {
+  window.Kakao.init(KAKAO_JS_KEY);
+}
 
 // 앱 시작 시 로그인 상태 복원
 (async function restoreKakaoSession() {
-  // 구버전 오염 키 제거
   localStorage.removeItem('kakaoUser');
-
-  // URL에 code 파라미터 있으면 → 카카오 콜백 처리 (이 기기에서 새로 로그인)
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (code) {
-    // 스플래시 즉시 숨김
-    const sp = document.getElementById('splash');
-    if (sp) sp.style.display = 'none';
-    history.replaceState({}, '', window.location.pathname);
-    handleKakaoCallback(code);
-    return; // 로컬 복원 건너뜀
-  }
-
-  // 이 기기에서 저장한 세션 복원
   try {
     const saved = localStorage.getItem('kakaoUser_v2');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed?.kakaoId) {
         kakaoUser = parsed;
-        P.name = kakaoUser.nickname || kakaoUser.appNickname || '';
+        P.name = kakaoUser.nickname || '';
+        // 닉네임 즉시 DOM 반영
+        const _greetEl = document.getElementById('hero-greeting');
+        const _myNameEl = document.getElementById('my-name');
+        if (_greetEl) _greetEl.textContent = `${P.name}님, 안녕하세요`;
+        if (_myNameEl) _myNameEl.textContent = P.name + '님';
         applyLoginUI();
         updateHero();
         renderListings();
-        await sbLoadBookmarks(String(kakaoUser.kakaoId));
-        await sbLoadCondition(String(kakaoUser.kakaoId));
-        applyLoginUI();
-        updateHero();
-        updateMyCondCard();
+        // Supabase 백그라운드 처리
+        sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
+        sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); });
       } else {
         localStorage.removeItem('kakaoUser_v2');
       }
@@ -6503,47 +6498,55 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 })();
 
 function kakaoLogin() {
-  const redirectUri = encodeURIComponent(window.location.origin + '/');
-  // prompt=login: 항상 카카오 로그인 화면 강제 표시 (자동 로그인 방지)
-  const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}&prompt=login`;
-  window.location.replace(url);
+  if (!window.Kakao?.isInitialized()) {
+    window.Kakao.init(KAKAO_JS_KEY);
+  }
+  window.Kakao.Auth.login({
+    success: async function(authObj) {
+      showToast('카카오 로그인 중...');
+      try {
+        // 사용자 정보 조회
+        window.Kakao.API.request({
+          url: '/v2/user/me',
+          success: async function(userData) {
+            const kakaoId = String(userData.id);
+            const nickname = userData.kakao_account?.profile?.nickname || '사용자';
+            const avatar = userData.kakao_account?.profile?.thumbnail_image_url || '';
+            const accessToken = authObj.access_token;
+            kakaoUser = { kakaoId, nickname, avatar, accessToken };
+            P.name = nickname;
+            localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
+            localStorage.removeItem('kakaoUser');
+            // 닉네임 즉시 DOM 반영
+            const _greetEl = document.getElementById('hero-greeting');
+            const _myNameEl = document.getElementById('my-name');
+            if (_greetEl) _greetEl.textContent = `${nickname}님, 안녕하세요`;
+            if (_myNameEl) _myNameEl.textContent = nickname + '님';
+            applyLoginUI();
+            updateHero();
+            updateMyCondCard();
+            renderListings();
+            renderSaved();
+            showScreen('home');
+            showToast(`✓ ${nickname}님, 환영해요!`);
+            // Supabase 백그라운드 처리
+            sbSaveProfile(kakaoUser);
+            sbLoadBookmarks(kakaoId).then(() => { applyLoginUI(); updateHero(); });
+            sbLoadCondition(kakaoId).then(() => { updateMyCondCard(); });
+          },
+          fail: function(err) { showToast('❌ 사용자 정보 조회 실패'); }
+        });
+      } catch(e) {
+        showToast('❌ 로그인 실패: ' + e.message);
+      }
+    },
+    fail: function(err) {
+      showToast('❌ 카카오 로그인 실패');
+    }
+  });
 }
 
-async function handleKakaoCallback(code) {
-  const sp = document.getElementById('splash');
-  if (sp) { sp.classList.add('hide'); setTimeout(() => sp.style.display='none', 300); }
-  showToast('카카오 로그인 중...');
-  try {
-    const redirectUri = encodeURIComponent(window.location.origin + '/');
-    const res = await fetch(`${KAKAO_AUTH_API}?code=${encodeURIComponent(code)}&redirect_uri=${redirectUri}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    kakaoUser = data;
-    kakaoUser.appNickname = data.nickname;
-    P.name = data.nickname;
-    localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
-    localStorage.removeItem('kakaoUser');
-    // UI 즉시 업데이트 — Supabase는 백그라운드에서 처리
-    // 닉네임 DOM에 즉시 반영 (showScreen 전에)
-    const _greetEl = document.getElementById('hero-greeting');
-    const _myNameEl = document.getElementById('my-name');
-    if (_greetEl) _greetEl.textContent = `${data.nickname}님, 안녕하세요`;
-    if (_myNameEl) _myNameEl.textContent = data.nickname + '님';
-    applyLoginUI();
-    updateHero();
-    updateMyCondCard();
-    renderListings();
-    renderSaved();
-    showScreen('home');
-    showToast(`✓ ${data.nickname}님, 환영해요!`);
-    // Supabase 백그라운드 처리
-    sbSaveProfile(kakaoUser);
-    sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
-    sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); });
-  } catch(e) {
-    showToast('❌ 로그인 실패: ' + e.message);
-  }
-}
+async function handleKakaoCallback(code) {}
 
 function kakaoLogout() {
   kakaoUser = null;
