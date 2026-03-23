@@ -397,7 +397,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .menu-item:first-of-type{margin-top:8px;border-top:1px solid rgba(0,0,0,.04)}
 .menu-item:active{background:var(--bg)}
 .menu-section-label{padding:22px 20px 8px;font-size:11px;font-weight:700;color:var(--ink-5);letter-spacing:.8px;text-transform:uppercase}
-.sup-link{font-size:15px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:2px 0}
+.sup-link{font-size:14px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:14px 0;border-bottom:1px solid rgba(0,0,0,.04)}
 .sup-link:active{opacity:.4}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
 .menu-txt{font-size:15px;font-weight:400;flex:1}
@@ -1333,13 +1333,16 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
     </div>
   </div>
+  <div style="height:8px;background:var(--bg);margin-top:20px"></div>
+  <div class="menu-section-label">메뉴</div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico">🏆</span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico">📅</span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico">📖</span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showToast('곧 지원 예정이에요 🔔')"><span class="menu-ico">🔔</span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="openApiSetup()" style="display:none"><span class="menu-ico">🔌</span><span class="menu-txt">청약홈 API 연동</span><span id="api-menu-badge" class="api-menu-badge-off">미연동</span><span class="menu-arr">›</span></div>
+  <div style="height:8px;background:var(--bg)"></div>
   <div class="menu-section-label">고객센터</div>
-  <div style="padding:20px 20px 8px;display:grid;grid-template-columns:1fr 1fr;row-gap:32px">
+  <div style="padding:4px 20px 8px;display:grid;grid-template-columns:1fr 1fr;gap:4px">
     <div class="sup-link" onclick="showSupport('notice')">공지사항</div>
     <div class="sup-link" onclick="showSupport('faq')">FAQ</div>
     <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
@@ -6500,9 +6503,9 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 })();
 
 function kakaoLogin() {
-  // 항상 슬래시 포함된 URL 사용 (카카오 등록값과 일치)
   const redirectUri = encodeURIComponent(window.location.origin + '/');
-  const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
+  // prompt=login: 항상 카카오 로그인 화면 강제 표시 (자동 로그인 방지)
+  const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}&prompt=login`;
   window.location.replace(url);
 }
 
@@ -6521,6 +6524,11 @@ async function handleKakaoCallback(code) {
     localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
     localStorage.removeItem('kakaoUser');
     // UI 즉시 업데이트 — Supabase는 백그라운드에서 처리
+    // 닉네임 DOM에 즉시 반영 (showScreen 전에)
+    const _greetEl = document.getElementById('hero-greeting');
+    const _myNameEl = document.getElementById('my-name');
+    if (_greetEl) _greetEl.textContent = `${data.nickname}님, 안녕하세요`;
+    if (_myNameEl) _myNameEl.textContent = data.nickname + '님';
     applyLoginUI();
     updateHero();
     updateMyCondCard();
