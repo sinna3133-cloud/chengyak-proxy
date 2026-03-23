@@ -23,6 +23,7 @@ module.exports = async function handler(req, res) {
     // ── code로 토큰 교환
     const code = req.query.code || req.body?.code;
     if (!code) return res.status(400).json({ error: 'code 없음' });
+    if (req.query.debug) return res.status(200).json({ CLIENT_ID, REDIRECT_URI });
 
     // 1단계: code → access_token
     const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
