@@ -818,7 +818,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <!-- Step 1: 기본 정보 -->
   <div class="wiz-body" id="ws1">
     <div class="wiz-title">딱 1분이면<br>맞춤 공고를 찾아드려요</div>
-    <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
+    <div class="wiz-sub">대략 입력해도 돼요. 언제든 수정할 수 있어요.</div>
     <div class="wiz-field dob">
       <label class="wiz-label">출생년도 / 월 / 일</label>
       <div class="wiz-inp-row">
@@ -827,7 +827,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <div class="wiz-inp-wrap"><input type="number" class="wiz-inp" id="w-bd" placeholder="01" min="1" max="31"/></div>
       </div>
       <div class="wiz-accuracy-hint">
-        <span>📊 입력하면 청년특공 자격 여부를 자동으로 확인해드려요</span>
+        <span>📊 입력하면 청년특공 자격 여부를 바로 확인해드려요</span>
       </div>
     </div>
     <div class="wiz-field" style="margin-top:8px">
@@ -843,7 +843,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <label class="wiz-label">혼인신고 연도</label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-marriageYear" placeholder="예: 2022"/><span class="unit">년</span></div>
       <div class="wiz-accuracy-hint">
-        <span>📊 혼인 7년 이내일 경우 신혼부부특공 자격을 확인해드려요</span>
+        <span>📊 혼인 7년 이내면 신혼부부특공 자격을 확인해드려요</span>
       </div>
     </div>
     <!-- 기혼 선택 시 맞벌이 여부 표시 -->
@@ -868,7 +868,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <!-- Step 2: 주택 현황 -->
   <div class="wiz-body" id="ws2" style="display:none">
     <div class="wiz-title">주택 현황을<br>알려주세요</div>
-    <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
+    <div class="wiz-sub">대략 입력해도 돼요. 언제든 수정할 수 있어요.</div>
     <div class="wiz-field">
       <label class="wiz-label">현재 주택 소유</label>
       <div class="wiz-radio-grp">
@@ -903,7 +903,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <!-- Step 3: 소득·자산 -->
   <div class="wiz-body" id="ws3" style="display:none">
     <div class="wiz-title">소득과 자산을<br>알려주세요</div>
-    <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
+    <div class="wiz-sub">대략 입력해도 돼요. 언제든 수정할 수 있어요.</div>
     <div class="wiz-field">
       <label class="wiz-label">세대원 수</label>
       <select class="wiz-sel" id="w-household" onchange="onHouseholdChange()">
@@ -921,7 +921,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <div class="wiz-radio" onclick="wRadio(this,'elderParent')">예 (3년 이상 부양)</div>
       </div>
       <div class="wiz-accuracy-hint">
-        <span>📊 만 65세 이상 직계존속을 3년 이상 부양 시 노부모부양 특공 자격이에요</span>
+        <span>📊 만 65세 이상 직계존속을 3년 이상 부양하면 노부모부양 특공 자격이에요</span>
       </div>
     </div>
     <div class="wiz-field">
@@ -947,7 +947,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <label class="wiz-label">보유 현금 <span class="wiz-label-note">예·적금 포함</span></label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-cash" placeholder="예: 5000"/><span class="unit">만원</span></div>
       <div class="wiz-accuracy-hint">
-        <span>📊 입력하면 자금 계획 분석(계약금 납부 가능 여부)을 해드려요</span>
+        <span>📊 입력하면 계약금 납부 가능 여부를 분석해드려요</span>
       </div>
     </div>
   </div>
@@ -955,7 +955,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <!-- Step 4: 청약통장 + 지역 -->
   <div class="wiz-body" id="ws4" style="display:none">
     <div class="wiz-title">청약 통장 정보를<br>입력해주세요</div>
-    <div class="wiz-sub">대략 입력해도 돼요. 수정은 언제든 가능해요.</div>
+    <div class="wiz-sub">대략 입력해도 돼요. 언제든 수정할 수 있어요.</div>
     <div class="wiz-field">
       <label class="wiz-label">청약통장 가입기간</label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-accYears" placeholder="예: 5"/><span class="unit">년</span></div>
@@ -985,7 +985,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <label class="region-chip" onclick="toggleWizSize('40')">40평 (115㎡)</label>
       </div>
       <div class="wiz-accuracy-hint" style="margin-top:10px">
-        <span>📊 선택한 평형의 경쟁률로 당첨 확률을 더 정확하게 분석해드려요</span>
+        <span>📊 선택하면 평형별 경쟁률로 당첨 확률을 더 정확하게 분석해드려요</span>
       </div>
     </div>
     <div class="wiz-field">
@@ -1006,7 +1006,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <label class="region-chip" onclick="toggleWizRegion('jeonnam')">전남</label>
       </div>
       <div class="wiz-accuracy-hint" style="margin-top:10px">
-        <span>📊 입력하면 해당 지역 진행 중 공고를 우선으로 추천해드려요</span>
+        <span>📊 입력하면 해당 지역 공고를 우선으로 추천해드려요</span>
       </div>
     </div>
   </div>
@@ -1075,7 +1075,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="search-wrap">
     <div class="search-box">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="search-inp" id="srch-inp" type="text" placeholder="단지명, 지역으로 검색" oninput="onSearch()"/>
+      <input class="search-inp" id="srch-inp" type="text" placeholder="단지명이나 지역으로 검색해보세요" oninput="onSearch()"/>
       <button class="search-clr" id="srch-clr" onclick="clearSearch()" style="display:none">×</button>
     </div>
   </div>
@@ -1131,7 +1131,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="det-sticky-cta" id="det-sticky-cta">
     <a id="det-cta-link" href="https://www.applyhome.co.kr" target="_blank" class="det-cta-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      청약홈에서 신청하기
+      청약홈에서 바로 신청하기
     </a>
   </div>
   <div class="det-header">
@@ -1225,7 +1225,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 <!-- ══ 즐겨찾기 ══ -->
 <div class="screen" id="screen-saved">
-  <div class="page-header"><div class="page-title">즐겨찾기</div><div class="page-sub">관심 청약을 저장해두세요</div></div>
+  <div class="page-header"><div class="page-title">즐겨찾기</div><div class="page-sub">관심 있는 공고를 저장해두세요</div></div>
   <div id="saved-container"></div>
 </div>
 
@@ -1233,12 +1233,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 <div class="screen" id="screen-consult">
   <div class="consult-hero">
     <div class="consult-title">🏆 청약 컨설팅</div>
-    <div class="consult-sub">내 조건으로 어디 청약하면 좋을지<br>예상 당첨률과 자금 계획을 분석해드려요</div>
+    <div class="consult-sub">내 조건으로 어디 청약할지,
+예상 당첨률까지 분석해드려요</div>
     <div class="consult-badge">⚡ 내 조건 기반 실시간 분석</div>
   </div>
   <div class="prob-card">
     <div class="prob-hd"><span style="font-size:18px">🎯</span><span class="prob-hd-title">진행 중 공고 예상 당첨률 분석</span></div>
-    <div id="prob-list"><div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 설정하면 예상 당첨률을 분석해드려요</div></div>
+    <div id="prob-list"><div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 먼저 설정해주세요</div></div>
   </div>
   <div class="prem-card">
     <div class="prem-inner">
@@ -1246,7 +1247,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div style="margin:8px 0 12px;padding:10px 14px;background:rgba(255,255,255,.15);border-radius:10px;border-left:3px solid white">
         <div style="font-size:13px;font-weight:800;color:white;line-height:1.6">✦ 내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
       </div>
-      <div class="prem-sub">나만을 위한 청약 로드맵과 최적 타이밍을 AI가 분석해드려요</div>
+      <div class="prem-sub">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
       <div class="prem-features">
         <div class="prem-feat">내 조건 기반 최적 청약지 TOP 5 추천</div>
         <div class="prem-feat">가점 계산 및 경쟁률 심층 분석</div>
@@ -1255,7 +1256,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       </div>
       <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">✦ 내 청약 전략 리포트 받기</button>
     </div>
-    <div class="prem-lock">🆓 지금은 무료로 체험해보세요</div>
+    <div class="prem-lock">🆓 지금은 무료로 체험할 수 있어요</div>
   </div>
   <div style="height:100px"></div>
 </div>
@@ -1269,21 +1270,27 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button onclick="closeReport()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
-      <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7)">AI 청약 전략 리포트</div>
+      <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7)" id="report-nav-title">AI 청약 전략 리포트</div>
       <div style="width:44px"></div>
     </div>
     <div style="margin-top:16px;position:relative;z-index:1">
-      <div style="font-size:22px;font-weight:900;color:white;letter-spacing:-.4px;line-height:1.3" id="report-headline">리포트 생성 중...</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:6px" id="report-sub"></div>
+      <div style="font-size:22px;font-weight:900;color:white;letter-spacing:-.4px;line-height:1.3" id="report-headline">몇 가지만 더 알려주세요</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:6px" id="report-sub">더 정확한 리포트를 위해 몇 가지 여쭤볼게요</div>
+      <!-- 진행 바 -->
+      <div style="margin-top:14px;height:3px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden" id="report-prog-wrap">
+        <div id="report-prog" style="height:100%;background:white;border-radius:3px;transition:width .4s ease;width:0%"></div>
+      </div>
     </div>
   </div>
   <!-- 바디 -->
-  <div style="flex:1;overflow-y:auto;padding:20px 20px 100px" id="report-body">
+  <div style="flex:1;overflow-y:auto;padding:20px 20px 40px" id="report-body">
+    <!-- 인터뷰 단계 -->
+    <div id="report-interview" style="display:block"></div>
     <!-- 로딩 상태 -->
-    <div id="report-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
+    <div id="report-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
       <div style="width:48px;height:48px;border-radius:16px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:24px;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)">✦</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink)">리포트 작성 중이에요</div>
-      <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">내 조건을 분석하고 있어요...</div>
+      <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">조건을 꼼꼼히 분석하고 있어요...</div>
       <div style="display:flex;gap:6px;margin-top:4px">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .0s ease-in-out infinite"></div>
         <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .2s ease-in-out infinite"></div>
@@ -1300,7 +1307,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="my-hero">
     <div style="position:relative;z-index:1">
       <div class="my-name" id="my-name"></div>
-      <div class="my-sub">내 청약 조건 관리</div>
+      <div class="my-sub">내 조건을 관리하고 전략을 세워봐요</div>
     </div>
     <div id="kakao-login-area" style="margin-left:auto;position:relative;z-index:1">
       <button class="login-btn" id="kakao-login-btn" onclick="kakaoLogin()">로그인하기</button>
@@ -1312,7 +1319,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button id="edit-cond-btn" onclick="showScreen('editcond')" style="display:none;font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
     </div>
     <div class="my-cond-card" id="my-cond-card">
-      <div style="font-size:13px;color:var(--ink-4)">설정된 조건이 없어요.</div>
+      <div style="font-size:13px;color:var(--ink-4)">아직 설정된 조건이 없어요.</div>
       <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
     </div>
   </div>
@@ -1466,11 +1473,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 const RETRO = ['철수','영수','옥순','순자','복자','덕배','말순','갑돌','분이','점순','갑순','영자','창수','봉수','순희','말희','병철','정자','귀남','복순'];
 const CHEER = [
   '오늘도 내 집 마련 파이팅!',
-  '청약 고수가 되는 중.',
-  '당첨까지 Go Go!',
-  '내 집 마련, 오늘도 한 걸음.',
-  '청약런 시작해볼까요.',
-  '드림 홈을 향해 달려봐요.',
+  '청약 고수가 되는 중이에요',
+  '당첨까지 같이 달려봐요!',
+  '오늘도 한 걸음 더 가까워졌어요.',
+  '좋은 공고 같이 찾아봐요',
+  '드림 홈을 향해 달려봐요',
 ];
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
 const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-my',mycond:'nav-search',detail:'nav-home'};
@@ -1649,7 +1656,7 @@ function openWizard(){
   showWizStep(1);
 }
 
-const WIZ_LABELS = ['기본 정보','주거 상태','자산·소득','청약 조건'];
+const WIZ_LABELS = ['기본 정보','주거 상태','소득·자산','청약통장'];
 function showWizStep(n){
   for(let i=1;i<=4;i++) document.getElementById('ws'+i).style.display=i===n?'block':'none';
   document.getElementById('wiz-step-txt').textContent=`${n} / 4단계 · ${WIZ_LABELS[n-1]}`;
@@ -2690,7 +2697,8 @@ function renderRecommend(){
     c.innerHTML=`<div style="margin:4px 20px 0;padding:24px 20px;background:var(--accent-light);border-radius:18px;text-align:center;cursor:pointer" onclick="openMyCondition()">
   <div style="font-size:32px;margin-bottom:10px">🏠</div>
   <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;letter-spacing:-.3px">내 조건을 설정해보세요</div>
-  <div style="font-size:13px;color:var(--ink-4);line-height:1.6">소득·무주택 기간·청약통장만 입력하면<br>딱 맞는 공고를 추천해드려요</div>
+  <div style="font-size:13px;color:var(--ink-4);line-height:1.6">소득·무주택 기간·청약통장만 입력하면
+딱 맞는 공고를 추천해드려요</div>
 </div>`;
     return;
   }
@@ -2746,7 +2754,7 @@ function renderListings(){
     return a.days - b.days;
   });
 
-  if(!fl.length){cont.innerHTML=`<div class="no-res"><div class="no-res-icon">🔍</div><div class="no-res-title">결과가 없어요</div><div class="no-res-sub">다른 키워드로 검색해보세요</div></div>`;return;}
+  if(!fl.length){cont.innerHTML=`<div class="no-res"><div class="no-res-icon">🔍</div><div class="no-res-title">검색 결과가 없어요</div><div class="no-res-sub">다른 키워드로 검색해보세요</div></div>`;return;}
 
   cont.innerHTML=fl.map((l,idx)=>{
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
@@ -2956,7 +2964,7 @@ function toggleSave(e,id){
   const isSaved=savedIds.has(id);
   if(isSaved){
     savedIds.delete(id);
-    showToast('즐겨찾기에서 제거했어요');
+    showToast('즐겨찾기에서 뺐어요');
     if(btn){ btn.className='bm-btn unsaved'; btn.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'; }
     // Supabase 북마크 삭제
     if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
@@ -3199,7 +3207,7 @@ async function showDetail(id, fromSwipe=false){
   document.getElementById('det-loc').textContent='📍 '+l.loc;
   document.getElementById('det-body').innerHTML=`
 
-  <!-- 1. 📋 분양 정보 -->
+  <!-- 1. 분양 정보 -->
   <div class="info-card" style="margin-top:14px">
     <div class="info-card-title">📋 분양 정보</div>
     ${(()=>{
@@ -3524,7 +3532,7 @@ async function showDetail(id, fromSwipe=false){
   </div>`:''}
 
   <!-- 6. 청약홈 버튼 -->
-  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 신청하기</a>`;
+  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 바로 신청하기</a>`;
   showScreen('detail');
   syncDetailAlarmBtn(l.id);
   // 어드민: 삭제 버튼 표시
@@ -3620,7 +3628,7 @@ function toggleSaveFromDetailIcon(){
   const isSaved = savedIds.has(id);
   if(isSaved){
     savedIds.delete(id);
-    showToast('즐겨찾기에서 제거했어요');
+    showToast('즐겨찾기에서 뺐어요');
     if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
   } else {
     savedIds.add(id);
@@ -3639,7 +3647,7 @@ function shareDetail(){
   if(!l) return;
   const text = `[쉬운청약] ${cleanName(l.name)}\n📍 ${l.loc}\n💰 ${cardPrice(l.price)}\n📅 마감: ${l.deadline}`;
   if(navigator.share) navigator.share({title:l.name,text}).catch(()=>{});
-  else if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('📋 복사됐어요!'));
+  else if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('링크가 복사됐어요'));
 }
 
 function deleteFromDetail(){
@@ -3719,7 +3727,7 @@ function updateScoreScreen(){
     document.getElementById('sc-dp').textContent='?';
     document.getElementById('sc-ac').textContent='?';
     document.getElementById('score-grade').innerHTML='<span class="score-grade c">조건 입력 후 계산돼요</span>';
-    document.getElementById('score-rows').innerHTML='<div style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px">내 청약 탭에서 조건을 입력하면<br>정확한 가점을 계산해드려요<br><br><button onclick="openWizard()" style="margin-top:8px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">조건 입력하기</button></div>';
+    document.getElementById('score-rows').innerHTML='<div style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px">내 청약 탭에서 조건을 입력하면<br>가점을 바로 계산해드려요<br><br><button onclick="openWizard()" style="margin-top:8px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">조건 입력하기</button></div>';
     document.getElementById('cutline-list').innerHTML='';
     document.getElementById('score-tips').innerHTML='<div style="padding:16px 18px;font-size:13px;color:var(--ink-4)">조건을 입력하면 맞춤 팁을 드려요</div>';
     return;
@@ -3840,7 +3848,8 @@ function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(cal
 function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
-  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고 카드의<br>북마크 버튼을 눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:24px;padding:13px 32px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);">공고 보러 가기</button></div>`;return;}
+  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">아직 저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고의 북마크 버튼을
+눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:24px;padding:13px 32px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);">공고 보러 가기</button></div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
   c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
 }
@@ -3849,7 +3858,7 @@ function renderSaved(){
 function updateConsult(){
   const pl=document.getElementById('prob-list');
   const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
-  if(!hasConditions){pl.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 설정하면 예상 당첨률을 분석해드려요</div>';return;}
+  if(!hasConditions){pl.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px">조건을 먼저 설정해주세요</div>';return;}
   pl.innerHTML=listings.filter(l=>!isLottoListing(l)).map(l=>{const prob=calcProb(l,P)||0,pc=pClass(prob);return`<div class="prob-item" onclick="showDetail('${l.id}')"><div class="prob-item-top"><span class="prob-name">${cleanName(l.name)}</span><span class="prob-pct ${pc}">${prob}%</span></div><div class="prob-bar-wrap"><div class="prob-bar ${pc}" style="width:${Math.min(100,prob*2)}%"></div></div><div class="prob-sub">📍 ${l.loc} · 경쟁률 약 ${l.comp}:1</div>${l._probReason?`<div style="font-size:10px;color:var(--ink-5);margin-top:2px;padding-left:2px">📐 ${l._probReason}</div>`:''}</div>`;}).join('');
 }
 
@@ -3931,6 +3940,55 @@ function initSimulator(){
 }
 
 /* ══ 프리미엄 리포트 ══ */
+/* ══ AI 리포트 인터뷰 + 생성 ══ */
+const REPORT_QUESTIONS = [
+  {
+    id: 'loan',
+    q: '대출을 얼마나 활용할 수 있어요?',
+    sub: '자금 계획과 추천 공고 가격대에 반영돼요',
+    options: [
+      { label: '최소화', desc: '가급적 대출 없이', value: 'min', icon: '🔒' },
+      { label: '적당히', desc: '분양가 40~50% 이내', value: 'mid', icon: '⚖️' },
+      { label: '최대한', desc: '가능한 한 많이', value: 'max', icon: '🚀' },
+    ]
+  },
+  {
+    id: 'wait',
+    q: '입주까지 기다릴 수 있는 기간은요?',
+    sub: '청약 후 실입주까지 보통 2~3년 걸려요',
+    options: [
+      { label: '1년 이내', desc: '당장 입주 가능한 곳만', value: '1', icon: '⚡' },
+      { label: '2~3년', desc: '신축 분양도 가능', value: '3', icon: '🏗️' },
+      { label: '5년 이상', desc: '장기 투자도 고려', value: '5', icon: '📅' },
+    ]
+  },
+  {
+    id: 'priority',
+    q: '가장 중요한 우선순위는 뭐예요?',
+    sub: '이에 맞는 공고를 우선 추천해드려요',
+    options: [
+      { label: '시세차익', desc: '나중에 팔았을 때 수익', value: 'profit', icon: '💰' },
+      { label: '실거주', desc: '편하게 오래 살 집', value: 'live', icon: '🏠' },
+      { label: '학군', desc: '자녀 교육 환경', value: 'school', icon: '📚' },
+      { label: '교통', desc: '출퇴근 편의성', value: 'transit', icon: '🚇' },
+    ]
+  },
+  {
+    id: 'work',
+    q: '주요 출퇴근 지역은 어디예요?',
+    sub: '통근 거리를 고려한 지역을 추천해요',
+    options: [
+      { label: '강남/서초', value: 'gangnam', icon: '🏙️' },
+      { label: '여의도/마포', value: 'yeouido', icon: '🌉' },
+      { label: '강북/도심', value: 'CBD', icon: '🏛️' },
+      { label: '경기/기타', value: 'etc', icon: '🗺️' },
+    ]
+  },
+];
+
+let _reportAnswers = {};
+let _reportStep    = 0;
+
 function openPremReport(){
   const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
   if(!hasConditions){
@@ -3939,118 +3997,323 @@ function openPremReport(){
     setTimeout(()=>openWizard(), 300);
     return;
   }
-
-  // 하루 1회 제한
-  const today = new Date().toISOString().slice(0, 10); // "2025-03-23"
+  // 하루 1회 제한 — 캐시 있으면 바로 표시
+  const today    = new Date().toISOString().slice(0, 10);
   const lastUsed = localStorage.getItem('report_last_used');
-  if(lastUsed === today){
-    // 오늘 이미 사용 → 저장된 리포트 바로 보여주기
-    const cached = localStorage.getItem('report_cached');
-    const ov = document.getElementById('report-ov');
-    ov.style.display = 'flex';
-    ov.style.flexDirection = 'column';
-    document.getElementById('report-loading').style.display = 'none';
-    if(cached){
-      const name = P.name || '고객';
-      const score = calcScore(P);
-      document.getElementById('report-headline').textContent = `${name}님의 청약 전략 리포트`;
-      document.getElementById('report-sub').textContent = `가점 ${score.total}점 · 오늘 작성된 리포트`;
-      document.getElementById('report-content').innerHTML = cached;
-      document.getElementById('report-content').style.display = 'block';
-    } else {
-      document.getElementById('report-headline').textContent = '오늘 리포트를 이미 받으셨어요';
-      document.getElementById('report-sub').textContent = '내일 다시 받을 수 있어요';
-      document.getElementById('report-content').innerHTML = `
-        <div style="text-align:center;padding:60px 20px">
-          <div style="font-size:48px;margin-bottom:16px">📋</div>
-          <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">오늘 리포트를 이미 받으셨어요</div>
-          <div style="font-size:13px;color:var(--ink-4);line-height:1.7">내일 자정 이후에 다시 받을 수 있어요.<br>조건을 바꾸고 싶으면 더보기에서 수정해보세요.</div>
-          <button onclick="closeReport();showScreen('my');" style="margin-top:24px;padding:12px 28px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">내 조건 수정하기</button>
-        </div>`;
-      document.getElementById('report-content').style.display = 'block';
-    }
+  const cached   = localStorage.getItem('report_cached');
+  if(lastUsed === today && cached){
+    _openReportOv();
+    _showReportResult(cached, true);
     return;
   }
+  // 인터뷰 시작
+  _reportAnswers = {};
+  _reportStep    = 0;
+  _openReportOv();
+  _renderQuestion(0);
+}
 
+function _openReportOv(){
   const ov = document.getElementById('report-ov');
   ov.style.display = 'flex';
   ov.style.flexDirection = 'column';
-  document.getElementById('report-loading').style.display = 'flex';
-  document.getElementById('report-content').style.display = 'none';
-  document.getElementById('report-headline').textContent = '리포트 작성 중...';
-  document.getElementById('report-sub').textContent = '';
-  generateReport();
+  document.getElementById('report-interview').style.display = 'block';
+  document.getElementById('report-loading').style.display  = 'none';
+  document.getElementById('report-content').style.display  = 'none';
+  document.getElementById('report-prog-wrap').style.display = 'block';
+}
+
+function _renderQuestion(step){
+  const q      = REPORT_QUESTIONS[step];
+  const total  = REPORT_QUESTIONS.length;
+  const pct    = Math.round((step / total) * 100);
+  document.getElementById('report-prog').style.width = pct + '%';
+  document.getElementById('report-nav-title').textContent = `${step + 1} / ${total}`;
+  document.getElementById('report-headline').textContent  = q.q;
+  document.getElementById('report-sub').textContent       = q.sub;
+
+  const el = document.getElementById('report-interview');
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;animation:fadeUp .3s cubic-bezier(.22,1,.36,1)">
+      ${q.options.map(opt => `
+        <button onclick="reportAnswer('${q.id}','${opt.value}')"
+          style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg-card);border:1.5px solid rgba(0,0,0,.07);border-radius:18px;cursor:pointer;text-align:left;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.06);width:100%">
+          <div style="width:44px;height:44px;border-radius:14px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${opt.icon}</div>
+          <div>
+            <div style="font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.2px">${opt.label}</div>
+            ${opt.desc ? `<div style="font-size:12px;color:var(--ink-4);margin-top:2px">${opt.desc}</div>` : ''}
+          </div>
+          <svg style="margin-left:auto;flex-shrink:0;color:var(--ink-5)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>`).join('')}
+    </div>`;
+}
+
+function reportAnswer(qId, value){
+  _reportAnswers[qId] = value;
+  _reportStep++;
+  if(_reportStep < REPORT_QUESTIONS.length){
+    _renderQuestion(_reportStep);
+  } else {
+    // 모든 질문 완료 → 데이터 조회 + 리포트 생성
+    document.getElementById('report-prog').style.width = '100%';
+    document.getElementById('report-interview').style.display = 'none';
+    document.getElementById('report-loading').style.display   = 'flex';
+    document.getElementById('report-headline').textContent    = '리포트 작성 중...';
+    document.getElementById('report-sub').textContent         = '';
+    document.getElementById('report-nav-title').textContent   = 'AI 청약 전략 리포트';
+    document.getElementById('report-prog-wrap').style.display = 'none';
+    generateReport();
+  }
 }
 
 function closeReport(){
   document.getElementById('report-ov').style.display = 'none';
 }
 
-function generateReport(){
-  // ── 기초 데이터 계산 ──────────────────────────
-  const score   = calcScore(P);
-  const types   = calcTypes(P);
-  const typeNames = types.map(t => t.l);
-  const age     = P.byear ? new Date().getFullYear() - parseInt(P.byear) : 0;
-  const nh      = parseInt(P.noHomeYears || 0);
-  const dep     = parseInt(P.dependents  || 0);
-  const acc     = parseInt(P.depCount    || 0);
-  const accYr   = parseInt(P.accYears    || 0);
-  const income  = parseInt(P.income      || 0);
-  const cash    = parseInt(P.cash        || 0);
-  const ch      = parseInt(P.children    || 0);
-  const h       = parseInt(P.household   || 3);
-  const RGN_KR  = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',
-                   daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',
-                   ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남'};
+function _showReportResult(html, fromCache){
+  const name  = P.name || '고객';
+  const score = calcScore(P);
+  document.getElementById('report-headline').textContent = `${name}님의 청약 전략 리포트`;
+  document.getElementById('report-sub').textContent      = fromCache
+    ? `가점 ${score.total}점 · 오늘 작성된 리포트`
+    : `가점 ${score.total}점 · ${new Date().toLocaleDateString('ko-KR')} 기준`;
+  document.getElementById('report-nav-title').textContent   = 'AI 청약 전략 리포트';
+  document.getElementById('report-prog-wrap').style.display = 'none';
+  document.getElementById('report-interview').style.display = 'none';
+  document.getElementById('report-loading').style.display   = 'none';
+  document.getElementById('report-content').innerHTML       = html;
+  document.getElementById('report-content').style.display   = 'block';
+}
+
+async function generateReport(){
+  const score    = calcScore(P);
+  const types    = calcTypes(P).map(t => t.l);
+  const age      = P.byear ? new Date().getFullYear() - parseInt(P.byear) : 0;
+  const income   = parseInt(P.income  || 0);
+  const cash     = parseInt(P.cash    || 0);
+  const nh       = parseInt(P.noHomeYears || 0);
+  const dep      = parseInt(P.dependents  || 0);
+  const acc      = parseInt(P.depCount    || 0);
+  const accYr    = parseInt(P.accYears    || 0);
+  const ch       = parseInt(P.children   || 0);
+  const h        = parseInt(P.household  || 3);
+  const RGN_KR   = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',
+                    daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',
+                    ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남'};
   const regionLabel = RGN_KR[P.region] || '미설정';
-
-  // 소득 기준 % 계산
-  const base100 = (URBAN_INCOME_100[Math.min(h,8)] || 721) * 12;
-  const incPct  = income > 0 ? Math.round(income / base100 * 100) : 0;
-
-  // 매칭 공고
-  const matched = listings.filter(l =>
-    !isLottoListing(l) && l.elig.some(e => typeNames.includes(e))
-  ).sort((a,b) => (a.days||999)-(b.days||999));
-
-  // 로또청약
-  const lottos = listings.filter(l => isLottoListing(l))
-    .sort((a,b) => gap(b).g - gap(a).g);
-
-  // 계약금(10%) 낼 수 있는 최대 분양가
-  const maxPrice = cash > 0 ? cash * 10 : 0;
-
-  // 1순위 자격
+  const base100  = (URBAN_INCOME_100[Math.min(h,8)] || 721) * 12;
+  const incPct   = income > 0 ? Math.round(income / base100 * 100) : 0;
   const isHot    = ['seoul','gyeonggi','incheon','sejong'].includes(P.region);
   const rank1    = isHot ? (accYr >= 2 && acc >= 24) : (accYr >= 1 && acc >= 6);
-  const rank1Msg = rank1 ? '1순위' : (isHot ? `1순위까지 ${Math.max(0,24-acc)}회 / ${Math.max(0,2-accYr)}년 남음` : `1순위까지 ${Math.max(0,6-acc)}회 남음`);
+  const a        = _reportAnswers; // 인터뷰 답변
 
-  // 가점 잠재력
-  const maxScore   = 84;
-  const nhRemain   = 32 - score.nhS;
-  const depRemain  = 35 - score.dS;
-  const accRemain  = 17 - score.aS;
-  const potential  = score.total + nhRemain + depRemain + accRemain;
+  // 매칭 공고
+  const matched  = listings.filter(l =>
+    !isLottoListing(l) && l.elig.some(e => types.includes(e))
+  ).sort((a,b) => (a.days||999)-(b.days||999));
+  const lottos   = listings.filter(l => isLottoListing(l))
+    .sort((a,b) => gap(b).g - gap(a).g);
 
-  // 로딩 메시지 순차 표시
-  const msgs = ['조건을 분석하고 있어요...','공고를 비교하고 있어요...','전략을 계산하고 있어요...','리포트를 완성하고 있어요...'];
+  // 실거래가 API 조회 (희망 지역 기준)
+  let mktData = [];
+  const msgs = [
+    '인터뷰 답변을 반영하고 있어요...',
+    '실거래가 데이터를 조회하고 있어요...',
+    '공고를 분석하고 있어요...',
+    'AI가 전략을 작성하고 있어요...',
+  ];
   let mi = 0;
   const msgTimer = setInterval(() => {
     const el = document.getElementById('report-loading-msg');
-    if(el) el.textContent = msgs[Math.min(mi++, msgs.length-1)];
-  }, 600);
+    if(el) el.textContent = msgs[Math.min(mi++, msgs.length - 1)];
+  }, 1800);
 
-  setTimeout(() => {
-    clearInterval(msgTimer);
-    const html = buildReportHTML({
-      score, types, typeNames, age, nh, dep, acc, accYr, income, cash, ch, h,
-      incPct, base100, matched, lottos, maxPrice, isHot, rank1, rank1Msg,
-      nhRemain, depRemain, accRemain, potential, regionLabel
+  // 실거래가 조회 시도 (매칭 공고 상위 3개)
+  try {
+    const targets = matched.slice(0, 3);
+    const results = await Promise.all(targets.map(async l => {
+      try {
+        const res = await fetch(`${MARKET_API}?loc=${encodeURIComponent(l.loc)}&size=84&name=${encodeURIComponent(cleanName(l.name))}&radius=0.5`);
+        const d   = await res.json();
+        return { name: cleanName(l.name), mktP: d.mktP || 0, deals: (d.recentDeals||[]).slice(0,2) };
+      } catch(e){ return null; }
+    }));
+    mktData = results.filter(Boolean);
+  } catch(e){}
+
+  // Claude API 프롬프트 구성
+  const mktStr = mktData.map(m =>
+    `- ${m.name}: 시세 ${m.mktP > 0 ? (m.mktP/10000).toFixed(1)+'억' : '정보없음'}` +
+    (m.deals.length ? ` (최근 실거래: ${m.deals.map(d => `${Math.round(d.price/10000*10)/10}억`).join(', ')})` : '')
+  ).join('\n');
+
+  const matchedStr = matched.slice(0,5).map(l => {
+    const g = gap(l);
+    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')}`;
+  }).join('\n');
+
+  const lottoStr = lottos.slice(0,3).map(l => {
+    const g = gap(l);
+    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'}`;
+  }).join('\n');
+
+  const loanLabel   = {min:'최소화(가급적 대출 없이)', mid:'적당히(분양가 40~50%)', max:'최대한 활용'}[a.loan] || '미응답';
+  const waitLabel   = {1:'1년 이내', 3:'2~3년', 5:'5년 이상'}[a.wait] || '미응답';
+  const priorLabel  = {profit:'시세차익 우선', live:'실거주 우선', school:'학군 우선', transit:'교통 우선'}[a.priority] || '미응답';
+  const workLabel   = {gangnam:'강남/서초', yeouido:'여의도/마포', CBD:'강북/도심', etc:'경기/기타'}[a.work] || '미응답';
+
+  // 저축 목표 계산
+  const targetPrice  = matched.length > 0 ? getMaxP(matched[0]) : 50000;
+  const depositNeeded = Math.round(targetPrice * 0.1);
+  const savingsGap    = Math.max(0, depositNeeded - cash);
+  const monthlyNeeded = savingsGap > 0 ? Math.round(savingsGap / 24) : 0; // 2년 목표
+
+  // 대출 시뮬레이션
+  const ltvMap = {min: 0.3, mid: 0.5, max: a.loan === 'max' ? (isHot ? 0.5 : 0.7) : 0.5};
+  const ltv    = ltvMap[a.loan] || 0.5;
+  const maxAffordable = cash > 0 ? Math.round(cash / (1 - ltv) / 10000) * 10000 : 0;
+
+  // 청약 일정 타임라인
+  const upcomingSchedule = matched.slice(0,5).map(l =>
+    `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
+  ).join('\n');
+
+  const prompt = `당신은 대한민국 최고의 청약 전문 컨설턴트예요. 10년 경력의 실전 전문가처럼 말해주세요.
+
+핵심 원칙:
+- 결론을 먼저, 이유는 뒤에. "이 공고 넣으세요. 왜냐면..."
+- 모든 판단에 숫자 근거 필수
+- 리스크를 숨기지 마세요. "단, 이 리스크가 있어요" 식으로 솔직하게
+- 애매한 표현 금지. "고려해보세요" 대신 "넣으세요" 또는 "넣지 마세요"
+- "~해요", "~이에요" 체로 친근하게
+- 유저가 이 리포트만 보고 바로 결정할 수 있도록
+
+## ${P.name||'고객'}님 조건
+- 만 ${age}세 / ${P.marriage||'미혼'}${P.marriageYear?` (혼인 ${new Date().getFullYear()-parseInt(P.marriageYear)}년차)`:''}
+- 자녀 ${ch}명 / 부양가족 ${dep}명 / 세대원 ${h}인
+- ${P.isNoHome?'무주택':'유주택'} / 무주택 기간 ${nh}년
+- 연소득 ${income.toLocaleString()}만원 (도시근로자 소득 ${incPct}%)${P.isDual?` / 맞벌이 합산 ${P.totalIncome}만원`:''}
+- 보유 현금 ${cash.toLocaleString()}만원
+- 청약통장 ${acc}회 납입 / ${accYr}년 / ${rank1?'1순위':'2순위'}
+- 청약 가점 ${score.total}점 (무주택 ${score.nhS} + 부양가족 ${score.dS} + 통장 ${score.aS})
+- 신청 가능 전형: ${types.join(', ')||'없음'}
+- 희망 지역: ${regionLabel}
+
+## 인터뷰 답변
+- 대출: ${loanLabel} / 대기 가능: ${waitLabel}
+- 우선순위: ${priorLabel} / 출퇴근: ${workLabel}
+
+## 현재 매칭 공고
+${matchedStr||'없음'}
+
+## 로또청약/무순위
+${lottoStr||'없음'}
+
+## 실거래가
+${mktStr||'없음'}
+
+## 자금
+- 계약금(10%) 가능 분양가: ${(cash*10).toLocaleString()}만원 이하
+- 대출 포함 감당 가능: ${maxAffordable.toLocaleString()}만원 이하
+- 계약금 부족액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 모으면 2년 내 가능
+
+---
+
+아래 7개 섹션으로 작성해주세요. [SECTION:제목] 형식으로 구분해주세요.
+
+[SECTION:한 줄 진단]
+딱 2~3문장. 가점 ${score.total}점, 현금 ${cash.toLocaleString()}만원이면 지금 할 수 있는 것과 없는 것. 좋은 점도 아쉬운 점도 솔직하게.
+
+[SECTION:지금 당장 이 공고 넣으세요]
+매칭 공고 중 우선순위(${priorLabel}), 출퇴근(${workLabel}), 대기기간(${waitLabel}) 반영해서 1~3개만 골라주세요.
+각 공고마다:
+- 추천 이유 (수치 포함)
+- 예상 당첨 가능성
+- 주요 리스크 1가지
+- 결론: "넣으세요" / "조건 확인 후 넣으세요" / "이번엔 패스"
+
+[SECTION:로또청약 — 이번 주 놓치면 안 돼요]
+진행 중인 무순위/줍줍 공고. 시세차익 금액 강조. 신청 자격과 마감일 명시. 없으면 "이번 주는 없어요. 다음 기회를 노려요" 라고.
+
+[SECTION:대출 전략 — 얼마까지 가능해요]
+소득 ${income.toLocaleString()}만원 기준:
+- 받을 수 있는 대출 종류와 한도 (디딤돌/특례보금자리/일반 주담대 중 해당하는 것만)
+- 분양가 기준 월 상환액 시뮬레이션
+- 어떤 대출이 유리한지 명확하게
+
+[SECTION:저축 플랜 — 월 얼마씩 모아야 해요]
+계약금 목표 ${depositNeeded.toLocaleString()}만원 기준:
+- 현재 부족액 ${savingsGap.toLocaleString()}만원
+- 1년/2년/3년 목표별 월 저축액
+- 청약통장 월 납입 최적 금액
+- 소득 대비 가능 여부 판단
+
+[SECTION:가점 로드맵 — 언제 몇 점 돼요]
+현재 ${score.total}점 기준:
+- 1년 후 / 3년 후 / 5년 후 예상 가점
+- 그때 공략 가능한 공고 수준
+- 지금 당장 올릴 수 있는 것과 없는 것 구분
+
+[SECTION:오늘 할 일 리스트]
+오늘 / 이번 주 / 이번 달로 나눠서 번호 목록. 각 항목 옆에 예상 소요 시간 포함.`;
+
+  try {
+    const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
-    renderReport(html);
-  }, 2400);
+    clearInterval(msgTimer);
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || '').join('') || '';
+    if(!text) throw new Error('응답이 없어요');
+    const html = renderReportText(text);
+    // 캐시 저장
+    const today2 = new Date().toISOString().slice(0, 10);
+    localStorage.setItem('report_last_used', today2);
+    localStorage.setItem('report_cached', html);
+    _showReportResult(html, false);
+  } catch(e) {
+    clearInterval(msgTimer);
+    document.getElementById('report-loading').style.display = 'none';
+    document.getElementById('report-content').style.display = 'block';
+    document.getElementById('report-content').innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:16px">😥</div>
+        <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">리포트 생성에 실패했어요</div>
+        <div style="font-size:13px;color:var(--ink-4);margin-bottom:20px">${e.message}</div>
+        <button onclick="generateReport()" style="padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">다시 시도</button>
+      </div>`;
+  }
 }
+
+function renderReportText(text){
+  const sections = text.split(/\[SECTION:([^\]]+)\]/).filter(s => s.trim());
+  let html = '';
+  for(let i = 0; i < sections.length; i += 2){
+    const title   = sections[i]?.trim()     || '';
+    const body    = sections[i + 1]?.trim() || '';
+    if(!title && !body) continue;
+    const bodyHtml = body.split('\n').filter(l => l.trim()).map(l => {
+      if(/^\d+\./.test(l.trim()))
+        return `<div style="display:flex;gap:10px;margin:8px 0;padding:10px 12px;background:var(--accent-light);border-radius:10px"><span style="color:var(--accent);font-weight:800;flex-shrink:0">${l.match(/^\d+/)[0]}.</span><span style="font-size:13px;color:var(--ink-3);line-height:1.65">${l.replace(/^\d+\.\s*/,'')}</span></div>`;
+      if(l.trim().startsWith('-'))
+        return `<div style="display:flex;gap:8px;margin:6px 0"><span style="color:var(--accent);flex-shrink:0;margin-top:2px">•</span><span style="font-size:13px;color:var(--ink-3);line-height:1.65">${l.replace(/^-\s*/,'')}</span></div>`;
+      return `<div style="font-size:13px;color:var(--ink-3);line-height:1.75;margin:4px 0">${l.replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--ink)">$1</strong>')}</div>`;
+    }).join('');
+    html += `<div class="report-section">
+      ${title ? `<div class="report-section-title">${title}</div>` : ''}
+      <div class="report-section-body">${bodyHtml}</div>
+    </div>`;
+  }
+  return html || `<div class="report-section"><div class="report-section-body">${text.replace(/\n/g,'<br>')}</div></div>`;
+}
+
+
 
 function buildReportHTML(d){
   const name = P.name || '고객';
@@ -4275,13 +4538,7 @@ function buildReportHTML(d){
 }
 
 function renderReport(html){
-  const name  = P.name || '고객';
-  const score = calcScore(P);
-  document.getElementById('report-headline').textContent = `${name}님의 청약 전략 리포트`;
-  document.getElementById('report-sub').textContent = `가점 ${score.total}점 · ${new Date().toLocaleDateString('ko-KR')} 기준`;
-  document.getElementById('report-loading').style.display = 'none';
-  document.getElementById('report-content').innerHTML = html;
-  document.getElementById('report-content').style.display = 'block';
+  _showReportResult(html, false);
   // 오늘 날짜 + 리포트 내용 캐시 저장
   const today = new Date().toISOString().slice(0, 10);
   localStorage.setItem('report_last_used', today);
@@ -4294,7 +4551,7 @@ function updateMyCondCard(){
   const editBtn = document.getElementById('edit-cond-btn');
   const isCondSet = !!(p.byear || p.income || p.accYears || p.noHomeYears);
   if (editBtn) editBtn.style.display = isCondSet ? '' : 'none';
-  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4);line-height:1.6">아직 설정된 조건이 없어요.</div><button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>';return;}
+  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4);line-height:1.6">아직 아직 설정된 조건이 없어요.</div><button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>';return;}
   const score=calcScore(p).total;
   el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${calcTypes(p).map(t=>`<span class="badge badge-public">${t.l}${t.sub?' ('+t.sub+')':''}</span>`).join('')}</div>
     <div class="cond-grid-2">
@@ -4374,7 +4631,7 @@ function showSupport(type){
             <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:6px">문의 내용</div>
             <textarea placeholder="문의 내용을 자세히 입력해주세요" style="width:100%;height:130px;border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:none;outline:none;color:var(--ink);background:var(--bg-card)"></textarea>
           </div>
-          <button onclick="showToast('문의가 접수됐어요! 영업일 기준 1~2일 내 답변드려요')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">문의 보내기</button>
+          <button onclick="showToast('문의가 접수됐어요! 영업일 기준 1~2일 안에 답변드려요')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">문의 보내기</button>
         </div>
         <div style="background:var(--bg-card);border-radius:14px;border:1px solid rgba(0,0,0,.07);padding:18px">
           <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">직접 연락하기</div>
@@ -4427,7 +4684,7 @@ function showSupport(type){
 function filterGlossary(){
   const q=document.getElementById('glo-inp').value.toLowerCase();
   const f=q?GLOSSARY.filter(g=>g.term.includes(q)||g.short.includes(q)):GLOSSARY;
-  document.getElementById('glo-list').innerHTML=f.length?renderGlossary(f):'<div style="padding:40px;text-align:center;color:var(--ink-5)">검색 결과가 없어요</div>';
+  document.getElementById('glo-list').innerHTML=f.length?renderGlossary(f):'<div style="padding:40px;text-align:center;color:var(--ink-5)">검색 검색 결과가 없어요</div>';
 }
 
 /* ══ 화면 전환 ══ */
@@ -6042,7 +6299,7 @@ function kakaoLogout() {
   renderListings();
   renderSaved();
   updateHero();
-  showToast('로그아웃 됐어요');
+  showToast('로그아웃됐어요');
 }
 
 function applyLoginUI() {
