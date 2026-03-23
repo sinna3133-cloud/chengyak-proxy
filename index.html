@@ -6470,6 +6470,14 @@ if (window.Kakao && !window.Kakao.isInitialized()) {
 // 앱 시작 시 로그인 상태 복원
 (async function restoreKakaoSession() {
   localStorage.removeItem('kakaoUser');
+  // SDK authorize 콜백 처리
+  const _params = new URLSearchParams(window.location.search);
+  if (_params.get('code')) {
+    const sp = document.getElementById('splash');
+    if (sp) sp.style.display = 'none';
+    handleKakaoSDKCallback();
+    return;
+  }
   try {
     const saved = localStorage.getItem('kakaoUser_v2');
     if (saved) {
@@ -6498,52 +6506,64 @@ if (window.Kakao && !window.Kakao.isInitialized()) {
 })();
 
 function kakaoLogin() {
-  if (!window.Kakao?.isInitialized()) {
-    window.Kakao.init(KAKAO_JS_KEY);
-  }
-  window.Kakao.Auth.login({
-    success: async function(authObj) {
-      showToast('카카오 로그인 중...');
-      try {
-        // 사용자 정보 조회
-        window.Kakao.API.request({
-          url: '/v2/user/me',
-          success: async function(userData) {
-            const kakaoId = String(userData.id);
-            const nickname = userData.kakao_account?.profile?.nickname || '사용자';
-            const avatar = userData.kakao_account?.profile?.thumbnail_image_url || '';
-            const accessToken = authObj.access_token;
-            kakaoUser = { kakaoId, nickname, avatar, accessToken };
-            P.name = nickname;
-            localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
-            localStorage.removeItem('kakaoUser');
-            // 닉네임 즉시 DOM 반영
-            const _greetEl = document.getElementById('hero-greeting');
-            const _myNameEl = document.getElementById('my-name');
-            if (_greetEl) _greetEl.textContent = `${nickname}님, 안녕하세요`;
-            if (_myNameEl) _myNameEl.textContent = nickname + '님';
-            applyLoginUI();
-            updateHero();
-            updateMyCondCard();
-            renderListings();
-            renderSaved();
-            showScreen('home');
-            showToast(`✓ ${nickname}님, 환영해요!`);
-            // Supabase 백그라운드 처리
-            sbSaveProfile(kakaoUser);
-            sbLoadBookmarks(kakaoId).then(() => { applyLoginUI(); updateHero(); });
-            sbLoadCondition(kakaoId).then(() => { updateMyCondCard(); });
-          },
-          fail: function(err) { showToast('❌ 사용자 정보 조회 실패'); }
-        });
-      } catch(e) {
-        showToast('❌ 로그인 실패: ' + e.message);
-      }
-    },
-    fail: function(err) {
-      showToast('❌ 카카오 로그인 실패');
-    }
+  if (!window.Kakao?.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+  // SDK 2.x: authorize → 팝업 없이 redirect 방식
+  window.Kakao.Auth.authorize({
+    redirectUri: window.location.origin + '/',
+    prompts: 'login', // 항상 로그인 화면 강제
   });
+}
+
+async function handleKakaoSDKCallback() {
+  // SDK authorize 후 돌아왔을 때 토큰 교환
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return;
+  history.replaceState({}, '', window.location.pathname);
+  showToast('카카오 로그인 중...');
+  try {
+    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: KAKAO_JS_KEY,
+        redirect_uri: window.location.origin + '/',
+        code,
+      })
+    });
+    const tokenData = await tokenRes.json();
+    if (tokenData.error) throw new Error(tokenData.error_description);
+    const accessToken = tokenData.access_token;
+    // 사용자 정보 조회
+    const userRes = await fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const userData = await userRes.json();
+    const kakaoId = String(userData.id);
+    const nickname = userData.kakao_account?.profile?.nickname || '사용자';
+    const avatar = userData.kakao_account?.profile?.thumbnail_image_url || '';
+    kakaoUser = { kakaoId, nickname, avatar, accessToken };
+    P.name = nickname;
+    localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
+    localStorage.removeItem('kakaoUser');
+    const _greetEl = document.getElementById('hero-greeting');
+    const _myNameEl = document.getElementById('my-name');
+    if (_greetEl) _greetEl.textContent = `${nickname}님, 안녕하세요`;
+    if (_myNameEl) _myNameEl.textContent = nickname + '님';
+    applyLoginUI();
+    updateHero();
+    updateMyCondCard();
+    renderListings();
+    renderSaved();
+    showScreen('home');
+    showToast(`✓ ${nickname}님, 환영해요!`);
+    sbSaveProfile(kakaoUser);
+    sbLoadBookmarks(kakaoId).then(() => { applyLoginUI(); updateHero(); });
+    sbLoadCondition(kakaoId).then(() => { updateMyCondCard(); });
+  } catch(e) {
+    showToast('❌ 로그인 실패: ' + e.message);
+  }
 }
 
 async function handleKakaoCallback(code) {}
