@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>쉬운청약</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Cpolygon points='100,28 172,78 100,78' fill='white' opacity='0.07'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Crect x='34' y='76' width='34' height='96' rx='6' fill='white' opacity='0.05'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6195,7 +6196,7 @@ async function onAdminFileSelect(event){
 
 const LISTINGS_API  = 'https://chengyak-proxy.vercel.app/api/listings';
 const KAKAO_AUTH_API = 'https://chengyak-proxy.vercel.app/api/kakao-auth';
-const KAKAO_CLIENT_ID = '5ebbb3bfdafac23bc229d28977d4bdaa'; // 카카오 REST API 키
+const KAKAO_CLIENT_ID = 'e7389d2463e1980b32b680910e373f5e'; // 카카오 REST API 키
 
 /* ══ Supabase 설정 ══ */
 const SUPABASE_URL  = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
@@ -6493,8 +6494,8 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 })();
 
 function kakaoLogin() {
-  // 현재 페이지 자체를 redirect_uri로 사용 — code가 이 페이지로 직접 돌아옴
-  const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+  // 항상 슬래시 포함된 URL 사용 (카카오 등록값과 일치)
+  const redirectUri = encodeURIComponent(window.location.origin + '/');
   const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
   window.location.replace(url);
 }
@@ -6505,7 +6506,7 @@ async function handleKakaoCallback(code) {
   if (sp) { sp.classList.add('hide'); setTimeout(() => sp.style.display='none', 300); }
   showToast('카카오 로그인 중...');
   try {
-    const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+    const redirectUri = encodeURIComponent(window.location.origin + '/');
     const res = await fetch(`${KAKAO_AUTH_API}?code=${encodeURIComponent(code)}&redirect_uri=${redirectUri}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
