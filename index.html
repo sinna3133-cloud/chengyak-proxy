@@ -1786,6 +1786,7 @@ function saveWizard(){
   P.marriageYear=document.getElementById('w-marriageYear')?.value||'';
   P.dependents=wDep;
   if(!P.name) P.name=RETRO[Math.floor(Math.random()*RETRO.length)];
+  sbSaveCondition();
 
   // 완료 화면 표시
   const types = calcTypes(P);
@@ -4021,6 +4022,7 @@ P.elderParent = selE ? selE.textContent.startsWith(‘예’) : false;
 }
 
 updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen();
+sbSaveCondition();
 showScreen(‘my’);
 showToast(‘조건이 저장됐어요 ✓’);
 }
@@ -5076,6 +5078,45 @@ avatar: user.avatar || ‘’
 });
 }
 
+/* ── Supabase: 조건 저장 ── */
+async function sbSaveCondition() {
+if (!kakaoUser?.kakaoId) return;
+try {
+const condition = {
+name: P.name, byear: P.byear, bmonth: P.bmonth, bday: P.bday,
+income: P.income, cash: P.cash, noHomeYears: P.noHomeYears,
+depCount: P.depCount, depAmt: P.depAmt, children: P.children,
+childDates: P.childDates, marriage: P.marriage, marriageYear: P.marriageYear,
+household: P.household, isNoHome: P.isNoHome, region: P.region,
+dependents: P.dependents, accYears: P.accYears, prefSizes: P.prefSizes,
+elderParent: P.elderParent, isDual: P.isDual, spouseIncome: P.spouseIncome,
+totalIncome: P.totalIncome
+};
+await sb.upsert(‘profiles’, {
+id: String(kakaoUser.kakaoId),
+kakao_id: String(kakaoUser.kakaoId),
+nickname: kakaoUser.nickname,
+avatar: kakaoUser.avatar || ‘’,
+user_condition: condition
+});
+} catch(e) {}
+}
+
+/* ── Supabase: 조건 불러오기 ── */
+async function sbLoadCondition(userId) {
+try {
+const rows = await sb.get(‘profiles’, `id=eq.${userId}&select=user_condition,nickname`);
+if (Array.isArray(rows) && rows.length > 0 && rows[0].user_condition) {
+const c = rows[0].user_condition;
+Object.keys(c).forEach(k => { if (c[k] !== undefined && c[k] !== ‘’) P[k] = c[k]; });
+if (rows[0].nickname) { P.name = rows[0].nickname; kakaoUser.nickname = rows[0].nickname; }
+updateHero(); renderListings(); updateConsult(); updateMyCondCard();
+const nm = document.getElementById(‘my-name’);
+if (nm && P.name) nm.textContent = P.name + ‘님’;
+}
+} catch(e) {}
+}
+
 /* ── Supabase: 북마크 불러오기 ── */
 async function sbLoadBookmarks(userId) {
 try {
@@ -5318,11 +5359,17 @@ function kakaoLogout() {
 kakaoUser = null;
 localStorage.removeItem(‘kakaoUser_v2’);
 localStorage.removeItem(‘kakaoUser’);
-// 북마크 초기화 (로컬만, Supabase는 유지)
 savedIds.clear();
+// 조건 초기화
+P.name=’’; P.byear=’’; P.bmonth=’’; P.bday=’’; P.income=’’; P.cash=’’;
+P.noHomeYears=’’; P.depCount=’’; P.depAmt=’’; P.children=0; P.childDates=[];
+P.marriage=‘미혼’; P.marriageYear=’’; P.household=’’; P.isNoHome=true;
+P.region=’’; P.dependents=0; P.accYears=’’; P.prefSizes=[];
+P.elderParent=false; P.isDual=false; P.spouseIncome=’’; P.totalIncome=’’;
 applyLoginUI();
 renderListings();
 renderSaved();
+updateHero();
 showToast(‘로그아웃 됐어요’);
 }
 
