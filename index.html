@@ -6594,16 +6594,22 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
   // 구버전 오염 키 제거
   localStorage.removeItem('kakaoUser');
 
-  // URL에 code 파라미터 있으면 → 카카오 콜백 처리 (이 기기에서 새로 로그인)
+  // URL에 code 파라미터 있으면 → 로그인 콜백 처리
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
+  const state = params.get('state');
   if (code) {
-    // 스플래시 즉시 숨김
     const sp = document.getElementById('splash');
     if (sp) sp.style.display = 'none';
     history.replaceState({}, '', window.location.pathname);
-    handleKakaoCallback(code);
-    return; // 로컬 복원 건너뜀
+    // 네이버 state가 sessionStorage에 있으면 네이버 콜백
+    const savedNaverState = sessionStorage.getItem('naver_state');
+    if (state && savedNaverState && state === savedNaverState) {
+      handleNaverCallback(code, state);
+    } else {
+      handleKakaoCallback(code);
+    }
+    return;
   }
 
   // 이 기기에서 저장한 세션 복원
@@ -6644,6 +6650,37 @@ function naverLogin() {
   const redirectUri = encodeURIComponent(window.location.origin + '/');
   const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${redirectUri}&state=${state}`;
   window.location.replace(url);
+}
+
+async function handleNaverCallback(code, state) {
+  showToast('네이버 로그인 중...');
+  try {
+    const redirectUri = encodeURIComponent(window.location.origin + '/');
+    const res = await fetch(`${NAVER_AUTH_API}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}&redirect_uri=${redirectUri}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    sessionStorage.removeItem('naver_state');
+    kakaoUser = { kakaoId: 'naver_' + data.naverId, nickname: data.nickname, avatar: '', accessToken: data.accessToken, provider: 'naver' };
+    P.name = data.nickname;
+    localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
+    localStorage.removeItem('kakaoUser');
+    const _greetEl = document.getElementById('hero-greeting');
+    const _myNameEl = document.getElementById('my-name');
+    if (_greetEl) _greetEl.textContent = `${data.nickname}님, 안녕하세요`;
+    if (_myNameEl) _myNameEl.textContent = data.nickname + '님';
+    applyLoginUI();
+    updateHero();
+    updateMyCondCard();
+    renderListings();
+    renderSaved();
+    showScreen('home');
+    showToast(`✓ ${data.nickname}님, 환영해요!`);
+    sbSaveProfile(kakaoUser);
+    sbLoadBookmarks(kakaoUser.kakaoId).then(() => { applyLoginUI(); updateHero(); });
+    sbLoadCondition(kakaoUser.kakaoId).then(() => { updateMyCondCard(); });
+  } catch(e) {
+    showToast('❌ 네이버 로그인 실패: ' + e.message);
+  }
 }
 
 function kakaoLogin() {
