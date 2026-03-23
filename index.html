@@ -2669,14 +2669,14 @@ function updateHero(){
   // 조건 있으면 설정하기 버튼 숨김
   const ctaBtn = document.getElementById('hero-cta');
   if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
-  // 이름 설정
-  if(!p.name)p.name=RETRO[Math.floor(Math.random()*RETRO.length)];
-  document.getElementById('my-name').textContent=p.name;
+  // 이름 설정 — 카카오 로그인 세션이 있으면 랜덤 이름으로 덮어쓰지 않음
+  if(!p.name && !localStorage.getItem('kakaoUser_v2'))p.name=RETRO[Math.floor(Math.random()*RETRO.length)];
+  if(p.name) document.getElementById('my-name').textContent=p.name;
 
   const greetEl = document.getElementById('hero-greeting');
   const cheerEl = document.getElementById('hero-cheer');
   const cheer = CHEER[Math.floor(Math.random()*CHEER.length)];
-  if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
+  if(greetEl && p.name) greetEl.textContent = `${p.name}님, 안녕하세요`;
   if(cheerEl) cheerEl.textContent = cheer;
 
   // 조건값 업데이트
@@ -6194,7 +6194,7 @@ async function onAdminFileSelect(event){
 
 const LISTINGS_API  = 'https://chengyak-proxy.vercel.app/api/listings';
 const KAKAO_AUTH_API = 'https://chengyak-proxy.vercel.app/api/kakao-auth';
-const KAKAO_CLIENT_ID = 'e7389d2463e1980b32b680910e373f5e'; // 카카오 REST API 키
+const KAKAO_CLIENT_ID = '5ebbb3bfdafac23bc229d28977d4bdaa'; // 카카오 REST API 키
 
 /* ══ Supabase 설정 ══ */
 const SUPABASE_URL  = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
