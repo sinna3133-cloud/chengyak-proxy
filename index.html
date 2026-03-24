@@ -1324,7 +1324,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div id="report-interview" style="display:block"></div>
     <!-- 로딩 상태 -->
     <div id="report-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
-      <div style="width:48px;height:48px;border-radius:16px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:24px;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)">✦</div>
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(0,102,255,.3)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
       <div style="font-size:15px;font-weight:700;color:var(--ink)">리포트 작성 중이에요</div>
       <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">조건을 꼼꼼히 분석하고 있어요...</div>
       <div style="display:flex;gap:6px;margin-top:4px">
@@ -4251,9 +4253,9 @@ function _renderQuestion(step){
 
   const el = document.getElementById('report-interview');
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;height:calc(100vh - 120px)">
-      <div style="flex:1;overflow-y:auto;padding:20px 0 16px;display:flex;flex-direction:column;justify-content:flex-end">
-        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:6px">
+    <div style="display:flex;flex-direction:column;height:calc(100vh - 140px);overflow:hidden">
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 0 12px">
+        <div style="display:flex;align-items:flex-end;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
@@ -4265,7 +4267,7 @@ function _renderQuestion(step){
           </div>
         </div>
       </div>
-      <div style="padding-bottom:32px;display:flex;flex-direction:column;gap:8px">
+      <div style="padding-bottom:20px;display:flex;flex-direction:column;gap:8px;flex-shrink:0">
         ${q.options.map((opt, i) => {
           const isPrev = _reportAnswers[q.id] === opt.value;
           return `
@@ -6810,6 +6812,10 @@ async function handleKakaoCallback(code) {
     renderListings();
     renderSaved();
     showToast(`✓ ${data.nickname}님, 환영해요!`);
+    // Supabase 백그라운드 처리
+    sbSaveProfile(kakaoUser);
+    sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
+    sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); renderListings(); });
   } catch(e) {
     showToast('❌ 로그인 실패: ' + e.message);
   }
