@@ -1319,9 +1319,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     </div>
   </div>
   <!-- 바디 -->
-  <div style="flex:1;overflow-y:auto;padding:20px 20px 40px" id="report-body">
+  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column" id="report-body">
     <!-- 인터뷰 단계 -->
-    <div id="report-interview" style="display:block"></div>
+    <div id="report-interview" style="display:flex;flex-direction:column;flex:1;overflow:hidden;padding:0 20px"></div>
     <!-- 로딩 상태 -->
     <div id="report-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
       <div style="width:56px;height:56px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(0,102,255,.3)">
@@ -4253,7 +4253,7 @@ function _renderQuestion(step){
 
   const el = document.getElementById('report-interview');
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;height:calc(100vh - 140px);overflow:hidden">
+    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
       <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 0 12px">
         <div style="display:flex;align-items:flex-end;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -5535,7 +5535,9 @@ async function autoFetchMarketPrices(){
         const sizeNums = (l.size||'').match(/\d+/g);
         const size = sizeNums ? Math.max(...sizeNums.map(Number)) : 84;
         const radius = isCapital(l.loc) ? '0.3' : '1';
-        const url = `${MARKET_API}?loc=${encodeURIComponent(l.loc)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
+        // 쉼표로 여러 동이 나열된 경우 첫 번째 동만 사용
+        const locClean = (l.loc||'').split(',')[0].replace(/\s+일원.*$/,'').trim();
+        const url = `${MARKET_API}?loc=${encodeURIComponent(locClean)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
         const res = await fetch(url);
         const data = await res.json();
         if(data.mktP && data.mktP > 0){
