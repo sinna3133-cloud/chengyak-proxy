@@ -127,7 +127,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .rec-scroll::-webkit-scrollbar{display:none}
 .rec-card{flex-shrink:0;width:200px;background:var(--bg-card);border-radius:18px;padding:14px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s}
 .rec-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rec-top{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .rec-mytype{font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:#00A882}
 .rec-name{font-size:var(--t-md);font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:-.2px}
 .rec-loc{font-size:var(--t-sm);color:var(--ink-4);margin-bottom:10px}
@@ -1547,7 +1547,142 @@ const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-
 
 /* ══ 데이터 ══ */
 const listings = [
-  {id:1,name:'힐스테이트 광교',loc:'경기 수원시 영통구',type:'private',region:'gyeonggi',lotto:false,
+  // ── 고양창릉 S-5 ──
+  {id:101,name:'고양창릉 S-5 공공분양',loc:'경기 고양시 창릉신도시',type:'public',region:'gyeonggi',lotto:false,
+   price:'51㎡ / 59㎡ / 74㎡ / 84㎡',minP:0,mktP:0,deadline:'2025-04-30',days:null,
+   size:'51㎡ / 59㎡ / 74㎡ / 84㎡',units:0,comp:5,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'모집공고: 2025.01.31 / 당첨자 발표: 2025.03.06',
+   aS:'2025-01-31',aE:'2025-02-07',aD:'2025-03-06',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'일반공급',size:'51㎡',region:'당해',high:2695,low:1659},
+     {type:'일반공급',size:'51㎡',region:'경기',high:2275,low:1705},
+     {type:'일반공급',size:'51㎡',region:'기타',high:2750,low:1800},
+     {type:'일반공급',size:'59㎡',region:'당해',high:3020,low:2180},
+     {type:'일반공급',size:'59㎡',region:'경기',high:2655,low:2220},
+     {type:'일반공급',size:'59㎡',region:'기타',high:3105,low:2395},
+     {type:'일반공급',size:'74㎡',region:'당해',high:2936,low:2445},
+     {type:'일반공급',size:'74㎡',region:'경기',high:2855,low:2640},
+     {type:'일반공급',size:'74㎡',region:'기타',high:3155,low:2765},
+     {type:'일반공급',size:'84㎡',region:'당해',high:3890,low:2990},
+     {type:'일반공급',size:'84㎡',region:'경기',high:2895,low:2845},
+     {type:'일반공급',size:'84㎡',region:'기타',high:3370,low:2795}
+   ],
+   ai:{q:'3기 신도시 고양창릉 공공분양이에요. 경기 거주자 우선이에요.',p:'51㎡부터 분양해요. 3기 신도시 최저가 수준이에요.',s:'2025년 1월 31일 공고, 3월 당첨자 발표했어요.',d:'청약통장 확인서, 주민등록등본, 무주택세대원 확인서가 필요해요.'}},
+
+  // ── 고양창릉 S-6 ──
+  {id:102,name:'고양창릉 S-6 공공분양',loc:'경기 고양시 창릉신도시',type:'public',region:'gyeonggi',lotto:false,
+   price:'59㎡ / 74㎡',minP:0,mktP:0,deadline:'2025-04-30',days:null,
+   size:'59㎡ / 74㎡',units:0,comp:5,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'모집공고: 2025.01.31 / 당첨자 발표: 2025.03.06',
+   aS:'2025-01-31',aE:'2025-02-07',aD:'2025-03-06',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'일반공급',size:'59㎡',region:'당해',high:2755,low:1895},
+     {type:'일반공급',size:'59㎡',region:'경기',high:2635,low:1865},
+     {type:'일반공급',size:'59㎡',region:'기타',high:2770,low:1910},
+     {type:'일반공급',size:'74㎡',region:'당해',high:2732,low:2385},
+     {type:'일반공급',size:'74㎡',region:'경기',high:2730,low:2445},
+     {type:'일반공급',size:'74㎡',region:'기타',high:2845,low:2470}
+   ],
+   ai:{q:'3기 신도시 고양창릉 S-6 공공분양이에요.',p:'59㎡부터 분양해요.',s:'2025년 1월 31일 공고했어요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
+
+  // ── 하남교산 A-2 ──
+  {id:103,name:'하남교산 A-2 공공분양',loc:'경기 하남시 교산신도시',type:'public',region:'gyeonggi',lotto:false,
+   price:'51㎡ / 55㎡ / 58㎡ / 59㎡',minP:0,mktP:0,deadline:'2025-05-31',days:null,
+   size:'51㎡ / 55㎡ / 58㎡ / 59㎡',units:0,comp:8,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'모집공고: 2025.03.31 / 당첨자 발표: 2025.05.23',
+   aS:'2025-03-31',aE:'2025-04-07',aD:'2025-05-23',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'신생아우선',size:'51㎡',region:'당해',high:1905,low:1220},
+     {type:'신생아우선',size:'51㎡',region:'경기',high:2150,low:1575},
+     {type:'신생아우선',size:'51㎡',region:'기타',high:2050,low:1401},
+     {type:'우선1순위',size:'51㎡',region:'당해',high:2530,low:2235},
+     {type:'우선1순위',size:'51㎡',region:'경기',high:2630,low:2495},
+     {type:'우선1순위',size:'51㎡',region:'기타',high:3135,low:2525},
+     {type:'신생아우선',size:'55㎡',region:'당해',high:1702,low:1702},
+     {type:'신생아우선',size:'55㎡',region:'경기',high:1212,low:1212},
+     {type:'우선1순위',size:'55㎡',region:'당해',high:2255,low:2255},
+     {type:'우선1순위',size:'55㎡',region:'경기',high:2582,low:2582},
+     {type:'신생아우선',size:'58㎡',region:'당해',high:1475,low:1475},
+     {type:'신생아우선',size:'58㎡',region:'경기',high:1605,low:1605},
+     {type:'신생아우선',size:'58㎡',region:'기타',high:1850,low:1620},
+     {type:'우선1순위',size:'58㎡',region:'당해',high:2090,low:2090},
+     {type:'우선1순위',size:'58㎡',region:'경기',high:2295,low:2295},
+     {type:'우선1순위',size:'58㎡',region:'기타',high:2580,low:2580},
+     {type:'신생아우선',size:'59㎡',region:'당해',high:2425,low:1910},
+     {type:'신생아우선',size:'59㎡',region:'경기',high:2540,low:1977},
+     {type:'신생아우선',size:'59㎡',region:'기타',high:3380,low:1955},
+     {type:'우선1순위',size:'59㎡',region:'당해',high:2875,low:2490},
+     {type:'우선1순위',size:'59㎡',region:'경기',high:2975,low:2795},
+     {type:'우선1순위',size:'59㎡',region:'기타',high:3100,low:2805}
+   ],
+   ai:{q:'3기 신도시 하남교산 공공분양이에요. 신생아우선/우선1순위 당첨선도가 공개됐어요.',p:'51㎡부터 분양해요. 3기 신도시 하남 입지예요.',s:'2025년 3월 31일 공고, 5월 23일 발표했어요.',d:'청약통장 확인서, 주민등록등본, 출생증명서(신생아특공)가 필요해요.'}},
+
+  // ── 부천대장 A-7 ──
+  {id:104,name:'부천대장 A-7 공공분양',loc:'경기 부천시 대장신도시',type:'public',region:'gyeonggi',lotto:false,
+   price:'59㎡',minP:0,mktP:0,deadline:'2025-06-30',days:null,
+   size:'59㎡',units:0,comp:6,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'모집공고: 2025.04.30 / 당첨자 발표: 2025.06.17',
+   aS:'2025-04-30',aE:'2025-05-07',aD:'2025-06-17',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'신생아우선',size:'59㎡',region:'당해',high:2160,low:1485},
+     {type:'신생아우선',size:'59㎡',region:'경기',high:2240,low:1540},
+     {type:'신생아우선',size:'59㎡',region:'기타',high:2385,low:1545},
+     {type:'우선1순위',size:'59㎡',region:'당해',high:2900,low:2430},
+     {type:'우선1순위',size:'59㎡',region:'경기',high:2720,low:2549},
+     {type:'우선1순위',size:'59㎡',region:'기타',high:2960,low:2590}
+   ],
+   ai:{q:'3기 신도시 부천대장 A-7 공공분양이에요.',p:'59㎡ 단일 평형이에요.',s:'2025년 4월 30일 공고, 6월 17일 발표했어요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
+
+  // ── 부천대장 A-8 ──
+  {id:105,name:'부천대장 A-8 공공분양',loc:'경기 부천시 대장신도시',type:'public',region:'gyeonggi',lotto:false,
+   price:'59㎡',minP:0,mktP:0,deadline:'2025-06-30',days:null,
+   size:'59㎡',units:0,comp:6,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'모집공고: 2025.04.30 / 당첨자 발표: 2025.06.18',
+   aS:'2025-04-30',aE:'2025-05-07',aD:'2025-06-18',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'신생아우선',size:'59㎡',region:'당해',high:2430,low:1209},
+     {type:'신생아우선',size:'59㎡',region:'경기',high:1660,low:1340},
+     {type:'신생아우선',size:'59㎡',region:'기타',high:2250,low:1300},
+     {type:'우선1순위',size:'59㎡',region:'당해',high:2680,low:2265},
+     {type:'우선1순위',size:'59㎡',region:'경기',high:2460,low:2360},
+     {type:'우선1순위',size:'59㎡',region:'기타',high:3190,low:2505}
+   ],
+   ai:{q:'3기 신도시 부천대장 A-8 공공분양이에요.',p:'59㎡ 단일 평형이에요.',s:'2025년 4월 30일 공고, 6월 18일 발표했어요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
+
+  // ── 김포고촌2 A1블록 ──
+  {id:106,name:'김포고촌2 A1블록 공공분양',loc:'경기 김포시 고촌읍',type:'public',region:'gyeonggi',lotto:false,
+   price:'59㎡ / 74㎡',minP:0,mktP:0,deadline:'2025-06-30',days:null,
+   size:'59A㎡ / 59B㎡ / 74A㎡ / 74B㎡',units:0,comp:5,cut:0,downPct:5,
+   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
+   sched:'당첨자 발표 완료',
+   aS:'2025-05-01',aE:'2025-05-07',aD:'2025-06-30',
+   elig:['신생아특공','생애최초','일반공급'],
+   savingsCut:[
+     {type:'신생아우선',size:'59A㎡',region:'당해',high:1480,low:1480},
+     {type:'신생아우선',size:'59A㎡',region:'경기',high:811,low:304},
+     {type:'우선공급(1순위)',size:'59A㎡',region:'당해',high:1700,low:1050},
+     {type:'신생아우선',size:'59B㎡',region:'당해',high:754,low:355},
+     {type:'신생아우선',size:'59B㎡',region:'경기',high:1230,low:1230},
+     {type:'우선공급(1순위)',size:'59B㎡',region:'당해',high:1347,low:554},
+     {type:'신생아우선',size:'74A㎡',region:'당해',high:153,low:153},
+     {type:'신생아우선',size:'74A㎡',region:'경기',high:2085,low:652},
+     {type:'우선공급(1순위)',size:'74A㎡',region:'당해',high:2385,low:1120},
+     {type:'신생아우선',size:'74B㎡',region:'경기',high:370,low:182},
+     {type:'우선공급(1순위)',size:'74B㎡',region:'당해',high:1025,low:260}
+   ],
+   ai:{q:'경기 김포 고촌2지구 공공분양이에요. 신생아우선/우선공급(1순위) 당첨선도가 공개됐어요.',p:'59㎡, 74㎡ 두 가지 평형이에요.',s:'당첨자 발표가 완료된 단지예요. 다음 공고 참고용으로 활용해요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
+
+  {id:1,name:'힐스테이트 광교',downPct:10,loc:'경기 수원시 영통구',type:'private',region:'gyeonggi',lotto:false,
    price:'4억 8천~7억 2천만원',minP:48000,mktP:72000,deadline:'2025-03-20',days:6,
    size:'84㎡ / 101㎡',units:320,comp:12,cut:48,
    qual:'무주택세대구성원, 청약통장 24회 이상',inc:'도시근로자 월평균소득 130% 이하',
@@ -1555,7 +1690,7 @@ const listings = [
    aS:'2025-03-18',aE:'2025-03-20',aD:'2025-03-28',
    elig:['일반공급','생애최초'],
    ai:{q:'만 19세 이상 무주택세대구성원이면 신청 가능해요. 24회 이상 납입한 분만 1순위예요.',p:'전용 84㎡ 4억 8천, 101㎡ 7억 2천만원부터예요. 중도금 60% 무이자 대출 가능해요.',s:'3월 18~20일 접수, 28일 발표, 4월 5~7일 계약이에요.',d:'신분증, 청약통장 확인서, 무주택확인서, 가족관계증명서가 필요해요.'}},
-  {id:2,name:'래미안 원베일리',loc:'서울 서초구 반포동',type:'private',region:'seoul',lotto:false,
+  {id:2,name:'래미안 원베일리',downPct:20,loc:'서울 서초구 반포동',type:'private',region:'seoul',lotto:false,
    price:'15억~22억원',minP:150000,mktP:220000,deadline:'2025-03-25',days:11,
    size:'59㎡ / 84㎡ / 115㎡',units:180,comp:85,cut:68,
    qual:'서울 2년 이상 거주, 무주택',inc:'소득 제한 없음',
@@ -1563,7 +1698,7 @@ const listings = [
    aS:'2025-03-23',aE:'2025-03-25',aD:'2025-04-01',
    elig:['일반공급'],
    ai:{q:'서울 2년 이상 거주 무주택자면 신청 가능해요.',p:'59㎡ 15억~115㎡ 22억이에요. 분양가 상한제 적용 단지예요.',s:'3월 23~25일 접수, 4월 1일 발표, 10~12일 계약이에요.',d:'주민등록등본(2년치), 청약통장 확인서, 무주택세대원 확인서가 필요해요.'}},
-  {id:3,name:'검단신도시 공공분양 A3블록',loc:'인천 서구 검단신도시',type:'public',region:'incheon',lotto:false,
+  {id:3,name:'검단신도시 공공분양 A3블록',downPct:5,loc:'인천 서구 검단신도시',type:'public',region:'incheon',lotto:false,
    price:'2억 1천~3억 4천만원',minP:21000,mktP:36000,deadline:'2025-03-16',days:2,
    size:'46㎡ / 59㎡ / 74㎡',units:520,comp:5,cut:32,
    qual:'무주택, 청약통장 6회 이상',inc:'도시근로자 월평균소득 100% 이하',
@@ -1571,7 +1706,7 @@ const listings = [
    aS:'2025-03-14',aE:'2025-03-16',aD:'2025-03-25',
    elig:['생애최초','신생아특공','일반공급'],
    ai:{q:'공공분양이라 소득 기준이 있어요. 3인 기준 월 590만원 이하여야 해요.',p:'46㎡ 2억 1천만원부터예요. LH 주담대 최대 70% 가능해요.',s:'3월 14~16일 접수, 25일 발표. 마감 2일!',d:'소득확인서류, 청약통장 확인서, 가족관계증명서가 필요해요.'}},
-  {id:4,name:'위례 자연앤자이',loc:'경기 하남시 학암동',type:'private',region:'gyeonggi',lotto:false,
+  {id:4,name:'위례 자연앤자이',downPct:10,loc:'경기 하남시 학암동',type:'private',region:'gyeonggi',lotto:false,
    price:'5억 5천~8억원',minP:55000,mktP:75000,deadline:'2025-04-05',days:22,
    size:'74㎡ / 84㎡ / 102㎡',units:440,comp:18,cut:52,
    qual:'무주택 또는 1주택자(84㎡ 이하)',inc:'소득 제한 없음',
@@ -1579,7 +1714,7 @@ const listings = [
    aS:'2025-04-03',aE:'2025-04-05',aD:'2025-04-12',
    elig:['일반공급','신생아특공','다자녀특공'],
    ai:{q:'84㎡ 이하는 1주택자도 신청 가능해요.',p:'74㎡ 5억 5천만원부터예요. 위례 시세 대비 약 27% 저렴해요.',s:'4월 3~5일 접수, 12일 발표, 20~22일 계약이에요.',d:'청약통장 확인서, 주민등록등본, 재직확인서가 필요해요.'}},
-  {id:5,name:'세종 6-3생활권 공공분양',loc:'세종특별자치시 도담동',type:'public',region:'sejong',lotto:false,
+  {id:5,name:'세종 6-3생활권 공공분양',downPct:5,loc:'세종특별자치시 도담동',type:'public',region:'sejong',lotto:false,
    price:'1억 8천~2억 9천만원',minP:18000,mktP:32000,deadline:'2025-03-18',days:4,
    size:'46㎡ / 59㎡',units:680,comp:4,cut:28,
    qual:'세종 1년 이상 거주, 무주택',inc:'도시근로자 월평균소득 120% 이하',
@@ -1587,7 +1722,7 @@ const listings = [
    aS:'2025-03-16',aE:'2025-03-18',aD:'2025-03-27',
    elig:['생애최초','신생아특공','일반공급'],
    ai:{q:'세종 1년 이상 거주 무주택자 우선이에요.',p:'46㎡ 1억 8천만원이에요. 세종 공공분양 최저 수준이에요.',s:'3월 16~18일 접수, 27일 발표. 마감 4일!',d:'세종 거주 주민등록등본(1년치), 소득확인서류, 청약통장 확인서가 필요해요.'}},
-  {id:6,name:'마포 프레스티지자이',loc:'서울 마포구 아현동',type:'private',region:'seoul',lotto:false,
+  {id:6,name:'마포 프레스티지자이',downPct:10,loc:'서울 마포구 아현동',type:'private',region:'seoul',lotto:false,
    price:'9억~14억원',minP:90000,mktP:130000,deadline:'2025-04-12',days:29,
    size:'59㎡ / 84㎡',units:260,comp:45,cut:60,
    qual:'서울 거주, 무주택',inc:'소득 제한 없음',
@@ -1595,7 +1730,7 @@ const listings = [
    aS:'2025-04-10',aE:'2025-04-12',aD:'2025-04-19',
    elig:['일반공급','생애최초'],
    ai:{q:'투기과열지구라 5년 전매제한 있어요.',p:'59㎡ 9억원부터예요.',s:'4월 10~12일 접수, 19일 발표, 28~30일 계약이에요.',d:'청약통장 확인서, 무주택 확인서, 주민등록등본이 필요해요.'}},
-  {id:7,name:'동탄2 롯데캐슬 무순위',loc:'경기 화성시 동탄2신도시',type:'lotto',region:'gyeonggi',lotto:true,
+  {id:7,name:'동탄2 롯데캐슬 무순위',downPct:10,loc:'경기 화성시 동탄2신도시',type:'lotto',region:'gyeonggi',lotto:true,
    price:'4억 2천만원',minP:42000,mktP:70000,deadline:'2025-03-17',days:3,
    size:'84㎡',units:12,comp:300,cut:0,
    qual:'만 19세 이상 누구나',inc:'소득 제한 없음',
@@ -1603,7 +1738,7 @@ const listings = [
    aS:'2025-03-15',aE:'2025-03-17',aD:'2025-03-19',
    elig:['무순위(줍줍)'],
    ai:{q:'만 19세 이상 누구나! 무주택·청약통장 조건 없어요.',p:'분양가 4억 2천 고정. 시세 7억 대비 약 3억 저렴해요.',s:'3월 15~17일 신청, 19일 발표, 22~23일 계약이에요.',d:'신분증만 있으면 돼요.'}},
-  {id:8,name:'고덕강일 공공분양 무순위',loc:'서울 강동구 강일동',type:'lotto',region:'seoul',lotto:true,
+  {id:8,name:'고덕강일 공공분양 무순위',downPct:10,loc:'서울 강동구 강일동',type:'lotto',region:'seoul',lotto:true,
    price:'5억 8천만원',minP:58000,mktP:105000,deadline:'2025-03-22',days:8,
    size:'59㎡',units:5,comp:500,cut:0,
    qual:'서울 거주 만 19세 이상',inc:'소득 제한 없음',
@@ -1637,7 +1772,7 @@ const GLOSSARY = [
   {cat:'가점제',term:'청약통장 기간',short:'청약통장 가입 후 경과 기간',full:'가입일부터 입주자 모집공고일까지의 기간이에요. 최대 15년(17점)이에요. 명의변경은 불가하고 해지 후 재가입 시 기간이 초기화돼요.'},
   // 분양가·자금
   {cat:'분양가·자금',term:'분양가 상한제',short:'분양가에 상한선을 두는 제도',full:'적용 지역은 시세보다 저렴하게 분양되는 대신, 최대 10년 전매제한이 붙어요. 투기과열지구 내 공공택지 등에 적용돼요.'},
-  {cat:'분양가·자금',term:'계약금',short:'분양 계약 시 최초 납부 금액',full:'통상 분양가의 10%예요. 계약 당일 납부해야 하며 대출이 안 돼요. 현금 보유 여부가 중요해요.'},
+  {cat:'분양가·자금',term:'계약금',short:'분양 계약 시 최초 납부 금액',full:'공공분양은 보통 분양가의 5%, 민간분양은 10~20%예요. 공고마다 달라요. 계약 당일 납부해야 하며 대출이 안 돼요. 현금 보유 여부가 중요해요.'},
   {cat:'분양가·자금',term:'중도금',short:'계약 후 입주 전까지 나눠 내는 금액',full:'분양가의 60%를 보통 6회 나눠 납부해요. 9억 이하 단지는 무이자 집단 대출이 가능해요.'},
   {cat:'분양가·자금',term:'잔금',short:'입주 시 최종 납부 금액',full:'분양가의 30%로 입주 직전에 납부해요. 주택담보대출로 처리하는 경우가 많아요.'},
   {cat:'분양가·자금',term:'LTV',short:'집값 대비 대출 한도 비율',full:'Loan To Value의 약자예요. 9억 이하는 최대 70%, 투기과열지구 내 15억 초과는 대출이 금지돼요.'},
@@ -2117,6 +2252,16 @@ function meetsResideReq(l) {
   return true;
 }
 
+// 계약금 비율 반환 (기본 10%)
+function getDownPct(l) {
+  return l.downPct || (l.type === 'public' ? 5 : 10);
+}
+
+// 계약금 금액 계산 (만원)
+function getDeposit(l) {
+  return Math.round((l.minP || 0) * getDownPct(l) / 100);
+}
+
 function isLottoListing(l){ return l.lotto || (l.mktP > 0 && !l.noMktP && gap(l).g >= 20000); } // 로또청약 기준: 시세차익 2억 이상
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
@@ -2525,6 +2670,33 @@ function calcProb(l, p, selectedType){
     if(!eligMatch){
       prob = 0.5;
       reasons.push('신청 가능한 전형 없음');
+    } else if(l.savingsCut && l.savingsCut.length > 0 && parseInt(p.depAmt||0) > 0) {
+      // 저축총액 기반 당첨선 계산
+      const myAmt = parseInt(p.depAmt||0);
+      // 거주지에 맞는 커트라인 찾기
+      const resideRgn = (p.resideRegion||'').includes('서울') ? '당해'
+        : (p.resideRegion||'').includes('경기') ? '경기'
+        : (p.resideRegion||'').includes('인천') ? '경기' : '기타';
+      // 가장 낮은 진입 가능 커트라인 찾기
+      const matchedCuts = l.savingsCut.filter(c => c.region === resideRgn || c.region === '기타');
+      if(matchedCuts.length > 0) {
+        const bestCut = matchedCuts.reduce((best, c) => c.low < best.low ? c : best, matchedCuts[0]);
+        const worstCut = matchedCuts.reduce((worst, c) => c.high > worst.high ? c : worst, matchedCuts[0]);
+        if(myAmt >= worstCut.low) {
+          prob = Math.min(90, 60 + Math.round((myAmt - worstCut.low) / (worstCut.high - worstCut.low + 1) * 35));
+          reasons.push(`납입총액 ${myAmt.toLocaleString()}만원 (${bestCut.type} 커트 ${bestCut.low.toLocaleString()}~${bestCut.high.toLocaleString()}만원)`);
+        } else if(myAmt >= bestCut.low) {
+          prob = Math.round(30 + (myAmt - bestCut.low) / (worstCut.low - bestCut.low + 1) * 30);
+          reasons.push(`납입총액 ${myAmt.toLocaleString()}만원 (${bestCut.type} 커트 범위 내)`);
+        } else {
+          prob = Math.max(0.5, Math.round(myAmt / bestCut.low * 20));
+          reasons.push(`납입총액 부족 (최소 ${bestCut.low.toLocaleString()}만원 필요)`);
+        }
+        prob = Math.max(0.5, Math.min(92, prob));
+      } else {
+        prob = 30;
+        reasons.push('저축총액 커트라인 데이터 있음');
+      }
     } else if(cut > 0){
       const diff = myScore - cut;
       const sigmoid = 1 / (1 + Math.exp(-diff / 3));
@@ -2863,7 +3035,7 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top"><div style="display:flex;gap:5px;align-items:center">${typeBadge(l)}</div><span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
       <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}${l.days!==null&&l.days<=3?' urgent':''}">${daysText(l.days,'remain')}</span></div>
     </div>`;
@@ -3481,6 +3653,37 @@ async function showDetail(id, fromSwipe=false){
     <div class="info-card-title">📋 청약 자격</div>
     <div class="info-row"><span class="info-rl">신청 자격</span><span class="info-rv">${l.qual}</span></div>
     <div class="info-row" style="border-bottom:none"><span class="info-rl">소득 기준</span><span class="info-rv">${l.inc}</span></div>
+    ${l.savingsCut && l.savingsCut.length > 0 ? `
+    <div style="padding:12px 16px;border-top:1px solid rgba(0,0,0,.06)">
+      <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:8px">📊 당첨선도 (청약저축 납입총액 기준)</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:260px">
+          <tr style="background:var(--bg-2)">
+            <th style="padding:6px 8px;text-align:left;font-weight:700;border:1px solid rgba(0,0,0,.07)">유형${l.savingsCut.some(c=>c.size)?'/평형':''}</th>
+            <th style="padding:6px 8px;text-align:center;font-weight:700;border:1px solid rgba(0,0,0,.07)">지역</th>
+            <th style="padding:6px 8px;text-align:right;font-weight:700;border:1px solid rgba(0,0,0,.07)">최고</th>
+            <th style="padding:6px 8px;text-align:right;font-weight:700;border:1px solid rgba(0,0,0,.07)">최저</th>
+          </tr>
+          ${l.savingsCut.map(c => {
+            const myAmt = parseInt(P.depAmt||0);
+            const over = myAmt > c.high;
+            const inRange = myAmt >= c.low && myAmt <= c.high;
+            const bg = over ? 'background:#ECFDF5' : inRange ? 'background:#EBF2FF' : '';
+            return \`<tr style="\${bg}">
+              <td style="padding:5px 8px;border:1px solid rgba(0,0,0,.07);font-weight:600">\${c.type}\${c.size?' '+c.size:''}</td>
+              <td style="padding:5px 8px;border:1px solid rgba(0,0,0,.07);text-align:center">\${c.region}</td>
+              <td style="padding:5px 8px;border:1px solid rgba(0,0,0,.07);text-align:right">\${c.high.toLocaleString()}만</td>
+              <td style="padding:5px 8px;border:1px solid rgba(0,0,0,.07);text-align:right">\${c.low.toLocaleString()}만</td>
+            </tr>\`;
+          }).join('')}
+        </table>
+        <div style="font-size:11px;color:var(--ink-4);margin-top:6px;line-height:1.6">
+          ${parseInt(P.depAmt||0) > 0
+            ? \`내 납입총액: <b style="color:var(--accent)">\${parseInt(P.depAmt).toLocaleString()}만원</b> · <span style="background:#ECFDF5;padding:1px 5px;border-radius:4px">초과</span> <span style="background:#EBF2FF;padding:1px 5px;border-radius:4px">범위 내</span>\`
+            : '조건에 납입총액을 입력하면 내 위치를 확인할 수 있어요'}
+        </div>
+      </div>
+    </div>` : ''}
     <div class="info-card-title" style="border-top:1px solid rgba(0,0,0,.06)">🎯 신청 가능한 전형</div>
     ${/* ★★★ [하드코딩 — 수정 금지] 전형별 상세 자격 진단 UI ★★★ */
     (()=>{
@@ -3684,7 +3887,7 @@ async function showDetail(id, fromSwipe=false){
   ${P.cash?`<div class="fund-card" style="margin-top:14px">
     <div class="fund-header">💰 내 자금 계획</div>
     <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
-    <div class="fund-row"><span class="fund-rl">계약금 (10%)</span><span class="fund-rv ${canAfford?'ok':'no'}">${(dep/10000).toFixed(1)}억 ${canAfford?'✓':'✗ 부족'}</span></div>
+    <div class="fund-row"><span class="fund-rl">계약금 (${getDownPct(l)}%)</span><span class="fund-rv ${canAfford?'ok':'no'}">${(dep/10000).toFixed(1)}억 ${canAfford?'✓':'✗ 부족'}</span></div>
     <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억 무이자대출</span></div>
     <div class="fund-row"><span class="fund-rl">필요 대출</span><span class="fund-rv ${lr<=70?'':'no'}">${(loan/10000).toFixed(1)}억 (LTV ${lr}%)</span></div>
     <div style="padding:12px 18px;background:${canAfford?'var(--public-light)':'var(--red-light)'}"><span style="font-size:13px;font-weight:700;color:${canAfford?'var(--public)':'var(--red)'}">${canAfford?`✓ 계약금 납부 가능! 월 상환 약 ${monthly.toLocaleString()}만원`:`✗ 계약금 ${Math.max(0,dep-cash).toLocaleString()}만원 부족`}</span></div>
@@ -4430,7 +4633,12 @@ function _showReportResult(html, fromCache){
 
 async function generateReport(){
   const score    = calcScore(P);
-  const types    = calcTypes(P).map(t => t.l);
+  const typesRaw  = calcTypes(P);
+  const types     = typesRaw.map(t => t.l);
+  // 우선공급/잔여공급/소득기준 포함한 상세 전형 정보
+  const typesDetail = typesRaw.map(t =>
+    `${t.l}${t.sub ? ' '+t.sub : ''}${t.subNote ? ' ('+t.subNote+')' : ''}`
+  ).join(', ');
   const age      = P.byear ? new Date().getFullYear() - parseInt(P.byear) : 0;
   const income   = parseInt(P.isDual ? (P.totalIncome || P.income || 0) : (P.income || 0));
   const cash     = parseInt(P.cash    || 0);
@@ -4524,7 +4732,11 @@ async function generateReport(){
 
   // 저축 목표 계산
   const targetPrice  = matched.length > 0 ? getMaxP(matched[0]) : 50000;
-  const depositNeeded = Math.round(targetPrice * 0.1);
+  // 매칭 공고 평균 계약금 비율 (없으면 10%)
+  const avgDownPct = matched.length > 0
+    ? Math.round(matched.reduce((s,l) => s + getDownPct(l), 0) / matched.length)
+    : 10;
+  const depositNeeded = Math.round(targetPrice * avgDownPct / 100);
   const savingsGap    = Math.max(0, depositNeeded - cash);
   const monthlyNeeded = savingsGap > 0 ? Math.round(savingsGap / 24) : 0; // 2년 목표
 
@@ -4553,7 +4765,7 @@ async function generateReport(){
 거주지: ${P.resideRegion||'미입력'} ${P.resideYears?P.resideYears+'년 거주':''} (거주 요건 불충족 공고는 자동 제외됐어요)
 주택: ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 연소득: ${income.toLocaleString()}만원(도시근로자 ${incPct}%)
 보유현금: ${cash.toLocaleString()}만원 / 청약통장: ${acc}회 납입(${rank1?'1순위 자격 있어요':'아직 2순위예요'})
-신청 가능 전형: ${types.join(', ')||'현재 없어요'}
+신청 가능 전형: ${typesDetail||'현재 없어요'}
 
 [인터뷰 답변]
 희망 지역: ${regionTargetLabel} / 청약 경험: ${expLabel} / 현재 거주지: ${liveLabel}
@@ -4562,7 +4774,8 @@ async function generateReport(){
 
 [매칭 공고] ${matchedStr||'현재 해당 공고 없음'}
 [로또청약] ${lottoStr||'현재 없음'}
-[자금 현황] 계약금 가능 분양가: ${(cash*10).toLocaleString()}만원 이하 / 추가 필요 금액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 2년 저축 필요
+[자금 현황] 현금: ${cash.toLocaleString()}만원 / 계약금 비율: 공고마다 5~20% 다름 (공공 5%, 민간 10~20%) / 추가 필요 금액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 2년 저축 필요
+매칭 공고 계약금 비율 평균: ${avgDownPct}%
 
 중요: 공고 추천은 반드시 희망지역(${regionTargetLabel}) 범위 안에서만 해줘요. 범위 밖 지역 추천 금지.
 
@@ -4575,14 +4788,14 @@ async function generateReport(){
 - 번호 목록: 1. 2. 3.
 
 [SECTION:지금 내 상황이에요]
-[HEADLINE:가점 ${score.total}점으로 지금 신청할 수 있는 전형이 ${types.length}개 있어요]
-[STAT:청약 가점|${score.total}점][STAT:신청 가능 전형|${types.length}개][STAT:매칭 공고|${matched.length}건]
-고객의 현재 상황을 2~3문장으로 솔직하고 친절하게 설명해줘요. 잘 되고 있는 점과 보완할 점을 균형있게.
+[HEADLINE:가점 ${score.total}점으로 지금 신청할 수 있는 전형이 ${typesRaw.length}개 있어요]
+[STAT:청약 가점|${score.total}점][STAT:신청 가능 전형|${typesRaw.length}개][STAT:매칭 공고|${matched.length}건]
+고객의 현재 상황을 2~3문장으로 솔직하고 친절하게 설명해줘요. 신청 가능 전형(${typesDetail})을 구체적으로 언급하고, 우선공급/잔여공급 구분도 설명해줘요. 잘 되고 있는 점과 보완할 점을 균형있게.
 
 [SECTION:지금 넣을 수 있는 공고예요]
 [HEADLINE:추천 이유를 한 문장으로 자연스럽게]
 [STAT:접수일|M/DD][STAT:전형|전형명][STAT:시세차익|?억]
-추천 공고 설명, 신청 방법, 주의사항을 쉽게 설명해줘요. 공고가 없으면 "지금 당장 넣을 수 있는 공고는 없어요. 다음 기회를 준비해봐요." 라고 솔직하게.
+추천 공고 설명 시 반드시: 어떤 전형(우선공급/잔여공급/일반공급 등)으로 신청할 수 있는지 명시해줘요. 신생아특공이면 우선공급/잔여공급 단계 구분도 설명해줘요. 신청 방법, 주의사항을 쉽게 설명해줘요. 공고가 없으면 "지금 당장 넣을 수 있는 공고는 없어요. 다음 기회를 준비해봐요." 라고 솔직하게.
 
 [SECTION:로또청약도 챙겨봐요]
 [HEADLINE:한 줄로 기회 요약 — 자연스럽게]
@@ -4592,7 +4805,7 @@ async function generateReport(){
 [SECTION:대출과 저축 계획이에요]
 [HEADLINE:자금 상황 한 줄 요약 — 쉽고 친절하게]
 [STAT:계약금 가능|?억 이하][STAT:월 저축 목표|?만원]
-받을 수 있는 대출 종류와 한도, 현실적인 저축 전략을 구체적으로 설명해줘요. 어려운 용어는 풀어서.
+받을 수 있는 대출 종류와 한도, 현실적인 저축 전략을 구체적으로 설명해줘요. 반드시 추천 공고의 계약금 비율(공공 5%, 민간 10~20%)을 명시하고 실제 납부 금액을 계산해서 알려줘요. 공공분양 추천 공고에 당첨선도 데이터(savingsCut)가 있으면 고객 납입총액(${parseInt(P.depAmt||0).toLocaleString()}만원)과 비교해서 당첨 가능 여부를 구체적으로 안내해줘요. 어려운 용어는 풀어서.
 
 [SECTION:이렇게 시작해봐요]
 [HEADLINE:지금 바로 할 수 있는 것부터 시작해봐요]
@@ -4932,7 +5145,7 @@ function buildReportHTML(d){
     const affordable = matched.filter(l => cash >= getMaxP(l) * 0.1);
     s6 = `
       ${row('보유 현금', `${cash.toLocaleString()}만원`)}
-      ${row('계약금(10%) 납부 가능한 분양가', `${(cash*10).toLocaleString()}만원 이하`)}
+      ${row(`계약금(${avgDownPct}%) 납부 가능한 분양가`, `${Math.round(cash*100/avgDownPct).toLocaleString()}만원 이하`)}
       ${row('희망 지역 LTV 한도', `${Math.round(ltvLimit*100)}%`)}
       ${row('중도금 대출', '분양가 60% (9억 이하 무이자)')}
       <div style="margin-top:12px">
@@ -4940,7 +5153,7 @@ function buildReportHTML(d){
           ? good(`현재 현금으로 계약금 납부 가능한 공고 ${affordable.length}건이 있어요.`)
           : warn(`현재 현금(${cash.toLocaleString()}만원)으로 계약금을 낼 수 있는 공고가 없어요. 추가 저축이 필요해요.`)}
       </div>
-      <div style="font-size:12px;color:var(--ink-4);margin-top:10px;line-height:1.7">💡 계약금은 대출이 안 돼요. 최소 분양가의 10%는 현금으로 준비해야 해요. 중도금(60%)은 집단대출을 이용할 수 있고, 잔금(30%)은 주택담보대출로 처리해요.</div>`;
+      <div style="font-size:12px;color:var(--ink-4);margin-top:10px;line-height:1.7">💡 계약금은 대출이 안 돼요. 공공분양은 보통 분양가의 5%, 민간분양은 10~20%를 현금으로 준비해야 해요. 중도금(60%)은 집단대출을 이용할 수 있고, 잔금(30%)은 주택담보대출로 처리해요.</div>`;
   }
 
   // ── 섹션 7: 이달의 액션 플랜 ──────────────────────
@@ -6427,6 +6640,7 @@ async function onAdminFileSelect(event){
   ],
   "cut": 예상 가점 커트라인 (공고에 과거 데이터가 있으면). 없으면 0,
   "comp": 예상 경쟁률 숫자. 없으면 0,
+  "downPct": 계약금 비율 숫자 (%). 공고문의 납부방법/납부일정에서 추출. 예: 계약금 10%면 10, 5%면 5, 20%면 20. 없으면 10,
   "compByType": "평형별 경쟁률 (| 구분). 없으면 빈 문자열",
   "cutByType": "평형별 가점 커트라인 (| 구분). 없으면 빈 문자열",
   "prevComp": "이전 차수 경쟁률 정보. 없으면 빈 문자열",
@@ -6507,6 +6721,7 @@ async function onAdminFileSelect(event){
       mktP: 0,
       noMktP: true,
       comp: parseFloat(parsed.comp) || 10,
+      downPct: parseInt(parsed.downPct) || (parsed.type === 'public' ? 5 : 10),
       compByType: parsed.compByType || '',
       cutByType: parsed.cutByType || '',
       eligDetail: parsed.eligDetail || [],
@@ -6530,6 +6745,7 @@ async function onAdminFileSelect(event){
           ['단지명', parsed.name],
           ['위치', parsed.loc],
           ['분양가', parsed.price],
+          ['계약금', (parseInt(parsed.downPct)||'미확인') + (parsed.downPct ? '%' : '')],
           ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ? ` (모집 ${parsed.recruitUnits}세대)` : '')],
           ['마감일', parsed.aE],
           ['신청 전형', (parsed.elig||[]).join(', ')],
