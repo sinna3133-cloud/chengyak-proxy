@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>쉬운청약</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Cpolygon points='100,28 172,78 100,78' fill='white' opacity='0.07'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Crect x='34' y='76' width='34' height='96' rx='6' fill='white' opacity='0.05'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
@@ -1097,7 +1096,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
           <div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
           <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
         </div>
-        <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();openWizard()">조건 설정하기</button>
+        <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
       </div>
     </div>
   </div>
@@ -1319,9 +1318,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     </div>
   </div>
   <!-- 바디 -->
-  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column" id="report-body">
+  <div style="flex:1;overflow-y:auto" id="report-body">
     <!-- 인터뷰 단계 -->
-    <div id="report-interview" style="display:flex;flex-direction:column;flex:1;overflow:hidden;padding:0 20px"></div>
+    <div id="report-interview" style="display:none;flex-direction:column;padding:0 20px"></div>
     <!-- 로딩 상태 -->
     <div id="report-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
       <div style="width:56px;height:56px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(0,102,255,.3)">
@@ -4167,6 +4166,21 @@ function openPremReport(){
     _showReportResult(cached, true);
     return;
   }
+  // 로컬 캐시 없으면 Supabase에서 불러오기 시도
+  if(kakaoUser?.kakaoId){
+    _openReportOv();
+    _showIntro(); // 일단 인트로 보여주면서 Supabase 조회
+    sb.get('profiles', `id=eq.${kakaoUser.kakaoId}&select=report_cached,report_date`)
+      .then(rows => {
+        if(rows?.length && rows[0].report_cached && rows[0].report_date === today){
+          // 오늘 날짜 리포트가 있으면 바로 표시
+          localStorage.setItem('report_last_used', today);
+          localStorage.setItem('report_cached', rows[0].report_cached);
+          _showReportResult(rows[0].report_cached, true);
+        }
+      }).catch(()=>{});
+    return;
+  }
   // 인터뷰 시작
   _reportAnswers = {};
   _reportStep    = 0;
@@ -4178,7 +4192,10 @@ function _openReportOv(){
   const ov = document.getElementById('report-ov');
   ov.style.display = 'flex';
   ov.style.flexDirection = 'column';
-  document.getElementById('report-interview').style.display = 'block';
+  const _rb = document.getElementById('report-body');
+  if(_rb){ _rb.style.overflow = 'hidden'; _rb.style.display = 'flex'; _rb.style.flexDirection = 'column'; }
+  const _ri = document.getElementById('report-interview');
+  if(_ri){ _ri.style.display = 'flex'; _ri.style.flex = '1'; _ri.style.minHeight = '0'; }
   document.getElementById('report-loading').style.display  = 'none';
   document.getElementById('report-content').style.display  = 'none';
   document.getElementById('report-prog-wrap').style.display = 'none';
@@ -4337,6 +4354,8 @@ function _showReportResult(html, fromCache){
 
   document.getElementById('report-content').innerHTML = bannerHtml + html;
   document.getElementById('report-content').style.display   = 'block';
+  const _rb2 = document.getElementById('report-body');
+  if(_rb2){ _rb2.style.overflow = 'auto'; _rb2.style.display = 'block'; }
 }
 
 async function generateReport(){
@@ -4510,11 +4529,24 @@ async function generateReport(){
     const today2 = new Date().toISOString().slice(0, 10);
     localStorage.setItem('report_last_used', today2);
     localStorage.setItem('report_cached', html);
+    // Supabase에도 저장 (기기 간 동기화)
+    if(kakaoUser?.kakaoId){
+      sb.upsert('profiles', {
+        id: String(kakaoUser.kakaoId),
+        kakao_id: String(kakaoUser.kakaoId),
+        nickname: kakaoUser.nickname || '',
+        avatar: kakaoUser.avatar || '',
+        report_cached: html,
+        report_date: today2
+      }).catch(()=>{});
+    }
     _showReportResult(html, false);
   } catch(e) {
     clearInterval(msgTimer);
     document.getElementById('report-loading').style.display = 'none';
     document.getElementById('report-content').style.display = 'block';
+    const _rb3 = document.getElementById('report-body');
+    if(_rb3){ _rb3.style.overflow = 'auto'; _rb3.style.display = 'block'; }
     document.getElementById('report-content').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
         <div style="font-size:40px;margin-bottom:16px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
@@ -4863,6 +4895,17 @@ function renderReport(html){
   const today = new Date().toISOString().slice(0, 10);
   localStorage.setItem('report_last_used', today);
   localStorage.setItem('report_cached', html);
+  // Supabase에도 저장 (기기 간 동기화)
+  if(kakaoUser?.kakaoId){
+    sb.upsert('profiles', {
+      id: String(kakaoUser.kakaoId),
+      kakao_id: String(kakaoUser.kakaoId),
+      nickname: kakaoUser.nickname || '',
+      avatar: kakaoUser.avatar || '',
+      report_cached: html,
+      report_date: today
+    }).catch(()=>{});
+  }
 }
 
 /* ══ 마이페이지 ══ */
@@ -5096,7 +5139,7 @@ function showSupport(type){
         </div>
         <div style="background:var(--bg-card);border-radius:14px;border:1px solid rgba(0,0,0,.07);padding:18px">
           <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">직접 연락하기</div>
-          <div style="font-size:13px;color:var(--ink-4);line-height:2">이메일: support@cheongyak.app<br>운영시간: 평일 09:00 ~ 18:00 (공휴일 제외)</div>
+          <div style="font-size:13px;color:var(--ink-4);line-height:2">이메일: saena1004@kakao.com<br>운영시간: 평일 09:00 ~ 18:00</div>
         </div>
       </div>
       <div style="height:100px"></div>`,
@@ -5113,7 +5156,7 @@ function showSupport(type){
         </div>
         <div style="background:var(--accent-light);border-radius:14px;padding:18px">
           <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px">문의 이메일</div>
-          <div style="font-size:15px;font-weight:800;color:var(--accent)">ad@cheongyak.app</div>
+          <div style="font-size:15px;font-weight:800;color:var(--accent)">saena1004@kakao.com</div>
         </div>
       </div>
       <div style="height:100px"></div>`,
@@ -6043,7 +6086,7 @@ async function loadLiveData(){
 // kakaoUser는 아래에서 선언되므로 localStorage로 상태 판별
 if (!localStorage.getItem('kakaoUser_v2')) {
   P.name = RETRO[Math.floor(Math.random()*RETRO.length)];
-  document.getElementById('my-name').textContent = P.name;
+  const _mn = document.getElementById('my-name'); if(_mn) _mn.textContent = P.name;
 }
 const _greet = document.getElementById('hero-greeting');
 const _cheer = document.getElementById('hero-cheer');
@@ -6495,7 +6538,7 @@ async function sbLoadCondition(userId) {
     if (Array.isArray(rows) && rows.length > 0 && rows[0].user_condition) {
       const c = rows[0].user_condition;
       Object.keys(c).forEach(k => { if (c[k] !== undefined && c[k] !== '') P[k] = c[k]; });
-      if (rows[0].nickname) { P.name = rows[0].nickname; kakaoUser.nickname = rows[0].nickname; }
+      if (rows[0].nickname) { P.name = rows[0].nickname; if(kakaoUser) kakaoUser.nickname = rows[0].nickname; }
       updateHero(); renderListings(); updateConsult(); updateMyCondCard();
       const nm = document.getElementById('my-name');
       if (nm && P.name) nm.textContent = P.name + '님';
@@ -6838,6 +6881,11 @@ function kakaoLogout() {
   renderListings();
   renderSaved();
   updateHero();
+  // 히어로 인사말 초기화 + 로그인 유도 버튼 표시
+  const _greetEl = document.getElementById('hero-greeting');
+  const _nudgeEl = document.getElementById('hero-login-nudge');
+  if (_greetEl) _greetEl.textContent = `${P.name}님, 안녕하세요`;
+  if (_nudgeEl) _nudgeEl.style.display = 'block';
   showToast('로그아웃됐어요');
 }
 
