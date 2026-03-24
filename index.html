@@ -1173,7 +1173,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         </div>
         <div class="type-pills" id="type-pills">
 
-```
     </div>
     <div class="cond-detail" id="cond-detail">
       <div class="cond-grid">
@@ -1192,7 +1191,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
   </div>
 </div>
-```
 
   </div>
 
@@ -1555,7 +1553,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button onclick="closeAdmin()" style="background:var(--bg);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:18px;color:var(--ink-4)">×</button>
     </div>
 
-```
 <!-- 업로드 영역 -->
 <div style="padding:20px 24px">
   <div id="admin-drop" onclick="document.getElementById('admin-file-input').click()"
@@ -1592,7 +1589,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div id="admin-all-list" style="display:flex;flex-direction:column;gap:6px"></div>
   </div>
 </div>
-```
 
   </div>
 </div>
@@ -6400,8 +6396,6 @@ function showSupport(type){
           <div style="margin-bottom:12px">
             <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:6px">문의 내용</div>
             <textarea placeholder="문의 내용을 자세히 입력해주세요" style="width:100%;height:130px;border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:none;outline:none;color:var(--ink);background:var(--bg-card)"></textarea>
-
-```
       </div>
       <button onclick="showToast('문의가 접수됐어요! 영업일 기준 1~2일 안에 답변드려요')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">문의 보내기</button>
     </div>
@@ -6444,7 +6438,6 @@ terms:`
       </div>`).join('')}
   </div>
   <div style="height:100px"></div>`
-```
 
 };
 
@@ -6856,7 +6849,6 @@ const body  = await res.json();
 const data  = body?.data;
 if(!data || !data.length) return null;
 
-```
 // 1순위 해당지역(01) 데이터만 추출해서 평균 경쟁률 계산
 const rank1 = data.filter(d => String(d.RESIDE_SECD) === '01' && String(d.SUBSCRPT_RANK_CODE) === '1');
 const target = rank1.length ? rank1 : data;
@@ -6868,7 +6860,6 @@ const rates = target
 if(!rates.length) return null;
 const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
 return Math.round(avg * 10) / 10; // 소수점 1자리
-```
 
 } catch(e) {
 return null;
@@ -6888,7 +6879,6 @@ const body  = await res.json();
 const data  = body?.data;
 if(!data || !data.length) return null;
 
-```
 // 해당지역(01) + 전용 84㎡ 우선, 없으면 첫 번째 항목
 const ty84local = data.find(d => String(d.RESIDE_SECD) === '01' && String(d.HOUSE_TY).includes('84'));
 const ty84      = data.find(d => String(d.HOUSE_TY).includes('84'));
@@ -6897,7 +6887,6 @@ const target    = ty84local || ty84 || data[0];
 // AVRG_SCORE → TOP_SCORE → LWET_SCORE 순으로 fallback
 const score = parseFloat(target.AVRG_SCORE || target.TOP_SCORE || target.LWET_SCORE || 0);
 return score > 0 ? Math.round(score) : null;
-```
 
 } catch(e) {
 return null;
@@ -6917,7 +6906,6 @@ const sixAgo = new Date(now);
 sixAgo.setMonth(sixAgo.getMonth() - 6);
 const fmtD = d => d.toISOString().slice(0,10);
 
-```
 // 1) 최근 APT 분양 목록 조회 (50건)
 const listUrl = `${API_APT}?serviceKey=${encodeURIComponent(apiKey)}&page=1&perPage=50`;
 const listRes = await fetch(PROXY + encodeURIComponent(listUrl));
@@ -6963,7 +6951,6 @@ return {
   sampleCount: results.length,
   region: gu || si
 };
-```
 
 } catch(e) {
 console.warn(‘유사단지 조회 실패:’, e.message);
@@ -7105,7 +7092,6 @@ fetchAptList(apiKey,  1, 20).catch(()=>[]),
 fetchLottoList(apiKey, 1, 10).catch(()=>[])
 ]);
 
-```
 const allParsed = [
   ...lottoItems.map(i => parseAptItem(i, true)),
   ...aptItems.map(i   => parseAptItem(i, false))
@@ -7236,7 +7222,6 @@ applyMktPCache();
 // 2) 만료된 것만 백그라운드 갱신
 console.log(`loadLiveData 완료: ${listings.length}건, 시세 자동조회 시작`);
 autoFetchMarketPrices(); // await 제거 — 백그라운드 실행
-```
 
 } catch(e){
 console.error(‘loadLiveData error:’, e);
@@ -7418,9 +7403,7 @@ reader.onerror = () => rej(new Error(‘파일 읽기 실패’));
 reader.readAsDataURL(file);
 });
 
-```
 const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON 형식으로만 응답해줘. 마크다운 코드블록 없이 순수 JSON만.
-```
 
 ★ 핵심 주의사항 ★
 
@@ -7751,7 +7734,6 @@ body: JSON.stringify({ listing: _adminExtracted, force })
 });
 const data = await res.json();
 
-```
 if(res.status === 409 && data.duplicate){
   const existing = document.getElementById('dup-confirm-ov');
   if(existing) existing.remove();
@@ -7797,7 +7779,6 @@ resetAdmin();
 renderAdminList();
 renderListings();
 renderRecommend();
-```
 
 } catch(e){
 showToast(’❌ 저장 실패: ’ + e.message);
