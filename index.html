@@ -1023,6 +1023,32 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <span>📊 선택하면 평형별 경쟁률로 당첨 확률을 더 정확하게 분석해드려요</span>
       </div>
     </div>
+  </div>
+
+  <!-- Step 5: 거주 조건 + 희망지역 -->
+  <div class="wiz-body" id="ws5" style="display:none">
+    <div class="wiz-title">거주·희망 지역을<br>알려주세요</div>
+    <div class="wiz-sub">일부 공고는 해당 지역 거주자만 신청할 수 있어요.</div>
+    <div class="wiz-field">
+      <label class="wiz-label">현재 거주 지역</label>
+      <div class="wiz-radio-grp" id="wiz-reside-grp">
+        <div class="wiz-radio on" onclick="wRadio(this,'reside')">서울</div>
+        <div class="wiz-radio" onclick="wRadio(this,'reside')">경기</div>
+        <div class="wiz-radio" onclick="wRadio(this,'reside')">인천</div>
+        <div class="wiz-radio" onclick="wRadio(this,'reside')">기타 수도권</div>
+        <div class="wiz-radio" onclick="wRadio(this,'reside')">지방</div>
+      </div>
+    </div>
+    <div class="wiz-field">
+      <label class="wiz-label">현재 거주 지역 거주 기간</label>
+      <div class="wiz-inp-unit">
+        <input type="number" class="wiz-inp" id="w-resideYears" placeholder="예: 2" min="0" max="30"/>
+        <span class="unit">년</span>
+      </div>
+      <div class="wiz-accuracy-hint">
+        <span>📊 서울 2년, 경기 1년 이상 거주자 우선 공고를 자동으로 걸러드려요</span>
+      </div>
+    </div>
     <div class="wiz-field">
       <label class="wiz-label">희망 지역</label>
       <div class="region-chips" id="wiz-region-chips" style="padding:0">
@@ -1041,7 +1067,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
         <label class="region-chip" onclick="toggleWizRegion('jeonnam')">전남</label>
       </div>
       <div class="wiz-accuracy-hint" style="margin-top:10px">
-        <span>📊 입력하면 해당 지역 공고를 우선으로 추천해드려요</span>
+        <span>📊 해당 지역 공고를 우선으로 보여드려요</span>
       </div>
     </div>
   </div>
@@ -1692,20 +1718,26 @@ function openWizard(){
   renderChildDates();
   onBirthChange();
   setTimeout(_updateWizRegionUI, 50);
+  // 거주 조건 복원
+  if(P.resideYears) { const el = document.getElementById('w-resideYears'); if(el) el.value = P.resideYears; }
+  if(P.resideRegion){
+    const grp = document.getElementById('wiz-reside-grp');
+    if(grp){ grp.querySelectorAll('.wiz-radio').forEach(r=>{ r.classList.toggle('on', r.textContent===P.resideRegion); }); }
+  }
   setTimeout(_updateWizSizeUI, 50);
   showWizStep(1);
 }
 
-const WIZ_LABELS = ['기본 정보','주거 상태','소득·자산','청약통장'];
+const WIZ_LABELS = ['기본 정보','주거 상태','소득·자산','청약통장','거주 조건'];
 function showWizStep(n){
-  for(let i=1;i<=4;i++) document.getElementById('ws'+i).style.display=i===n?'block':'none';
+  for(let i=1;i<=5;i++) document.getElementById('ws'+i).style.display=i===n?'block':'none';
   document.getElementById('wiz-step-txt').textContent=`${n} / 4단계 · ${WIZ_LABELS[n-1]}`;
-  document.getElementById('wiz-fill').style.width=(n/4*100)+'%';
-  document.getElementById('wiz-btn').textContent=n===4?'완료':'다음';
+  document.getElementById('wiz-fill').style.width=(n/5*100)+'%';
+  document.getElementById('wiz-btn').textContent=n===5?'완료':'다음';
 }
 
 function wizNext(){
-  if(wizStep<4){wizStep++;showWizStep(wizStep);if(wizStep===2)onBirthChange();}
+  if(wizStep<5){wizStep++;showWizStep(wizStep);if(wizStep===2)onBirthChange();}
   else saveWizard();
 }
 
@@ -1733,6 +1765,8 @@ function wRadio(el,group){
     if(childField) childField.style.display=hasChildren?'block':'none';
     if(!hasChildren){ P.children=0; P.childDates=[]; renderChildDates(); }
     if(!isMarried){ P.isDual=false; P.marriageYear=''; onIncomeChange(); }
+  } else if(group==='reside'){
+    P.resideRegion = el.textContent;
   }
   if(group==='elderParent'){
     P.elderParent=el.textContent.startsWith('예');
@@ -1929,6 +1963,8 @@ function saveWizard(){
   P.bday    = document.getElementById('w-bd').value;
   P.income  = document.getElementById('w-income').value;
   P.isDual  = P.isDual || false;
+  P.resideRegion = P.resideRegion || document.querySelector('#wiz-reside-grp .wiz-radio.on')?.textContent || '서울';
+  P.resideYears = document.getElementById('w-resideYears')?.value || '';
   P.spouseIncome = P.isDual ? (document.getElementById('w-spouse-income')?.value||'') : '';
   P.totalIncome = P.isDual
     ? (parseInt(P.income||0) + parseInt(P.spouseIncome||0)) + ''
@@ -2049,6 +2085,38 @@ function fmtManwon(v){
   if(chun>0)return`${chun}천만`;
   return`${v}만`;
 }
+// 공고의 거주 요건 파싱 (qual 텍스트 기반)
+// returns: {region: '서울'|'경기'|'인천'|'세종'|null, years: number}
+function parseResideReq(l) {
+  const q = (l.qual||'') + ' ' + (l.ai?.q||'');
+  const seoulMatch = q.match(/서울\s*(\d+)년\s*이상\s*거주/);
+  const gyeonggiMatch = q.match(/경기\s*(\d+)년\s*이상\s*거주/);
+  const incheonMatch = q.match(/인천\s*(\d+)년\s*이상\s*거주/);
+  const sejongMatch = q.match(/세종\s*(\d+)년\s*이상\s*거주/);
+  const seoulOnly = !seoulMatch && /서울\s*거주/.test(q);
+  if(seoulMatch) return {region:'서울', years:parseInt(seoulMatch[1])};
+  if(seoulOnly) return {region:'서울', years:0};
+  if(gyeonggiMatch) return {region:'경기', years:parseInt(gyeonggiMatch[1])};
+  if(incheonMatch) return {region:'인천', years:parseInt(incheonMatch[1])};
+  if(sejongMatch) return {region:'세종', years:parseInt(sejongMatch[1])};
+  return null;
+}
+
+// 사용자 거주 조건이 공고 요건을 충족하는지 체크
+function meetsResideReq(l) {
+  const req = parseResideReq(l);
+  if(!req) return true; // 거주 요건 없으면 통과
+  const resideRegion = P.resideRegion || '';
+  const resideYears = parseInt(P.resideYears||0);
+  // 지역 매칭
+  const regionMap = {'서울':['서울'],'경기':['경기','기타 수도권'],'인천':['인천','기타 수도권'],'세종':['세종']};
+  const allowed = regionMap[req.region] || [];
+  if(!allowed.includes(resideRegion)) return false;
+  // 기간 체크
+  if(req.years > 0 && resideYears < req.years) return false;
+  return true;
+}
+
 function isLottoListing(l){ return l.lotto || (l.mktP > 0 && !l.noMktP && gap(l).g >= 20000); } // 로또청약 기준: 시세차익 2억 이상
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p){
@@ -2790,7 +2858,7 @@ function renderRecommend(){
     return;
   }
   const tl=calcTypes(P).map(t=>t.l);
-  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
   if(!matched.length){c.innerHTML='<div class="notice" style="cursor:default">현재 조건에 맞는 진행 중 공고가 없어요. 전체 공고를 확인해보세요.</div>';return;}
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
@@ -2834,6 +2902,8 @@ function renderListings(){
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터
   if(selectedRegions.size>0) fl=fl.filter(l=>selectedRegions.has(l.region));
+  // 거주 요건 필터 — 조건 설정한 경우에만 적용
+  if(P.resideRegion) fl=fl.filter(l=>meetsResideReq(l));
 
   const tl=calcTypes(P).map(t=>t.l);
   if(sort==='recommend') fl=[...fl].sort((a,b)=>{const am=a.elig.some(e=>tl.includes(e))?1:0,bm=b.elig.some(e=>tl.includes(e))?1:0;return bm-am||a.days-b.days;});
@@ -3090,7 +3160,7 @@ function animateDashVal(id, target){
 }
 function renderMyCondDashboard(){
   const p=P, score=calcScore(p), types=calcTypes(p), tl=types.map(t=>t.l);
-  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e)));
+  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
   const typeDescs={'생애최초':{desc:'세대원 전원 첫 주택'},'신생아특공':{desc:'만 2세 이하 자녀 보유'},'다자녀특공':{desc:'미성년 자녀 3명 이상'},'신혼부부특공':{desc:'혼인 7년 이내 신혼부부'},'청년특공':{desc:'만 39세 이하 미혼'},'노부모부양':{desc:'만 65세 이상 부모 부양'},'일반공급':{desc:'무주택 세대구성원'}};
   document.getElementById('mycond-body').innerHTML=`
     <div class="dash-hero">
@@ -4384,7 +4454,7 @@ async function generateReport(){
 
   // 매칭 공고
   const matched  = listings.filter(l =>
-    !isLottoListing(l) && l.elig.some(e => types.includes(e))
+    !isLottoListing(l) && l.elig.some(e => types.includes(e)) && meetsResideReq(l)
   ).sort((a,b) => (a.days||999)-(b.days||999));
   const lottos   = listings.filter(l => isLottoListing(l))
     .sort((a,b) => gap(b).g - gap(a).g);
@@ -4468,45 +4538,65 @@ async function generateReport(){
     `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
   ).join('\n');
 
-  const prompt = `청약 전문 컨설턴트예요. 아래 조건으로 맞춤 전략 리포트를 작성해주세요. "~해요" 체로 친근하게, 결론 먼저, 숫자 근거 필수.
+  const prompt = `당신은 청약 전문 컨설턴트예요. 아래 고객 정보를 바탕으로 맞춤 청약 전략 리포트를 작성해주세요.
 
-[고객] 만 ${age}세 / ${P.marriage||'미혼'} / 가점 ${score.total}점 / ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 소득 ${income.toLocaleString()}만원(${incPct}%) / 현금 ${cash.toLocaleString()}만원 / 통장 ${acc}회(${rank1?'1순위':'2순위'}) / 전형: ${types.join(',')||'없음'}
-[답변] 희망지역:${regionTargetLabel} / 경험:${expLabel} / 거주:${liveLabel} / 성향:${riskLabel} / 대출:${loanLabel} / 대기:${waitLabel} / 우선:${priorLabel} / 출퇴근:${workLabel} / 미분양:${unsoldLabel}
-[공고] ${matchedStr||'없음'}
-[로또] ${lottoStr||'없음'}
-[자금] 계약금가능:${(cash*10).toLocaleString()}만원이하 / 부족액:${savingsGap.toLocaleString()}만원 / 월${monthlyNeeded.toLocaleString()}만원씩 2년
+작성 원칙:
+- 말투: "~했어요", "~해요", "~할 수 있어요" 처럼 친절하고 자연스러운 구어체. '~다', '~합니다' 체 금지.
+- 어려운 청약 용어는 쉽게 풀어서 설명해줘요. 예: "1순위" → "청약 1순위 자격이 있어요"
+- 결론을 먼저 말하고, 이유는 그 다음에. 숫자 근거 필수.
+- 과장된 표현, 운세 느낌, 무기/카드/승부 같은 비유 금지.
+- 마크다운(#, ##, **) 절대 사용 금지.
+- 영어 단어 절대 사용 금지. 모든 내용은 100% 한글로만 작성. 예: "supplies" → "일반공급", "special" → "특별공급", "supply" → "공급".
 
-공고 추천은 반드시 희망지역(${regionTargetLabel}) 범위 안에서만 해줘. 범위 밖 지역 공고 추천 절대 금지.
-아래 형식을 정확히 지켜줘. 마크다운(#,##,**) 절대 금지. [SECTION:제목] 태그로만 섹션 구분. [STAT:라벨|값] 에서 값은 짧게(최대 5자), 쉼표 절대 금지.
-각 섹션 첫 줄은 반드시 [HEADLINE:한줄요약] 형식으로 핵심을 한 문장으로 써줘. 재치있되 과하지 않게, 자연스러운 구어체로. '~다' 체 금지, '~해요' 체로. 무기, 카드, 승부 같은 과장된 비유 금지.
-그 다음 [STAT:라벨|값] 형식으로 핵심 수치를 1~3개 넣어줘.
-그 다음 본문을 써줘. 중요한 단어는 [BOLD:텍스트] 로 강조.
-항목 나열은 - 로 시작.
-번호 목록은 1. 2. 3. 으로.
+[고객 정보]
+나이: 만 ${age}세 / 혼인상태: ${P.marriage||'미혼'} / 청약 가점: ${score.total}점
+거주지: ${P.resideRegion||'미입력'} ${P.resideYears?P.resideYears+'년 거주':''} (거주 요건 불충족 공고는 자동 제외됐어요)
+주택: ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 연소득: ${income.toLocaleString()}만원(도시근로자 ${incPct}%)
+보유현금: ${cash.toLocaleString()}만원 / 청약통장: ${acc}회 납입(${rank1?'1순위 자격 있어요':'아직 2순위예요'})
+신청 가능 전형: ${types.join(', ')||'현재 없어요'}
 
-[SECTION:지금 내 상황]
-[HEADLINE:오늘의 청약 운세: 가점은 부족하나 기회는 있다]
+[인터뷰 답변]
+희망 지역: ${regionTargetLabel} / 청약 경험: ${expLabel} / 현재 거주지: ${liveLabel}
+청약 성향: ${riskLabel} / 대출 활용: ${loanLabel} / 입주 대기 가능: ${waitLabel}년
+우선순위: ${priorLabel} / 출퇴근 지역: ${workLabel} / 미분양 고려: ${unsoldLabel}
+
+[매칭 공고] ${matchedStr||'현재 해당 공고 없음'}
+[로또청약] ${lottoStr||'현재 없음'}
+[자금 현황] 계약금 가능 분양가: ${(cash*10).toLocaleString()}만원 이하 / 추가 필요 금액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 2년 저축 필요
+
+중요: 공고 추천은 반드시 희망지역(${regionTargetLabel}) 범위 안에서만 해줘요. 범위 밖 지역 추천 금지.
+
+아래 형식을 정확히 지켜주세요:
+- [SECTION:제목] 으로 섹션 구분
+- 각 섹션 첫 줄: [HEADLINE:핵심을 한 문장으로 — 친절하고 자연스럽게]
+- 핵심 수치 1~3개: [STAT:라벨|값] — 값은 최대 5자, 쉼표 금지
+- 중요 단어 강조: [BOLD:텍스트]
+- 항목 나열: - 로 시작
+- 번호 목록: 1. 2. 3.
+
+[SECTION:지금 내 상황이에요]
+[HEADLINE:가점 ${score.total}점으로 지금 신청할 수 있는 전형이 ${types.length}개 있어요]
 [STAT:청약 가점|${score.total}점][STAT:신청 가능 전형|${types.length}개][STAT:매칭 공고|${matched.length}건]
-현황을 2~3문장으로 솔직하게. 강점과 약점 모두.
+고객의 현재 상황을 2~3문장으로 솔직하고 친절하게 설명해줘요. 잘 되고 있는 점과 보완할 점을 균형있게.
 
-[SECTION:이 공고 넣으세요]
-[HEADLINE:M월 DD일, [단지명]에 [전형명]으로 넣으세요 — 이유를 한 문장으로]
-[STAT:접수일|M/DD(요일)][STAT:전형|특별/일반공급][STAT:시세차익|?억]
-특별공급이면 특별공급 접수일, 일반공급이면 일반공급 접수일을 명시. 추천 이유, 리스크, 결론 포함. 없으면 "지금 당장 넣을 공고가 없어요" 솔직하게.
+[SECTION:지금 넣을 수 있는 공고예요]
+[HEADLINE:추천 이유를 한 문장으로 자연스럽게]
+[STAT:접수일|M/DD][STAT:전형|전형명][STAT:시세차익|?억]
+추천 공고 설명, 신청 방법, 주의사항을 쉽게 설명해줘요. 공고가 없으면 "지금 당장 넣을 수 있는 공고는 없어요. 다음 기회를 준비해봐요." 라고 솔직하게.
 
-[SECTION:로또청약 기회]
-[HEADLINE:한 줄로 기회 요약]
+[SECTION:로또청약도 챙겨봐요]
+[HEADLINE:한 줄로 기회 요약 — 자연스럽게]
 [STAT:시세차익|?억][STAT:마감|?일 후]
-무순위 공고 설명. 없으면 "이번 주는 없어요. 다음 기회를 노려요."
+무순위·줍줍 공고 설명. 없으면 "지금은 로또청약 기회가 없어요. 다음에 또 확인해봐요."
 
-[SECTION:대출·저축 전략]
-[HEADLINE:돈 계획 한 줄 요약]
-[STAT:계약금 가능 분양가|?억 이하][STAT:월 저축 목표|?만원]
-대출 종류와 한도, 저축 전략 구체적으로.
+[SECTION:대출과 저축 계획이에요]
+[HEADLINE:자금 상황 한 줄 요약 — 쉽고 친절하게]
+[STAT:계약금 가능|?억 이하][STAT:월 저축 목표|?만원]
+받을 수 있는 대출 종류와 한도, 현실적인 저축 전략을 구체적으로 설명해줘요. 어려운 용어는 풀어서.
 
-[SECTION:오늘 할 일]
-[HEADLINE:지금 당장 시작할 수 있는 것]
-1. 첫 번째 실행 항목
+[SECTION:이렇게 시작해봐요]
+[HEADLINE:지금 바로 할 수 있는 것부터 시작해봐요]
+1. 첫 번째 실행 항목 — 쉽고 구체적으로
 2. 두 번째 실행 항목
 3. 세 번째 실행 항목`;
 
