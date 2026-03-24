@@ -1,0 +1,19 @@
+{
+  "name": "쉬운청약",
+  "short_name": "쉬운청약",
+  "description": "내 조건에 맞는 청약 공고를 쉽게 찾아드려요",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F7FA",
+  "theme_color": "#0066FF",
+  "orientation": "portrait",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
