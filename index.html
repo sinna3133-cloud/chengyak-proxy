@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="쉬운청약">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0066FF">
+<link rel="apple-touch-icon" href="/icon.png">
 <title>쉬운청약</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' rx='44' fill='white'/%3E%3Cpolygon points='100,28 172,78 28,78' fill='%233B8FFF'/%3E%3Crect x='34' y='76' width='132' height='96' rx='6' fill='%231478FF'/%3E%3Cpolyline points='68,120 88,142 132,104' fill='none' stroke='white' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -269,6 +276,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* 라디오 그룹 */
 .wiz-radio-grp{display:flex;gap:0;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden}
 .wiz-radio{flex:1;padding:14px 8px;text-align:center;font-size:13px;font-weight:600;color:var(--ink-4);cursor:pointer;background:var(--bg-card);transition:all .2s;border-right:1px solid rgba(0,0,0,.08)}
+.wiz-chip{padding:10px 18px;border-radius:22px;font-size:13px;font-weight:600;color:var(--ink-4);cursor:pointer;background:var(--bg-2);border:1.5px solid transparent;transition:all .2s;white-space:nowrap}
+.wiz-chip.on{background:var(--accent-light);color:var(--accent);border-color:var(--accent)}
 .wiz-radio:last-child{border-right:none}
 .wiz-radio.on{background:var(--accent);color:white}
 /* 스텝퍼 */
@@ -283,6 +292,15 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .child-date-item{margin-bottom:14px}
 .child-date-item:last-child{margin-bottom:0}
 .child-date-label{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:8px}
+.custom-dialog-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.custom-dialog{background:var(--bg-card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:24px 20px;padding-bottom:calc(24px + env(safe-area-inset-bottom));animation:sheetUp .3s cubic-bezier(.22,1,.36,1)}
+.custom-dialog-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.3px}
+.custom-dialog-msg{font-size:14px;color:var(--ink-4);line-height:1.6;margin-bottom:20px}
+.custom-dialog-btns{display:flex;gap:10px}
+.custom-dialog-btn{flex:1;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.custom-dialog-btn.cancel{background:var(--bg-2);color:var(--ink-3)}
+.custom-dialog-btn.confirm{background:var(--accent);color:white;box-shadow:0 4px 14px rgba(0,102,255,.3)}
+.custom-dialog-btn.danger{background:var(--red);color:white}
 .newborn-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--mint-light);color:#00A882;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px}
 /* 하단 확인 버튼 */
 .wiz-foot{padding:16px 24px;padding-bottom:calc(16px + env(safe-area-inset-bottom));background:var(--bg-card);border-top:1px solid rgba(0,0,0,.06)}
@@ -845,7 +863,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="wiz-top">
     <button class="wiz-back" onclick="wizBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
     <div class="wiz-prog-wrap" id="wiz-prog-wrap">
-      <div class="wiz-step-txt" id="wiz-step-txt">1 / 4</div>
+      <div class="wiz-step-txt" id="wiz-step-txt">1 / 5단계 · 기본 정보</div>
       <div class="wiz-track"><div class="wiz-fill" id="wiz-fill" style="width:25%"></div></div>
     </div>
   </div>
@@ -1031,12 +1049,12 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <div class="wiz-sub">일부 공고는 해당 지역 거주자만 신청할 수 있어요.</div>
     <div class="wiz-field">
       <label class="wiz-label">현재 거주 지역</label>
-      <div class="wiz-radio-grp" id="wiz-reside-grp">
-        <div class="wiz-radio on" onclick="wRadio(this,'reside')">서울</div>
-        <div class="wiz-radio" onclick="wRadio(this,'reside')">경기</div>
-        <div class="wiz-radio" onclick="wRadio(this,'reside')">인천</div>
-        <div class="wiz-radio" onclick="wRadio(this,'reside')">기타 수도권</div>
-        <div class="wiz-radio" onclick="wRadio(this,'reside')">지방</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="wiz-reside-grp">
+        <div class="wiz-chip on" onclick="wRadio(this,'reside')">서울</div>
+        <div class="wiz-chip" onclick="wRadio(this,'reside')">경기</div>
+        <div class="wiz-chip" onclick="wRadio(this,'reside')">인천</div>
+        <div class="wiz-chip" onclick="wRadio(this,'reside')">기타 수도권</div>
+        <div class="wiz-chip" onclick="wRadio(this,'reside')">지방</div>
       </div>
     </div>
     <div class="wiz-field">
@@ -1683,55 +1701,55 @@ const listings = [
    ai:{q:'경기 김포 고촌2지구 공공분양이에요. 신생아우선/우선공급(1순위) 당첨선도가 공개됐어요.',p:'59㎡, 74㎡ 두 가지 평형이에요.',s:'당첨자 발표가 완료된 단지예요. 다음 공고 참고용으로 활용해요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
 
   {id:1,name:'힐스테이트 광교',downPct:10,loc:'경기 수원시 영통구',type:'private',region:'gyeonggi',lotto:false,
-   price:'4억 8천~7억 2천만원',minP:48000,mktP:72000,deadline:'2025-03-20',days:6,
+   price:'4억 8천~7억 2천만원',minP:48000,mktP:72000,deadline:'2026-04-10',days:null,
    size:'84㎡ / 101㎡',units:320,comp:12,cut:48,
    qual:'무주택세대구성원, 청약통장 24회 이상',inc:'도시근로자 월평균소득 130% 이하',
-   sched:'당첨자 발표: 2025.03.28 / 계약: 2025.04.05',
-   aS:'2025-03-18',aE:'2025-03-20',aD:'2025-03-28',
+   sched:'접수: 2026.04.08~04.10 / 발표: 2026.04.17 / 계약: 2026.04.25',
+   aS:'2026-04-08',aE:'2026-04-10',aD:'2026-04-17',
    elig:['일반공급','생애최초'],
    ai:{q:'만 19세 이상 무주택세대구성원이면 신청 가능해요. 24회 이상 납입한 분만 1순위예요.',p:'전용 84㎡ 4억 8천, 101㎡ 7억 2천만원부터예요. 중도금 60% 무이자 대출 가능해요.',s:'3월 18~20일 접수, 28일 발표, 4월 5~7일 계약이에요.',d:'신분증, 청약통장 확인서, 무주택확인서, 가족관계증명서가 필요해요.'}},
   {id:2,name:'래미안 원베일리',downPct:20,loc:'서울 서초구 반포동',type:'private',region:'seoul',lotto:false,
-   price:'15억~22억원',minP:150000,mktP:220000,deadline:'2025-03-25',days:11,
+   price:'15억~22억원',minP:150000,mktP:220000,deadline:'2026-04-15',days:null,
    size:'59㎡ / 84㎡ / 115㎡',units:180,comp:85,cut:68,
    qual:'서울 2년 이상 거주, 무주택',inc:'소득 제한 없음',
-   sched:'당첨자 발표: 2025.04.01 / 계약: 2025.04.10',
-   aS:'2025-03-23',aE:'2025-03-25',aD:'2025-04-01',
+   sched:'접수: 2026.04.13~04.15 / 발표: 2026.04.22 / 계약: 2026.04.30',
+   aS:'2026-04-13',aE:'2026-04-15',aD:'2026-04-22',
    elig:['일반공급'],
    ai:{q:'서울 2년 이상 거주 무주택자면 신청 가능해요.',p:'59㎡ 15억~115㎡ 22억이에요. 분양가 상한제 적용 단지예요.',s:'3월 23~25일 접수, 4월 1일 발표, 10~12일 계약이에요.',d:'주민등록등본(2년치), 청약통장 확인서, 무주택세대원 확인서가 필요해요.'}},
   {id:3,name:'검단신도시 공공분양 A3블록',downPct:5,loc:'인천 서구 검단신도시',type:'public',region:'incheon',lotto:false,
-   price:'2억 1천~3억 4천만원',minP:21000,mktP:36000,deadline:'2025-03-16',days:2,
+   price:'2억 1천~3억 4천만원',minP:21000,mktP:36000,deadline:'2026-05-08',days:null,
    size:'46㎡ / 59㎡ / 74㎡',units:520,comp:5,cut:32,
    qual:'무주택, 청약통장 6회 이상',inc:'도시근로자 월평균소득 100% 이하',
-   sched:'당첨자 발표: 2025.03.25 / 계약: 2025.04.02',
-   aS:'2025-03-14',aE:'2025-03-16',aD:'2025-03-25',
+   sched:'접수: 2026.05.06~05.08 / 발표: 2026.05.15 / 계약: 2026.05.23',
+   aS:'2026-05-06',aE:'2026-05-08',aD:'2026-05-15',
    elig:['생애최초','신생아특공','일반공급'],
    ai:{q:'공공분양이라 소득 기준이 있어요. 3인 기준 월 590만원 이하여야 해요.',p:'46㎡ 2억 1천만원부터예요. LH 주담대 최대 70% 가능해요.',s:'3월 14~16일 접수, 25일 발표. 마감 2일!',d:'소득확인서류, 청약통장 확인서, 가족관계증명서가 필요해요.'}},
   {id:4,name:'위례 자연앤자이',downPct:10,loc:'경기 하남시 학암동',type:'private',region:'gyeonggi',lotto:false,
-   price:'5억 5천~8억원',minP:55000,mktP:75000,deadline:'2025-04-05',days:22,
+   price:'5억 5천~8억원',minP:55000,mktP:75000,deadline:'2026-04-25',days:null,
    size:'74㎡ / 84㎡ / 102㎡',units:440,comp:18,cut:52,
    qual:'무주택 또는 1주택자(84㎡ 이하)',inc:'소득 제한 없음',
-   sched:'당첨자 발표: 2025.04.12 / 계약: 2025.04.20',
-   aS:'2025-04-03',aE:'2025-04-05',aD:'2025-04-12',
+   sched:'접수: 2026.04.23~04.25 / 발표: 2026.05.02 / 계약: 2026.05.10',
+   aS:'2026-04-23',aE:'2026-04-25',aD:'2026-05-02',
    elig:['일반공급','신생아특공','다자녀특공'],
    ai:{q:'84㎡ 이하는 1주택자도 신청 가능해요.',p:'74㎡ 5억 5천만원부터예요. 위례 시세 대비 약 27% 저렴해요.',s:'4월 3~5일 접수, 12일 발표, 20~22일 계약이에요.',d:'청약통장 확인서, 주민등록등본, 재직확인서가 필요해요.'}},
   {id:5,name:'세종 6-3생활권 공공분양',downPct:5,loc:'세종특별자치시 도담동',type:'public',region:'sejong',lotto:false,
-   price:'1억 8천~2억 9천만원',minP:18000,mktP:32000,deadline:'2025-03-18',days:4,
+   price:'1억 8천~2억 9천만원',minP:18000,mktP:32000,deadline:'2026-05-15',days:null,
    size:'46㎡ / 59㎡',units:680,comp:4,cut:28,
    qual:'세종 1년 이상 거주, 무주택',inc:'도시근로자 월평균소득 120% 이하',
-   sched:'당첨자 발표: 2025.03.27 / 계약: 2025.04.04',
-   aS:'2025-03-16',aE:'2025-03-18',aD:'2025-03-27',
+   sched:'접수: 2026.05.13~05.15 / 발표: 2026.05.22 / 계약: 2026.05.30',
+   aS:'2026-05-13',aE:'2026-05-15',aD:'2026-05-22',
    elig:['생애최초','신생아특공','일반공급'],
    ai:{q:'세종 1년 이상 거주 무주택자 우선이에요.',p:'46㎡ 1억 8천만원이에요. 세종 공공분양 최저 수준이에요.',s:'3월 16~18일 접수, 27일 발표. 마감 4일!',d:'세종 거주 주민등록등본(1년치), 소득확인서류, 청약통장 확인서가 필요해요.'}},
   {id:6,name:'마포 프레스티지자이',downPct:10,loc:'서울 마포구 아현동',type:'private',region:'seoul',lotto:false,
-   price:'9억~14억원',minP:90000,mktP:130000,deadline:'2025-04-12',days:29,
+   price:'9억~14억원',minP:90000,mktP:130000,deadline:'2026-04-20',days:null,
    size:'59㎡ / 84㎡',units:260,comp:45,cut:60,
    qual:'서울 거주, 무주택',inc:'소득 제한 없음',
-   sched:'당첨자 발표: 2025.04.19 / 계약: 2025.04.28',
-   aS:'2025-04-10',aE:'2025-04-12',aD:'2025-04-19',
+   sched:'접수: 2026.04.18~04.20 / 발표: 2026.04.27 / 계약: 2026.05.05',
+   aS:'2026-04-18',aE:'2026-04-20',aD:'2026-04-27',
    elig:['일반공급','생애최초'],
    ai:{q:'투기과열지구라 5년 전매제한 있어요.',p:'59㎡ 9억원부터예요.',s:'4월 10~12일 접수, 19일 발표, 28~30일 계약이에요.',d:'청약통장 확인서, 무주택 확인서, 주민등록등본이 필요해요.'}},
   {id:7,name:'동탄2 롯데캐슬 무순위',downPct:10,loc:'경기 화성시 동탄2신도시',type:'lotto',region:'gyeonggi',lotto:true,
-   price:'4억 2천만원',minP:42000,mktP:70000,deadline:'2025-03-17',days:3,
+   price:'4억 2천만원',minP:42000,mktP:70000,deadline:'2025-03-17',days:null,
    size:'84㎡',units:12,comp:300,cut:0,
    qual:'만 19세 이상 누구나',inc:'소득 제한 없음',
    sched:'당첨자 발표: 2025.03.19 / 계약: 2025.03.22',
@@ -1739,7 +1757,7 @@ const listings = [
    elig:['무순위(줍줍)'],
    ai:{q:'만 19세 이상 누구나! 무주택·청약통장 조건 없어요.',p:'분양가 4억 2천 고정. 시세 7억 대비 약 3억 저렴해요.',s:'3월 15~17일 신청, 19일 발표, 22~23일 계약이에요.',d:'신분증만 있으면 돼요.'}},
   {id:8,name:'고덕강일 공공분양 무순위',downPct:10,loc:'서울 강동구 강일동',type:'lotto',region:'seoul',lotto:true,
-   price:'5억 8천만원',minP:58000,mktP:105000,deadline:'2025-03-22',days:8,
+   price:'5억 8천만원',minP:58000,mktP:105000,deadline:'2025-03-22',days:null,
    size:'59㎡',units:5,comp:500,cut:0,
    qual:'서울 거주 만 19세 이상',inc:'소득 제한 없음',
    sched:'당첨자 발표: 2025.03.25 / 계약: 2025.03.28',
@@ -1866,12 +1884,14 @@ function openWizard(){
 const WIZ_LABELS = ['기본 정보','주거 상태','소득·자산','청약통장','거주 조건'];
 function showWizStep(n){
   for(let i=1;i<=5;i++) document.getElementById('ws'+i).style.display=i===n?'block':'none';
-  document.getElementById('wiz-step-txt').textContent=`${n} / 4단계 · ${WIZ_LABELS[n-1]}`;
+  document.getElementById('wiz-step-txt').textContent=`${n} / 5단계 · ${WIZ_LABELS[n-1]}`;
   document.getElementById('wiz-fill').style.width=(n/5*100)+'%';
   document.getElementById('wiz-btn').textContent=n===5?'완료':'다음';
 }
 
 function wizNext(){
+  // 키보드 닫기
+  document.activeElement?.blur();
   if(wizStep<5){wizStep++;showWizStep(wizStep);if(wizStep===2)onBirthChange();}
   else saveWizard();
 }
@@ -1882,7 +1902,8 @@ function wizBack(){
 }
 
 function wRadio(el,group){
-  el.closest('.wiz-radio-grp').querySelectorAll('.wiz-radio').forEach(b=>b.classList.remove('on'));
+  const grp = el.closest('.wiz-radio-grp') || el.parentElement;
+  grp.querySelectorAll('.wiz-radio,.wiz-chip').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
   if(group==='homeowner') P.isNoHome=el.textContent==='무주택자';
   if(group==='marriage'){
@@ -2164,6 +2185,7 @@ function finishWizard(){
   }
   // 일반 흐름: 홈으로
   showScreen('home');
+  showToast('✓ 조건 저장 완료! 맞춤 공고를 확인해보세요');
   setTimeout(()=>{
     const el=document.getElementById('rec-section-row');
     if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
@@ -2968,6 +2990,25 @@ function renderSavingsCutTable(l) {
     + '<div style="font-size:11px;color:var(--ink-4);margin-top:6px;line-height:1.6">'+hint+'</div>';
 }
 
+/* ══ 커스텀 다이얼로그 ══ */
+function showConfirm(title, msg, confirmText, onConfirm, danger=false) {
+  const ov = document.createElement('div');
+  ov.className = 'custom-dialog-ov';
+  ov.innerHTML = `
+    <div class="custom-dialog">
+      <div class="custom-dialog-title">${title}</div>
+      <div class="custom-dialog-msg">${msg}</div>
+      <div class="custom-dialog-btns">
+        <button class="custom-dialog-btn cancel" id="dlg-cancel">취소</button>
+        <button class="custom-dialog-btn ${danger ? 'danger' : 'confirm'}" id="dlg-confirm">${confirmText}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#dlg-cancel').onclick = () => ov.remove();
+  ov.querySelector('#dlg-confirm').onclick = () => { ov.remove(); onConfirm(); };
+  ov.onclick = (e) => { if(e.target === ov) ov.remove(); };
+}
+
 /* ══ 스켈레톤 UI ══ */
 function showSkeletonListings() {
   const cont = document.getElementById('listings');
@@ -3530,7 +3571,8 @@ async function showDetail(id, fromSwipe=false){
   _detailCurrentId = id;
   const l=listings.find(x=>String(x.id)===String(id));
   if(!fromSwipe){
-    prevScreen=document.querySelector('.screen.active').id.replace('screen-','');
+    const activeScreen = document.querySelector('.screen.active');
+    prevScreen = activeScreen ? activeScreen.id.replace('screen-','') : 'home';
     window._prevScrollY = window.scrollY;
   }
   // ★★★ [하드코딩 — 수정 금지] 유사단지 데이터로 경쟁률/커트라인 보완 ★★★
@@ -3744,10 +3786,10 @@ async function showDetail(id, fromSwipe=false){
     <div class="info-card-title">📈 시세 차익 분석</div>
     ${l.noMktP ? `
       <div style="padding:16px 18px;font-size:13px;color:var(--ink-4);line-height:1.6">시세 차익 기대가 어려울 수 있어요.<br>주변 시세 정보가 아직 없어요.</div>
-      <div class="gap-chart" id="det-gap-chart">
+      <div class="gap-chart" class="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" class="bar-sale" style="background:var(--accent)"></div></div>
           <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
@@ -3759,10 +3801,10 @@ async function showDetail(id, fromSwipe=false){
         </div>
       </div>
     ` : `
-      <div class="gap-chart" id="det-gap-chart">
+      <div class="gap-chart" class="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" id="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-track"><div class="gap-bar-fill" class="bar-sale" style="background:var(--accent)"></div></div>
           <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
@@ -3927,7 +3969,7 @@ async function showDetail(id, fromSwipe=false){
       }
     }
     // 시세 바 애니메이션
-    const barSale=document.getElementById('bar-sale');
+    const barSale=document.querySelector('.bar-sale');
     const barMkt=document.getElementById('bar-mkt');
     if(l.noMktP){
       if(barSale) barSale.style.width='70%'; // 분양가 바만 표시
@@ -4023,7 +4065,7 @@ function deleteFromDetail(){
   if(!id) return;
   const l = listings.find(x => String(x.id) === String(id));
   if(!l) return;
-  if(!confirm(`"${cleanName(l.name)}" 공고를 삭제하시겠어요?`)) return;
+  showConfirm('공고 삭제', `"${cleanName(l.name)}"을 삭제할까요?`, '삭제', () => { _doDeleteListing(l); }, true); return;
   const numId = parseInt(id) || id;
   const src = l._src || '';
   // listings에서 제거
@@ -4051,6 +4093,16 @@ function deleteFromDetail(){
 let _touchStartX = 0;
 let _touchStartY = 0;
 
+// 뒤로가기 처리 — 오버레이 닫기
+window.addEventListener('popstate', (e) => {
+  const det = document.getElementById('detail-ov');
+  if(det && det.classList.contains('open')) { closeDetail(); return; }
+  const rep = document.getElementById('report-ov');
+  if(rep && rep.style.display === 'flex') { closeReport(); return; }
+  const wiz = document.getElementById('wizard');
+  if(wiz && wiz.classList.contains('open')) { wiz.classList.remove('open'); return; }
+});
+
 document.addEventListener('touchstart', e => {
   if(!document.getElementById('screen-detail').classList.contains('active')) return;
   _touchStartX = e.touches[0].clientX;
@@ -4075,10 +4127,15 @@ document.addEventListener('touchend', e => {
 
 function goBack(){
   showScreen(prevScreen);
-
   if(window._prevScrollY !== undefined){
-    setTimeout(()=>window.scrollTo({top:window._prevScrollY, behavior:'instant'}), 50);
+    const y = window._prevScrollY;
     window._prevScrollY = undefined;
+    // 화면 전환 후 스크롤 복원 (렌더링 완료 후)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: y, behavior: 'instant' });
+      });
+    });
   }
 }
 
@@ -4215,8 +4272,22 @@ function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(cal
 function renderSaved(){
   const c=document.getElementById('saved-container');
   const sv=listings.filter(l=>savedIds.has(l.id));
-  if(!sv.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div class="empty-title">아직 저장된 공고가 없어요</div><div class="empty-sub">관심 있는 공고의 북마크 버튼을
-눌러 저장해보세요</div><button onclick="showScreen('home')" style="margin-top:24px;padding:13px 32px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);">공고 보러 가기</button></div>`;return;}
+  if(!sv.length){c.innerHTML=`
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div class="empty-title">저장된 공고가 없어요</div>
+    <div class="empty-sub">공고 카드 오른쪽 상단의 북마크 아이콘을 탭하면<br>여기에 저장돼요</div>
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;width:100%;max-width:260px">
+      <button onclick="showScreen('home')" style="padding:14px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);">
+        공고 둘러보기
+      </button>
+      <button onclick="openMyCondition()" style="padding:13px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer">
+        내 조건 설정하고 맞춤 공고 받기
+      </button>
+    </div>
+  </div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
   c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
 }
@@ -4435,31 +4506,7 @@ function openPremReport(){
     document.body.appendChild(ov);
     return;
   }
-  // 하루 1회 제한 — 캐시 있으면 바로 표시
-  const today    = new Date().toISOString().slice(0, 10);
-  const lastUsed = localStorage.getItem('report_last_used');
-  const cached   = localStorage.getItem('report_cached');
-  if(lastUsed === today && cached){
-    _openReportOv();
-    _showReportResult(cached, true);
-    return;
-  }
-  // 로컬 캐시 없으면 Supabase에서 불러오기 시도
-  if(kakaoUser?.kakaoId){
-    _openReportOv();
-    _showIntro(); // 일단 인트로 보여주면서 Supabase 조회
-    sb.get('profiles', `id=eq.${kakaoUser.kakaoId}&select=report_cached,report_date`)
-      .then(rows => {
-        if(rows?.length && rows[0].report_cached && rows[0].report_date === today){
-          // 오늘 날짜 리포트가 있으면 바로 표시
-          localStorage.setItem('report_last_used', today);
-          localStorage.setItem('report_cached', rows[0].report_cached);
-          _showReportResult(rows[0].report_cached, true);
-        }
-      }).catch(()=>{});
-    return;
-  }
-  // 인터뷰 시작
+  // 테스트 중 — 횟수 제한 없음 (나중에 하루 1회로 복구)
   _reportAnswers = {};
   _reportStep    = 0;
   _openReportOv();
@@ -4527,6 +4574,7 @@ function _showIntro(){
 }
 
 function _startInterview(){
+  if(_reportGenerating) return;
   document.getElementById('report-prog-wrap').style.display = 'block';
   document.getElementById('report-nav-title').textContent   = '1 / ' + REPORT_QUESTIONS.length;
   // 이전 답변 복원
@@ -4636,7 +4684,10 @@ function _showReportResult(html, fromCache){
   if(_rb2){ _rb2.style.overflow = 'auto'; _rb2.style.display = 'block'; }
 }
 
+let _reportGenerating = false;
 async function generateReport(){
+  if(_reportGenerating) return;
+  _reportGenerating = true;
   const score    = calcScore(P);
   const typesRaw  = calcTypes(P);
   const types     = typesRaw.map(t => t.l);
@@ -4896,6 +4947,7 @@ async function generateReport(){
     const data = await res.json();
     const text = data.content?.map(c => c.text || '').join('') || '';
     if(!text) throw new Error('응답이 없어요');
+    _reportGenerating = false;
     const html = renderReportText(text);
     // 캐시 저장
     const today2 = new Date().toISOString().slice(0, 10);
@@ -5951,10 +6003,17 @@ function saveEditCond(){
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen();
   sbSaveCondition();
   showScreen('my');
-  showToast('조건이 저장됐어요 ✓');
+  showToast('✓ 조건이 저장됐어요! 맞춤 공고를 확인해보세요');
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  // 이전 타이머 취소 후 즉시 교체
+  if(t._timer) clearTimeout(t._timer);
+  t.textContent = msg;
+  t.classList.add('show');
+  t._timer = setTimeout(() => { t.classList.remove('show'); t._timer = null; }, 2600);
+}
 /* ══════════════════════════════════════
    청약홈 공공데이터 API 연동
    Base URL: api.odcloud.kr/api
@@ -6103,7 +6162,7 @@ async function autoFetchMarketPrices(){
           };
           saveMktPCache(updatedCache);
         }
-      } catch(e){ console.warn(`시세 조회 실패: ${l.name}`, e.message); }
+      } catch(e){ console.warn(`시세 조회 실패: ${l.name}`); }
     }));
     // 10건 처리 후 렌더링 (중간중간 업데이트)
     renderListings();
@@ -7049,7 +7108,7 @@ async function sbLoadCondition(userId) {
       const nm = document.getElementById('my-name');
       if (nm && P.name) nm.textContent = P.name + '님';
     }
-  } catch(e) {}
+  } catch(e) { console.warn('조건 불러오기 실패:', e.message); }
 }
 
 /* ── Supabase: 북마크 불러오기 ── */
@@ -7061,7 +7120,7 @@ async function sbLoadBookmarks(userId) {
       renderListings();
       renderSaved();
     }
-  } catch(e) {}
+  } catch(e) { console.warn('북마크 불러오기 실패:', e.message); }
 }
 
 /* ── Supabase: 북마크 추가 ── */
@@ -7074,6 +7133,17 @@ async function sbRemoveBookmark(userId, listingId) {
   await sb.delete('bookmarks', `user_id=eq.${userId}&listing_id=eq.${listingId}`);
 }
 
+function _doDeleteListing(l){
+  const idx = listings.findIndex(x => x.id === l.id);
+  if(idx !== -1) listings.splice(idx, 1);
+  renderListings(); renderSaved(); updateHero();
+  showToast('공고를 삭제했어요');
+}
+function _doAdminDelete(id, src){
+  fetch(LISTINGS_API + '?id=' + id + (src?'&src='+src:''), {method:'DELETE'})
+    .then(()=>{ renderAdminList(); renderListings(); updateHero(); showToast('공고를 삭제했어요'); })
+    .catch(()=>showToast('삭제 실패'));
+}
 async function confirmAdminData(force=false){
   if(!_adminExtracted) return;
 
@@ -7183,7 +7253,7 @@ function renderAdminAllList(){
 }
 
 async function removeAdminListing(id){
-  if(!confirm('이 공고를 삭제하시겠어요?')) return;
+  showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, src); }, true); return;
   const idx = listings.findIndex(l => l.id === id);
   if(idx > -1) listings.splice(idx, 1);
   // 삭제 ID 기억
@@ -7204,7 +7274,7 @@ async function removeAdminListing(id){
 }
 
 function adminDeleteListing(id, src){
-  if(!confirm('이 공고를 삭제하시겠어요?')) return;
+  showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, src); }, true); return;
   const idx = listings.findIndex(l => l.id === id);
   if(idx > -1) listings.splice(idx, 1);
   // PDF 서버 저장 공고면 서버에서도 삭제
@@ -7386,14 +7456,19 @@ function kakaoLogout() {
   P.marriage='미혼'; P.marriageYear=''; P.household=''; P.isNoHome=true;
   P.region=''; P.dependents=0; P.accYears=''; P.prefSizes=[];
   P.elderParent=false; P.isDual=false; P.spouseIncome=''; P.totalIncome='';
+  // MY탭 guest/loggedin 전환
+  const myGuest = document.getElementById('my-guest');
+  const myLoggedIn = document.getElementById('my-loggedin');
+  if(myGuest) myGuest.style.display = 'block';
+  if(myLoggedIn) myLoggedIn.style.display = 'none';
   applyLoginUI();
   renderListings();
   renderSaved();
   updateHero();
-  // 히어로 인사말 초기화 + 로그인 유도 버튼 표시
+  // 히어로 인사말 초기화
   const _greetEl = document.getElementById('hero-greeting');
   const _nudgeEl = document.getElementById('hero-login-nudge');
-  if (_greetEl) _greetEl.textContent = `${P.name}님, 안녕하세요`;
+  if (_greetEl) _greetEl.textContent = '안녕하세요';
   if (_nudgeEl) _nudgeEl.style.display = 'block';
   showToast('로그아웃됐어요');
 }
