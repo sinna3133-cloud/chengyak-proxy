@@ -3369,7 +3369,9 @@ function updateHero(){
   // 리포트 버튼 — 주간 사용 횟수 표시
   const _premBtn = document.getElementById('prem-start-btn');
   if(_premBtn){
-    const _isPrem = !!kakaoUser?.is_premium;
+    let _kakaoU = null;
+    try { _kakaoU = kakaoUser; } catch(e) {}
+    const _isPrem = !!_kakaoU?.is_premium;
     const _now = new Date();
     const _dow = _now.getDay();
     const _mon = new Date(_now);
@@ -4816,7 +4818,8 @@ function openPremReport(){
 
   // ── 주 1회 무료 제한 ──
   // 로그인 여부 확인
-  const isLoggedIn = !!kakaoUser?.kakaoId;
+  let _ku = null; try { _ku = kakaoUser; } catch(e) {}
+  const isLoggedIn = !!_ku?.kakaoId;
   if(!isLoggedIn){
     _showLoginRequiredSheet();
     return;
@@ -4844,7 +4847,7 @@ function openPremReport(){
   }
 
   // 유료 여부 확인 (kakaoUser에 is_premium 필드)
-  const isPremium = !!kakaoUser?.is_premium;
+  const isPremium = !!_ku?.is_premium;
 
   // DEV_MODE=true면 횟수 제한 없이 통과, UI 표시만 유지
   if(!DEV_MODE && !isPremium && weekCount >= FREE_WEEKLY_LIMIT){
