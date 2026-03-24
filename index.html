@@ -1493,8 +1493,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div class="page-title">내 조건 수정</div>
     </div>
   </div>
-  <div id="editcond-body" style="padding:20px"></div>
-  <div style="padding:0 20px 40px">
+  <div id="editcond-body" style="padding:20px 20px 100px;overflow-y:auto;flex:1"></div>
+  <div style="position:sticky;bottom:0;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--bg-card);border-top:1px solid rgba(0,0,0,.07);box-shadow:0 -4px 16px rgba(0,0,0,.06)">
     <button onclick="saveEditCond()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.35)">저장하기</button>
   </div>
 </div>
@@ -5221,6 +5221,9 @@ async function generateReport(){
 고객의 현재 청약 경쟁력을 냉정하게 분석해줘요. 아래를 반드시 포함해요:
 - 가점 ${score.total}점이 경쟁 공고 대비 어느 수준인지 (상위 몇 %인지 추정)
 - 신청 가능 전형(${typesDetail}) 중 가장 유리한 전형과 이유 (공공·민간 단계 구분해서)
+  ※ 전형 추천 판단 기준:
+  [공공분양] 신생아특공(만2세이하 자녀 있을 때) → 신혼부부특공(혼인7년이내) → 생애최초(통장600만원이상) → 다자녀(3명이상) → 노부모부양 → 일반공급 순으로 자격 충족 여부 확인 후 첫 번째 해당 전형 추천.
+  [민간분양] 신생아특공은 별도 전형이 아님. 신혼부부특공(5단계) 또는 생애최초특공(5단계) 안의 신생아우선/신생아일반 단계를 우선 노리도록 추천. 자녀 생년월일 미입력 시 "아이 생년월일을 입력하면 신생아 단계 자격 여부를 정확히 확인할 수 있어요" 반드시 언급.
 - 1순위 여부: 공공분양 1순위(12개월 12회 이상) vs 민간 투기과열지구 1순위(24개월+예치금+세대주)
 - 지금 당장 보완하면 가점이 오르는 포인트 1~2가지
 
@@ -5238,7 +5241,7 @@ async function generateReport(){
 
 [중요] 아래 기준으로 "지금 지원 vs 기다리기"를 판단해줘요:
 ▶ 기다리라고 말해야 하는 경우 (이 섹션을 "기다리세요"로 바꿔줘요):
-  1. 가점 ${score.total}점이 50점 이상인데, 매칭 공고 시세차익이 모두 1억 미만인 경우
+  1. 가점 ${score.total}점이 50점 이상인데, 매칭 공고 시세차익이 모두 1억 미만인 경우. 시세차익이 "정보없음"이면 추천 공고가 있을 때 지원 권고로 처리.
   2. 가점 60점 이상인데, 강남·서초·송파·용산·마포·성동 등 핵심지가 아닌 경우
   3. 매칭 공고의 시세차익 대비 당첨 가능성이 지나치게 낮은 경우 (당첨률 3% 미만 + 시세차익 5천만원 미만)
   4. 지금 신청하면 청약통장을 소진하지만, 6개월~1년 내 더 좋은 공고(3기 신도시 등)가 예정된 경우
@@ -5385,9 +5388,9 @@ function renderReportText(text){
     const isLottoSection = title.includes('로또');
     const isFundSection = title.includes('자금');
     const isTodaySection = title.includes('오늘');
-    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2px solid var(--accent)' : ''}${isLottoSection ? ';border:1.5px solid rgba(109,40,217,.2)' : ''}">
+    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2px solid var(--accent);background:linear-gradient(160deg,#EBF2FF 0%,#F0F7FF 60%,white 100%);box-shadow:0 4px 24px rgba(0,102,255,.15)' : ''}${isLottoSection ? ';border:1.5px solid rgba(109,40,217,.2)' : ''}">
       <!-- 섹션 헤더 -->
-      <div style="padding:14px 18px 10px;border-bottom:1px solid rgba(0,0,0,.06)${isActionSection ? ';background:var(--accent-light)' : ''}${isLottoSection ? ';background:var(--lotto-light)' : ''}">
+      <div style="padding:14px 18px 10px;border-bottom:1px solid ${isActionSection ? 'rgba(0,102,255,.12)' : (isLottoSection ? 'rgba(109,40,217,.1)' : 'rgba(0,0,0,.06)')}${isActionSection ? ';background:rgba(0,102,255,.07)' : ''}${isLottoSection ? ';background:var(--lotto-light)' : ''}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div style="width:28px;height:28px;border-radius:8px;background:${isLottoSection?'var(--lotto-light)':isActionSection?'rgba(0,102,255,.15)':'var(--accent-light)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
             ${_sectionIcon(title)}
@@ -5395,7 +5398,7 @@ function renderReportText(text){
           <div style="display:inline-flex;align-items:center;background:${isLottoSection?'rgba(109,40,217,.1)':isActionSection?'rgba(0,102,255,.12)':'var(--accent-light)'};border-radius:20px;padding:4px 12px 4px 8px;gap:5px">
             <div style="font-size:12px;font-weight:700;color:${isLottoSection?'var(--lotto)':'var(--accent)'};letter-spacing:-.1px">${_sectionLabel(title)}</div>
           </div>
-          ${isTodaySection ? '<div style=\"display:inline-flex;align-items:center;background:#FFF7ED;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#EA580C;margin-left:4px\">⚡ 지금 바로</div>' : ''}
+          ${isActionSection ? '<div style="display:inline-flex;align-items:center;background:var(--accent);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:white;margin-left:4px">⚡ 지금 바로</div>' : (isTodaySection ? '<div style="display:inline-flex;align-items:center;background:#FFF7ED;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#EA580C;margin-left:4px">⚡ 지금 바로</div>' : '')}
         </div>
         ${headline ? `<div style="font-size:16px;font-weight:900;color:var(--ink);line-height:1.4;letter-spacing:-.3px;${title.includes('지원') ? 'font-size:18px;color:var(--accent)' : ''}">${
           title.includes('지원') 
@@ -5950,9 +5953,14 @@ function updateMyCondCard(){
   const editBtn = document.getElementById('edit-cond-btn');
   const isCondSet = !!(p.byear || p.income || p.accYears || p.noHomeYears);
   if (editBtn) editBtn.style.display = isCondSet ? '' : 'none';
-  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4);line-height:1.6">아직 아직 설정된 조건이 없어요.</div><button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>';return;}
+  if(!p.name&&!p.byear){el.innerHTML='<div style="font-size:13px;color:var(--ink-4);line-height:1.6">아직 설정된 조건이 없어요.</div><button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>';return;}
   const score=calcScore(p).total;
-  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${calcTypes(p).map(t=>`<span class="wiz-done-type ${etypeClass(t.c)}" style="font-size:12px;padding:4px 12px">${t.l}${t.sub?' ('+t.sub+')':''}</span>`).join('')}</div>
+  // 실제 조건 입력 여부 확인 — isNoHome 기본값만 있는 경우 전형 표시 안 함
+  const hasRealCond = !!(p.byear || p.income || p.noHomeYears || p.accYears || p.depCount || p.cash);
+  const typeBadges = hasRealCond
+    ? calcTypes(p).map(t=>`<span class="wiz-done-type ${etypeClass(t.c)}" style="font-size:12px;padding:4px 12px">${t.l}${t.sub?' ('+t.sub+')':''}</span>`).join('')
+    : `<span style="font-size:12px;color:var(--ink-5)">조건을 입력하면 신청 가능 전형이 표시돼요</span>`;
+  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${typeBadges}</div>
     <div class="cond-grid-2">
       <div><div class="cond-label">이름</div><div class="cond-val">${p.name}</div></div>
       <div><div class="cond-label">청약 가점</div><div class="cond-val" style="color:var(--accent)">${score}점</div></div>
