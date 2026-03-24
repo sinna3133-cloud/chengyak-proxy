@@ -1677,14 +1677,88 @@ const listings = [
    ],
    ai:{q:'3기 신도시 부천대장 A-8 공공분양이에요.',p:'59㎡ 단일 평형이에요.',s:'2025년 4월 30일 공고, 6월 18일 발표했어요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
 
-  // ── 김포고촌2 A1블록 ──
-  {id:106,name:'김포고촌2 A1블록 공공분양',loc:'경기 김포시 고촌읍',type:'public',region:'gyeonggi',lotto:false,
-   price:'59㎡ / 74㎡',minP:0,mktP:0,deadline:'2025-06-30',days:null,
-   size:'59A㎡ / 59B㎡ / 74A㎡ / 74B㎡',units:0,comp:5,cut:0,downPct:5,
-   qual:'경기 거주 무주택세대구성원, 청약통장 12회 이상',inc:'도시근로자 월평균소득 기준 이하',
-   sched:'당첨자 발표 완료',
-   aS:'2025-05-01',aE:'2025-05-07',aD:'2025-06-30',
-   elig:['신생아특공','생애최초','일반공급'],
+  // ── 김포고촌2 A1블록 (공공분양, 2025.12.29 공고) ──
+  // [수정] 실제 입주자모집공고(2025.12.29) 기반으로 자격조건 정확화
+  {id:106,name:'김포고촌2 A1블록 공공분양',loc:'경기 김포시 고촌읍 신곡리',type:'public',region:'gyeonggi',lotto:false,
+   price:'59㎡ 4억2천~4억5천 / 74㎡ 5억3천~5억7천',minP:42537,mktP:0,
+   deadline:'2026-01-15',days:null,
+   size:'59A㎡ / 59B㎡ / 59C㎡ / 74A㎡ / 74B㎡',
+   units:262,recruitUnits:259,comp:8,cut:0,downPct:10,
+   qual:'수도권(서울/인천/경기) 거주 무주택세대구성원, 만19세 이상 성년자. 동일순위 경쟁 시 김포시 거주자 우선. 재당첨제한 10년·전매제한 3년 적용',
+   inc:'다자녀 120%(맞벌이200%) / 신혼부부 130%(맞벌이200%) / 생애최초 130%(맞벌이200%) / 노부모부양 120%(맞벌이200%) / 신생아특공 140%(맞벌이200%) / 일반공급(60㎡이하) 100%(맞벌이200%)',
+   sched:'특별공급접수: 2026.01.12~01.13 / 일반공급접수: 2026.01.14~01.15 / 발표: 2026.01.29 / 계약: 2026.04.20~04.24(전자) 04.23~04.24(현장)',
+   aS:'2026-01-12',aE:'2026-01-15',aD:'2026-01-29',
+   elig:['다자녀특공','신혼부부특공','생애최초','노부모부양','신생아특공','일반공급'],
+   eligDetail:[
+     // 다자녀특공: 수도권 거주, 19세 미만 자녀 2명 이상(공고 기준 2명이상도 일부 해당) → 미성년 자녀 3명 이상 세대구성원
+     // 가입 6개월 6회 이상, 소득 120%(맞벌이200%), 자산기준: 부동산 21.55억이하·자동차 4563만원이하
+     {type:'다자녀특공',incPct:120,incLimit:0,ageMin:0,ageMax:0,married:'any',noHome:true,noHomeYears:0,
+      children:3,newborn:false,accMonths:6,accYears:0,
+      assets:215500,realEstate:215500,carValue:45630,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:false,
+      note:'미성년(만19세 미만) 자녀 3명 이상. 입양 포함. 가입 6개월·6회 이상. 자산: 부동산 21.55억·자동차 4,563만원 이하. 1단계 우선공급(90%): 소득120%, 2단계 추첨(10%): 소득200%'},
+     // 신혼부부특공: 혼인 중(혼인기간 7년 이내) 또는 예비신혼부부, 6세 이하 자녀 있는 한부모가족 포함
+     // 가입 6개월 6회 이상, 소득 130%(맞벌이200%), 자산기준 적용(단, 전용 60㎡ 이하만)
+     {type:'신혼부부특공',incPct:130,incLimit:0,ageMin:0,ageMax:0,married:'required',noHome:true,noHomeYears:0,
+      children:0,newborn:false,accMonths:6,accYears:0,
+      assets:215500,realEstate:215500,carValue:45630,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:false,
+      note:'혼인기간 7년 이내 신혼부부 또는 예비신혼부부(입주 시 혼인 가능자). 6세 이하 자녀 있는 한부모가족 포함. 가입 6개월·6회 이상. 자산기준(전용60㎡이하): 부동산 21.55억·자동차 4,563만원 이하. 1단계우선(70%): 소득100%(맞벌이120%), 2단계일반(20%): 소득130%(맞벌이200%), 3단계추첨(10%)'},
+     // 생애최초: 세대구성원 전원 과거 주택소유 없어야, 혼인중 또는 미성년자녀 보유, 5년이상 소득세 납부
+     // 가입 12개월 12회 이상 + 납입액 600만원 이상(선납금 포함), 소득 130%(맞벌이200%)
+     {type:'생애최초',incPct:130,incLimit:0,ageMin:0,ageMax:0,married:'any',noHome:true,noHomeYears:0,
+      children:0,newborn:false,accMonths:12,accYears:1,
+      assets:0,realEstate:0,carValue:0,
+      savingsMin:600,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:false,
+      note:'세대구성원 전원 생애 최초 주택 구입(배우자 혼인신고 전 처분 예외). 혼인 중이거나 미성년 자녀 보유. 5년 이상 소득세 납부(근로자 또는 자영업자). 가입 12개월·12회 이상 + 납입총액 600만원 이상(선납금 포함). 소득 130%(맞벌이200%). 1인 가구 청약 불가. 1단계우선(70%): 소득100%(맞벌이130%), 2단계일반(20%): 소득130%(맞벌이200%), 3단계추첨(10%)'},
+     // 노부모부양: 세대주, 만65세이상 직계존속(배우자 포함) 3년이상 동일 주민등록표등본 부양
+     // 가입 12개월 12회 이상, 소득 120%(맞벌이200%), 피부양 직계존속도 무주택이어야
+     {type:'노부모부양',incPct:120,incLimit:0,ageMin:0,ageMax:0,married:'any',noHome:true,noHomeYears:0,
+      children:0,newborn:false,accMonths:12,accYears:1,
+      assets:0,realEstate:0,carValue:0,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:true,
+      elderParent:true,
+      note:'세대주 본인 신청만 가능. 만65세 이상 직계존속(배우자의 직계존속 포함)을 3년 이상 계속하여 부양(같은 주민등록표에 등재). 부양 직계존속 포함 세대원 전원 무주택. 가입 12개월·12회 이상. 소득 120%(맞벌이200%). 1단계우선(90%): 소득120%, 2단계추첨(10%): 전원'},
+     // 신생아특공: 입주자모집공고일(2025.12.29) 기준 만 2세 이하(2023.12.29 이후 출생) 자녀 보유 무주택세대구성원
+     // 가입 6개월 6회 이상, 소득 140%(맞벌이200%)
+     {type:'신생아특공',incPct:140,incLimit:0,ageMin:0,ageMax:0,married:'any',noHome:true,noHomeYears:0,
+      children:0,newborn:true,accMonths:6,accYears:0,
+      assets:0,realEstate:0,carValue:0,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:false,
+      note:'입주자모집공고일(2025.12.29) 기준 만 2세 이하(2023.12.29 이후 출생) 자녀 보유 무주택세대구성원. 출생·입양·임신 포함. 가입 6개월·6회 이상. 소득 140%(맞벌이200%). 1단계우선(70%): 소득100%(맞벌이120%), 2단계일반(20%): 소득140%(맞벌이200%), 3단계추첨(10%)'},
+     // 일반공급(전용 60㎡ 이하): 3단계 - 1단계 신생아우선(50%), 2단계 우선공급1순위(30%), 3단계 추첨(20%)
+     // 소득 100%(맞벌이200%), 자산기준(부동산 21.55억·자동차 4563만원이하), 가입 12개월 12회 이상(1순위)
+     {type:'일반공급',incPct:100,incLimit:0,ageMin:0,ageMax:0,married:'any',noHome:true,noHomeYears:0,
+      children:0,newborn:false,accMonths:12,accYears:1,
+      assets:215500,realEstate:215500,carValue:45630,
+      regionReq:'수도권(서울·인천·경기) 거주',isHeadReq:false,
+      note:'전용 60㎡ 이하: 소득 100%(맞벌이200%) 이하·자산기준 적용. 1단계 신생아우선(50%): 만2세이하 자녀+소득100%, 2단계 우선공급1순위(30%): 12개월 12회+저축총액순, 3단계 추첨(20%): 1순위 가입자. 1순위: 가입 12개월·12회 이상. 동일순위 경쟁시 저축총액(매월 최대 25만원인정) 순'}
+   ],
+   eligTiers:[
+     // ── 다자녀특공 단계 ──
+     {parent:'다자녀특공',step:1,name:'우선공급',pct:90,incSingle:120,incDual:200,assets:215500,note:'소득 120%(맞벌이200%) 이하, 세대원 무주택+자산기준 충족'},
+     {parent:'다자녀특공',step:2,name:'추첨공급',pct:10,incSingle:999,incDual:999,assets:215500,note:'1단계 우선공급 낙첨자 대상 추첨'},
+     // ── 신혼부부특공 단계 (공고문 III-5 기준) ──
+     {parent:'신혼부부특공',step:1,name:'우선공급',pct:70,incSingle:100,incDual:120,assets:215500,note:'소득 100%(맞벌이120%) 이하. 가점(혼인기간 3년이내자녀 등) 높은 순'},
+     {parent:'신혼부부특공',step:2,name:'일반공급',pct:20,incSingle:130,incDual:140,assets:215500,note:'소득 130%(맞벌이140%) 이하. 1단계 낙첨자 포함 추첨'},
+     {parent:'신혼부부특공',step:3,name:'추첨공급',pct:10,incSingle:130,incDual:200,assets:215500,note:'소득 130%(맞벌이200%) 이하. 2단계 낙첨자 포함 추첨'},
+     // ── 생애최초 단계 (공고문 III-4 기준) ──
+     {parent:'생애최초',step:1,name:'우선공급',pct:70,incSingle:100,incDual:130,assets:0,note:'소득 100%(맞벌이130%) 이하. 추첨'},
+     {parent:'생애최초',step:2,name:'일반공급',pct:20,incSingle:130,incDual:200,assets:0,note:'소득 130%(맞벌이200%) 이하. 1단계 낙첨자 포함 추첨'},
+     {parent:'생애최초',step:3,name:'추첨공급',pct:10,incSingle:999,incDual:999,assets:0,note:'전 낙첨자 대상 추첨'},
+     // ── 노부모부양 단계 (공고문 III-3 기준) ──
+     {parent:'노부모부양',step:1,name:'우선공급',pct:90,incSingle:120,incDual:200,assets:0,note:'소득 120%(맞벌이200%) 이하. 동일지역 경쟁시 저축기간 긴 순'},
+     {parent:'노부모부양',step:2,name:'추첨공급',pct:10,incSingle:999,incDual:999,assets:0,note:'1단계 낙첨자 포함 추첨'},
+     // ── 신생아특공 단계 (공고문 III-6 기준) ──
+     {parent:'신생아특공',step:1,name:'우선공급',pct:70,incSingle:100,incDual:120,assets:0,note:'소득 100%(맞벌이120%) 이하. 배점항목 다득점순'},
+     {parent:'신생아특공',step:2,name:'일반공급',pct:20,incSingle:140,incDual:200,assets:0,note:'소득 140%(맞벌이200%) 이하. 1단계 낙첨자 포함 추첨'},
+     {parent:'신생아특공',step:3,name:'추첨공급',pct:10,incSingle:140,incDual:200,assets:0,note:'2단계 낙첨자 포함 추첨'},
+     // ── 일반공급(전용 60㎡ 이하) 단계 (공고문 III-7 기준) ──
+     {parent:'일반공급',step:1,name:'신생아우선공급',pct:50,incSingle:100,incDual:140,assets:215500,note:'만2세이하 자녀+소득100%(맞벌이140%) 이하+자산기준. 저축총액 순'},
+     {parent:'일반공급',step:2,name:'우선공급(1순위)',pct:30,incSingle:100,incDual:200,assets:215500,note:'12개월 12회 이상+소득100%(맞벌이200%)+자산기준. 저축총액 순'},
+     {parent:'일반공급',step:3,name:'추첨공급',pct:20,incSingle:100,incDual:200,assets:215500,note:'1순위 가입자 대상 추첨'},
+   ],
    savingsCut:[
      {type:'신생아우선',size:'59A㎡',region:'당해',high:1480,low:1480},
      {type:'신생아우선',size:'59A㎡',region:'경기',high:811,low:304},
@@ -1698,7 +1772,13 @@ const listings = [
      {type:'신생아우선',size:'74B㎡',region:'경기',high:370,low:182},
      {type:'우선공급(1순위)',size:'74B㎡',region:'당해',high:1025,low:260}
    ],
-   ai:{q:'경기 김포 고촌2지구 공공분양이에요. 신생아우선/우선공급(1순위) 당첨선도가 공개됐어요.',p:'59㎡, 74㎡ 두 가지 평형이에요.',s:'당첨자 발표가 완료된 단지예요. 다음 공고 참고용으로 활용해요.',d:'청약통장 확인서, 주민등록등본이 필요해요.'}},
+   priceFactors:[],
+   ai:{
+     q:'수도권(서울·인천·경기) 거주 무주택세대구성원이면 신청 가능해요. 동일순위 경쟁 시 김포시 거주자가 우선이에요. 특별공급 접수(1/12~1/13)와 일반공급 접수(1/14~1/15) 날짜가 달라요. 재당첨제한 10년·전매제한 3년 적용 단지예요.',
+     p:'59㎡ 4억2천~4억5천만원(층별 차등), 74㎡ 5억3천~5억7천만원이에요. 계약금 10%, 1차중도금 15%(\'27.01.25), 2차중도금 15%(\'27.10.25), 주택도시기금 59㎡ 5,500만원·74㎡ 7,500만원. 전세대 발코니 확장형 시공(확장비용 별도).',
+     s:'특별공급접수: 2026.01.12~01.13 / 일반공급접수: 2026.01.14~01.15 / 발표: 2026.01.29(16:00) / 서류접수: 2026.02.03~02.04 / 계약: 2026.04.20~04.21(전자)·04.23~04.24(현장). 입주예정: 2028년 07월.',
+     d:'주민등록등본·초본(세대구성원 확인), 청약통장 납입확인서, 소득증빙(건강보험료납부확인서·원천징수영수증 등), 자산조회 동의서, 특별공급별 추가서류(출생·혼인·가족관계증명서 등). LH 청약플러스(apply.lh.or.kr) 또는 KB부동산 앱으로 신청 가능해요.'
+   }},
 
   {id:1,name:'힐스테이트 광교',downPct:10,loc:'경기 수원시 영통구',type:'private',region:'gyeonggi',lotto:false,
    price:'4억 8천~7억 2천만원',minP:48000,mktP:72000,deadline:'2026-04-10',days:null,
@@ -2286,16 +2366,22 @@ function getDeposit(l) {
 
 function isLottoListing(l){ return l.lotto || (l.mktP > 0 && !l.noMktP && gap(l).g >= 20000); } // 로또청약 기준: 시세차익 2억 이상
 /* ★★★ [하드코딩 끝] ★★★ */
-function calcTypes(p){
+function calcTypes(p, listingCtx){
   if(!p.name&&!p.byear)return[];
+  // 공공/민간 구분 (listingCtx 있으면 사용, 없으면 일반 판단)
+  const _isPublic = listingCtx ? listingCtx.type === 'public' : false;
+
   // 맞벌이면 합산소득, 아니면 본인소득
   const inc=parseInt(p.isDual?(p.totalIncome||p.income||0):(p.income||0));
   const nh=parseInt(p.noHomeYears||0);
   const yr=parseInt(p.byear||0);
   const age=yr?new Date().getFullYear()-yr:0;
   const ch=parseInt(p.children||0);
+  const accYrCt=parseInt(p.accYears||0);
+  const depCntCt=parseInt(p.depCount||0);
 
-  // 신생아 가산 (+10%p or +20%p, 맞벌이 미적용)
+  // 신생아 가산 (+10%p or +20%p, 외벌이만 적용)
+  // 기준: 2023.3.28 이후 출생자녀 1명→+10%p, 2명이상→+20%p
   const cutoff=new Date('2023-03-28');
   const nbCount=(p.childDates||[]).filter(c=>{
     if(!c.year||!c.month)return false;
@@ -2303,7 +2389,7 @@ function calcTypes(p){
   }).length;
   const nbBonus=(!p.isDual&&nbCount>=2)?20:(!p.isDual&&nbCount===1)?10:0;
 
-// 도시근로자 100% 기준 (연간 만원)
+  // 도시근로자 100% 기준 (연간 만원)
   const h=parseInt(p.household||3);
   const base100=(URBAN_INCOME_100[Math.min(h,8)]||721)*12;
   const incPct=inc>0?Math.round(inc/base100*100):0;
@@ -2311,41 +2397,115 @@ function calcTypes(p){
   const t=[];
   const isDual=!!p.isDual;
 
-  // 생애최초: 우선(100%이하) / 잔여(~130%) + 신생아가산
-  if(p.isNoHome&&nh>=1){
-    if(incPct===0||incPct<=(100+nbBonus)) t.push({l:'생애최초',c:'fp',sub:'우선공급',subNote:`소득 ${100+nbBonus}% 이하`});
-    else if(incPct<=(130+nbBonus)) t.push({l:'생애최초',c:'fp',sub:'잔여공급',subNote:`소득 ${130+nbBonus}% 이하`});
+  // ── 생애최초 특별공급 ──────────────────────────────────────
+  // 공통: 세대주, 세대원 전원 생애 최초, 5년 소득세 납부, 혼인중or미성년자녀or1인가구(민간)
+  // 공공: 소득 130%(맞벌이200%), 12개월 12회+납입600만원이상
+  // 민간: 소득 130%(우선)/160%(일반)/추첨(부동산3.31억), 24개월, 1인가구도추첨가능
+  if(p.isNoHome){
+    // 공공: 외벌이130%, 맞벌이200%
+    // 민간: 외벌이160%, 맞벌이200% (추첨 포함)
+    const fpPublicLim = isDual ? 200 : 130;
+    const fpPrivateLim = isDual ? 200 : 160;
+    if(incPct===0||incPct<=(100+nbBonus)){
+      t.push({l:'생애최초',c:'fp',sub:'우선공급',subNote:`소득 ${100+nbBonus}% 이하 (공공·민간 공통 우선공급)`});
+    } else if(incPct<=(130+nbBonus)){
+      t.push({l:'생애최초',c:'fp',sub:'일반공급',subNote:`소득 ${130+nbBonus}% 이하 (공공 일반공급 / 민간 일반공급)`});
+    } else if(incPct<=(160+nbBonus)){
+      t.push({l:'생애최초',c:'fp',sub:'추첨(민간전용)',subNote:`소득 ${160+nbBonus}% 이하 → 민간 추첨제 신청 가능`});
+    } else if(!_isPublic){
+      // 소득 초과해도 민간 추첨(부동산가액 3.31억이하)은 가능
+      t.push({l:'생애최초',c:'fp',sub:'추첨(민간·자산조건)',subNote:'소득 초과 시 부동산 3억3100만원 이하 조건 충족 시 추첨 가능'});
+    }
   }
 
+  // ── 신생아 특별공급 ──────────────────────────────────────
+  // 공통: 만 2세 이하 자녀(입주자모집공고일 기준), 무주택, 6개월 이상
+  // 공공: 우선(외벌이100%/맞벌이120%) / 일반(외벌이140%/맞벌이200%) / 추첨
+  // 민간: 1단계 신생아우선(외벌이100%/맞벌이120%) / 2단계 신생아일반(외벌이140%/맞벌이160%) / 추첨(부동산3.31억)
   const hasNewborn=(p.childDates||[]).some(c=>{
     if(!c.year||!c.month)return false;
     const birth=new Date(parseInt(c.year),parseInt(c.month)-1,1);
     return (new Date()-birth)/(86400000)<=730;
   });
-
-  // 신생아특공: 우선(외벌이100%/맞벌이150%) / 잔여(~외벌이150%/맞벌이200%) + 신생아가산
   if(hasNewborn&&p.isNoHome){
-    const prLim=isDual?150:100; const remLim=isDual?200:150;
-    if(incPct===0||incPct<=(prLim+nbBonus)) t.push({l:'신생아특공',c:'nb',sub:'우선공급',subNote:`소득 ${prLim+nbBonus}% 이하`});
-    else if(incPct<=(remLim+nbBonus)) t.push({l:'신생아특공',c:'nb',sub:'잔여공급',subNote:`소득 ${remLim+nbBonus}% 이하`});
-  }
-
-  if(ch>=3)t.push({l:'다자녀특공',c:'mc'});
-
-  // 신혼부부특공: 우선(외벌이100%/맞벌이120%) / 잔여(~외벌이140%/맞벌이160%) + 신생아가산
-  if(p.marriage==='기혼'&&p.isNoHome&&p.marriageYear){
-    const mYr=parseInt(p.marriageYear);
-    if(mYr&&(new Date().getFullYear()-mYr)<=7){
-      const prLim=isDual?120:100; const remLim=isDual?160:140;
-      if(incPct===0||incPct<=(prLim+nbBonus)) t.push({l:'신혼부부특공',c:'nw',sub:'우선공급',subNote:`소득 ${prLim+nbBonus}% 이하`});
-      else if(incPct<=(remLim+nbBonus)) t.push({l:'신혼부부특공',c:'nw',sub:'잔여공급',subNote:`소득 ${remLim+nbBonus}% 이하`});
+    const nbPrLim=isDual?120:100;
+    // 공공 일반 상한: 외벌이140% / 맞벌이200%. 민간 일반 상한: 외벌이140% / 맞벌이160%
+    const nbRemLim=isDual?(_isPublic?200:160):140;
+    if(incPct===0||incPct<=(nbPrLim+nbBonus)){
+      t.push({l:'신생아특공',c:'nb',sub:'우선공급',subNote:`소득 ${nbPrLim+nbBonus}% 이하 (외벌이${100+nbBonus}%/맞벌이${120+nbBonus}%)`});
+    } else if(incPct<=(nbRemLim+nbBonus)){
+      t.push({l:'신생아특공',c:'nb',sub:'일반공급',subNote:`소득 ${nbRemLim+nbBonus}% 이하 (공공 외벌이140%·맞벌이200% / 민간 외벌이140%·맞벌이160%)`});
+    } else {
+      t.push({l:'신생아특공',c:'nb',sub:'추첨(민간)',subNote:'소득 초과 시 민간 추첨제 — 부동산 3억3100만원 이하 시 신청 가능'});
     }
   }
 
-  if(age>0&&age<=39&&p.marriage==='미혼'&&p.isNoHome)t.push({l:'청년특공',c:'yt'});
-  // 노부모부양: 무주택 + 만65세이상 부모 3년 이상 부양
-  if(p.elderParent&&p.isNoHome)t.push({l:'노부모부양',c:'ep'});
-  if(p.isNoHome)t.push({l:'일반공급',c:'gn'});
+  // ── 다자녀가구 특별공급 ──────────────────────────────────
+  // 공공: 미성년 자녀 3명 이상, 소득 120%(맞벌이200%), 6개월 6회, 자산기준
+  // 민간: 미성년 자녀 2명 이상, 소득기준 없음, 6개월, 배점제
+  if(ch>=3){
+    t.push({l:'다자녀특공',c:'mc',sub:'',subNote:'미성년 자녀 3명 이상 — 공공·민간 모두 신청 가능. 공공: 소득120%(맞벌이200%) 이하+자산기준'});
+  } else if(ch>=2){
+    t.push({l:'다자녀특공',c:'mc',sub:'민간전용',subNote:'미성년 자녀 2명 이상 — 민간분양만 신청 가능(배점제, 소득기준 없음)'});
+  }
+
+  // ── 신혼부부 특별공급 ──────────────────────────────────
+  // 공통: 혼인기간 7년 이내(동일인 재혼 시 이전 혼인기간 합산), 무주택, 6개월
+  // 공공: 1단계 우선(70%, 외벌이100%/맞벌이120%) / 2단계 일반(20%, 외벌이130%/맞벌이140%) / 3단계 추첨(10%)
+  //       자산기준: 전용 60㎡ 이하만 적용(부동산21.55억·자동차4563만원)
+  // 민간: 1단계 신생아우선(25%) / 2단계 신생아일반(10%) / 3단계 우선(25%, 외벌이100%/맞벌이120%)
+  //       4단계 일반(10%, 외벌이140%/맞벌이160%) / 5단계 추첨(30%, 부동산3.31억이하)
+  if(p.marriage==='기혼'&&p.isNoHome&&p.marriageYear){
+    const mYr=parseInt(p.marriageYear);
+    const marriageAge=new Date().getFullYear()-mYr;
+    if(mYr&&marriageAge<=7){
+      // 공공 기준: 우선 외벌이100%/맞벌이120%, 일반 외벌이130%/맞벌이140%
+      // 민간 기준: 우선 외벌이100%/맞벌이120%, 일반 외벌이140%/맞벌이160%
+      const nwPrLim=isDual?120:100;
+      const nwRemLim=isDual?(_isPublic?140:160):(_isPublic?130:140);
+      if(incPct===0||incPct<=(nwPrLim+nbBonus)){
+        t.push({l:'신혼부부특공',c:'nw',sub:'우선공급',subNote:`소득 ${nwPrLim+nbBonus}% 이하 (혼인 ${marriageAge}년차, 공공·민간 공통 우선)`});
+      } else if(incPct<=(nwRemLim+nbBonus)){
+        t.push({l:'신혼부부특공',c:'nw',sub:'일반공급',subNote:`소득 ${nwRemLim+nbBonus}% 이하 (혼인 ${marriageAge}년차, 공공외벌이130%·맞벌이140% / 민간외벌이140%·맞벌이160%)`});
+      } else {
+        t.push({l:'신혼부부특공',c:'nw',sub:'추첨',subNote:`소득 초과 → 민간 추첨 가능(부동산 3억3100만원 이하), 혼인 ${marriageAge}년차`});
+      }
+    }
+  }
+  // 예비신혼부부도 공공분양 신혼부부특공 가능(혼인 예정)
+  if(p.marriage==='미혼'&&p.isNoHome&&p.marriageYear){
+    const mYr=parseInt(p.marriageYear);
+    if(mYr&&new Date().getFullYear()-mYr<=1){
+      t.push({l:'신혼부부특공',c:'nw',sub:'예비신혼부부(공공)',subNote:'혼인 예정자 — 공공분양 신혼부부특공 예비신혼부부로 신청 가능'});
+    }
+  }
+
+  // ── 청년 특별공급 ─────────────────────────────────────
+  // 만 19~39세 미혼 무주택, 전용 60㎡ 이하 LH 공공분양에만 존재
+  if(age>=19&&age<=39&&p.marriage==='미혼'&&p.isNoHome){
+    t.push({l:'청년특공',c:'yt',subNote:'만 19~39세 미혼 무주택 — LH 공공분양 전용 60㎡ 이하 한정'});
+  }
+
+  // ── 노부모부양 특별공급 ────────────────────────────────
+  // 공통: 무주택세대주, 만65세↑ 직계존속 3년↑ 부양(같은 등본), 피부양자 배우자도 무주택
+  // 공공: 소득 120%(맞벌이200%), 12개월 12회 이상
+  // 민간: 소득기준 없음, 24개월 예치금 1순위, 가점제
+  if(p.elderParent&&p.isNoHome){
+    t.push({l:'노부모부양',c:'ep',subNote:'세대주 본인만 신청. 만65세↑ 직계존속 3년↑ 부양(같은 등본). 피부양자 배우자도 무주택. 공공: 소득120%(맞벌이200%) / 민간: 소득기준 없음·가점제'});
+  }
+
+  // ── 일반공급 ────────────────────────────────────────
+  // 공공: 소득 100%(60㎡이하), 자산기준(60㎡이하), 12개월 12회 이상(1순위), 저축총액 순
+  //       신생아우선50%→우선공급30%→추첨20%
+  // 민간 투기과열지구: 24개월+예치금(1순위), 세대주, 1주택자는 추첨제만
+  //       가점제 비율: 60㎡이하 40%, 60~85㎡ 70%, 85㎡이상 80%
+  //       과거 2년 내 가점제 당첨자는 가점제 신청 불가
+  if(p.isNoHome){
+    t.push({l:'일반공급',c:'gn',subNote:_isPublic
+      ?'12개월 12회+납입총액(1순위). 전용60㎡이하: 소득100%+자산기준. 신생아우선50%→우선공급30%→추첨20%. 저축총액(월최대25만원) 순'
+      :'24개월+예치금(1순위, 투기과열지구). 세대주 필수. 가점제 비율: 60㎡이하 40%·60~85㎡ 70%·85㎡이상 80%. 1주택자는 추첨제만. 최대 84점'
+    });
+  }
   return t;
 }
 
@@ -2382,16 +2542,103 @@ function calcEligDetail(l, p){
   const nbBonusElig = (!p.isDual && nbCountElig >= 2) ? 20 : (!p.isDual && nbCountElig === 1) ? 10 : 0;
   const myTypes = calcTypes(p).map(t => t.l);
 
-  // 기본 전형 조건 테이블 (PDF에 eligDetail이 없을 때 fallback)
+  // 기본 전형 조건 테이블 (공공/민간 공고 기준 정밀화)
+  // 공공분양 기준: 주택공급에 관한 규칙 + 공공주택특별법
+  // 민간분양 기준: 주택공급에 관한 규칙 + 투기과열지구 추가 조건
+  const isPublic = l && l.type === 'public';
   const defaultRules = {
-    '생애최초':    { noHome:true, incPct:130, married:'any', note:'세대원 전원 무주택, 5년 이상 소득세 납부 이력' },
-    '신생아특공':  { noHome:true, newborn:true, incPct:160, note:'입주자모집공고일 기준 만 2세 이하 자녀' },
-    '다자녀특공':  { noHome:true, children:3, note:'미성년 자녀 3명 이상' },
-    '청년특공':    { noHome:true, ageMax:39, married:'excluded', note:'만 19~39세 미혼 무주택자' },
-    '신혼부부특공':{ noHome:true, married:'required', incPct:140, note:'혼인 7년 이내, 6세 이하 자녀' },
-    '노부모부양':  { noHome:true, noHomeYears:3, elderParent:true, note:'만 65세 이상 직계존속 3년 이상 부양' },
-    '일반공급':    { noHome:true, accMonths:24, note:'무주택 세대구성원, 청약통장 가입' },
-    '무순위(줍줍)':{ noHome:false, note:'만 19세 이상 누구나 신청 가능' },
+    // ── 생애최초 특별공급 ──
+    // 공공: 소득 130%(맞벌이200%), 세대주, 24개월 1순위, 납입 600만원+, 5년 소득세 납부, 혼인중or자녀있어야
+    // 민간: 소득 130%(우선)/160%(일반)/추첨(부동산 3.31억이하), 세대주, 24개월 1순위, 5년 소득세 납부
+    //       1인가구도 추첨제로 신청 가능(민간에 한함)
+    '생애최초': {
+      noHome: true,
+      isHeadReq: true,
+      incPct: 130,
+      accMonths: 24,
+      accYears: 2,
+      savingsMin: isPublic ? 600 : 0,
+      note: isPublic
+        ? '세대주. 세대구성원 전원 생애 최초 주택 구입. 5년 이상 소득세 납부(근로자·자영업자). 가입 24개월+12회 이상, 납입 600만원 이상. 소득 130%(맞벌이200%) 이하. 혼인 중이거나 미성년 자녀 보유 필수'
+        : '세대주. 세대구성원 전원 생애 최초 주택 구입. 5년 이상 소득세 납부. 가입 24개월 이상. 소득 130%(우선)/160%(일반) 이하, 초과 시 부동산 3.31억 이하 추첨. 1인가구도 추첨제로 신청 가능'
+    },
+    // ── 신생아 특별공급 ──
+    // 공공: 만 2세 이하 자녀, 소득 140%(맞벌이200%), 가입 6개월 6회 이상
+    // 민간: 만 2세 이하 자녀, 소득 100%(우선)/140%(일반)/추첨(부동산 3.31억), 가입 6개월
+    '신생아특공': {
+      noHome: true,
+      newborn: true,
+      incPct: isPublic ? 140 : 100,
+      accMonths: 6,
+      note: isPublic
+        ? '입주자모집공고일 기준 만 2세 이하(2023.12.29 이후 출생) 자녀 보유. 가입 6개월·6회 이상. 소득 140%(맞벌이200%). 우선공급→일반공급→추첨 3단계'
+        : '입주자모집공고일 기준 만 2세 이하 자녀 보유. 가입 6개월 이상. 1단계 우선(소득100%/맞벌이120%) 2단계 일반(소득140%/맞벌이160%) 3단계 추첨(부동산3.31억이하)'
+    },
+    // ── 다자녀가구 특별공급 ──
+    // 공공: 미성년 자녀 3명 이상, 소득 120%(맞벌이200%), 가입 6개월 6회, 자산기준 적용
+    // 민간: 미성년 자녀 2명 이상, 가입 6개월, 배점제(100점)
+    '다자녀특공': {
+      noHome: true,
+      children: isPublic ? 3 : 2,
+      accMonths: 6,
+      incPct: isPublic ? 120 : 0,
+      note: isPublic
+        ? '미성년(만19세 미만) 자녀 3명 이상(태아·입양 포함). 가입 6개월·6회 이상. 소득 120%(맞벌이200%) 이하. 자산기준 적용(부동산 21.55억·자동차 4,563만원 이하)'
+        : '미성년(만19세 미만) 자녀 2명 이상(태아·입양 포함). 가입 6개월 이상. 소득기준 없음. 배점제(100점): 미성년자녀수40점+영유아자녀수15점+세대구성5점+무주택기간20점+거주기간15점+청약통장5점'
+    },
+    // ── 신혼부부 특별공급 ──
+    // 공공: 혼인 7년 이내, 소득 130%(맞벌이200%), 가입 6개월 6회, 자산기준(60㎡이하)
+    // 민간: 혼인 7년 이내, 소득 100%(우선)/140%(일반)/추첨(부동산3.31억), 가입 6개월
+    '신혼부부특공': {
+      noHome: true,
+      married: 'required',
+      incPct: 100,
+      accMonths: 6,
+      note: isPublic
+        ? '혼인기간 7년 이내 또는 예비신혼부부. 가입 6개월·6회 이상. 소득 130%(맞벌이200%) 이하. 자산기준(전용60㎡이하): 부동산 21.55억·자동차 4,563만원 이하. 1단계우선(70%)/2단계일반(20%)/3단계추첨(10%)'
+        : '혼인기간 7년 이내(동일인 재혼 시 이전 혼인기간 포함). 가입 6개월 이상. 1단계 신생아우선(25%), 2단계 신생아일반(10%), 3단계 우선(25%, 소득100%), 4단계 일반(10%, 소득140%), 5단계 추첨(부동산3.31억이하)'
+    },
+    // ── 노부모부양 특별공급 ──
+    // 공공: 세대주, 만65세↑ 직계존속 3년↑ 부양, 소득 120%(맞벌이200%), 24개월 1순위
+    // 민간: 세대주, 만65세↑ 직계존속 3년↑ 부양, 소득기준 없음, 24개월 1순위, 가점제
+    '노부모부양': {
+      noHome: true,
+      isHeadReq: true,
+      elderParent: true,
+      accMonths: 24,
+      accYears: 2,
+      incPct: isPublic ? 120 : 0,
+      note: isPublic
+        ? '세대주 본인만 신청. 만65세 이상 직계존속(배우자 직계존속 포함) 3년 이상 계속 부양(같은 등본). 피부양자 배우자도 무주택. 24개월 1순위. 소득 120%(맞벌이200%) 이하'
+        : '무주택세대주. 만65세 이상 직계존속 3년 이상 부양(같은 등본). 피부양자 배우자도 무주택. 24개월 1순위. 소득기준 없음. 가점제 당첨(무주택기간32+부양가족수35+청약통장17=84점 만점)'
+    },
+    // ── 청년 특별공급 ──
+    '청년특공': {
+      noHome: true,
+      ageMin: 19,
+      ageMax: 39,
+      married: 'excluded',
+      note: '만 19~39세 미혼 무주택자. 전용 60㎡ 이하. 추첨제'
+    },
+    // ── 일반공급 ──
+    // 공공: 소득 100%(60㎡이하), 자산기준(60㎡이하), 12개월 12회 이상(1순위), 저축총액 순
+    // 민간: 가점제(투기과열지구: 60㎡이하 40%, 60~85㎡ 70%, 85㎡초과 80%) + 추첨제
+    //       1순위: 24개월+예치금, 세대주, 1주택자는 추첨제만 가능, 2주택↑ 2순위만
+    '일반공급': {
+      noHome: true,
+      accMonths: isPublic ? 12 : 24,
+      accYears: isPublic ? 1 : 2,
+      incPct: isPublic ? 100 : 0,
+      isHeadReq: !isPublic,
+      note: isPublic
+        ? '무주택세대구성원. 12개월·12회 이상(1순위). 전용60㎡이하: 소득100%+자산기준. 당첨 선정: 신생아우선50%→우선공급30%→추첨20%, 저축총액(월최대25만원인정) 순'
+        : '무주택세대구성원·세대주(투기과열지구 1순위). 24개월+예치금(1순위). 1주택자는 1순위 추첨제만 가능. 가점제 비율: 60㎡이하 40%, 60~85㎡ 70%, 85㎡초과 80%. 가점항목: 무주택기간32+부양가족35+청약통장17=84점'
+    },
+    // ── 무순위·줍줍 ──
+    '무순위(줍줍)': {
+      noHome: false,
+      note: '만 19세 이상 누구나 신청 가능. 청약통장·무주택 불필요. 해당 지역 거주 조건만 충족하면 됨'
+    },
   };
 
   // PDF에서 추출한 단계별 소득구분 (eligTiers)
@@ -2622,6 +2869,27 @@ const REGION_FACTOR = {
 };
 // 서울 세부 지역 (강남권 추가 보정)
 const SEOUL_HOT = ['강남','서초','송파','용산','성동','마포','영등포','양천'];
+
+function getEligTierAnalysis(l, p) {
+  if(!l.eligTiers || !l.eligTiers.length) return '';
+  const income = parseInt(p.income||0);
+  const isMdual = parseInt(p.spouseIncome||0) > 0;
+  const base100 = (() => {
+    // 간이 도시근로자 월평균소득 100% (연간 만원)
+    const dep = parseInt(p.depCount||0);
+    const bases = [3228,4766,6264,7788,8504,9205,9906];
+    return (bases[Math.min(dep,6)] || 9906);
+  })();
+  const results = [];
+  for(const tier of l.eligTiers) {
+    const limit = isMdual ? tier.incDual : tier.incSingle;
+    if(limit === 999) { results.push(`${tier.parent} ${tier.name}: 소득 무관(추첨)`); continue; }
+    const limitAmt = Math.round(base100 * limit / 100);
+    const ok = income <= limitAmt;
+    results.push(`${tier.parent} ${tier.name}: ${ok?'✓':'✗'} (기준 ${limitAmt.toLocaleString()}만원, 내 소득 ${income.toLocaleString()}만원)`);
+  }
+  return results.slice(0,4).join(' / ');
+}
 
 function calcProb(l, p, selectedType){
   const hasConditions = p.noHomeYears || p.depCount || p.income || p.byear;
@@ -4403,16 +4671,6 @@ const REPORT_QUESTIONS = [
     ]
   },
   {
-    id: 'live',
-    q: '지금 어디 살고 계세요?',
-    sub: '거주지에 따라 1순위 자격이 달라져요',
-    options: [
-      { label: '서울', desc: '서울 거주', value: 'seoul' },
-      { label: '경기 · 인천', desc: '수도권 거주', value: 'gyeonggi' },
-      { label: '그 외 지역', desc: '지방 거주', value: 'other' },
-    ]
-  },
-  {
     id: 'risk',
     q: '청약 성향은 어떤 편이에요?',
     sub: '공격적일수록 경쟁률 높은 단지를 추천해요',
@@ -4692,6 +4950,36 @@ async function generateReport(){
   const typesRaw  = calcTypes(P);
   const types     = typesRaw.map(t => t.l);
   // 우선공급/잔여공급/소득기준 포함한 상세 전형 정보
+  // 자녀 데이터로 신생아/신혼 자격 자동 판단
+  const childDates = P.childDates || [];
+  const cutoff2 = new Date(); cutoff2.setFullYear(cutoff2.getFullYear()-2);
+  const newbornCount = childDates.filter(c => {
+    const d = new Date(`${c.year}-${String(c.month||1).padStart(2,'0')}-01`);
+    return d >= cutoff2;
+  }).length;
+  const marriageYears = P.marriageYear ? new Date().getFullYear() - parseInt(P.marriageYear) : 99;
+  const eligNote = [
+    `신생아특공: ${newbornCount > 0
+      ? `만2세 이하 자녀 ${newbornCount}명 → 신청 가능. 공공: 우선(외벌이100%/맞벌이120%)→일반(외벌이140%/맞벌이200%). 민간: 우선(외벌이100%/맞벌이120%)→일반(외벌이140%/맞벌이160%)→추첨(부동산3.31억이하)`
+      : '해당 없음(만2세 이하 자녀 없음)'}`,
+    `신혼부부특공: ${marriageYears <= 7 && P.marriage === '기혼'
+      ? `혼인 ${marriageYears}년차 → 신청 가능. 공공: 우선(70%,외벌이100%/맞벌이120%)→일반(20%,외벌이130%/맞벌이140%)→추첨(10%). 민간(아크로드서초 등 투기과열): 신생아우선(25%)→신생아일반(10%)→우선(25%,외벌이100%)→일반(10%,외벌이140%)→추첨(30%,부동산3.31억이하)`
+      : P.marriage === '미혼' && marriageYears <= 1 ? '예비신혼부부 → 공공분양 신혼부부특공 가능'
+      : '해당 없음'}`,
+    `생애최초: ${P.isNoHome
+      ? `무주택 → 신청 가능. 세대주+5년소득세납부+세대원전원무주택 필수. 공공: 우선(70%,소득100%)→일반(20%,소득130%)→추첨(10%). 민간: 신생아우선(15%)→신생아일반(5%)→우선(35%,소득130%)→일반(15%,소득160%)→추첨(부동산3.31억이하). 1인가구는 민간 추첨만 가능`
+      : '유주택으로 해당 없음'}`,
+    `다자녀: ${parseInt(P.children||0)>=3
+      ? `자녀 ${P.children}명 → 공공(소득120%+자산기준)·민간(배점제) 모두 신청가능`
+      : parseInt(P.children||0)>=2
+        ? `자녀 ${P.children}명 → 민간(배점제, 소득기준없음)만 신청가능(공공은 3명이상 필요)`
+        : '해당 없음'}`,
+    `노부모부양: ${P.elderParent && P.isNoHome
+      ? '만65세↑ 직계존속 3년↑ 부양 → 신청 가능. 세대주 본인만. 공공: 소득120%(맞벌이200%). 민간: 소득기준없음·가점제(84점만점)'
+      : '해당 없음'}`,
+    `일반공급: 공공 12개월12회+저축총액순(1순위) / 민간 24개월+예치금(1순위)·가점제(60㎡이하40%·60~85㎡70%·85㎡이상80%)+추첨제`
+  ].join(' / ');
+
   const typesDetail = typesRaw.map(t =>
     `${t.l}${t.sub ? ' '+t.sub : ''}${t.subNote ? ' ('+t.subNote+')' : ''}`
   ).join(', ');
@@ -4798,7 +5086,8 @@ async function generateReport(){
     } else if(myDepAmt > 0 && l.type === 'public') {
       cutAnalysis = ` / 납입총액 ${myDepAmt}만원 (당첨선 데이터 없음)`;
     }
-    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')} / 예상당첨률: ${prob!==null?prob+'%':'조건미입력'}${cutAnalysis}`;
+    const tierAnalysis = getEligTierAnalysis(l, P);
+    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')} / 예상당첨률: ${prob!==null?prob+'%':'조건미입력'}${cutAnalysis}${tierAnalysis?' / 소득기준: '+tierAnalysis:''}`;
   }).join('\n');
 
   const lottoStr = lottos.slice(0,3).map(l => {
@@ -4808,7 +5097,7 @@ async function generateReport(){
 
   const regionTargetLabel = {seoul_only:'서울만', capital:'수도권(서울·경기·인천)', nationwide:'전국', local:'지방'}[a.target_region] || '미응답';
   const expLabel    = {first:'청약 처음', failed:'낙첨 경험 있음', won:'당첨 이력 있음'}[a.experience] || '미응답';
-  const liveLabel   = {seoul:'서울 거주', gyeonggi:'경기·인천 거주', other:'지방 거주'}[a.live || a.region] || '미응답';
+  const liveLabel   = P.resideRegion ? P.resideRegion + (P.resideYears ? ' '+P.resideYears+'년 거주' : '') : ({seoul:'서울 거주', gyeonggi:'경기·인천 거주', other:'지방 거주'}[a.live] || '미응답');
   const riskLabel   = {safe:'안정적', mid:'적당히 도전', bold:'공격적'}[a.risk] || '미응답';
   const loanLabel   = {min:'최소화(가급적 대출 없이)', mid:'적당히(분양가 40~50%)', max:'최대한 활용'}[a.loan] || '미응답';
   const waitLabel   = {1:'1년 이내', 3:'2~3년', 5:'5년 이상'}[a.wait] || '미응답';
@@ -4845,12 +5134,33 @@ async function generateReport(){
 - 마크다운(#, ##, **) 절대 사용 금지. 영어 단어 절대 사용 금지.
 - 가장 중요한 원칙: 이 고객은 인생에서 가장 중요한 결정을 앞두고 있어요. 전문 컨설턴트로서 확신을 가지고 명확하게 지시해줘요. "해볼 수 있어요" 같은 어정쩡한 표현 금지. "지금 바로 이 공고, 이 전형으로 지원하세요"처럼 단호하고 책임감 있게. 단, 부정적인 상황도 솔직하게 말해줘요.
 
+[청약 자격 판단 기준 — 실제 공고 기반, 반드시 이 기준으로 판단]
+
+[공공분양 기준 — LH 공공분양 공고 실측]
+- 거주 요건: 수도권(서울·인천·경기) 거주 무주택세대구성원. 동일순위 경쟁 시 해당지역(공고별 상이) 우선
+- 신혼부부특공: 혼인기간 7년 이내. 가입 6개월·6회 이상. ①우선(70%): 외벌이100%/맞벌이120% → ②일반(20%): 외벌이130%/맞벌이140% → ③추첨(10%). 전용 60㎡이하만 자산기준(부동산21.55억·자동차4563만원 이하)
+- 생애최초특공: 세대주. 세대원 전원 생애 첫 주택. 5년 이상 소득세 납부. 가입 12개월·12회 이상 + 납입 600만원 이상. ①우선(70%): 외벌이100%/맞벌이130% → ②일반(20%): 외벌이130%/맞벌이200% → ③추첨(10%). 혼인 중이거나 미성년 자녀 보유 필수. 1인가구 불가
+- 신생아특공: 입주자모집공고일 기준 만 2세 이하 자녀(출생·입양·임신 포함). 가입 6개월·6회 이상. ①우선(70%): 외벌이100%/맞벌이120% → ②일반(20%): 외벌이140%/맞벌이200% → ③추첨(10%)
+- 다자녀특공: 미성년 자녀 3명 이상. 가입 6개월·6회. 소득 120%(맞벌이200%) 이하. 자산기준 적용. ①우선(90%) → ②추첨(10%)
+- 노부모부양특공: 세대주 본인만. 만65세↑ 직계존속 3년↑ 같은 등본. 피부양자 배우자도 무주택. 가입 12개월·12회 이상. 소득 120%(맞벌이200%). ①우선(90%) → ②추첨(10%)
+- 일반공급(전용 60㎡이하): 소득 100%(맞벌이200%) + 자산기준. 신생아우선(50%)→우선1순위(30%)→추첨(20%). 저축총액(월 최대 25만원 인정) 순. 1순위: 12개월·12회 이상
+
+[민간분양 투기과열지구 기준 — 서울 투기과열지구 공고 실측]
+- 거주 요건: 서울 2년 이상 계속 거주자가 우선(해당지역). 경기·인천은 기타지역. 1순위: 세대주+24개월+예치금(서울 85㎡이하 300만원)
+- 신혼부부특공: 혼인기간 7년 이내(동일인 재혼 시 이전 혼인기간 합산). 가입 6개월. 5단계: ①신생아우선(25%,외벌이100%/맞벌이120%) → ②신생아일반(10%,외벌이100%초과~140%/맞벌이120%초과~160%) → ③우선(25%,외벌이100%/맞벌이120%) → ④일반(10%,외벌이100%초과~140%/맞벌이120%초과~160%) → ⑤추첨(30%,부동산가액3억3100만원이하). 1단계·2단계 낙첨자 소득에 따라 3단계 또는 4단계로 이동
+- 생애최초특공: 세대주. 전원 생애 첫 주택. 5년 이상 소득세 납부. 24개월+예치금+과거5년미당첨+세대주. 5단계: ①신생아우선(15%,소득130%이하) → ②신생아일반(5%,소득130%초과~160%이하) → ③우선(35%,소득130%이하) → ④일반(15%,소득130%초과~160%이하) → ⑤추첨(혼인·자녀있는경우:소득160%초과+부동산3.31억이하 / 1인가구:소득160%이하or부동산3.31억이하). 2단계 낙첨자는 3단계 아닌 4단계로 이동
+- 다자녀특공: 미성년 자녀 2명 이상. 가입 6개월. 소득기준 없음. 배점제 100점(미성년자녀수40+영유아자녀15+세대구성5+무주택기간20+거주기간15+청약통장5)
+- 노부모부양특공: 무주택세대주. 만65세↑ 직계존속 3년↑. 피부양자 배우자도 무주택. 24개월+과거5년미당첨+세대주. 소득기준 없음. 가점제(무주택기간32+부양가족35+청약통장17=84점)
+- 일반공급: 1순위(24개월+예치금+세대주·과거5년미당첨·2주택이하). 1주택자는 추첨제만. 가점제 비율: 60㎡이하 40%·60~85㎡ 70%·85㎡이상 80%. 가점 84점 만점. 배우자 통장 최대 3점 합산 가능. 과거 2년내 가점제 당첨자는 가점제 청약 불가. 1순위 추첨제 경쟁 시: 무주택(75%)→무주택+1주택(잔여)→전체(잔여) 3단계
+- 재당첨제한: 투기과열지구·분양가상한제 10년. 전매제한 3년. 거주의무기간 2년
+
 [고객 정보]
 나이: 만 ${age}세 / 혼인상태: ${P.marriage||'미혼'} / 청약 가점: ${score.total}점
 거주지: ${P.resideRegion||'미입력'} ${P.resideYears?P.resideYears+'년 거주':''} (거주 요건 불충족 공고는 자동 제외됐어요)
 주택: ${P.isNoHome?'무주택 '+nh+'년':'유주택'} / 연소득: ${income.toLocaleString()}만원(도시근로자 ${incPct}%)
 보유현금: ${cash.toLocaleString()}만원 / 청약통장: ${acc}회 납입(${rank1?'1순위 자격 있어요':'아직 2순위예요'})
 신청 가능 전형: ${typesDetail||'현재 없어요'}
+전형별 자격 판단: ${eligNote}
 
 [인터뷰 답변]
 희망 지역: ${regionTargetLabel} / 청약 경험: ${expLabel} / 현재 거주지: ${liveLabel}
@@ -4859,8 +5169,7 @@ async function generateReport(){
 
 [매칭 공고] ${matchedStr||'현재 해당 공고 없음'}
 [로또청약] ${lottoStr||'현재 없음'}
-[자금 현황] 현금: ${cash.toLocaleString()}만원 / 계약금 비율: 공고마다 5~20% 다름 (공공 5%, 민간 10~20%) / 추가 필요 금액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 2년 저축 필요
-매칭 공고 계약금 비율 평균: ${avgDownPct}%
+[자금 현황] 현금: ${cash.toLocaleString()}만원 / 매칭 공고 계약금 비율 평균: ${avgDownPct}% / 추가 필요 금액: ${savingsGap.toLocaleString()}만원 / 월 ${monthlyNeeded.toLocaleString()}만원씩 2년 저축 필요
 
 중요: 공고 추천은 반드시 희망지역(${regionTargetLabel}) 범위 안에서만 해줘요. 범위 밖 지역 추천 금지.
 
@@ -4869,7 +5178,7 @@ async function generateReport(){
 - 각 섹션 첫 줄: [HEADLINE:핵심을 한 문장으로]
 - 핵심 수치 1~3개: [STAT:라벨|값] — 값은 최대 5자, 쉼표 금지
 - 중요 단어 강조: [BOLD:텍스트]
-- 특히 중요: 공고명은 반드시 [단지명: OOO] 형식, 전형은 [전형: OOO] 형식으로 표시. 예: [단지명: 하남교산 A-2]에 [전형: 신생아특공 우선공급]으로 지원하세요.
+- 특히 중요: 공고명은 반드시 [단지명: OOO] 형식, 전형은 [전형: OOO] 형식으로 표시.
 - 항목 나열: - 로 시작
 - 번호 목록: 1. 2. 3.
 
@@ -4878,8 +5187,8 @@ async function generateReport(){
 [STAT:청약 가점|${score.total}점][STAT:신청 가능 전형|${typesRaw.length}개][STAT:매칭 공고|${matched.length}건]
 고객의 현재 청약 경쟁력을 냉정하게 분석해줘요. 아래를 반드시 포함해요:
 - 가점 ${score.total}점이 경쟁 공고 대비 어느 수준인지 (상위 몇 %인지 추정)
-- 신청 가능 전형(${typesDetail}) 중 가장 유리한 전형과 이유
-- 1순위/2순위 여부와 그 의미
+- 신청 가능 전형(${typesDetail}) 중 가장 유리한 전형과 이유 (공공·민간 단계 구분해서)
+- 1순위 여부: 공공분양 1순위(12개월 12회 이상) vs 민간 투기과열지구 1순위(24개월+예치금+세대주)
 - 지금 당장 보완하면 가점이 오르는 포인트 1~2가지
 
 [SECTION:지금 이 공고에 지원하세요]
@@ -4887,8 +5196,9 @@ async function generateReport(){
 [STAT:접수일|M/DD][STAT:전형|전형명][STAT:당첨률|?%]
 단호하게 지시하는 톤으로 작성해줘요. 반드시 포함:
 - 첫 문장: "[단지명]에 [전형명]으로 지원하세요. 이유는 [핵심 이유]예요." 형식으로 시작
+- 자격 요건 체크리스트: 해당 전형의 실제 조건(소득기준 몇 %, 통장 몇 개월, 자산기준 등)과 고객 조건 대조
 - 이 공고를 추천하는 이유 3가지 (전형 자격 충족, 당첨 가능성, 시세차익 등 숫자 포함)
-- 당첨 가능성: 예상 당첨률 ${matched.length>0?'데이터 있음':''}과 납입총액 당첨선 분석 결과 구체적으로
+- 당첨 가능성: 예상 당첨률과 납입총액 당첨선 분석 결과 구체적으로
 - 접수일·방법·주의사항 명확하게
 - 준비 서류 2~3가지
 선착순·미분양 공고는 절대 이 섹션에 넣지 마세요.
@@ -4898,8 +5208,8 @@ async function generateReport(){
 [HEADLINE:이 순서대로 검토하세요 — 우선순위 기준으로 정렬했어요]
 [STAT:최우선 공고|단지명][STAT:최고 당첨률|?%]
 매칭 공고 ${matched.length}건을 당첨 가능성·시세차익·마감일 기준으로 순위 매겨줘요. 공고마다:
-- 단지명 / 전형 / 예상 당첨률 / 시세차익 / 접수 마감일
-- 이 고객에게 맞는 이유 한 줄
+- 단지명 / 전형(공공·민간 구분) / 예상 당첨률 / 시세차익 / 접수 마감일
+- 이 고객에게 맞는 이유 한 줄 (자격 충족 핵심 조건 포함)
 최대 5개, 없으면 "현재 매칭 공고가 없어요."
 
 [SECTION:로또청약 기회예요]
@@ -4911,8 +5221,8 @@ async function generateReport(){
 [HEADLINE:계약금 [?]억 준비하면 [단지명] 당첨 즉시 계약 가능해요]
 [STAT:계약금|?만원][STAT:중도금|?%][STAT:월상환액|?만원]
 아래를 반드시 구체적인 숫자로 계산해서 제시해줘요:
-- 추천 공고 기준 계약금 실제 금액 (분양가 × ${avgDownPct}%)
-- 중도금 대출 한도·금리·월 상환액 시뮬레이션 (분양가 × 60%, 금리 연 4% 기준)
+- 추천 공고 기준 계약금 실제 금액 (공공분양 계약금 10%, 민간 투기과열지구 계약금 20% 기준)
+- 중도금 대출 한도·금리·월 상환액 시뮬레이션 (분양가 × 40~60%, 금리 연 4% 기준)
 - 잔금 처리 방법 (주담대 한도, 월 상환액)
 - 지금 현금 ${cash.toLocaleString()}만원으로 계약 가능한 최대 분양가
 - 부족하면: 월 얼마씩 저축해야 하는지 (목표 기간 ${waitLabel} 기준)
@@ -4924,7 +5234,7 @@ async function generateReport(){
 지금 당장 실천 가능한 가점 상승 방법을 수치와 함께 알려줘요:
 - 무주택 기간 늘리면 몇 점 (현재 ${nh}년, 추가 1·2·3년 시 가점)
 - 부양가족 추가 시 가점 변화
-- 청약통장 납입 횟수 부족하면 몇 개월 후 1순위 자격
+- 청약통장 납입: 공공 1순위(12개월 12회), 민간 투기과열 1순위(24개월+예치금) 중 어떤 조건까지 남았는지
 
 [SECTION:오늘 바로 하세요]
 [HEADLINE:지금 이 순서대로 실행하세요]
@@ -5006,9 +5316,10 @@ function renderReportText(text){
 
     const vizHtml = _sectionViz(title, stats, bodyClean);
     const isActionSection = title.includes('지원하세요');
-    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2px solid var(--accent);box-shadow:0 4px 20px rgba(0,102,255,.15)' : ''}">
+    const isTop5Section = title.includes('TOP');
+    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2px solid var(--accent)' : ''}">
       <!-- 섹션 헤더 -->
-      <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(0,0,0,.06)${isActionSection ? ';background:linear-gradient(135deg,#EBF2FF,#F0FAFF)' : ''}">
+      <div style="padding:14px 18px 10px;border-bottom:1px solid rgba(0,0,0,.06)${isActionSection ? ';background:var(--accent-light)' : ''}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div style="width:28px;height:28px;border-radius:8px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
             ${_sectionIcon(title)}
@@ -5072,9 +5383,9 @@ function _sectionViz(title, stats, body){
     const pct = Math.round(total/max*100);
     const color = pct>=70?'#059669':pct>=50?'#0066FF':pct>=30?'#F59E0B':'#DC2626';
     const items = [
-      {label:'무주택 기간', val:score.nh, max:32, desc:'최대 32점'},
-      {label:'부양가족', val:score.dep, max:35, desc:'최대 35점'},
-      {label:'청약통장', val:score.acc, max:17, desc:'최대 17점'},
+      {label:'무주택 기간', val:score.nhS||0, max:32},
+      {label:'부양가족', val:score.dS||0, max:35},
+      {label:'청약통장', val:score.aS||0, max:17},
     ];
     return `<div style="margin-bottom:4px">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
@@ -5103,6 +5414,34 @@ function _sectionViz(title, stats, body){
           </div>`).join('')}
         </div>
       </div>
+    </div>`;
+  }
+
+  // ① TOP5 섹션 — 순위 인포그래픽
+  if(t.includes('TOP 5') || t.includes('TOP5')){
+    const tl = calcTypes(P).map(t=>t.l);
+    const matched = listings.filter(l => !isLottoListing(l) && l.elig.some(e=>tl.includes(e)) && meetsResideReq(l))
+      .sort((a,b) => (calcProb(b,P)||0)-(calcProb(a,P)||0))
+      .slice(0,5);
+    if(!matched.length) return '';
+    const medals = ['🥇','🥈','🥉','4','5'];
+    return `<div style="display:flex;flex-direction:column;gap:8px">
+      ${matched.map((l,i) => {
+        const prob = calcProb(l,P);
+        const g = gap(l);
+        const probColor = prob>=50?'#059669':prob>=30?'#0066FF':'#F59E0B';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${i===0?'var(--accent-light)':'var(--bg-card)'};border-radius:12px;border:${i===0?'1.5px solid var(--accent)':'1px solid rgba(0,0,0,.07)'}">
+          <div style="font-size:${i<3?'18px':'13px'};flex-shrink:0;width:24px;text-align:center;${i>=3?'font-weight:800;color:var(--ink-4)':''}">${medals[i]}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cleanName(l.name)}</div>
+            <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.elig.find(e=>tl.includes(e))||l.elig[0]} · ${l.loc.split(' ').slice(0,2).join(' ')}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:13px;font-weight:800;color:${probColor}">${prob!==null?prob+'%':'?%'}</div>
+            <div style="font-size:10px;color:var(--ink-5)">${g.g>0?fmtManwon(g.g)+' 차익':'마감 '+daysText(l.days,'remain')}</div>
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
   }
 
@@ -5138,12 +5477,25 @@ function _sectionViz(title, stats, body){
   // ③ 가점 올리는 법 — 타임라인
   if(t.includes('가점')){
     const nh = parseInt(P.noHomeYears||0);
+    const acc = parseInt(P.depCount||0);
+    const accYr = parseInt(P.accYears||0);
+    // 현재→+1년→+2년→+3년 무주택기간 가점 변화 (2년마다 2점씩 오름)
     const steps = [
       {period:'지금', point:score.total+'점', color:'#DC2626'},
       {period:'+1년', point:(score.total+2)+'점', color:'#F59E0B'},
       {period:'+2년', point:(score.total+4)+'점', color:'#0066FF'},
       {period:'+3년', point:(score.total+6)+'점', color:'#059669'},
     ];
+    // 통장 조건 안내
+    const pub1stReady = acc >= 12 && accYr >= 1;
+    const priv1stReady = acc >= 24 && accYr >= 2;
+    const pubNeeded = Math.max(0, 12 - acc);
+    const privNeeded = Math.max(0, 24 - acc);
+    const accNote = pub1stReady && priv1stReady
+      ? '공공·민간 모두 1순위 충족'
+      : pub1stReady
+        ? `공공 1순위 충족 ✓ / 민간 투기과열 1순위까지 ${privNeeded}회 더 필요`
+        : `공공 1순위까지 ${pubNeeded}회 / 민간 투기과열 1순위까지 ${privNeeded}회 더 필요`;
     return `<div style="margin-bottom:4px">
       <div style="font-size:11px;color:var(--ink-4);margin-bottom:10px">무주택 기간 유지 시 가점 변화</div>
       <div style="display:flex;align-items:center;gap:0;position:relative">
@@ -5155,6 +5507,9 @@ function _sectionViz(title, stats, body){
           <div style="font-size:10px;color:var(--ink-4)">${s.period}</div>
           ${i<steps.length-1?'<div style="position:absolute;top:16px;right:-50%;width:100%;height:2px;background:var(--bg-2);z-index:-1"></div>':''}
         </div>`).join('')}
+      </div>
+      <div style="margin-top:12px;padding:8px 12px;background:var(--accent-light);border-radius:10px;font-size:11px;color:var(--accent-dark);font-weight:600">
+        📋 청약통장: ${accNote}
       </div>
     </div>`;
   }
@@ -5181,16 +5536,18 @@ function _sectionLabel(title){
 }
 
 function _parseBody(body){
-  return body.split('\n').filter(l => l.trim()).map(l => {
+  return body.split('\n').filter(l => l.trim() && l.trim() !== '---' && l.trim() !== '–––' && l.trim() !== '—').map(l => {
     const t = l.trim();
     if(!t) return '';
     // 번호 목록
     if(/^\d+[.)\s]/.test(t)){
       const num = t.match(/^(\d+)/)[1];
       const rest = _md(t.replace(/^\d+[.)\s]+/,''));
-      return `<div style="display:flex;gap:10px;align-items:flex-start;margin:8px 0;padding:11px 14px;background:var(--accent-light);border-radius:12px;border-left:3px solid var(--accent)">
-        <span style="color:var(--accent);font-weight:900;font-size:14px;flex-shrink:0;line-height:1.5">${num}</span>
-        <span style="font-size:13px;color:var(--ink-2);line-height:1.65;font-weight:500">${rest}</span>
+      return `<div style="display:flex;gap:12px;align-items:flex-start;margin:8px 0;padding:12px 14px;background:var(--bg-card);border-radius:12px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.05)">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+          <span style="color:white;font-weight:900;font-size:11px;line-height:1">${num}</span>
+        </div>
+        <span style="font-size:13px;color:var(--ink-2);line-height:1.7;flex:1">${rest}</span>
       </div>`;
     }
     // 불릿
@@ -5285,14 +5642,46 @@ function buildReportHTML(d){
 
   // ── 섹션 2: 전형별 자격 정밀 진단 ──────────────────
   const typeDetails = {
-    '생애최초':    { icon:'🏠', desc:`소득 ${incPct}% — 기준(130%) ${incPct<=130?'✓ 충족':'✗ 초과'}. 세대원 전원 생애 처음 집을 사는 경우.`, ok: incPct<=130 && P.isNoHome },
-    '신혼부부특공': { icon:'💑', desc:`혼인 ${P.marriageYear ? new Date().getFullYear()-parseInt(P.marriageYear) : '?'}년차. 7년 이내 ${(P.marriageYear && new Date().getFullYear()-parseInt(P.marriageYear)<=7)?'✓ 해당':'✗ 초과'}. 소득 외벌이 140% / 맞벌이 160% 이하.`, ok: P.marriage==='기혼' && P.marriageYear && (new Date().getFullYear()-parseInt(P.marriageYear))<=7 },
-    '신생아특공':  { icon:'👶', desc:`만 2세 이하 자녀 보유 시 신청 가능. 소득 외벌이 150% / 맞벌이 200% 이하.`, ok: ch > 0 },
-    '다자녀특공':  { icon:'👨‍👩‍👧‍👦', desc:`미성년 자녀 3명 이상. 현재 ${ch}명 ${ch>=3?'✓ 해당':'— 부족'}.`, ok: ch>=3 },
-    '청년특공':    { icon:'🎓', desc:`만 ${age}세 / 만 19~39세 미혼 무주택자. ${age>=19&&age<=39&&P.marriage==='미혼'?'✓ 해당':'✗ 미해당'}.`, ok: age>=19&&age<=39&&P.marriage==='미혼'&&P.isNoHome },
-    '노부모부양':  { icon:'👴', desc:`만 65세 이상 부모 3년 이상 부양. ${P.elderParent?'✓ 해당':'조건 확인 필요'}.`, ok: !!P.elderParent },
-    '일반공급':    { icon:'🏢', desc:`무주택 세대구성원, 청약통장 보유. ${rank1?'1순위 ✓':'2순위 — 납입 횟수 부족'}.`, ok: P.isNoHome },
-    '무순위(줍줍)': { icon:'🎰', desc:'만 19세 이상 누구나 신청 가능. 청약통장·무주택 불필요.', ok: age>=19 },
+    '생애최초':    {
+      icon:'🏠',
+      desc:`소득 ${incPct}% — 우선공급 기준(100%) ${incPct<=100?'✓ 충족':'✗ 초과'}, 일반공급 기준(130%) ${incPct<=130?'✓ 충족':'✗ 초과'}. 세대원 전원 생애 최초 주택 구입 + 5년 이상 소득세 납부 + 세대주 요건. 공공분양: 납입 600만원 이상 필요. 민간분양: 소득 160% 이하 또는 부동산 3.31억 이하 추첨 가능.`,
+      ok: incPct<=130 && P.isNoHome
+    },
+    '신혼부부특공': {
+      icon:'💑',
+      desc:`혼인 ${P.marriageYear ? new Date().getFullYear()-parseInt(P.marriageYear) : '?'}년차. 7년 이내 ${(P.marriageYear && new Date().getFullYear()-parseInt(P.marriageYear)<=7)?'✓ 해당':'✗ 초과'}. 공공: 소득 130%(맞벌이 200%) 이하. 민간: 5단계(신생아우선25%/신생아일반10%/우선25%/일반10%/추첨30%). 소득 140% 초과 시 민간분양 추첨제(부동산 3.31억 이하)만 가능.`,
+      ok: P.marriage==='기혼' && P.marriageYear && (new Date().getFullYear()-parseInt(P.marriageYear))<=7
+    },
+    '신생아특공':  {
+      icon:'👶',
+      desc:`만 2세 이하 자녀 보유 시 신청 가능. 공공: 소득 140%(맞벌이200%) 이하. 민간: 소득 100%(우선)/140%(일반)/추첨(부동산3.31억) 3단계. 가입 6개월 이상.`,
+      ok: ch > 0 && P.isNoHome
+    },
+    '다자녀특공':  {
+      icon:'👨‍👩‍👧‍👦',
+      desc:`공공분양: 미성년 자녀 3명 이상 필요. 민간분양: 2명 이상도 신청 가능. 현재 ${ch}명 ${ch>=3?'✓ 공공·민간 모두 해당':ch>=2?'✓ 민간 가능, 공공 불가':'— 부족'}.`,
+      ok: ch>=2 && P.isNoHome
+    },
+    '청년특공':    {
+      icon:'🎓',
+      desc:`만 ${age}세 / 만 19~39세 미혼 무주택자. ${age>=19&&age<=39&&P.marriage==='미혼'?'✓ 해당':'✗ 미해당'}. 공공분양 전용 60㎡ 이하 추첨제.`,
+      ok: age>=19&&age<=39&&P.marriage==='미혼'&&P.isNoHome
+    },
+    '노부모부양':  {
+      icon:'👴',
+      desc:`만 65세 이상 직계존속(배우자 포함) 3년 이상 동일 등본 부양. ${P.elderParent?'✓ 해당':'조건 확인 필요'}. 세대주만 신청 가능. 피부양 부모 배우자도 무주택이어야 함. 공공: 소득 120%, 민간: 소득기준 없음(가점제 당첨).`,
+      ok: !!P.elderParent && P.isNoHome
+    },
+    '일반공급':    {
+      icon:'🏢',
+      desc:`무주택 세대구성원. 공공: 12개월·12회 이상(1순위), 저축총액 순 당첨. 민간(투기과열): 24개월+예치금(1순위), 가점제(60㎡이하40%/60~85㎡70%/85㎡초과80%)+추첨제. ${rank1?'1순위 ✓':'2순위 — 납입 기간 부족'}. 민간 1주택자는 1순위 추첨제만 가능.`,
+      ok: P.isNoHome
+    },
+    '무순위(줍줍)': {
+      icon:'🎰',
+      desc:'만 19세 이상 누구나 신청 가능. 청약통장·무주택 불필요. 해당 시·도 거주 조건만 충족하면 됨.',
+      ok: age>=19
+    },
   };
 
   const myTypeKeys = typeNames.filter(t => typeDetails[t]);
