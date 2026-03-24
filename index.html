@@ -1868,7 +1868,7 @@ function onIncomeChange(){
   const effectiveLimitNote = newbornApplied ? ` (+${newbornBonus}%p 신생아 가산 적용)` : '';
 
   const passItems=[], failItems=[];
-  Object.entries(limits).forEach(([name,lim])=>{\
+  Object.entries(limits).forEach(([name,lim])=>{
     const effectiveLim = (name.includes('생애최초')||name.includes('신혼')||name.includes('신생아'))&&newbornApplied ? lim+newbornBonus : lim;
     if(pct<=effectiveLim) passItems.push(`${name} ${effectiveLim}% ✓`);
     else failItems.push(`${name} ${effectiveLim}% ✗`);
