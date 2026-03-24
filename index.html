@@ -4710,9 +4710,29 @@ async function generateReport(){
     if(_targetRegion === 'local')       return !_capitalRegs.includes(l.region);
     return true; // nationwide
   });
+  const myDepAmt = parseInt(P.depAmt || 0);
+  const resideRgnForCut = (P.resideRegion||'').includes('서울') ? '당해'
+    : (P.resideRegion||'').includes('경기') ? '경기'
+    : (P.resideRegion||'').includes('인천') ? '경기' : '기타';
+
   const matchedStr = matchedFiltered.slice(0,5).map(l => {
     const g = gap(l);
-    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')}`;
+    const prob = calcProb(l, P);
+    // savingsCut 기반 당첨 가능성 분석
+    let cutAnalysis = '';
+    if(l.savingsCut && l.savingsCut.length > 0 && myDepAmt > 0) {
+      const regionCuts = l.savingsCut.filter(c => c.region === resideRgnForCut || c.region === '기타');
+      if(regionCuts.length > 0) {
+        const minLow = Math.min(...regionCuts.map(c => c.low));
+        const maxHigh = Math.max(...regionCuts.map(c => c.high));
+        if(myDepAmt >= maxHigh) cutAnalysis = ` / 납입총액 ${myDepAmt}만원 → 당첨선 초과(유리)`;
+        else if(myDepAmt >= minLow) cutAnalysis = ` / 납입총액 ${myDepAmt}만원 → 당첨선 범위 내(${minLow}~${maxHigh}만원)`;
+        else cutAnalysis = ` / 납입총액 ${myDepAmt}만원 → 당첨선 미달(최소 ${minLow}만원 필요)`;
+      }
+    } else if(myDepAmt > 0 && l.type === 'public') {
+      cutAnalysis = ` / 납입총액 ${myDepAmt}만원 (당첨선 데이터 없음)`;
+    }
+    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')} / 예상당첨률: ${prob!==null?prob+'%':'조건미입력'}${cutAnalysis}`;
   }).join('\n');
 
   const lottoStr = lottos.slice(0,3).map(l => {
@@ -4794,8 +4814,13 @@ async function generateReport(){
 
 [SECTION:지금 넣을 수 있는 공고예요]
 [HEADLINE:추천 이유를 한 문장으로 자연스럽게]
-[STAT:접수일|M/DD][STAT:전형|전형명][STAT:시세차익|?억]
-추천 공고 설명 시 반드시: 어떤 전형(우선공급/잔여공급/일반공급 등)으로 신청할 수 있는지 명시해줘요. 신생아특공이면 우선공급/잔여공급 단계 구분도 설명해줘요. 신청 방법, 주의사항을 쉽게 설명해줘요. 공고가 없으면 "지금 당장 넣을 수 있는 공고는 없어요. 다음 기회를 준비해봐요." 라고 솔직하게.
+[STAT:접수일|M/DD][STAT:전형|전형명][STAT:당첨률|?%]
+추천 공고 설명 시 반드시:
+1. 어떤 전형(우선공급/잔여공급/일반공급 등)으로 신청할 수 있는지 명시해줘요.
+2. 예상당첨률을 언급하고, 높거나 낮은 이유를 쉽게 설명해줘요.
+3. 공고 데이터에 "납입총액 → 당첨선 초과/범위 내/미달" 정보가 있으면 반드시 구체적으로 안내해줘요. 예: "납입총액 1500만원으로 이 공고 당첨선(1200~1700만원) 범위 안에 들어 있어요."
+4. 신청 방법, 주의사항을 쉽게 설명해줘요.
+공고가 없으면 "지금 당장 넣을 수 있는 공고는 없어요. 다음 기회를 준비해봐요." 라고 솔직하게.
 
 [SECTION:로또청약도 챙겨봐요]
 [HEADLINE:한 줄로 기회 요약 — 자연스럽게]
