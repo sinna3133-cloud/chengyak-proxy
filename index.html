@@ -87,12 +87,23 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-chevron{color:rgba(255,255,255,.35);font-size:14px;transition:transform .25s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+/* 히어로(어두운 배경)용 - 반투명 오버레이 */
 .type-pill{font-size:var(--t-xs);font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
-.type-pill.fp{border-color:rgba(0,201,160,.45);background:rgba(0,201,160,.12);color:#6EECDA}
-.type-pill.nb{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.12);color:#FDE68A}
-.type-pill.mc{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#FCA5A5}
+.type-pill.fp{border-color:rgba(0,201,160,.5);background:rgba(0,201,160,.15);color:#6EECDA}
+.type-pill.nb{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.15);color:#FDE68A}
+.type-pill.mc{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.15);color:#FCA5A5}
+.type-pill.nw{border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.15);color:#E9D5FF}
+.type-pill.ep{border-color:rgba(251,146,60,.45);background:rgba(251,146,60,.15);color:#FED7AA}
 .type-pill.yt{border-color:rgba(139,92,246,.45);background:rgba(139,92,246,.12);color:#C4B5FD}
 .type-pill.gn{border-color:rgba(99,102,241,.45);background:rgba(99,102,241,.12);color:#A5B4FC}
+/* 밝은 배경(조건화면·위저드)용 공통 전형 뱃지 */
+.etype-fp{background:#ECFDF5;color:#059669;border:1.5px solid #A7F3D0}
+.etype-nb{background:#FFFBEB;color:#D97706;border:1.5px solid #FDE68A}
+.etype-mc{background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA}
+.etype-nw{background:#F5F3FF;color:#7C3AED;border:1.5px solid #DDD6FE}
+.etype-ep{background:#FFF7ED;color:#EA580C;border:1.5px solid #FDBA74}
+.etype-yt{background:#EDE9FE;color:#6D28D9;border:1.5px solid #C4B5FD}
+.etype-gn{background:#EEF2FF;color:#4338CA;border:1.5px solid #C7D2FE}
 /* 조건 그리드 (드롭다운) */
 .cond-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .cond-detail.open{max-height:200px}
@@ -510,7 +521,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .wiz-done-title{font-size:24px;font-weight:900;color:var(--ink);letter-spacing:-.5px;margin-bottom:8px}
 .wiz-done-sub{font-size:14px;color:var(--ink-4);line-height:1.6;margin-bottom:28px}
 .wiz-done-types{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px}
-.wiz-done-type{font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1.5px solid var(--accent-mid)}
+.wiz-done-type{font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;border:1.5px solid transparent}
 .wiz-done-btn{width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3)}
 .nudge-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto}
 .nudge-ov.open{display:flex}
@@ -538,7 +549,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .dash-type-card{flex:1;min-width:calc(50% - 4px);background:var(--bg-card);border-radius:14px;border:1px solid rgba(0,0,0,.07);padding:14px;box-shadow:var(--shadow-xs)}
 .dash-type-name{font-size:13px;font-weight:700;color:var(--ink)}
 .dash-type-desc{font-size:11px;color:var(--ink-4);margin-top:4px;line-height:1.5}
-.dash-type-badge{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--accent-light);color:var(--accent)}
+.dash-type-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;border:1.5px solid transparent}
 /* 매칭 공고 요약 */
 .dash-match-card{background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);padding:16px 18px;box-shadow:var(--shadow-xs);margin-bottom:12px;cursor:pointer;transition:all .2s}
 .dash-match-card:active{transform:scale(.98)}
@@ -2024,6 +2035,18 @@ function wRadio(el,group){
    3인 이하: 720.5만 / 4인: 857.8만 / 5인: 903.1만
    6인: 973.3만 / 7인: 1043.5만 / 8인: 1113.7만
 ══ */
+// 전형 코드 → CSS 클래스 (밝은 배경용) — 히어로 type-pill과 동일 색상 체계
+const TYPE_COLOR = {
+  fp: 'etype-fp',   // 생애최초 — 민트/그린
+  nb: 'etype-nb',   // 신생아특공 — 앰버/골드
+  mc: 'etype-mc',   // 다자녀 — 레드
+  nw: 'etype-nw',   // 신혼부부 — 퍼플
+  ep: 'etype-ep',   // 노부모부양 — 오렌지
+  yt: 'etype-yt',   // 청년특공 — 바이올렛
+  gn: 'etype-gn',   // 일반공급 — 인디고
+};
+function etypeClass(c){ return TYPE_COLOR[c] || 'etype-gn'; }
+
 const URBAN_INCOME_100 = {
   1: 370,   // 1인
   2: 541,   // 2인 (2023 기준, 별도 고시)
@@ -2224,7 +2247,7 @@ function saveWizard(){
   document.getElementById('wiz-done-sub').textContent =
     `${P.name}님은 ${regionLabel?regionLabel+' 지역 ':''} 아래 전형에 신청 가능해요.`;
   document.getElementById('wiz-done-types').innerHTML = types.length
-    ? types.map(t=>`<div class="wiz-done-type">${t.l}${t.sub?` <span style="font-size:11px;font-weight:400;opacity:.7">(${t.sub})</span>`:''}</div>`).join('')
+    ? types.map(t=>`<div class="wiz-done-type ${etypeClass(t.c)}">${t.l}${t.sub?` <span style="font-size:11px;font-weight:400;opacity:.7">(${t.sub})</span>`:''}</div>`).join('')
     : '<div class="wiz-done-type" style="background:var(--bg-2);color:var(--ink-4);border-color:var(--bg-2)">조건 추가 입력 시 전형 확인 가능</div>';
 
   // 스텝 영역 숨기고 완료 화면 표시
@@ -3688,7 +3711,7 @@ function renderMyCondDashboard(){
     <div class="dash-section">
       <div class="dash-section-title">신청 가능한 전형</div>
       <div class="dash-types">
-        ${types.length?types.map(t=>`<div class="dash-type-card"><div class="dash-type-name">${t.l}${t.sub?` <span style="font-size:11px;color:var(--accent);font-weight:600">${t.sub}</span>`:''}</div><div class="dash-type-desc">${t.subNote||(typeDescs[t.l]||{}).desc||''}</div><div class="dash-type-badge">신청 가능</div></div>`).join(''):'<div style="font-size:13px;color:var(--ink-4)">조건을 더 입력하면 전형이 표시돼요</div>'}
+        ${types.length?types.map(t=>`<div class="dash-type-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div class="dash-type-name">${t.l}${t.sub?` <span style="font-size:11px;color:var(--ink-4);font-weight:500">${t.sub}</span>`:''}</div><span class="dash-type-badge ${etypeClass(t.c)}">신청 가능</span></div><div class="dash-type-desc">${t.subNote||(typeDescs[t.l]||{}).desc||''}</div></div>`).join(''):'<div style="font-size:13px;color:var(--ink-4)">조건을 더 입력하면 전형이 표시돼요</div>'}
       </div>
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
@@ -5202,6 +5225,17 @@ async function generateReport(){
 - 접수일·방법·주의사항 명확하게
 - 준비 서류 2~3가지
 선착순·미분양 공고는 절대 이 섹션에 넣지 마세요.
+
+[중요] 아래 기준으로 "지금 지원 vs 기다리기"를 판단해줘요:
+▶ 기다리라고 말해야 하는 경우 (이 섹션을 "기다리세요"로 바꿔줘요):
+  1. 가점 ${score.total}점이 50점 이상인데, 매칭 공고 시세차익이 모두 1억 미만인 경우
+  2. 가점 60점 이상인데, 강남·서초·송파·용산·마포·성동 등 핵심지가 아닌 경우
+  3. 매칭 공고의 시세차익 대비 당첨 가능성이 지나치게 낮은 경우 (당첨률 3% 미만 + 시세차익 5천만원 미만)
+  4. 지금 신청하면 청약통장을 소진하지만, 6개월~1년 내 더 좋은 공고(3기 신도시 등)가 예정된 경우
+▶ 기다려야 할 때 작성 방식:
+  - 헤드라인: "지금 쓰기엔 아까워요 — [?]개월 후 더 좋은 기회를 노리세요"
+  - 이유: 현재 공고의 아쉬운 점(시세차익, 입지, 경쟁률) 구체적 수치로 설명
+  - 대신 할 일: 통장 납입 유지, 목표 공고 준비, 저축 등
 공고 없으면: "현재 바로 넣을 공고가 없어요. 로또청약을 노리거나 다음 공고를 준비해요."
 
 [SECTION:지금 넣을 수 있는 공고 TOP 5]
@@ -5220,13 +5254,31 @@ async function generateReport(){
 [SECTION:자금 계획이에요]
 [HEADLINE:계약금 [?]억 준비하면 [단지명] 당첨 즉시 계약 가능해요]
 [STAT:계약금|?만원][STAT:중도금|?%][STAT:월상환액|?만원]
-아래를 반드시 구체적인 숫자로 계산해서 제시해줘요:
-- 추천 공고 기준 계약금 실제 금액 (공공분양 계약금 10%, 민간 투기과열지구 계약금 20% 기준)
-- 중도금 대출 한도·금리·월 상환액 시뮬레이션 (분양가 × 40~60%, 금리 연 4% 기준)
-- 잔금 처리 방법 (주담대 한도, 월 상환액)
-- 지금 현금 ${cash.toLocaleString()}만원으로 계약 가능한 최대 분양가
-- 부족하면: 월 얼마씩 저축해야 하는지 (목표 기간 ${waitLabel} 기준)
-- 받을 수 있는 대출 상품 이름과 조건 (디딤돌, 버팀목, 일반 주담대 중 해당하는 것)
+
+[현재 자금 현황]
+- 보유 현금: ${cash.toLocaleString()}만원
+- 연소득: ${income.toLocaleString()}만원 (도시근로자 ${incPct}%)
+- 추정 연간 대출 상환 여력: 연소득의 40% 기준 = ${Math.round(income * 0.4).toLocaleString()}만원/년 = 월 ${Math.round(income * 0.4 / 12).toLocaleString()}만원
+
+[대출 정책 기준 — 이 기준으로 정확히 계산해줘요]
+투기과열지구(서울 전역 등) LTV:
+- 무주택자(생애최초 아닌 경우): 9억 이하 40%, 9억 초과분 20%, 15억 초과 대출 금지
+- 생애최초 무주택자: 9억 이하 80%(LTV 우대), 9억 초과분 60% (단, DSR 40% 이내)
+- 1주택자(일시적 2주택 포함): 투기과열지구 내 추가 주택 담보대출 금지
+비규제·일반지역 LTV: 9억 이하 70%, 9억 초과분 60%
+중도금 집단대출: 분양가 9억 초과 시 중도금 집단대출 불가(자력납부), 9억 이하는 분양가 40~60% 범위 대출 가능, 금리 연 3.5~4.5%
+디딤돌 대출 조건: 부부합산 연소득 6천만원 이하(신혼 7천만원), 주택가격 5억 이하, 금리 연 2.35~3.95%
+버팀목 전세자금: 보증금 수도권 3억 이하, 금리 연 1.8~2.4%
+
+아래를 반드시 추천 공고 기준으로 구체적인 숫자로 계산해서 제시해줘요:
+1. 계약금 실제 금액 (공공분양 10%, 민간 투기과열지구 20%)
+2. 중도금 (분양가 40~60%): 9억 초과 여부에 따라 집단대출 가능/불가 명시, 월 상환액
+3. 잔금 (분양가 20~30%): LTV 계산 → 실제 대출 가능 금액, 자기자금 부족분 명시
+4. 총 자기자금 필요액 vs 현재 현금 ${cash.toLocaleString()}만원 비교 → 부족하면 얼마 부족한지
+5. 생애최초 해당 시 LTV 80% 우대 적용한 경우와 일반 40% 비교
+6. 이 고객에게 맞는 대출 상품: 디딤돌(소득 조건 충족 여부 판단), 일반 주담대 중 어떤 게 유리한지
+7. 분양가가 자금력 대비 무리한 경우: "현금 ${cash.toLocaleString()}만원으로는 계약금조차 부족해요. 최소 [?]억 분양가 이하만 현실적이에요"라고 솔직하게 말해줘요
+8. 월 상환 부담: 잔금 대출 원리금 균등상환 기준 30년 월 상환액 계산 (금리 연 4% 기준)
 
 [SECTION:가점 올리는 법이에요]
 [HEADLINE:지금부터 하면 [?]점 올릴 수 있어요]
@@ -5249,7 +5301,7 @@ async function generateReport(){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
+        max_tokens: 8000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -5565,13 +5617,13 @@ function _parseBody(body){
 
 function _md(s){
   return s
-    .replace(/\[BOLD:([^\]]+)\]/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
-    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--ink);font-weight:800">$1</strong>')
-    .replace(/`([^`]+)`/g,'<span style="background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:700">$1</span>')
-    // [단지명: xxx] 패턴 → 파란 강조 박스
-    .replace(/\[단지명:\s*([^\]]+)\]/g,'<span style="display:inline-block;background:var(--accent);color:white;padding:3px 10px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:-.2px">$1</span>')
-    // [전형: xxx] 패턴 → 민트 강조 박스
-    .replace(/\[전형:\s*([^\]]+)\]/g,'<span style="display:inline-block;background:var(--mint-light);color:#00A882;padding:3px 10px;border-radius:8px;font-size:13px;font-weight:800;border:1.5px solid #00C9A0">$1</span>')
+    .replace(/\[BOLD:([^\]]+)\]/g,'<strong style="color:var(--accent-dark);font-weight:800">$1</strong>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--accent-dark);font-weight:800">$1</strong>')
+    .replace(/`([^`]+)`/g,'<strong style="color:var(--accent);font-weight:700">$1</strong>')
+    // [단지명: xxx] → 색상+볼드만, 배경 없음
+    .replace(/\[단지명:\s*([^\]]+)\]/g,'<strong style="color:var(--accent);font-weight:900;letter-spacing:-.2px">$1</strong>')
+    // [전형: xxx] → 민트색+볼드만, 배경 없음
+    .replace(/\[전형:\s*([^\]]+)\]/g,'<strong style="color:#00A882;font-weight:800">$1</strong>')
     .replace(/\]/g,'')
     .replace(/\[/g,'');
 }
@@ -5771,29 +5823,54 @@ function buildReportHTML(d){
     : good('청약 가점 3개 항목 모두 만점이에요! 지금 바로 원하는 공고에 신청해보세요.');
 
   // ── 섹션 6: 자금 계획 ─────────────────────────────
-  const loanRate   = 0.04; // 금리 4% 가정
-  const ltvLimit   = isHot ? 0.5 : 0.7;
-  const maxLoan    = maxPrice * ltvLimit;
-  const monthly    = maxPrice > 0 ? Math.round((maxPrice - cash) * loanRate / 12) : 0;
-  const deposit    = maxPrice > 0 ? Math.round(maxPrice * 0.1) : 0;
-  const midterm    = maxPrice > 0 ? Math.round(maxPrice * 0.6) : 0;
+  const loanRate = 0.04; // 금리 4% 가정
+  // 투기과열지구: 무주택 일반 LTV 40%, 생애최초 LTV 80%, 1주택↑ 대출 금지
+  const isFirstBuy = typeNames.includes('생애최초');
+  const ltvLimit = isHot ? (isFirstBuy ? 0.8 : 0.4) : 0.7;
+  const targetP = maxPrice; // 만원 단위
+  // 계약금 비율 (공공 10%, 민간 투기과열 20%)
+  const downPctUsed = avgDownPct;
+  const downAmt = Math.round(targetP * downPctUsed / 100);
+  // 중도금 (9억 이하면 집단대출 가능 40~60%, 초과면 자력)
+  const over9 = targetP > 90000; // 9억 = 90000만원
+  const midtermPct = over9 ? 0 : 0.6;
+  const midtermAmt = Math.round(targetP * midtermPct);
+  // 잔금 대출 (LTV 기반)
+  const balancePct = 1 - downPctUsed / 100 - midtermPct;
+  const balanceAmt = Math.round(targetP * balancePct);
+  const loanAmt = Math.round(Math.min(targetP * ltvLimit, balanceAmt));
+  const selfBalance = Math.max(0, balanceAmt - loanAmt);
+  const totalSelfNeeded = downAmt + selfBalance; // 계약금 + 잔금 자기자금
+  const cashShortfall = Math.max(0, totalSelfNeeded - cash);
+  // 월 상환액 (원리금 균등, 30년, 금리 4%)
+  const monthlyRate = loanRate / 12;
+  const n = 360;
+  const monthlyPayment = loanAmt > 0 ? Math.round(loanAmt * 10000 * monthlyRate * Math.pow(1+monthlyRate,n) / (Math.pow(1+monthlyRate,n)-1) / 10000) : 0;
+  // 디딤돌 자격 (부합산 연소득 6000만원 이하, 주택가액 5억 이하)
+  const dimdolElig = income <= 6000 && targetP <= 50000;
 
   let s6 = '';
   if(cash <= 0){
     s6 = warn('보유 현금이 입력되지 않았어요. 내 조건에서 현금을 입력하면 자금 계획을 분석해드려요.');
   } else {
-    const affordable = matched.filter(l => cash >= getMaxP(l) * 0.1);
+    const affordable = matched.filter(l => cash >= getMaxP(l) * downPctUsed / 100);
     s6 = `
       ${row('보유 현금', `${cash.toLocaleString()}만원`)}
-      ${row(`계약금(${avgDownPct}%) 납부 가능한 분양가`, `${Math.round(cash*100/avgDownPct).toLocaleString()}만원 이하`)}
-      ${row('희망 지역 LTV 한도', `${Math.round(ltvLimit*100)}%`)}
-      ${row('중도금 대출', '분양가 60% (9억 이하 무이자)')}
+      ${row(`계약금 (${downPctUsed}%)`, `${downAmt.toLocaleString()}만원`, cash >= downAmt ? 'var(--public)' : 'var(--red)')}
+      ${row('중도금 (60%)', over9 ? `${midtermAmt.toLocaleString()}만원 — 9억 초과, 집단대출 불가 (자력납부)` : `${midtermAmt.toLocaleString()}만원 — 집단대출 이용 가능`, over9 ? 'var(--red)' : 'var(--public)')}
+      ${row(`잔금 대출 (LTV ${Math.round(ltvLimit*100)}%${isFirstBuy?' · 생애최초 우대':''}${isHot?' · 투기과열지구':''})`, `최대 ${loanAmt.toLocaleString()}만원 대출 가능`)}
+      ${row('자기자금 총 필요액', `${totalSelfNeeded.toLocaleString()}만원 (계약금+잔금 자기부담)`, cashShortfall > 0 ? 'var(--red)' : 'var(--public)')}
+      ${row('월 상환액 (원리금균등 30년, 연4%)', `${monthlyPayment.toLocaleString()}만원/월`)}
       <div style="margin-top:12px">
-        ${affordable.length > 0
-          ? good(`현재 현금으로 계약금 납부 가능한 공고 ${affordable.length}건이 있어요.`)
-          : warn(`현재 현금(${cash.toLocaleString()}만원)으로 계약금을 낼 수 있는 공고가 없어요. 추가 저축이 필요해요.`)}
+        ${cashShortfall > 0
+          ? warn(`현금 ${cash.toLocaleString()}만원으로는 ${cashShortfall.toLocaleString()}만원이 부족해요. 최대 감당 가능 분양가: 약 ${Math.round(cash / (downPctUsed/100 + (1-downPctUsed/100-midtermPct)*(1-ltvLimit))).toLocaleString()}만원`)
+          : good(`현재 현금으로 계약금+잔금 자기부담 충족 가능해요.`)}
       </div>
-      <div style="font-size:12px;color:var(--ink-4);margin-top:10px;line-height:1.7">💡 계약금은 대출이 안 돼요. 공공분양은 보통 분양가의 5%, 민간분양은 10~20%를 현금으로 준비해야 해요. 중도금(60%)은 집단대출을 이용할 수 있고, 잔금(30%)은 주택담보대출로 처리해요.</div>`;
+      ${dimdolElig ? good('소득·주택가액 기준 충족 → 디딤돌 대출(연 2.35~3.95%) 신청 가능해요.') : ''}
+      <div style="font-size:12px;color:var(--ink-4);margin-top:10px;line-height:1.7">
+        💡 투기과열지구 LTV: 무주택 일반 40%, 생애최초 80%(DSR 40% 이내). 9억 초과 단지는 중도금 집단대출 불가. 15억 초과는 주담대 자체 금지.
+      </div>`;
+  }
   }
 
   // ── 섹션 7: 이달의 액션 플랜 ──────────────────────
