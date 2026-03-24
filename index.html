@@ -184,6 +184,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .wr-badge.lotto{background:var(--lotto-light);color:var(--lotto)}
 .wr-badge.unknown{background:var(--accent-light);color:var(--accent);border:1.5px dashed var(--accent)}
 .no-res{padding:48px 20px;text-align:center}
+/* 스켈레톤 UI */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{background:linear-gradient(90deg,var(--bg-2) 25%,var(--bg) 50%,var(--bg-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
+.skel-card{background:var(--bg-card);border-radius:18px;padding:16px;border:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}
+.skel-line{height:14px;border-radius:6px}
+.skel-line.short{width:40%}
+.skel-line.mid{width:65%}
+.skel-line.long{width:85%}
+.skel-line.full{width:100%}
+.skel-badge{height:22px;width:60px;border-radius:20px}
+.skel-row{display:flex;justify-content:space-between;align-items:center}
 .no-res-icon{font-size:52px;margin-bottom:14px}
 .no-res-title{font-size:16px;font-weight:700}
 .no-res-sub{font-size:13px;color:var(--ink-4);margin-top:5px}
@@ -2678,6 +2689,26 @@ function cardPrice(price){
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 
+/* ══ 스켈레톤 UI ══ */
+function showSkeletonListings() {
+  const cont = document.getElementById('listings');
+  if (!cont) return;
+  const skels = Array(4).fill('').map(() => `
+    <div class="skel-card">
+      <div class="skel-row">
+        <div class="skeleton skel-badge"></div>
+        <div class="skeleton skel-badge"></div>
+      </div>
+      <div class="skeleton skel-line long"></div>
+      <div class="skeleton skel-line mid"></div>
+      <div class="skel-row" style="margin-top:4px">
+        <div class="skeleton skel-line short"></div>
+        <div class="skeleton skel-badge" style="width:50px;height:26px"></div>
+      </div>
+    </div>`).join('');
+  cont.innerHTML = `<div class="listings" style="padding:10px 20px 40px;display:flex;flex-direction:column;gap:14px">${skels}</div>`;
+}
+
 /* ══ 히어로 ══ */
 function updateHero(){
   const p=P;
@@ -2767,6 +2798,11 @@ function renderRecommend(){
 function renderListings(){
   const cont=document.getElementById('listings');
   const lb=document.getElementById('lotto-banner');
+  // 데이터 로딩 중이면 스켈레톤 표시
+  if(!apiConnected && listings.length === 0) {
+    showSkeletonListings();
+    return;
+  }
   const lottoTab=document.getElementById('tab-lotto');
   const hasLotto=listings.some(l=>isLottoListing(l));
   if(lottoTab) lottoTab.style.display=hasLotto?'':'none';
@@ -6768,6 +6804,85 @@ function kakaoLogout() {
   renderSaved();
   updateHero();
   showToast('로그아웃됐어요');
+}
+
+/* ══ 푸시 알림 ══ */
+async function requestPushPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    registerServiceWorker();
+    return;
+  }
+  if (Notification.permission === 'denied') return;
+  // 로그인 직후 바로 요청하면 거부율이 높아서 약간 딜레이 후 안내 토스트 먼저 표시
+  setTimeout(() => {
+    showPushNudge();
+  }, 2000);
+}
+
+function showPushNudge() {
+  // 이미 토스트가 있으면 스킵
+  const existing = document.getElementById('push-nudge');
+  if (existing) return;
+  const nudge = document.createElement('div');
+  nudge.id = 'push-nudge';
+  nudge.style.cssText = 'position:fixed;bottom:calc(var(--nav-h)+16px);left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:390px;background:var(--ink-2);border-radius:16px;padding:14px 16px;z-index:300;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.25)';
+  nudge.innerHTML = `
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:white">청약 마감 알림 받기</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">D-3 임박 공고를 놓치지 마세요</div>
+    </div>
+    <button onclick="enablePush()" style="background:var(--accent);border:none;border-radius:10px;padding:8px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">허용</button>
+    <button onclick="document.getElementById('push-nudge').remove()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 4px;flex-shrink:0">✕</button>
+  `;
+  document.body.appendChild(nudge);
+  setTimeout(() => { if(nudge.parentNode) nudge.remove(); }, 8000);
+}
+
+async function enablePush() {
+  const nudge = document.getElementById('push-nudge');
+  if (nudge) nudge.remove();
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    registerServiceWorker();
+    showToast('🔔 청약 마감 알림이 설정됐어요!');
+  } else {
+    showToast('알림을 허용해야 마감 알림을 받을 수 있어요');
+  }
+}
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('SW registered:', reg.scope);
+    // 마감 임박 공고 확인 후 알림
+    checkUpcomingDeadlines();
+  } catch(e) {
+    console.log('SW registration failed:', e);
+  }
+}
+
+function checkUpcomingDeadlines() {
+  if (Notification.permission !== 'granted') return;
+  const urgent = listings.filter(l => l.days >= 0 && l.days <= 3);
+  if (urgent.length > 0 && kakaoUser) {
+    const l = urgent[0];
+    const title = `⏰ 청약 마감 D-${l.days}`;
+    const body = `${l.name} 마감이 ${l.days === 0 ? '오늘' : l.days + '일 후'}예요!`;
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.showNotification(title, {
+          body,
+          icon: '/icon.png',
+          badge: '/icon.png',
+          tag: 'deadline-' + l.id,
+          data: { listingId: l.id }
+        });
+      });
+    }
+  }
 }
 
 function applyLoginUI() {
