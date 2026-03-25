@@ -7330,7 +7330,7 @@ function showStatus(type, msg){
 /* ── APT 분양정보 목록 ── */
 async function fetchAptList(key, page=1, num=20){
   const url = `${API_APT}?serviceKey=${encodeURIComponent(key)}&page=${page}&perPage=${num}`;
-  const res  = await fetch(PROXY + encodeURIComponent(url));
+  const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
   const body  = await res.json();
   const items = body?.data || body?.response?.body?.items?.item;
   if(!items) return [];
@@ -7340,7 +7340,7 @@ async function fetchAptList(key, page=1, num=20){
 /* ── APT 잔여세대(줍줍) 목록 ── */
 async function fetchLottoList(key, page=1, num=10){
   const url = `${API_LOTTO}?serviceKey=${encodeURIComponent(key)}&page=${page}&perPage=${num}`;
-  const res  = await fetch(PROXY + encodeURIComponent(url));
+  const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
   const body  = await res.json();
   const items = body?.data || body?.response?.body?.items?.item;
   if(!items) return [];
@@ -7356,7 +7356,7 @@ async function fetchLottoList(key, page=1, num=10){
 async function fetchCmpetRate(key, pblancNo){
   try {
     const url = `${API_CMPET}?serviceKey=${encodeURIComponent(key)}&page=1&perPage=50&cond[PBLANC_NO::EQ]=${pblancNo}`;
-    const res  = await fetch(PROXY + encodeURIComponent(url));
+    const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
     const body  = await res.json();
     const data  = body?.data;
     if(!data || !data.length) return null;
@@ -7385,7 +7385,7 @@ async function fetchCmpetRate(key, pblancNo){
 async function fetchCutScore(key, pblancNo){
   try {
     const url = `${API_SCORE}?serviceKey=${encodeURIComponent(key)}&page=1&perPage=20&cond[PBLANC_NO::EQ]=${pblancNo}`;
-    const res  = await fetch(PROXY + encodeURIComponent(url));
+    const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
     const body  = await res.json();
     const data  = body?.data;
     if(!data || !data.length) return null;
