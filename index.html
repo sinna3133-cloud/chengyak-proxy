@@ -7631,11 +7631,8 @@ async function loadLiveData(){
     console.log(`[dedup] API 원본: ${filteredAll.length}건 → 중복제거: ${parsed.length}건`);
 
     if(parsed.length === 0){
-
-      apiConnected = false;
-      updateApiStatus();
-      showToast('API 응답이 비어있어요 — 목업 데이터로 표시해요');
-      return;
+      // API 공고 없어도 PDF 공고는 계속 로드
+      showToast('청약홈 API 응답 없음 — PDF 공고만 표시해요');
     }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
