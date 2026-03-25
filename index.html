@@ -66,7 +66,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .nav-item span{font-size:11px;font-weight:500;color:var(–ink-5);transition:all .25s}
 .nav-item.active span{color:var(–accent);font-weight:700}
 .nav-item.active svg{color:var(–accent);transform:translateY(-1px)}
-.nav-item.active::before{content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:32px;background:var(–accent-light);border-radius:10px;z-index:-1;animation:navPop .2s cubic-bezier(.34,1.56,.64,1)}
+.nav-item.active::before{content:’’;position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:32px;background:var(–accent-light);border-radius:10px;z-index:-1;animation:navPop .2s cubic-bezier(.34,1.56,.64,1)}
 @keyframes navPop{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
 .nav-item.consult.active svg,.nav-item.consult.active span{color:var(–accent)}
 
@@ -89,7 +89,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ══ 홈 히어로 — 리디자인 ══ */
 .hero{background:linear-gradient(135deg,#0A0E1A,#1A2236,#0F1A2E,#0A0E1A);background-size:400% 400%;animation:heroShift 10s ease infinite;padding:0 20px 0;position:relative;overflow:hidden}
 @keyframes heroShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.hero-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/Cfilter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");opacity:.4}
+.hero-noise{position:absolute;inset:0;background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘300’ height=‘300’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=’.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/Cfilter%3E%3Crect width=‘300’ height=‘300’ filter=‘url(%23n)’ opacity=’.04’/%3E%3C/svg%3E”);opacity:.4}
 .hero-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.3) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
 .hero-glow2{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
 .hero-inner{position:relative;z-index:1;padding:20px 0 18px}
@@ -182,7 +182,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ══ 필터 탭 ══ */
 .filter-wrap{padding:10px 20px 0;position:relative}
-.filter-wrap::after{content:'';position:absolute;right:0;top:10px;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(–bg));pointer-events:none;z-index:1}
+.filter-wrap::after{content:’’;position:absolute;right:0;top:10px;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(–bg));pointer-events:none;z-index:1}
 .filter-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;padding-right:24px}
 .filter-tabs::-webkit-scrollbar{display:none}
 .ftab{flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid rgba(0,0,0,.07);background:var(–bg-card);color:var(–ink-4);transition:all .2s}
@@ -191,7 +191,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .ftab.lotto.active{background:var(–lotto) !important;border-color:var(–lotto) !important;color:white !important;box-shadow:0 2px 10px rgba(124,58,237,.3)}
 .sort-row{display:flex;align-items:center;justify-content:flex-end;padding:8px 20px 0;gap:8px}
 .sort-label{font-size:12px;color:var(–ink-4)}
-.sort-sel{border:1.5px solid rgba(0,0,0,.08);background:var(–bg-card);border-radius:10px;padding:6px 28px 6px 10px;font-size:12px;font-weight:600;color:var(–ink-3);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238896A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.sort-sel{border:1.5px solid rgba(0,0,0,.08);background:var(–bg-card);border-radius:10px;padding:6px 28px 6px 10px;font-size:12px;font-weight:600;color:var(–ink-3);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘14’ height=‘14’ viewBox=‘0 0 24 24’ fill=‘none’ stroke=’%238896A8’ stroke-width=‘2’%3E%3Cpath d=‘M6 9l6 6 6-6’/%3E%3C/svg%3E”);background-repeat:no-repeat;background-position:right 8px center}
 
 /* ══ 매물 카드 ══ */
 .listings{padding:10px 20px 40px;display:flex;flex-direction:column;gap:14px}
@@ -299,7 +299,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .wiz-inp-row{display:flex;gap:8px;margin-bottom:24px}
 .wiz-inp-row .wiz-inp{text-align:center;padding:15px 8px}
 .wiz-inp-row .wiz-inp-wrap{flex:1;position:relative}
-.wiz-sel{width:100%;padding:15px 16px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(–bg-card);font-size:16px;color:var(–ink);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238896A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.wiz-sel{width:100%;padding:15px 16px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(–bg-card);font-size:16px;color:var(–ink);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘18’ height=‘18’ viewBox=‘0 0 24 24’ fill=‘none’ stroke=’%238896A8’ stroke-width=‘2’%3E%3Cpath d=‘M6 9l6 6 6-6’/%3E%3C/svg%3E”);background-repeat:no-repeat;background-position:right 14px center}
 /* 라디오 그룹 */
 .wiz-radio-grp{display:flex;gap:0;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden}
 .wiz-radio{flex:1;padding:14px 8px;text-align:center;font-size:13px;font-weight:600;color:var(–ink-4);cursor:pointer;background:var(–bg-card);transition:all .2s;border-right:1px solid rgba(0,0,0,.08)}
@@ -324,7 +324,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .custom-dialog-title{font-size:16px;font-weight:800;color:var(–ink);margin-bottom:8px;letter-spacing:-.3px}
 .custom-dialog-msg{font-size:14px;color:var(–ink-4);line-height:1.6;margin-bottom:20px}
 .custom-dialog-btns{display:flex;gap:10px}
-.custom-dialog-btn{flex:1;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.custom-dialog-btn{flex:1;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:‘Noto Sans KR’,sans-serif}
 .custom-dialog-btn.cancel{background:var(–bg-2);color:var(–ink-3)}
 .custom-dialog-btn.confirm{background:var(–accent);color:white;box-shadow:0 4px 14px rgba(0,102,255,.3)}
 .custom-dialog-btn.danger{background:var(–red);color:white}
@@ -336,8 +336,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ══ 상세 ══ */
 .det-header{background:linear-gradient(150deg,#0A0E1A,#1A2440,#0D1929);padding:20px 20px 32px;position:relative;overflow:hidden}
-.det-header::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.22) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
-.det-header::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.12) 0%,transparent 70%);bottom:-60px;left:-30px;pointer-events:none}
+.det-header::before{content:’’;position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.22) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
+.det-header::after{content:’’;position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.12) 0%,transparent 70%);bottom:-60px;left:-30px;pointer-events:none}
 .det-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative;z-index:1}
 .det-back{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:12px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;transition:all .15s}
 /* 상세 고정 하단 CTA */
@@ -384,7 +384,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ══ 가점 ══ */
 .score-hero{background:var(–ink-2);padding:24px 20px;position:relative;overflow:hidden}
-.score-hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);top:-100px;right:-60px;pointer-events:none}
+.score-hero::before{content:’’;position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);top:-100px;right:-60px;pointer-events:none}
 .score-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:var(–r);padding:20px;margin-top:16px;text-align:center;position:relative;z-index:1}
 .score-num{font-size:68px;font-weight:900;color:white;line-height:1;letter-spacing:-3px}
 .score-num.unknown{display:inline-block;animation:qPulse 1.8s ease-in-out infinite}
@@ -457,8 +457,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ══ 마이페이지 ══ */
 .my-hero{background:linear-gradient(135deg,#0A0E1A,#1A2440,#0D1929);padding:32px 20px 28px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden}
-.my-hero::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.25) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
-.my-hero::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.15) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
+.my-hero::before{content:’’;position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.25) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
+.my-hero::after{content:’’;position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.15) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
 .my-name{font-size:20px;font-weight:900;color:white;position:relative;z-index:1;letter-spacing:-.4px}
 .my-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:3px;position:relative;z-index:1}
 .login-btn{margin-left:auto;background:var(–accent);border:none;padding:10px 18px;border-radius:12px;color:white;font-size:13px;font-weight:700;cursor:pointer;position:relative;z-index:1;white-space:nowrap;box-shadow:0 4px 12px rgba(0,102,255,.4);letter-spacing:-.2px}
@@ -479,7 +479,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ══ 컨설팅 ══ */
 .consult-hero{background:linear-gradient(135deg,#0A0E1A,#1E2535,#2D3A52);padding:28px 20px 24px;position:relative;overflow:hidden}
-.consult-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);border-radius:50%}
+.consult-hero::before{content:’’;position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);border-radius:50%}
 .consult-title{font-size:22px;font-weight:900;color:white;line-height:1.3;position:relative}
 .consult-sub{font-size:13px;color:rgba(255,255,255,.72);margin-top:7px;line-height:1.55}
 .consult-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 13px;margin-top:12px;font-size:12px;font-weight:700;color:white}
@@ -503,12 +503,12 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .prob-sub{font-size:12px;color:var(–ink-4);margin-top:5px}
 .prem-card{margin:16px 20px 0}
 .prem-inner{background:var(–bg-card);border:1px solid rgba(0,0,0,.07);padding:22px 20px;border-radius:var(–r);position:relative;overflow:hidden;box-shadow:var(–shadow-md)}
-.prem-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0066FF,#00C9A0)}
+.prem-inner::before{content:’’;position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0066FF,#00C9A0)}
 .prem-title{font-size:17px;font-weight:900;color:var(–ink);letter-spacing:-.3px}
 .prem-sub{font-size:13px;color:var(–ink-4);margin-top:5px;line-height:1.55}
 .prem-features{display:flex;flex-direction:column;gap:10px;margin-top:16px}
 .prem-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(–ink-3);font-weight:500}
-.prem-feat::before{content:'';width:18px;height:18px;border-radius:50%;background:var(–accent-light);flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066FF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
+.prem-feat::before{content:’’;width:18px;height:18px;border-radius:50%;background:var(–accent-light);flex-shrink:0;background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ viewBox=‘0 0 24 24’ fill=‘none’ stroke=’%230066FF’ stroke-width=‘2.5’ stroke-linecap=‘round’ stroke-linejoin=‘round’%3E%3Cpolyline points=‘20 6 9 17 4 12’/%3E%3C/svg%3E”);background-size:12px;background-repeat:no-repeat;background-position:center}
 .prem-btn{width:100%;padding:15px;background:var(–accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
 .prem-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,102,255,.3)}
 .prem-lock{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(–mint-light);border:1px solid rgba(0,201,160,.2);border-top:none;border-radius:0 0 var(–r) var(–r);font-size:12px;color:#00A882;font-weight:700}
@@ -549,7 +549,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .nudge-cancel{text-align:center;margin-top:14px;font-size:13px;color:var(–ink-5);cursor:pointer;padding:4px}
 /* ══ 내 조건 대시보드 ══ */
 .dash-hero{background:var(–ink-2);padding:24px 20px 20px;position:relative;overflow:hidden}
-.dash-hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none}
+.dash-hero::after{content:’’;position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none}
 .dash-name{font-size:22px;font-weight:900;color:white;position:relative;z-index:1;letter-spacing:-.4px}
 .dash-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;position:relative;z-index:1}
 .dash-score-row{display:flex;gap:10px;margin-top:16px;position:relative;z-index:1}
@@ -557,7 +557,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .dash-score-label{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .dash-score-val{font-size:26px;font-weight:900;color:white;margin-top:4px;letter-spacing:-1px}
 .dash-score-unit{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
-.dash-edit-btn{display:block;width:100%;margin-top:14px;padding:11px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;text-align:center;position:relative;z-index:1;font-family:'Noto Sans KR',sans-serif}
+.dash-edit-btn{display:block;width:100%;margin-top:14px;padding:11px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;text-align:center;position:relative;z-index:1;font-family:‘Noto Sans KR’,sans-serif}
 /* 가능 전형 */
 .dash-section{padding:20px 20px 0}
 .dash-section-title{font-size:14px;font-weight:800;color:var(–ink);margin-bottom:12px}
@@ -597,14 +597,14 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .api-step-desc{font-size:13px;color:var(–ink-4);line-height:1.6}
 .api-step-desc b{color:var(–ink-3);font-weight:700}
 .api-step-link{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(–accent);text-decoration:none;background:var(–accent-light);padding:5px 12px;border-radius:20px}
-.api-key-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(–bg);font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(–ink);outline:none;margin-top:10px;transition:all .2s;word-break:break-all}
+.api-key-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(–bg);font-size:13px;font-family:‘Noto Sans KR’,sans-serif;color:var(–ink);outline:none;margin-top:10px;transition:all .2s;word-break:break-all}
 .api-key-input:focus{border-color:var(–accent);background:var(–bg-card);box-shadow:0 0 0 3px rgba(0,102,255,.09)}
 .api-status-box{margin:4px 0 16px;padding:13px 15px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.5}
 .api-status-box.ok{background:var(–mint-light);color:#00A882;border:1px solid rgba(0,201,160,.3)}
 .api-status-box.err{background:var(–red-light);color:var(–red);border:1px solid rgba(240,64,64,.3)}
 .api-status-box.loading{background:var(–gold-light);color:#92400E;border:1px solid rgba(245,166,35,.3);animation:blink 1s infinite}
 .api-setup-footer{padding:16px 24px 20px}
-.api-connect-btn{width:100%;padding:15px;background:var(–accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Noto Sans KR',sans-serif}
+.api-connect-btn{width:100%;padding:15px;background:var(–accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.3);margin-bottom:12px;font-family:‘Noto Sans KR’,sans-serif}
 .api-connect-btn:disabled{background:var(–bg-2);color:var(–ink-5);box-shadow:none;cursor:not-allowed}
 .api-skip{text-align:center;font-size:13px;color:var(–ink-5);cursor:pointer}
 
@@ -805,7 +805,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .sp-icon-g{animation:spBounce .28s cubic-bezier(.34,1.7,.64,1) 1.28s both}
 @keyframes spBounce{from{transform:scale(1)}50%{transform:scale(1.06)}to{transform:scale(1)}}
 /* 텍스트 */
-.splash-logo{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;font-weight:900;font-size:35px;color:#0A0E1A;letter-spacing:-.8px;margin-top:16px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
+.splash-logo{font-family:‘Apple SD Gothic Neo’,‘Noto Sans KR’,‘Malgun Gothic’,sans-serif;font-weight:900;font-size:35px;color:#0A0E1A;letter-spacing:-.8px;margin-top:16px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
 .splash-logo span{color:#0066FF}
 @keyframes spTextUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* 로딩바 */
@@ -5221,7 +5221,6 @@ async function generateReport(){
     const zoneLabel = l.type === 'public' ? '' : (listingHot ? '·투기과열지구' : '·비규제지역');
     const minPriceNum = l.minP || 0;
     const profitStr = g.g > 0 ? `${fmtManwon(g.g)}(시세차익)` : '시세정보없음';
-    // PDF 공고문 추출 데이터 주입
     const eligDetailStr = (l.eligDetail && l.eligDetail.length)
       ? ` / [공고 자격조건(PDF)] ${l.eligDetail.map(d => `${d.type}:${d.condition}`).join(' | ')}`
       : '';
@@ -5512,7 +5511,7 @@ function renderReportText(text){
           <div style="display:inline-flex;align-items:center;background:${isLottoSection?'rgba(109,40,217,.1)':isActionSection?'rgba(0,102,255,.15)':'var(--accent-light)'};border-radius:20px;padding:4px 12px 4px 8px;gap:5px">
             <div style="font-size:${isActionSection?'13px':'12px'};font-weight:700;color:${isLottoSection?'var(--lotto)':'var(--accent)'};letter-spacing:-.1px">${_sectionLabel(title)}</div>
           </div>
-          ${isActionSection ? '<div style="display:inline-flex;align-items:center;background:var(--accent);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:white;margin-left:4px;letter-spacing:-.2px">⚡ 지금 바로</div>' : (isTodaySection ? '<div style="display:inline-flex;align-items:center;background:#FFF7ED;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#EA580C;margin-left:4px">⚡ 지금 바로</div>' : '')}
+          ${isActionSection ? '<div style="display:inline-flex;align-items:center;background:var(--accent);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:white;margin-left:4px">⚡ 지금 바로</div>' : (isTodaySection ? '<div style="display:inline-flex;align-items:center;background:#FFF7ED;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#EA580C;margin-left:4px">⚡ 지금 바로</div>' : '')}
         </div>
         ${headline ? `<div style="font-size:${isActionSection?'20px':'16px'};font-weight:900;color:${isActionSection?'var(--accent)':'var(--ink)'};line-height:1.35;letter-spacing:-.4px">${
           title.includes('지원')
@@ -5524,14 +5523,11 @@ function renderReportText(text){
       <!-- STAT 수치 -->
       <div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length,3)},1fr);border-bottom:1px solid rgba(0,0,0,.06);background:${isActionSection?'rgba(0,102,255,.03)':'transparent'}">
         ${stats.map((s,idx) => {
-          // 당첨률 % 항목이면 색상 강조
           const isPct = s.label.includes('당첨률') || s.label.includes('당첨');
           const pctNum = isPct ? parseInt(s.value) : 0;
-          const pctColor = pctNum >= 20 ? '#16A34A' : pctNum >= 10 ? '#D97706' : pctNum > 0 ? '#DC2626' : 'var(--accent)';
-          const valColor = isPct ? pctColor : 'var(--accent)';
+          const valColor = isPct ? (pctNum>=20?'#16A34A':pctNum>=10?'#D97706':'#DC2626') : 'var(--accent)';
           const valSize = isActionSection ? '22px' : '18px';
-          return `
-          <div style="padding:${isActionSection?'16px 16px':'12px 14px'};${idx < stats.length-1 ? 'border-right:1px solid rgba(0,0,0,.06)' : ''}">
+          return `<div style="padding:${isActionSection?'16px':'12px'} 14px;${idx < stats.length-1 ? 'border-right:1px solid rgba(0,0,0,.06)' : ''}">
             <div style="font-size:10px;color:var(--ink-5);font-weight:600;letter-spacing:.3px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.label}</div>
             <div style="font-size:${valSize};font-weight:900;color:${valColor};letter-spacing:-.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1">${s.value}</div>
           </div>`;
@@ -5747,21 +5743,15 @@ function _parseBody(body){
     // 불릿
     if(/^[-•]\s/.test(t)){
       const rest = _md(t.replace(/^[-•]\s+/,''));
-      // ✓ 충족 항목
       if(t.includes('✓')){
         return `<div style="display:flex;gap:10px;align-items:flex-start;margin:5px 0;padding:8px 12px;background:rgba(22,163,74,.07);border-radius:10px;border:1px solid rgba(22,163,74,.18)">
-          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;margin-top:2px">
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span style="font-size:13px;color:#15803D;line-height:1.7;font-weight:600">${rest.replace(/✓\s*/g,'')}</span>
         </div>`;
       }
-      // ✗ 미충족 항목
       if(t.includes('✗')){
         return `<div style="display:flex;gap:10px;align-items:flex-start;margin:5px 0;padding:8px 12px;background:rgba(0,0,0,.04);border-radius:10px;border:1px solid rgba(0,0,0,.08)">
-          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#9CA3AF;display:flex;align-items:center;justify-content:center;margin-top:2px">
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </span>
+          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#9CA3AF;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           <span style="font-size:13px;color:var(--ink-4);line-height:1.7">${rest.replace(/✗\s*/g,'')}</span>
         </div>`;
       }
@@ -6396,6 +6386,7 @@ function showSupport(type){
           <div style="margin-bottom:12px">
             <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:6px">문의 내용</div>
             <textarea placeholder="문의 내용을 자세히 입력해주세요" style="width:100%;height:130px;border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:none;outline:none;color:var(--ink);background:var(--bg-card)"></textarea>
+
       </div>
       <button onclick="showToast('문의가 접수됐어요! 영업일 기준 1~2일 안에 답변드려요')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">문의 보내기</button>
     </div>
@@ -6441,138 +6432,138 @@ terms:`
 
 };
 
-document.getElementById('support-body').innerHTML = C[type] || '';
-showScreen('support');
+document.getElementById(‘support-body’).innerHTML = C[type] || ‘’;
+showScreen(‘support’);
 }
 
 function filterGlossary(){
-const q=document.getElementById('glo-inp').value.toLowerCase();
+const q=document.getElementById(‘glo-inp’).value.toLowerCase();
 const f=q?GLOSSARY.filter(g=>g.term.includes(q)||g.short.includes(q)):GLOSSARY;
-document.getElementById('glo-list').innerHTML=f.length?renderGlossary(f):'<div style="padding:40px;text-align:center;color:var(--ink-5)">검색 검색 결과가 없어요</div>';
+document.getElementById(‘glo-list’).innerHTML=f.length?renderGlossary(f):’<div style="padding:40px;text-align:center;color:var(--ink-5)">검색 검색 결과가 없어요</div>’;
 }
 
 /* ══ 화면 전환 ══ */
 function showScreen(name){
-if(name==='editcond') renderEditCond();
+if(name===‘editcond’) renderEditCond();
 // 탭 바운스
-const navMap={home:'nav-home',mycond:'nav-search',consult:'nav-consult',saved:'nav-saved',my:'nav-my'};
+const navMap={home:‘nav-home’,mycond:‘nav-search’,consult:‘nav-consult’,saved:‘nav-saved’,my:‘nav-my’};
 const navId=navMap[name];
 if(navId){
 const el=document.getElementById(navId);
-if(el){el.classList.add('bouncing');setTimeout(()=>el.classList.remove('bouncing'),350);}
+if(el){el.classList.add(‘bouncing’);setTimeout(()=>el.classList.remove(‘bouncing’),350);}
 }
 // 현재 화면 스크롤 위치 저장
-const cur=document.querySelector('.screen.active');
+const cur=document.querySelector(’.screen.active’);
 if(cur) scrollPositions[cur.id]=window.scrollY;
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById('screen-'+name).classList.add('active');
-document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
-if(name==='saved')renderSaved();
-if(name==='consult')updateConsult();
-if(name==='my'){ updateMyCondCard(); renderReportHistory(); }
-if(name==='calendar')renderCalendar();
-if(name==='score')updateScoreScreen();
+document.querySelectorAll(’.screen’).forEach(s=>s.classList.remove(‘active’));
+document.getElementById(‘screen-’+name).classList.add(‘active’);
+document.querySelectorAll(’.nav-item’).forEach(n=>n.classList.remove(‘active’));
+if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add(‘active’);
+if(name===‘saved’)renderSaved();
+if(name===‘consult’)updateConsult();
+if(name===‘my’){ updateMyCondCard(); renderReportHistory(); }
+if(name===‘calendar’)renderCalendar();
+if(name===‘score’)updateScoreScreen();
 // 상세 화면 고정 CTA 표시/숨김
-const stickyCta = document.getElementById('det-sticky-cta');
-if(stickyCta) stickyCta.classList.toggle('show', name==='detail');
-if(name==='glossary')document.getElementById('glo-list').innerHTML=renderGlossary(GLOSSARY);
-if(name==='home'){
-const cheerEl=document.getElementById('hero-cheer');
+const stickyCta = document.getElementById(‘det-sticky-cta’);
+if(stickyCta) stickyCta.classList.toggle(‘show’, name===‘detail’);
+if(name===‘glossary’)document.getElementById(‘glo-list’).innerHTML=renderGlossary(GLOSSARY);
+if(name===‘home’){
+const cheerEl=document.getElementById(‘hero-cheer’);
 if(cheerEl) cheerEl.textContent=CHEER[Math.floor(Math.random()*CHEER.length)];
 }
 // 네비 탭 클릭 시 최상단, 상세/복귀는 유지
-const isNavTab = ['home','mycond','consult','saved','my','score','glossary','calendar','editcond'].includes(name);
+const isNavTab = [‘home’,‘mycond’,‘consult’,‘saved’,‘my’,‘score’,‘glossary’,‘calendar’,‘editcond’].includes(name);
 if(isNavTab){
 window.scrollTo(0, 0);
 } else {
-const savedY=scrollPositions['screen-'+name]||0;
-window.scrollTo(0, name==='detail'?0:savedY);
+const savedY=scrollPositions[‘screen-’+name]||0;
+window.scrollTo(0, name===‘detail’?0:savedY);
 }
 }
 function renderEditCond(){
 const p = P;
 wDep = parseInt(p.dependents||0);
-const isMarried = p.marriage==='기혼';
-document.getElementById('editcond-body').innerHTML = ` <div style="display:flex;flex-direction:column;gap:20px"> <div> <div class="wiz-label">출생년도 / 월 / 일</div> <div style="display:flex;gap:8px;margin-top:8px"> <input type="number" class="wiz-inp" id="ec-by" placeholder="1990" value="${p.byear||''}" style="flex:2" oninput="if(this.value.length>=4)document.getElementById('ec-bm').focus()"/> <input type="number" class="wiz-inp" id="ec-bm" placeholder="01" value="${p.bmonth||''}" style="flex:1" oninput="if(this.value.length>=2)document.getElementById('ec-bd').focus()"/> <input type="number" class="wiz-inp" id="ec-bd" placeholder="01" value="${p.bday||''}" style="flex:1"/> </div> </div> <div> <div class="wiz-label">혼인 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${p.marriage==='미혼'?'on':''}" onclick="ecMarriage(this)">미혼</div> <div class="wiz-radio ${p.marriage==='기혼'?'on':''}" onclick="ecMarriage(this)">기혼</div> <div class="wiz-radio ${p.marriage==='이혼·사별'?'on':''}" onclick="ecMarriage(this)">이혼·사별</div> </div> </div> <div id="ec-marriage-year-wrap" style="display:${isMarried?'block':'none'}"> <div class="wiz-label">혼인신고 연도</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-marriageYear" value="${p.marriageYear||''}" placeholder="예: 2022"/><span class="unit">년</span></div> </div> <div id="ec-dual-wrap" style="display:${isMarried?'block':'none'}"> <div class="wiz-label">맞벌이 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${!p.isDual?'on':''}" onclick="ecDual(this)">외벌이</div> <div class="wiz-radio ${p.isDual?'on':''}" onclick="ecDual(this)">맞벌이</div> </div> </div> <div> <div class="wiz-label">현재 주택 소유</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">무주택자</div> <div class="wiz-radio ${!p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">1주택자</div> <div class="wiz-radio" onclick="wRadio(this,'homeowner')">2주택↑</div> </div> </div> <div> <div class="wiz-label">무주택 기간</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-nohome" value="${p.noHomeYears||''}" placeholder="예: 3"/><span class="unit">년</span></div> </div> <div> <div class="wiz-label">부양가족 수 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">(본인 제외)</span></div> <div class="wiz-stepper" style="margin-top:8px"> <button class="step-btn" onclick="wDep=Math.max(0,wDep-1);document.getElementById('ec-dep').textContent=wDep+'명'">−</button> <div class="step-val" id="ec-dep">${parseInt(p.dependents||0)}명</div> <button class="step-btn" onclick="wDep++;document.getElementById('ec-dep').textContent=wDep+'명'">+</button> </div> </div> <div> <div class="wiz-label">자녀 수</div> <div class="wiz-stepper" style="margin-top:8px"> <button class="step-btn" onclick="ecChildren(-1)">−</button> <div class="step-val" id="ec-ch">${parseInt(p.children||0)}명</div> <button class="step-btn" onclick="ecChildren(1)">+</button> </div> <div id="ec-child-dates" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div> </div> <div> <div class="wiz-label">연간 소득</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-income" value="${p.income||''}" placeholder="예: 4500"/><span class="unit">만원</span></div> </div> <div id="ec-total-income-wrap" style="display:${p.isDual?'block':'none'}"> <div class="wiz-label">부부 합산 소득</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-totalIncome" value="${p.totalIncome||''}" placeholder="예: 8000"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">보유 현금 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">예·적금 포함</span></div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-cash" value="${p.cash||''}" placeholder="예: 5000"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">납입 횟수</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-dc" value="${p.depCount||''}" placeholder="예: 24"/><span class="unit">회</span></div> </div> <div> <div class="wiz-label">납입 총액</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">청약통장 가입기간</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-accYears" value="${p.accYears||''}" placeholder="예: 5"/><span class="unit">년</span></div> </div> <div> <div class="wiz-label">세대원 수</div> <select class="wiz-sel" id="ec-household" style="margin-top:8px" onchange="ecHouseholdChange()"> <option value="">선택하세요</option> <option value="1" ${p.household==='1'?'selected':''}>1인</option> <option value="2" ${p.household==='2'?'selected':''}>2인</option> <option value="3" ${p.household==='3'?'selected':''}>3인</option> <option value="4" ${p.household==='4'?'selected':''}>4인</option> <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option> </select> </div> <div id="ec-elder-wrap" style="display:${parseInt(p.household||0)>=2?'block':'none'}"> <div class="wiz-label">만 65세 이상 부모 부양 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${!p.elderParent?'on':''}" onclick="ecElderParent(this)">아니오</div> <div class="wiz-radio ${p.elderParent?'on':''}" onclick="ecElderParent(this)">예 (3년 이상 부양)</div> </div> </div> <div> <div class="wiz-label">거주 지역</div> <select class="wiz-sel" id="ec-region" style="margin-top:8px"> <option value="">선택하세요</option> <option value="seoul" ${p.region==='seoul'?'selected':''}>서울</option> <option value="gyeonggi" ${p.region==='gyeonggi'?'selected':''}>경기</option> <option value="incheon" ${p.region==='incheon'?'selected':''}>인천</option> <option value="busan" ${p.region==='busan'?'selected':''}>부산</option> <option value="daejeon" ${p.region==='daejeon'?'selected':''}>대전</option> <option value="sejong" ${p.region==='sejong'?'selected':''}>세종</option> <option value="daegu" ${p.region==='daegu'?'selected':''}>대구</option> <option value="gwangju" ${p.region==='gwangju'?'selected':''}>광주</option> <option value="ulsan" ${p.region==='ulsan'?'selected':''}>울산</option> <option value="gangwon" ${p.region==='gangwon'?'selected':''}>강원</option> <option value="chungnam" ${p.region==='chungnam'?'selected':''}>충남</option> <option value="jeonnam" ${p.region==='jeonnam'?'selected':''}>전남</option> </select> </div> </div>`;
+const isMarried = p.marriage===‘기혼’;
+document.getElementById(‘editcond-body’).innerHTML = ` <div style="display:flex;flex-direction:column;gap:20px"> <div> <div class="wiz-label">출생년도 / 월 / 일</div> <div style="display:flex;gap:8px;margin-top:8px"> <input type="number" class="wiz-inp" id="ec-by" placeholder="1990" value="${p.byear||''}" style="flex:2" oninput="if(this.value.length>=4)document.getElementById('ec-bm').focus()"/> <input type="number" class="wiz-inp" id="ec-bm" placeholder="01" value="${p.bmonth||''}" style="flex:1" oninput="if(this.value.length>=2)document.getElementById('ec-bd').focus()"/> <input type="number" class="wiz-inp" id="ec-bd" placeholder="01" value="${p.bday||''}" style="flex:1"/> </div> </div> <div> <div class="wiz-label">혼인 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${p.marriage==='미혼'?'on':''}" onclick="ecMarriage(this)">미혼</div> <div class="wiz-radio ${p.marriage==='기혼'?'on':''}" onclick="ecMarriage(this)">기혼</div> <div class="wiz-radio ${p.marriage==='이혼·사별'?'on':''}" onclick="ecMarriage(this)">이혼·사별</div> </div> </div> <div id="ec-marriage-year-wrap" style="display:${isMarried?'block':'none'}"> <div class="wiz-label">혼인신고 연도</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-marriageYear" value="${p.marriageYear||''}" placeholder="예: 2022"/><span class="unit">년</span></div> </div> <div id="ec-dual-wrap" style="display:${isMarried?'block':'none'}"> <div class="wiz-label">맞벌이 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${!p.isDual?'on':''}" onclick="ecDual(this)">외벌이</div> <div class="wiz-radio ${p.isDual?'on':''}" onclick="ecDual(this)">맞벌이</div> </div> </div> <div> <div class="wiz-label">현재 주택 소유</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">무주택자</div> <div class="wiz-radio ${!p.isNoHome?'on':''}" onclick="wRadio(this,'homeowner')">1주택자</div> <div class="wiz-radio" onclick="wRadio(this,'homeowner')">2주택↑</div> </div> </div> <div> <div class="wiz-label">무주택 기간</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-nohome" value="${p.noHomeYears||''}" placeholder="예: 3"/><span class="unit">년</span></div> </div> <div> <div class="wiz-label">부양가족 수 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">(본인 제외)</span></div> <div class="wiz-stepper" style="margin-top:8px"> <button class="step-btn" onclick="wDep=Math.max(0,wDep-1);document.getElementById('ec-dep').textContent=wDep+'명'">−</button> <div class="step-val" id="ec-dep">${parseInt(p.dependents||0)}명</div> <button class="step-btn" onclick="wDep++;document.getElementById('ec-dep').textContent=wDep+'명'">+</button> </div> </div> <div> <div class="wiz-label">자녀 수</div> <div class="wiz-stepper" style="margin-top:8px"> <button class="step-btn" onclick="ecChildren(-1)">−</button> <div class="step-val" id="ec-ch">${parseInt(p.children||0)}명</div> <button class="step-btn" onclick="ecChildren(1)">+</button> </div> <div id="ec-child-dates" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div> </div> <div> <div class="wiz-label">연간 소득</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-income" value="${p.income||''}" placeholder="예: 4500"/><span class="unit">만원</span></div> </div> <div id="ec-total-income-wrap" style="display:${p.isDual?'block':'none'}"> <div class="wiz-label">부부 합산 소득</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-totalIncome" value="${p.totalIncome||''}" placeholder="예: 8000"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">보유 현금 <span style="font-size:12px;font-weight:400;color:var(--ink-4)">예·적금 포함</span></div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-cash" value="${p.cash||''}" placeholder="예: 5000"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">납입 횟수</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-dc" value="${p.depCount||''}" placeholder="예: 24"/><span class="unit">회</span></div> </div> <div> <div class="wiz-label">납입 총액</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-da" value="${p.depAmt||''}" placeholder="예: 1500"/><span class="unit">만원</span></div> </div> <div> <div class="wiz-label">청약통장 가입기간</div> <div class="wiz-inp-unit" style="margin-top:8px"><input type="number" class="wiz-inp" id="ec-accYears" value="${p.accYears||''}" placeholder="예: 5"/><span class="unit">년</span></div> </div> <div> <div class="wiz-label">세대원 수</div> <select class="wiz-sel" id="ec-household" style="margin-top:8px" onchange="ecHouseholdChange()"> <option value="">선택하세요</option> <option value="1" ${p.household==='1'?'selected':''}>1인</option> <option value="2" ${p.household==='2'?'selected':''}>2인</option> <option value="3" ${p.household==='3'?'selected':''}>3인</option> <option value="4" ${p.household==='4'?'selected':''}>4인</option> <option value="5" ${p.household==='5'?'selected':''}>5인 이상</option> </select> </div> <div id="ec-elder-wrap" style="display:${parseInt(p.household||0)>=2?'block':'none'}"> <div class="wiz-label">만 65세 이상 부모 부양 여부</div> <div class="wiz-radio-grp" style="margin-top:8px"> <div class="wiz-radio ${!p.elderParent?'on':''}" onclick="ecElderParent(this)">아니오</div> <div class="wiz-radio ${p.elderParent?'on':''}" onclick="ecElderParent(this)">예 (3년 이상 부양)</div> </div> </div> <div> <div class="wiz-label">거주 지역</div> <select class="wiz-sel" id="ec-region" style="margin-top:8px"> <option value="">선택하세요</option> <option value="seoul" ${p.region==='seoul'?'selected':''}>서울</option> <option value="gyeonggi" ${p.region==='gyeonggi'?'selected':''}>경기</option> <option value="incheon" ${p.region==='incheon'?'selected':''}>인천</option> <option value="busan" ${p.region==='busan'?'selected':''}>부산</option> <option value="daejeon" ${p.region==='daejeon'?'selected':''}>대전</option> <option value="sejong" ${p.region==='sejong'?'selected':''}>세종</option> <option value="daegu" ${p.region==='daegu'?'selected':''}>대구</option> <option value="gwangju" ${p.region==='gwangju'?'selected':''}>광주</option> <option value="ulsan" ${p.region==='ulsan'?'selected':''}>울산</option> <option value="gangwon" ${p.region==='gangwon'?'selected':''}>강원</option> <option value="chungnam" ${p.region==='chungnam'?'selected':''}>충남</option> <option value="jeonnam" ${p.region==='jeonnam'?'selected':''}>전남</option> </select> </div> </div>`;
 ecRenderChildDates();
 }
 let ecChildCount = 0;
 let ecChildDates = [];
 function ecChildren(dir){
 ecChildCount = Math.max(0, ecChildCount + dir);
-document.getElementById('ec-ch').textContent = ecChildCount + '명';
-while(ecChildDates.length < ecChildCount) ecChildDates.push({year:'',month:''});
+document.getElementById(‘ec-ch’).textContent = ecChildCount + ‘명’;
+while(ecChildDates.length < ecChildCount) ecChildDates.push({year:’’,month:’’});
 ecChildDates = ecChildDates.slice(0, ecChildCount);
 ecRenderChildDatesUI();
 }
 function ecRenderChildDates(){
 ecChildCount = parseInt(P.children||0);
-ecChildDates = (P.childDates||[]).map(c=>({year:c.year||'',month:c.month||''})).slice(0, ecChildCount);
-while(ecChildDates.length < ecChildCount) ecChildDates.push({year:'',month:''});
+ecChildDates = (P.childDates||[]).map(c=>({year:c.year||’’,month:c.month||’’})).slice(0, ecChildCount);
+while(ecChildDates.length < ecChildCount) ecChildDates.push({year:’’,month:’’});
 ecRenderChildDatesUI();
 }
 function ecRenderChildDatesUI(){
-const wrap = document.getElementById('ec-child-dates');
+const wrap = document.getElementById(‘ec-child-dates’);
 if(!wrap) return;
-if(ecChildCount === 0){ wrap.innerHTML=''; return; }
-wrap.innerHTML = ecChildDates.map((c,i) => ` <div style="display:flex;gap:6px;align-items:center"> <span style="font-size:12px;color:var(--ink-4);min-width:50px">${i+1}번째</span> <input type="number" class="wiz-inp" style="flex:1" placeholder="출생년도" value="${c.year||''}" oninput="ecChildDates[${i}].year=this.value"/> <input type="number" class="wiz-inp" style="flex:1" placeholder="월" value="${c.month||''}" oninput="ecChildDates[${i}].month=this.value"/> </div>`).join('');
+if(ecChildCount === 0){ wrap.innerHTML=’’; return; }
+wrap.innerHTML = ecChildDates.map((c,i) => ` <div style="display:flex;gap:6px;align-items:center"> <span style="font-size:12px;color:var(--ink-4);min-width:50px">${i+1}번째</span> <input type="number" class="wiz-inp" style="flex:1" placeholder="출생년도" value="${c.year||''}" oninput="ecChildDates[${i}].year=this.value"/> <input type="number" class="wiz-inp" style="flex:1" placeholder="월" value="${c.month||''}" oninput="ecChildDates[${i}].month=this.value"/> </div>`).join(’’);
 }
 function ecMarriage(el){
-el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
-el.classList.add('on');
-const isM = el.textContent==='기혼';
-document.getElementById('ec-marriage-year-wrap').style.display = isM?'block':'none';
-document.getElementById('ec-dual-wrap').style.display = isM?'block':'none';
-if(!isM) document.getElementById('ec-total-income-wrap').style.display='none';
+el.parentElement.querySelectorAll(’.wiz-radio’).forEach(r=>r.classList.remove(‘on’));
+el.classList.add(‘on’);
+const isM = el.textContent===‘기혼’;
+document.getElementById(‘ec-marriage-year-wrap’).style.display = isM?‘block’:‘none’;
+document.getElementById(‘ec-dual-wrap’).style.display = isM?‘block’:‘none’;
+if(!isM) document.getElementById(‘ec-total-income-wrap’).style.display=‘none’;
 }
 function ecDual(el){
-el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
-el.classList.add('on');
-const isDual = el.textContent==='맞벌이';
-document.getElementById('ec-total-income-wrap').style.display = isDual?'block':'none';
+el.parentElement.querySelectorAll(’.wiz-radio’).forEach(r=>r.classList.remove(‘on’));
+el.classList.add(‘on’);
+const isDual = el.textContent===‘맞벌이’;
+document.getElementById(‘ec-total-income-wrap’).style.display = isDual?‘block’:‘none’;
 }
 function ecElderParent(el){
-el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
-el.classList.add('on');
+el.parentElement.querySelectorAll(’.wiz-radio’).forEach(r=>r.classList.remove(‘on’));
+el.classList.add(‘on’);
 }
 function ecHouseholdChange(){
-const h = parseInt(document.getElementById('ec-household').value||0);
-document.getElementById('ec-elder-wrap').style.display = h>=2?'block':'none';
+const h = parseInt(document.getElementById(‘ec-household’).value||0);
+document.getElementById(‘ec-elder-wrap’).style.display = h>=2?‘block’:‘none’;
 }
 
 function saveEditCond(){
-P.byear      = document.getElementById('ec-by').value;
-P.bmonth     = document.getElementById('ec-bm').value;
-P.bday       = document.getElementById('ec-bd').value;
-P.noHomeYears= document.getElementById('ec-nohome').value;
-P.income     = document.getElementById('ec-income').value;
-P.cash       = document.getElementById('ec-cash').value;
-P.depCount   = document.getElementById('ec-dc').value;
-P.depAmt     = document.getElementById('ec-da').value;
-P.household  = document.getElementById('ec-household').value;
+P.byear      = document.getElementById(‘ec-by’).value;
+P.bmonth     = document.getElementById(‘ec-bm’).value;
+P.bday       = document.getElementById(‘ec-bd’).value;
+P.noHomeYears= document.getElementById(‘ec-nohome’).value;
+P.income     = document.getElementById(‘ec-income’).value;
+P.cash       = document.getElementById(‘ec-cash’).value;
+P.depCount   = document.getElementById(‘ec-dc’).value;
+P.depAmt     = document.getElementById(‘ec-da’).value;
+P.household  = document.getElementById(‘ec-household’).value;
 P.dependents = wDep;
-P.accYears   = document.getElementById('ec-accYears').value;
-P.region     = document.getElementById('ec-region').value;
+P.accYears   = document.getElementById(‘ec-accYears’).value;
+P.region     = document.getElementById(‘ec-region’).value;
 
 // 혼인 관련
-const marriageRadio = document.querySelector('#editcond-body .wiz-radio-grp .wiz-radio.on');
+const marriageRadio = document.querySelector(’#editcond-body .wiz-radio-grp .wiz-radio.on’);
 if(marriageRadio){
-const sections = document.querySelectorAll('#editcond-body .wiz-radio-grp');
+const sections = document.querySelectorAll(’#editcond-body .wiz-radio-grp’);
 const marriageGrp = sections[0]; // first radio group is marriage
-const selM = marriageGrp.querySelector('.wiz-radio.on');
+const selM = marriageGrp.querySelector(’.wiz-radio.on’);
 if(selM) P.marriage = selM.textContent;
 }
-const myEl = document.getElementById('ec-marriageYear');
-P.marriageYear = myEl ? myEl.value : '';
+const myEl = document.getElementById(‘ec-marriageYear’);
+P.marriageYear = myEl ? myEl.value : ‘’;
 
 // 맞벌이
-const dualGrp = document.getElementById('ec-dual-wrap');
+const dualGrp = document.getElementById(‘ec-dual-wrap’);
 if(dualGrp){
-const selD = dualGrp.querySelector('.wiz-radio.on');
-P.isDual = selD ? selD.textContent==='맞벌이' : false;
+const selD = dualGrp.querySelector(’.wiz-radio.on’);
+P.isDual = selD ? selD.textContent===‘맞벌이’ : false;
 }
-const totalIncEl = document.getElementById('ec-totalIncome');
+const totalIncEl = document.getElementById(‘ec-totalIncome’);
 if(totalIncEl) P.totalIncome = totalIncEl.value;
 
 // 자녀
@@ -6580,69 +6571,69 @@ P.children = ecChildCount;
 P.childDates = ecChildDates.slice(0, ecChildCount);
 
 // 노부모 부양
-const elderGrp = document.getElementById('ec-elder-wrap');
+const elderGrp = document.getElementById(‘ec-elder-wrap’);
 if(elderGrp){
-const selE = elderGrp.querySelector('.wiz-radio.on');
-P.elderParent = selE ? selE.textContent.startsWith('예') : false;
+const selE = elderGrp.querySelector(’.wiz-radio.on’);
+P.elderParent = selE ? selE.textContent.startsWith(‘예’) : false;
 }
 
 updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen(); renderReportHistory();
 sbSaveCondition();
-showScreen('my');
-showToast('✓ 조건이 저장됐어요! 맞춤 공고를 확인해보세요');
+showScreen(‘my’);
+showToast(‘✓ 조건이 저장됐어요! 맞춤 공고를 확인해보세요’);
 }
 
 function showToast(msg){
-const t = document.getElementById('toast');
+const t = document.getElementById(‘toast’);
 // 이전 타이머 취소 후 즉시 교체
 if(t._timer) clearTimeout(t._timer);
 t.textContent = msg;
-t.classList.add('show');
-t._timer = setTimeout(() => { t.classList.remove('show'); t._timer = null; }, 2600);
+t.classList.add(‘show’);
+t._timer = setTimeout(() => { t.classList.remove(‘show’); t._timer = null; }, 2600);
 }
 /* ══════════════════════════════════════
 청약홈 공공데이터 API 연동
 Base URL: api.odcloud.kr/api
-APT 분양정보:         /15098547/v1/uddi:...
-APT 잔여세대(줍줍):   /15098548/v1/uddi:...
-APT 경쟁률:           /15098905/v1/uddi:...
+APT 분양정보:         /15098547/v1/uddi:…
+APT 잔여세대(줍줍):   /15098548/v1/uddi:…
+APT 경쟁률:           /15098905/v1/uddi:…
 
 ※ 브라우저 CORS 우회: chengyak-proxy-okmj.vercel.app
 ※ 실서비스 시 자체 백엔드(Node.js 등)로 교체 필요
-※ 인증키: Decoding 키 사용 (이미지의 '일반 인증키')
+※ 인증키: Decoding 키 사용 (이미지의 ‘일반 인증키’)
 ══════════════════════════════════════ */
 
-let apiKey = 'b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51';
+let apiKey = ‘b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51’;
 let apiConnected = false;
 let liveListings = [];
 let sheetPrices = {}; // 단지명 → {price, minP, mktP, factors}
 
 // 공식 엔드포인트 (api.odcloud.kr 기반)
-const API_APT    = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail';
-const API_LOTTO  = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancDetail';
-const API_CMPET  = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet'; // 경쟁률
-const API_SCORE  = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAptLttotPblancScore'; // 당첨가점
-const PROXY = 'https://chengyak-proxy.vercel.app/api/proxy?url=';
+const API_APT    = ‘https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail’;
+const API_LOTTO  = ‘https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancDetail’;
+const API_CMPET  = ‘https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet’; // 경쟁률
+const API_SCORE  = ‘https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAptLttotPblancScore’; // 당첨가점
+const PROXY = ‘https://chengyak-proxy.vercel.app/api/proxy?url=’;
 
 /* ── 구글 시트 연동 ── */
 async function loadSheetFactors(){
-const SHEET_ID = '1_ertTMrEFvNp83YkKY64XZ325kOUW3RgzcKKcV39ro0';
+const SHEET_ID = ‘1_ertTMrEFvNp83YkKY64XZ325kOUW3RgzcKKcV39ro0’;
 try {
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
 const res = await fetch(url);
 const text = await res.text();
-const json = JSON.parse(text.replace(/^.*?({.*}).*?$/s, '$1'));
+const json = JSON.parse(text.replace(/^.*?({.*}).*?$/s, ‘$1’));
 json.table.rows.forEach(row => {
-const name       = row.c[0]?.v ? String(row.c[0].v).trim() : '';
-const price      = row.c[1]?.v?.trim() || '';
+const name       = row.c[0]?.v ? String(row.c[0].v).trim() : ‘’;
+const price      = row.c[1]?.v?.trim() || ‘’;
 const minP       = parseInt(row.c[2]?.v) || 0;
 const mktPRaw    = row.c[3]?.v;
-const mktP       = (mktPRaw && String(mktPRaw).trim() !== '-') ? (parseInt(mktPRaw) || 0) : 0;
-const factorsRaw = row.c[4]?.v ? String(row.c[4].v).trim() : '';
+const mktP       = (mktPRaw && String(mktPRaw).trim() !== ‘-’) ? (parseInt(mktPRaw) || 0) : 0;
+const factorsRaw = row.c[4]?.v ? String(row.c[4].v).trim() : ‘’;
 const factors    = factorsRaw
-? factorsRaw.split('|').map(f => {
+? factorsRaw.split(’|’).map(f => {
 const trimmed = f.trim();
-const spaceIdx = trimmed.indexOf(' ');
+const spaceIdx = trimmed.indexOf(’ ’);
 if(spaceIdx === -1) return null;
 const icon = trimmed.slice(0, spaceIdx).trim();
 const text = trimmed.slice(spaceIdx + 1).trim();
@@ -6653,15 +6644,15 @@ if(!name) return;
 sheetPrices[name] = {price, minP, mktP, factors};
 });
 const keys = Object.keys(sheetPrices);
-console.log('✓ 시트 로드:', keys);
-} catch(e) { console.warn('시트 로드 실패:', e.message); }
+console.log(‘✓ 시트 로드:’, keys);
+} catch(e) { console.warn(‘시트 로드 실패:’, e.message); }
 }
 
 /* ── 국토부 실거래가 시세 자동 조회 ── */
-const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
+const MARKET_API = ‘https://chengyak-proxy.vercel.app/api/market-price’;
 
 /* ── 시세 캐시 (localStorage) — 영구 보존, 새 공고만 신규 조회 ── */
-const MKTPCACHE_KEY = 'mktPCache_v3';
+const MKTPCACHE_KEY = ‘mktPCache_v3’;
 
 function loadMktPCache() {
 try {
@@ -6685,7 +6676,7 @@ l.mktP = entry.mktP;
 l.noMktP = false;
 l._mktPAuto = true;
 l._recentDeals = entry.recentDeals || [];
-l._radiusUsed = entry.radiusUsed || '';
+l._radiusUsed = entry.radiusUsed || ‘’;
 l._sampleCount = entry.sampleCount || 0;
 applied++;
 }
@@ -6710,11 +6701,11 @@ if(entry && entry.mktP > 0) return false; // 캐시 있으면 스킵
 return true;
 });
 
-if(!targets.length) { console.log('시세 전체 캐시 적용 완료, 신규 조회 없음'); return; }
+if(!targets.length) { console.log(‘시세 전체 캐시 적용 완료, 신규 조회 없음’); return; }
 console.log(`시세 신규조회: ${targets.length}건 (새 공고만)`);
 
 // 수도권 여부 판별 → 반경 결정
-const isCapital = loc => /서울|경기|인천|과천|성남|고양|용인|화성|수원|안양|의왕|광명|하남|구리|남양주|김포|파주|시흥|안산|의정부|부천|양주|평택|광주시/.test(loc||'');
+const isCapital = loc => /서울|경기|인천|과천|성남|고양|용인|화성|수원|안양|의왕|광명|하남|구리|남양주|김포|파주|시흥|안산|의정부|부천|양주|평택|광주시/.test(loc||’’);
 
 // 병렬 처리 (10건씩 동시)
 const batch = targets.slice(0, 20);
@@ -6722,11 +6713,11 @@ for(let i = 0; i < batch.length; i += 10){
 const chunk = batch.slice(i, i + 10);
 await Promise.all(chunk.map(async l => {
 try {
-const sizeNums = (l.size||'').match(/\d+/g);
-const size = sizeNums ? Math.max(...sizeNums.map(Number)) : 84;
-const radius = isCapital(l.loc) ? '0.3' : '1';
+const sizeNums = (l.size||’’).match(/\d+/g);
+const size = sizeNums ? Math.max(…sizeNums.map(Number)) : 84;
+const radius = isCapital(l.loc) ? ‘0.3’ : ‘1’;
 // 쉼표로 여러 동이 나열된 경우 첫 번째 동만 사용
-const locClean = (l.loc||'').split(',')[0].replace(/\s+일원.*$/,'').trim();
+const locClean = (l.loc||’’).split(’,’)[0].replace(/\s+일원.*$/,’’).trim();
 const url = `${MARKET_API}?loc=${encodeURIComponent(locClean)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
 const res = await fetch(url);
 const data = await res.json();
@@ -6735,7 +6726,7 @@ l.mktP = data.mktP;
 l.noMktP = false;
 l._mktPAuto = true;
 l._recentDeals = (data.recentDeals||[]).slice(0, 3);
-l._radiusUsed = data.radiusUsed || '';
+l._radiusUsed = data.radiusUsed || ‘’;
 l._sampleCount = data.sampleCount || 0;
 console.log(`✓ ${cleanName(l.name)}: 시세 ${(data.mktP/10000).toFixed(1)}억 (${data.sampleCount}건, ${data.radiusUsed})`);
 // 캐시 저장
@@ -6743,7 +6734,7 @@ const updatedCache = loadMktPCache();
 updatedCache[String(l.id)] = {
 mktP: data.mktP,
 recentDeals: (data.recentDeals||[]).slice(0,3),
-radiusUsed: data.radiusUsed||'',
+radiusUsed: data.radiusUsed||’’,
 sampleCount: data.sampleCount||0,
 };
 saveMktPCache(updatedCache);
@@ -6759,60 +6750,60 @@ renderListings();
 /* API 상태 업데이트 */
 function updateApiStatus(){
 // api-indicator는 유저에게 노출하지 않음
-const badge = document.getElementById('api-menu-badge');
+const badge = document.getElementById(‘api-menu-badge’);
 if(badge){
-badge.className = apiConnected ? 'api-menu-badge-on' : 'api-menu-badge-off';
-badge.textContent = apiConnected ? '연동됨' : '미연동';
+badge.className = apiConnected ? ‘api-menu-badge-on’ : ‘api-menu-badge-off’;
+badge.textContent = apiConnected ? ‘연동됨’ : ‘미연동’;
 }
 }
 
 function openApiSetup(){
-const inp = document.getElementById('api-key-input');
+const inp = document.getElementById(‘api-key-input’);
 if(inp && apiKey) inp.value = apiKey;
-document.getElementById('api-setup-ov').classList.add('open');
+document.getElementById(‘api-setup-ov’).classList.add(‘open’);
 }
 function closeApiSetup(){
-document.getElementById('api-setup-ov').classList.remove('open');
+document.getElementById(‘api-setup-ov’).classList.remove(‘open’);
 }
 
 async function connectApi(){
-const key = document.getElementById('api-key-input').value.trim();
-if(!key){ showStatus('err','서비스키(인증키)를 입력해주세요.'); return; }
+const key = document.getElementById(‘api-key-input’).value.trim();
+if(!key){ showStatus(‘err’,‘서비스키(인증키)를 입력해주세요.’); return; }
 
-const btn = document.getElementById('api-connect-btn');
+const btn = document.getElementById(‘api-connect-btn’);
 btn.disabled = true;
-showStatus('loading','🔄 API 연결 확인 중...');
+showStatus(‘loading’,‘🔄 API 연결 확인 중…’);
 
 try {
 const data = await fetchAptList(key, 1, 3);
 if(data && data.length > 0){
 apiKey = key;
-localStorage.setItem('cheongyak_api_key', key);
-showStatus('ok', `✓ 연결 성공! 공고 ${data.length}건 확인됐어요.\n잠시 후 실시간 데이터로 전환합니다.`);
+localStorage.setItem(‘cheongyak_api_key’, key);
+showStatus(‘ok’, `✓ 연결 성공! 공고 ${data.length}건 확인됐어요.\n잠시 후 실시간 데이터로 전환합니다.`);
 setTimeout(async ()=>{ apiConnected = true; closeApiSetup(); updateApiStatus(); await loadLiveData(); }, 1500);
 } else {
-showStatus('err', '데이터를 가져올 수 없어요.\n인증키(Decoding 키)가 맞는지 확인해주세요.');
+showStatus(‘err’, ‘데이터를 가져올 수 없어요.\n인증키(Decoding 키)가 맞는지 확인해주세요.’);
 }
 } catch(e){
-console.error('API error:', e);
-showStatus('err',
-'연결에 실패했어요.\n\n' +
-'가능한 원인:\n' +
-'• 인증키가 틀렸거나 아직 승인 전이에요\n' +
-'• 브라우저 CORS 제한 (실서비스 백엔드에서 해결)\n' +
-'• 일일 호출 한도(40,000건) 초과\n\n' +
-'Decoding 키를 사용했는지 확인해주세요.'
+console.error(‘API error:’, e);
+showStatus(‘err’,
+‘연결에 실패했어요.\n\n’ +
+‘가능한 원인:\n’ +
+‘• 인증키가 틀렸거나 아직 승인 전이에요\n’ +
+‘• 브라우저 CORS 제한 (실서비스 백엔드에서 해결)\n’ +
+‘• 일일 호출 한도(40,000건) 초과\n\n’ +
+‘Decoding 키를 사용했는지 확인해주세요.’
 );
 }
 btn.disabled = false;
 }
 
 function showStatus(type, msg){
-const el = document.getElementById('api-status-box');
-el.className = 'api-status-box ' + type;
-el.style.whiteSpace = 'pre-line';
+const el = document.getElementById(‘api-status-box’);
+el.className = ’api-status-box ’ + type;
+el.style.whiteSpace = ‘pre-line’;
 el.textContent = msg;
-el.style.display = 'block';
+el.style.display = ‘block’;
 }
 
 /* ── APT 분양정보 목록 ── */
@@ -6836,9 +6827,9 @@ return Array.isArray(items) ? items : [items];
 }
 
 /* ── 경쟁률 조회 (공고번호 기준) ──
-응답: { data: [{ PBLANC_NO, HOUSE_TY, CMPET_RATE, REQ_CNT, RESIDE_SECD, ... }] }
-CMPET_RATE: "12.5" 형태 문자열
-RESIDE_SECD: "01"=해당지역, "02"=기타지역, "03"=기타경기
+응답: { data: [{ PBLANC_NO, HOUSE_TY, CMPET_RATE, REQ_CNT, RESIDE_SECD, … }] }
+CMPET_RATE: “12.5” 형태 문자열
+RESIDE_SECD: “01”=해당지역, “02”=기타지역, “03”=기타경기
 → 1순위 해당지역(01) 기준 가중평균 경쟁률 계산
 ── */
 async function fetchCmpetRate(key, pblancNo){
@@ -6953,7 +6944,7 @@ return {
 };
 
 } catch(e) {
-console.warn('유사단지 조회 실패:', e.message);
+console.warn(‘유사단지 조회 실패:’, e.message);
 return null;
 }
 }
@@ -6967,26 +6958,26 @@ function parseAptItem(item, isLotto=false){
 const today = new Date();
 
 // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
-const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
-const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
-const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
-const rceptBgn  = item['청약접수시작일'] || item.RCEPT_BGNDE || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || '';
-const rceptEnd  = item['청약접수종료일'] || item.RCEPT_ENDDE || item.GNRL_RCEPT_ENDDE || item.rceptEndde || '';
-const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
-const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
-const unitsRaw  = item['전체세대수'] || item['총세대수'] || item['공급규모'] || item['세대수'] || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || item.houseTotsHhldco || item.HOUSE_TOTS_HSHLDCO || 0;
-const priceRaw  = item['분양가'] || item['최고분양가'] || item['분양가(계)'] || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || item.suplyAmount || item.SUPLY_AMOUNT || item.houseAmt || item.HOUSE_AMT || 0;
+const name      = item[‘주택명’]       || item.houseNm       || item.HOUSE_NM        || ‘공고명 확인 필요’;
+const addr      = item[‘공급위치’]     || item.hssplyAdres   || item.HSSPLY_ADRES     || ‘’;
+const regionRaw = item[‘공급지역명’]   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || ‘’;
+const rceptBgn  = item[‘청약접수시작일’] || item.RCEPT_BGNDE || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || ‘’;
+const rceptEnd  = item[‘청약접수종료일’] || item.RCEPT_ENDDE || item.GNRL_RCEPT_ENDDE || item.rceptEndde || ‘’;
+const pblancDe  = item[‘당첨자발표일’] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || ‘’;
+const houseType = item[‘주택구분’]     || item.houseSecdNm   || item.HOUSE_SECD_NM   || ‘’;
+const unitsRaw  = item[‘전체세대수’] || item[‘총세대수’] || item[‘공급규모’] || item[‘세대수’] || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || item.houseTotsHhldco || item.HOUSE_TOTS_HSHLDCO || 0;
+const priceRaw  = item[‘분양가’] || item[‘최고분양가’] || item[‘분양가(계)’] || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || item.suplyAmount || item.SUPLY_AMOUNT || item.houseAmt || item.HOUSE_AMT || 0;
 
 // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
 function parseDate(s){
 if(!s) return null;
-const clean = String(s).replace(/[^0-9]/g,'');
+const clean = String(s).replace(/[^0-9]/g,’’);
 if(clean.length===8) return new Date(`${clean.slice(0,4)}-${clean.slice(4,6)}-${clean.slice(6,8)}`);
 return new Date(s);
 }
 function toStr(s){
-if(!s) return '';
-const clean = String(s).replace(/[^0-9]/g,'');
+if(!s) return ‘’;
+const clean = String(s).replace(/[^0-9]/g,’’);
 if(clean.length===8) return `${clean.slice(0,4)}-${clean.slice(4,6)}-${clean.slice(6,8)}`;
 return String(s);
 }
@@ -6996,24 +6987,24 @@ const isUndetermined = !endDate || endDate.getFullYear() >= 9000;
 const daysLeft = isUndetermined ? null : Math.max(0, Math.ceil((endDate - today) / 86400000));
 
 // 지역 코드 매핑
-const RGN_KR = {'서울':'seoul','경기':'gyeonggi','인천':'incheon','부산':'busan','대전':'daejeon','세종':'sejong'};
+const RGN_KR = {‘서울’:‘seoul’,‘경기’:‘gyeonggi’,‘인천’:‘incheon’,‘부산’:‘busan’,‘대전’:‘daejeon’,‘세종’:‘sejong’};
 const region = Object.keys(RGN_KR).find(k => regionRaw.includes(k))
 ? RGN_KR[Object.keys(RGN_KR).find(k => regionRaw.includes(k))]
-: '';
+: ‘’;
 
 // 타입 결정
 // isLotto(무순위/잔여) API에서 온 경우에도 houseType으로 공공/민간 구분
-const isPublicType = houseType.includes('국민') || houseType.includes('공공') || houseType.includes('LH') || houseType.includes('공공임대') || houseType.includes('행복주택');
+const isPublicType = houseType.includes(‘국민’) || houseType.includes(‘공공’) || houseType.includes(‘LH’) || houseType.includes(‘공공임대’) || houseType.includes(‘행복주택’);
 const type = isLotto
-? (isPublicType ? 'public' : 'private')
-: (isPublicType ? 'public' : 'private');
+? (isPublicType ? ‘public’ : ‘private’)
+: (isPublicType ? ‘public’ : ‘private’);
 
 const sheetPrice = sheetPrices[name];
 
 // lttotTopAmount는 API마다 단위가 다름 (만원/원/억 등)
 // 자릿수 기반으로 단위 추정: 원(9자리↑)→÷10000, 억(1~999)→×10000, 나머지 만원 그대로
 function sanitizePriceRaw(raw) {
-const n = parseFloat(String(raw||0).replace(/,/g,'')) || 0;
+const n = parseFloat(String(raw||0).replace(/,/g,’’)) || 0;
 if (n <= 0) return 0;
 if (n >= 1000000000000) return 0;          // 100조 이상 오류
 if (n >= 100000000) return Math.round(n / 10000); // 원 단위 → 만원
@@ -7026,12 +7017,12 @@ const loc   = addr || `${regionRaw}`;
 
 // 전형 추론
 const elig = isLotto
-? ['무순위(줍줍)']
-: type === 'public'
-? ['생애최초','신생아특공','일반공급']
-: ['일반공급','생애최초'];
+? [‘무순위(줍줍)’]
+: type === ‘public’
+? [‘생애최초’,‘신생아특공’,‘일반공급’]
+: [‘일반공급’,‘생애최초’];
 
-let priceLabel = '공고 확인 필요';
+let priceLabel = ‘공고 확인 필요’;
 if(sheetPrice?.price){
 priceLabel = sheetPrice.price;
 } else if(minP) {
@@ -7044,36 +7035,36 @@ else priceLabel = `${(minP/1000).toFixed(0)}천만원~`;
 }
 
 return {
-id:       item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
+id:       item[‘공고번호’] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
 name, loc, type, region, lotto: isLotto,
 price:    priceLabel,
 minP,
 mktP:     (sheetPrice?.mktP && sheetPrice.mktP > 0) ? sheetPrice.mktP : 0,
 deadline: toStr(rceptEnd),
 days:     daysLeft,
-size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
+size:     item[‘주택형’] || item.houseTy || item.HOUSE_TY || ‘면적 공고 확인’,
 recruitUnits: 0, // PDF 파싱 시 채워짐
 units,
 comp:     10,  // 경쟁률은 별도 API (15098905) 필요
 cut:      0,
-qual:     isLotto ? '만 19세 이상 누구나' : '청약통장 보유자 (공고 확인 필요)',
-inc:      type === 'public' ? '도시근로자 월평균소득 기준 이하' : '소득 제한 없음',
+qual:     isLotto ? ‘만 19세 이상 누구나’ : ‘청약통장 보유자 (공고 확인 필요)’,
+inc:      type === ‘public’ ? ‘도시근로자 월평균소득 기준 이하’ : ‘소득 제한 없음’,
 sched:    `접수: ${toStr(rceptBgn)} ~ ${toStr(rceptEnd)}${pblancDe ? ' / 발표: '+toStr(pblancDe) : ''}`,
 aS:       toStr(rceptBgn),
 aE:       toStr(rceptEnd),
 aD:       toStr(pblancDe),
 elig,
-noMktP: !sheetPrice?.mktP || sheetPrice?.mktP === 0 || String(sheetPrice?.mktP).trim() === '-',
+noMktP: !sheetPrice?.mktP || sheetPrice?.mktP === 0 || String(sheetPrice?.mktP).trim() === ‘-’,
 priceFactors: sheetPrice?.factors || [],
 ai:{
 q: isLotto
-? '만 19세 이상 누구나 신청 가능해요. 청약통장·무주택 조건 없어요.'
+? ‘만 19세 이상 누구나 신청 가능해요. 청약통장·무주택 조건 없어요.’
 : `청약홈(applyhome.co.kr)에서 ${name} 자격 조건을 확인하세요.`,
 p: minP
 ? `분양가 ${priceLabel}이에요.`
-: '청약홈 공고문에서 분양가를 확인하세요.',
+: ‘청약홈 공고문에서 분양가를 확인하세요.’,
 s: `청약 접수 ${toStr(rceptBgn)} ~ ${toStr(rceptEnd)}${pblancDe ? ', 당첨 발표 '+toStr(pblancDe) : ''}`,
-d: '청약홈(applyhome.co.kr)에서 필요 서류를 확인하세요.'
+d: ‘청약홈(applyhome.co.kr)에서 필요 서류를 확인하세요.’
 }
 };
 }
@@ -7082,8 +7073,8 @@ d: '청약홈(applyhome.co.kr)에서 필요 서류를 확인하세요.'
 async function loadLiveData(){
 if(!apiKey){ updateApiStatus(); return; }
 
-const ind = document.getElementById('api-indicator');
-if(ind){ ind.className='api-ind-loading'; ind.textContent='불러오는 중...'; }
+const ind = document.getElementById(‘api-indicator’);
+if(ind){ ind.className=‘api-ind-loading’; ind.textContent=‘불러오는 중…’; }
 
 try {
 // 1단계: 분양정보 + 줍줍 목록 동시 조회
@@ -7224,22 +7215,22 @@ console.log(`loadLiveData 완료: ${listings.length}건, 시세 자동조회 시
 autoFetchMarketPrices(); // await 제거 — 백그라운드 실행
 
 } catch(e){
-console.error('loadLiveData error:', e);
+console.error(‘loadLiveData error:’, e);
 apiConnected = false;
 updateApiStatus();
-showToast('API 오류 — 목업 데이터로 표시해요');
+showToast(‘API 오류 — 목업 데이터로 표시해요’);
 }
 }
 
 /* 저장된 키로 앱 시작 시 자동 연결 — 첫 렌더 후 시작 */
 // 카카오 로그인 상태가 아닐 때만 랜덤 이름 적용 (로그인 후 덮어쓰기 방지)
 // kakaoUser는 아래에서 선언되므로 localStorage로 상태 판별
-if (!localStorage.getItem('kakaoUser_v2')) {
+if (!localStorage.getItem(‘kakaoUser_v2’)) {
 P.name = RETRO[Math.floor(Math.random()*RETRO.length)];
-const _mn = document.getElementById('my-name'); if(_mn) _mn.textContent = P.name;
+const _mn = document.getElementById(‘my-name’); if(_mn) _mn.textContent = P.name;
 }
-const _greet = document.getElementById('hero-greeting');
-const _cheer = document.getElementById('hero-cheer');
+const _greet = document.getElementById(‘hero-greeting’);
+const _cheer = document.getElementById(‘hero-cheer’);
 if(_greet) _greet.textContent = `${P.name}님, 안녕하세요`;
 const _cheerIdx = Math.floor(Math.random()*CHEER.length);
 if(_cheer) _cheer.textContent = CHEER[_cheerIdx];
@@ -7251,20 +7242,20 @@ calMonth = _today.getMonth();
 
 // 스플래시
 (function(){
-const s = document.getElementById('splash');
+const s = document.getElementById(‘splash’);
 if (!s) return;
-const isKakaoCallback = new URLSearchParams(window.location.search).get('code');
+const isKakaoCallback = new URLSearchParams(window.location.search).get(‘code’);
 if (isKakaoCallback) {
 // 카카오/네이버 콜백 — 즉시 숨김
-s.style.display = 'none';
+s.style.display = ‘none’;
 } else {
 // 2초 후 무조건 숨김 (애니메이션 실패해도 강제 제거)
 setTimeout(()=>{
-s.classList.add('hide');
-setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 600);
+s.classList.add(‘hide’);
+setTimeout(()=>{ s.style.display=‘none’; s.style.visibility=‘hidden’; }, 600);
 }, 2000);
 // 혹시 모르니 3초 후 강제 제거
-setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 3000);
+setTimeout(()=>{ s.style.display=‘none’; s.style.visibility=‘hidden’; }, 3000);
 }
 })();
 
@@ -7294,17 +7285,17 @@ setTimeout(()=>loadLiveData(), 500);
 const _cardObserver = new IntersectionObserver((entries) => {
 entries.forEach(entry => {
 if(entry.isIntersecting){
-entry.target.style.opacity = '1';
-entry.target.style.transform = 'translateY(0)';
+entry.target.style.opacity = ‘1’;
+entry.target.style.transform = ‘translateY(0)’;
 _cardObserver.unobserve(entry.target);
 }
 });
-}, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+}, { threshold: 0.1, rootMargin: ‘0px 0px -20px 0px’ });
 
 function observeCards(){
-document.querySelectorAll('.card').forEach((card, i) => {
-card.style.opacity = '0';
-card.style.transform = 'translateY(24px)';
+document.querySelectorAll(’.card’).forEach((card, i) => {
+card.style.opacity = ‘0’;
+card.style.transform = ‘translateY(24px)’;
 card.style.transition = `opacity .35s ease ${i * 0.06}s, transform .35s ease ${i * 0.06}s`;
 _cardObserver.observe(card);
 });
@@ -7321,13 +7312,13 @@ requestAnimationFrame(observeCards);
 const _origUpdateHero = updateHero;
 window.updateHero = function(){
 _origUpdateHero();
-const numFields = ['cd-income','cd-cash','cd-nohome','cd-dep','cd-children'];
+const numFields = [‘cd-income’,‘cd-cash’,‘cd-nohome’,‘cd-dep’,‘cd-children’];
 numFields.forEach(id => {
 const el = document.getElementById(id);
-if(!el || el.classList.contains('blank')) return;
+if(!el || el.classList.contains(‘blank’)) return;
 const num = parseInt(el.textContent);
 if(isNaN(num) || num === 0) return;
-const unit = el.textContent.replace(/[0-9]/g,'');
+const unit = el.textContent.replace(/[0-9]/g,’’);
 let cur = 0;
 const step = Math.ceil(num / 15);
 const t = setInterval(() => {
@@ -7345,61 +7336,61 @@ let isAdmin = false;
 // URL 파라미터로 관리자 진입
 (function checkAdminParam(){
 const params = new URLSearchParams(window.location.search);
-if(params.get('admin') === '1234'){
+if(params.get(‘admin’) === ‘1234’){
 isAdmin = true;
 setTimeout(()=>openAdmin(), 500);
 }
 })();
 
 function openAdmin(){
-const ov = document.getElementById('admin-ov');
-ov.style.display = 'flex';
+const ov = document.getElementById(‘admin-ov’);
+ov.style.display = ‘flex’;
 renderAdminList();
 }
 
 function closeAdmin(){
-document.getElementById('admin-ov').style.display = 'none';
+document.getElementById(‘admin-ov’).style.display = ‘none’;
 resetAdmin();
 }
 
 function resetAdmin(){
 _adminExtracted = null;
-document.getElementById('admin-status').style.display = 'none';
-document.getElementById('admin-preview').style.display = 'none';
-document.getElementById('admin-drop').style.display = 'block';
-document.getElementById('admin-file-input').value = '';
+document.getElementById(‘admin-status’).style.display = ‘none’;
+document.getElementById(‘admin-preview’).style.display = ‘none’;
+document.getElementById(‘admin-drop’).style.display = ‘block’;
+document.getElementById(‘admin-file-input’).value = ‘’;
 }
 
 async function onAdminFileSelect(event){
 const file = event.target.files[0];
 if(!file) return;
 
-document.getElementById('admin-drop').style.display = 'none';
-const statusEl = document.getElementById('admin-status');
-statusEl.style.display = 'block';
-statusEl.style.background = '#FFF8EC';
-statusEl.style.border = '1px solid rgba(245,166,35,.3)';
-statusEl.style.color = '#92400E';
-statusEl.textContent = '📄 ' + file.name + ' 읽는 중... Claude가 분석하고 있어요';
+document.getElementById(‘admin-drop’).style.display = ‘none’;
+const statusEl = document.getElementById(‘admin-status’);
+statusEl.style.display = ‘block’;
+statusEl.style.background = ‘#FFF8EC’;
+statusEl.style.border = ‘1px solid rgba(245,166,35,.3)’;
+statusEl.style.color = ‘#92400E’;
+statusEl.textContent = ‘📄 ’ + file.name + ’ 읽는 중… Claude가 분석하고 있어요’;
 
 // 파일 크기 체크 (5MB 초과 시 경고)
 const MAX_SIZE = 5 * 1024 * 1024;
 if(file.size > MAX_SIZE) {
-const statusEl = document.getElementById('admin-status');
-statusEl.style.display = 'block';
-statusEl.style.background = 'var(–red-light)';
-statusEl.style.border = '1px solid rgba(240,64,64,.3)';
-statusEl.style.color = 'var(–red)';
+const statusEl = document.getElementById(‘admin-status’);
+statusEl.style.display = ‘block’;
+statusEl.style.background = ‘var(–red-light)’;
+statusEl.style.border = ‘1px solid rgba(240,64,64,.3)’;
+statusEl.style.color = ‘var(–red)’;
 statusEl.textContent = `❌ PDF 파일이 너무 커요 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하 파일을 사용해주세요. 청약홈에서 모집공고문 요약본을 다운로드해보세요.`;
-document.getElementById('admin-drop').style.display = 'block';
+document.getElementById(‘admin-drop’).style.display = ‘block’;
 return;
 }
 
 try {
 const base64 = await new Promise((res, rej) => {
 const reader = new FileReader();
-reader.onload = () => res(reader.result.split(',')[1]);
-reader.onerror = () => rej(new Error('파일 읽기 실패'));
+reader.onload = () => res(reader.result.split(’,’)[1]);
+reader.onerror = () => rej(new Error(‘파일 읽기 실패’));
 reader.readAsDataURL(file);
 });
 
@@ -7409,23 +7400,23 @@ const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON �
 
 [분양가 파싱 — 가장 중요]
 
-- '공급금액' 또는 '공급금액 및 납부일정' 표를 찾아라
-- 표에서 '계' 컬럼(대지비+건축비 합계)의 금액만 사용
+- ‘공급금액’ 또는 ‘공급금액 및 납부일정’ 표를 찾아라
+- 표에서 ‘계’ 컬럼(대지비+건축비 합계)의 금액만 사용
 - 단위 변환 필수:
   · 숫자가 1,000,000,000 수준(9자리) → 원 단위 → ÷10000 하여 만원으로 변환
   예) 1,222,373,000원 → 122237만원 → 약 12억 2천
   · 숫자가 100,000 수준(6자리) → 만원 단위 → 그대로 사용
-  · 단위가 '천원'으로 명시 → ÷10 하여 만원으로 변환
+  · 단위가 ‘천원’으로 명시 → ÷10 하여 만원으로 변환
 - price 필드: 평형(타입)별 최저층~최고층 범위로 표시. 층별로 다르면 해당 타입의 최저~최고
-  예) 44타입: 2층 84252만원 ~ 15층이상 88500만원 → "44㎡ 8억4천~8억8천"
-  예) 59A타입: 2층 122237만원 ~ 15층이상 130039만원 → "59A㎡ 12억2천~13억"
+  예) 44타입: 2층 84252만원 ~ 15층이상 88500만원 → “44㎡ 8억4천~8억8천”
+  예) 59A타입: 2층 122237만원 ~ 15층이상 130039만원 → “59A㎡ 12억2천~13억”
 - price 구분자: 평형별로 | 로 구분
 - minP: 전체 평형 중 계 컬럼 최저값(만원). 위 예시에서는 44타입 최저층 값
 
 [세대수]
 
-- units: '총 N세대' 또는 '지상 N층 N개동 총 N세대' 에서 단지 전체 세대수
-- recruitUnits: '일반분양 N세대' 또는 '특별공급 N세대+일반공급 N세대' 합계 (이번 공고 모집인원)
+- units: ‘총 N세대’ 또는 ‘지상 N층 N개동 총 N세대’ 에서 단지 전체 세대수
+- recruitUnits: ‘일반분양 N세대’ 또는 ‘특별공급 N세대+일반공급 N세대’ 합계 (이번 공고 모집인원)
 
 [기타]
 
@@ -7436,92 +7427,92 @@ const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON �
 - 당첨자 선정방법: 단계별 소득구분(우선/일반/잔여/추첨)을 꼼꼼하게 추출
 
 {
-"name": "단지명",
-"loc": "공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동",
-"region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
-"type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
-"price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 예: 44㎡ 8억4천~8억8천|59A㎡ 12억2천~13억|84A㎡ 17억~18억",
-"minP": 전체 평형 중 분양가(계) 최저값 만원 단위 숫자,
-"mktP": 주변 시세 만원 단위 숫자 (없으면 0),
-"deadline": "청약 접수 마감일 YYYY-MM-DD",
-"size": "공급 면적 (예: 59㎡ / 84㎡)",
-"units": 총 세대수 숫자 (단지 전체 세대수),
-"recruitUnits": 이번 공고 모집인원 숫자 (특별공급+일반공급 합산. 총 세대수와 다를 수 있음),
-"qual": "신청 자격 핵심 요약 (거주지역 요건, 세대주 요건, 무주택 요건 포함). 예: 서울 거주 무주택 세대구성원, 청약통장 2년+24회 납입",
-"inc": "소득 기준 핵심 요약. 전형별 소득기준이 다르면 범위로 표시. 예: 특공 100~160% / 일반 100%(60㎡이하)",
-"sched": "접수: YYYY-MM-DD ~ YYYY-MM-DD / 발표: YYYY-MM-DD / 계약: YYYY-MM-DD ~ YYYY-MM-DD",
-"aS": "청약 접수 시작일 YYYY-MM-DD",
-"aE": "청약 접수 종료일 YYYY-MM-DD",
-"aD": "당첨자 발표일 YYYY-MM-DD",
-"elig": ["공고에 명시된 공급유형. 생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/노부모부양/일반공급/무순위(줍줍) 중 해당하는 것들"],
-"eligDetail": [
+“name”: “단지명”,
+“loc”: “공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동”,
+“region”: “지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)”,
+“type”: “public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)”,
+“price”: “평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 예: 44㎡ 8억4천~8억8천|59A㎡ 12억2천~13억|84A㎡ 17억~18억”,
+“minP”: 전체 평형 중 분양가(계) 최저값 만원 단위 숫자,
+“mktP”: 주변 시세 만원 단위 숫자 (없으면 0),
+“deadline”: “청약 접수 마감일 YYYY-MM-DD”,
+“size”: “공급 면적 (예: 59㎡ / 84㎡)”,
+“units”: 총 세대수 숫자 (단지 전체 세대수),
+“recruitUnits”: 이번 공고 모집인원 숫자 (특별공급+일반공급 합산. 총 세대수와 다를 수 있음),
+“qual”: “신청 자격 핵심 요약 (거주지역 요건, 세대주 요건, 무주택 요건 포함). 예: 서울 거주 무주택 세대구성원, 청약통장 2년+24회 납입”,
+“inc”: “소득 기준 핵심 요약. 전형별 소득기준이 다르면 범위로 표시. 예: 특공 100~160% / 일반 100%(60㎡이하)”,
+“sched”: “접수: YYYY-MM-DD ~ YYYY-MM-DD / 발표: YYYY-MM-DD / 계약: YYYY-MM-DD ~ YYYY-MM-DD”,
+“aS”: “청약 접수 시작일 YYYY-MM-DD”,
+“aE”: “청약 접수 종료일 YYYY-MM-DD”,
+“aD”: “당첨자 발표일 YYYY-MM-DD”,
+“elig”: [“공고에 명시된 공급유형. 생애최초/신생아특공/다자녀특공/청년특공/신혼부부특공/노부모부양/일반공급/무순위(줍줍) 중 해당하는 것들”],
+“eligDetail”: [
 {
-"type": "전형명 (elig 배열의 값과 정확히 동일하게)",
-"incPct": "해당 전형의 최대 소득기준 % (가장 넓은 범위). 예: 신혼부부 잔여까지 포함하면 140. 없으면 0",
-"incLimit": "소득 상한 만원(연간). % 대신 절대금액이 있으면. 없으면 0",
-"ageMin": "최소 나이. 없으면 0",
-"ageMax": "최대 나이. 없으면 0",
-"married": "required(기혼필수)/excluded(미혼필수)/any(무관)",
-"noHome": "무주택 필수 true/false",
-"noHomeYears": "최소 무주택 기간(년). 없으면 0",
-"children": "최소 자녀수. 없으면 0",
-"newborn": "만2세이하 신생아 필수 true/false",
-"accMonths": "최소 청약통장 납입횟수. 없으면 0",
-"accYears": "최소 청약통장 가입기간(년). 없으면 0",
-"assets": "총 자산 상한 만원. 없으면 0",
-"realEstate": "부동산(토지+건물) 가액 상한 만원. 없으면 0",
-"carValue": "자동차 가액 상한 만원. 없으면 0",
-"regionReq": "거주지역 요건 (예: 서울 2년 이상 거주). 없으면 빈 문자열",
-"isHeadReq": "세대주 요건 true/false",
-"note": "기타 추가 조건 (예: 5년 이상 소득세 납부, 혼인 7년 이내 등)"
+“type”: “전형명 (elig 배열의 값과 정확히 동일하게)”,
+“incPct”: “해당 전형의 최대 소득기준 % (가장 넓은 범위). 예: 신혼부부 잔여까지 포함하면 140. 없으면 0”,
+“incLimit”: “소득 상한 만원(연간). % 대신 절대금액이 있으면. 없으면 0”,
+“ageMin”: “최소 나이. 없으면 0”,
+“ageMax”: “최대 나이. 없으면 0”,
+“married”: “required(기혼필수)/excluded(미혼필수)/any(무관)”,
+“noHome”: “무주택 필수 true/false”,
+“noHomeYears”: “최소 무주택 기간(년). 없으면 0”,
+“children”: “최소 자녀수. 없으면 0”,
+“newborn”: “만2세이하 신생아 필수 true/false”,
+“accMonths”: “최소 청약통장 납입횟수. 없으면 0”,
+“accYears”: “최소 청약통장 가입기간(년). 없으면 0”,
+“assets”: “총 자산 상한 만원. 없으면 0”,
+“realEstate”: “부동산(토지+건물) 가액 상한 만원. 없으면 0”,
+“carValue”: “자동차 가액 상한 만원. 없으면 0”,
+“regionReq”: “거주지역 요건 (예: 서울 2년 이상 거주). 없으면 빈 문자열”,
+“isHeadReq”: “세대주 요건 true/false”,
+“note”: “기타 추가 조건 (예: 5년 이상 소득세 납부, 혼인 7년 이내 등)”
 }
 ],
-"eligTiersData": [
+“eligTiersData”: [
 {
-"parent": "상위 전형명 (예: 신혼부부특공, 신생아특공, 생애최초)",
-"step": "단계 순번 숫자",
-"name": "단계명 (예: 우선공급, 일반공급, 잔여공급, 추첨공급, 신생아 우선공급 등)",
-"pct": "배정 비율 % 숫자. 없으면 0",
-"incSingle": "외벌이(1인) 소득기준 % 숫자. 예: 100",
-"incDual": "맞벌이 소득기준 % 숫자. 예: 120",
-"assets": "자산기준 만원. 별도 명시 시. 없으면 0",
-"note": "해당 단계의 조건 한줄 요약"
+“parent”: “상위 전형명 (예: 신혼부부특공, 신생아특공, 생애최초)”,
+“step”: “단계 순번 숫자”,
+“name”: “단계명 (예: 우선공급, 일반공급, 잔여공급, 추첨공급, 신생아 우선공급 등)”,
+“pct”: “배정 비율 % 숫자. 없으면 0”,
+“incSingle”: “외벌이(1인) 소득기준 % 숫자. 예: 100”,
+“incDual”: “맞벌이 소득기준 % 숫자. 예: 120”,
+“assets”: “자산기준 만원. 별도 명시 시. 없으면 0”,
+“note”: “해당 단계의 조건 한줄 요약”
 }
 ],
-"cut": 예상 가점 커트라인 (공고에 과거 데이터가 있으면). 없으면 0,
-"comp": 예상 경쟁률 숫자. 없으면 0,
-"downPct": 계약금 비율 숫자 (%). 공고문의 납부방법/납부일정에서 추출. 예: 계약금 10%면 10, 5%면 5, 20%면 20. 없으면 10,
-"compByType": "평형별 경쟁률 (| 구분). 없으면 빈 문자열",
-"cutByType": "평형별 가점 커트라인 (| 구분). 없으면 빈 문자열",
-"prevComp": "이전 차수 경쟁률 정보. 없으면 빈 문자열",
-"ai": {
-"q": "자격 요건을 쉽게 설명 1~2문장. 거주요건+무주택+통장 조건 포함",
-"p": "분양가를 쉽게 설명 1~2문장. 최저~최고 범위와 평당가 언급",
-"s": "일정 쉽게 설명 1~2문장. 접수일/발표일 포함",
-"d": "필요 서류 1~2문장"
+“cut”: 예상 가점 커트라인 (공고에 과거 데이터가 있으면). 없으면 0,
+“comp”: 예상 경쟁률 숫자. 없으면 0,
+“downPct”: 계약금 비율 숫자 (%). 공고문의 납부방법/납부일정에서 추출. 예: 계약금 10%면 10, 5%면 5, 20%면 20. 없으면 10,
+“compByType”: “평형별 경쟁률 (| 구분). 없으면 빈 문자열”,
+“cutByType”: “평형별 가점 커트라인 (| 구분). 없으면 빈 문자열”,
+“prevComp”: “이전 차수 경쟁률 정보. 없으면 빈 문자열”,
+“ai”: {
+“q”: “자격 요건을 쉽게 설명 1~2문장. 거주요건+무주택+통장 조건 포함”,
+“p”: “분양가를 쉽게 설명 1~2문장. 최저~최고 범위와 평당가 언급”,
+“s”: “일정 쉽게 설명 1~2문장. 접수일/발표일 포함”,
+“d”: “필요 서류 1~2문장”
 }
 }
 
 ★ eligTiersData 추출 가이드 ★
-공고의 '당첨자 선정방법' 표를 찾아서 각 특별공급(신혼부부/신생아/생애최초 등)의 단계별 구분을 모두 추출해.
+공고의 ‘당첨자 선정방법’ 표를 찾아서 각 특별공급(신혼부부/신생아/생애최초 등)의 단계별 구분을 모두 추출해.
 
 - 각 단계의 소득기준 %를 외벌이/맞벌이 구분해서 추출
-- 신혼부부특공 안에 '신생아 우선/일반' 단계가 있으면 반드시 포함
+- 신혼부부특공 안에 ‘신생아 우선/일반’ 단계가 있으면 반드시 포함
 - 추첨공급이 있으면 incSingle/incDual을 999로 설정
 - 자산기준(부동산가액)이 별도로 명시되어 있으면 assets에 만원 단위로 기재
 - 단계가 없는 전형(다자녀, 노부모 등)은 생략`;
   
-  const response = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  const response = await fetch(‘https://chengyak-proxy.vercel.app/api/claude’, {
+  method: ‘POST’,
+  headers: { ‘Content-Type’: ‘application/json’ },
   body: JSON.stringify({
-  model: 'claude-haiku-4-5-20251001',
+  model: ‘claude-haiku-4-5-20251001’,
   max_tokens: 8192,
   messages: [{
-  role: 'user',
+  role: ‘user’,
   content: [
-  { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-  { type: 'text', text: prompt }
+  { type: ‘document’, source: { type: ‘base64’, media_type: ‘application/pdf’, data: base64 } },
+  { type: ‘text’, text: prompt }
   ]
   }]
   })
@@ -7531,30 +7522,30 @@ const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON �
   if (!response.ok || !data.content) {
   throw new Error(data.error?.message || `서버 오류: ${response.status}`);
   }
-  const text = data.content.map(c => c.text||'').join('');
-  let clean = text.replace(/`json|`/g, '').trim();
+  const text = data.content.map(c => c.text||’’).join(’’);
+  let clean = text.replace(/`json|`/g, ‘’).trim();
   // JSON 객체만 추출 (앞뒤 불필요한 텍스트 제거)
-  const jsonStart = clean.indexOf('{');
-  const jsonEnd = clean.lastIndexOf('}');
+  const jsonStart = clean.indexOf(’{’);
+  const jsonEnd = clean.lastIndexOf(’}’);
   if(jsonStart >= 0 && jsonEnd > jsonStart) clean = clean.slice(jsonStart, jsonEnd + 1);
   // 흔한 JSON 오류 수정: 후행 쉼표 제거
-  clean = clean.replace(/,\s*([]}])/g, '$1');
+  clean = clean.replace(/,\s*([]}])/g, ‘$1’);
   const parsed = JSON.parse(clean);
   
   // ★★★ [하드코딩 — 수정 금지] PDF 추출 데이터를 API 형식과 통일 ★★★
   // sched 형식 통일: 화살표(→) → 슬래시(/) 로 변환해서 API 형식에 맞춤
-  let normalizedSched = parsed.sched || '';
-  normalizedSched = normalizedSched.replace(/\s*→\s*/g, ' / ');
+  let normalizedSched = parsed.sched || ‘’;
+  normalizedSched = normalizedSched.replace(/\s*→\s*/g, ’ / ‘);
   // aS/aE/aD에서 sched 재생성 (API 형식과 동일)
   if(parsed.aS && parsed.aE){
   normalizedSched = `접수: ${parsed.aS} ~ ${parsed.aE}`;
   if(parsed.aD) normalizedSched += ` / 발표: ${parsed.aD}`;
   // 기존 sched에 계약 정보가 있으면 추가
-  const contractMatch = (parsed.sched||'').match(/계약[:\s]*([0-9.-~\s]+)/);
+  const contractMatch = (parsed.sched||’’).match(/계약[:\s]*([0-9.-~\s]+)/);
   if(contractMatch) normalizedSched += ` / 계약: ${contractMatch[1].trim()}`;
   }
   // deadline: API는 마감일 YYYY-MM-DD 형식
-  const normalizedDeadline = parsed.deadline || parsed.aE || '';
+  const normalizedDeadline = parsed.deadline || parsed.aE || ‘’;
   
   // minP 단위 정제 — Claude가 원 단위로 뽑는 경우 만원으로 변환
   function sanitizeMinP(val) {
@@ -7565,76 +7556,76 @@ const prompt = `다음 청약 공고문 PDF를 꼼꼼하게 분석해서 JSON �
   return n;
   }
   _adminExtracted = {
-  ...parsed,
+  …parsed,
   id: Date.now(),
   minP: sanitizeMinP(parsed.minP),
-  lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
+  lotto: (parsed.elig||[]).includes(‘무순위(줍줍)’),
   mktP: 0,
   noMktP: true,
   comp: parseFloat(parsed.comp) || 10,
-  downPct: parseInt(parsed.downPct) || (parsed.type === 'public' ? 5 : 10),
-  compByType: parsed.compByType || '',
-  cutByType: parsed.cutByType || '',
+  downPct: parseInt(parsed.downPct) || (parsed.type === ‘public’ ? 5 : 10),
+  compByType: parsed.compByType || ‘’,
+  cutByType: parsed.cutByType || ‘’,
   eligDetail: parsed.eligDetail || [],
   eligTiers: parsed.eligTiersData || [],
-  days: parsed.aE && !String(parsed.aE).startsWith('9999') ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : null,
+  days: parsed.aE && !String(parsed.aE).startsWith(‘9999’) ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : null,
   priceFactors: [],
-  price: parsed.price || '공고 확인 필요',
+  price: parsed.price || ‘공고 확인 필요’,
   sched: normalizedSched,
   deadline: normalizedDeadline
   };
   // ★★★ [하드코딩 끝] ★★★
   
-  statusEl.style.background = 'var(–public-light)';
-  statusEl.style.border = '1px solid rgba(5,150,105,.3)';
-  statusEl.style.color = 'var(–public)';
-  statusEl.textContent = '✓ 추출 완료! 아래 내용을 확인해주세요';
+  statusEl.style.background = ‘var(–public-light)’;
+  statusEl.style.border = ‘1px solid rgba(5,150,105,.3)’;
+  statusEl.style.color = ‘var(–public)’;
+  statusEl.textContent = ‘✓ 추출 완료! 아래 내용을 확인해주세요’;
   
-  document.getElementById('admin-preview-body').innerHTML = `<div style="display:flex;flex-direction:column;gap:6px"> ${[ ['단지명', parsed.name], ['위치', parsed.loc], ['분양가', parsed.price], ['계약금', (parseInt(parsed.downPct)||'미확인') + (parsed.downPct ? '%' : '')], ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ?` (모집 ${parsed.recruitUnits}세대)`: '')], ['마감일', parsed.aE], ['신청 전형', (parsed.elig||[]).join(', ')], ['소득 기준', parsed.inc], ['신청 자격', parsed.qual], ].map(([k,v]) =>`
+  document.getElementById(‘admin-preview-body’).innerHTML = `<div style="display:flex;flex-direction:column;gap:6px"> ${[ ['단지명', parsed.name], ['위치', parsed.loc], ['분양가', parsed.price], ['계약금', (parseInt(parsed.downPct)||'미확인') + (parsed.downPct ? '%' : '')], ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ?` (모집 ${parsed.recruitUnits}세대)`: '')], ['마감일', parsed.aE], ['신청 전형', (parsed.elig||[]).join(', ')], ['소득 기준', parsed.inc], ['신청 자격', parsed.qual], ].map(([k,v]) =>`
   <div style="display:flex;gap:8px;align-items:flex-start">
   <span style="font-size:11px;color:var(--ink-5);width:60px;flex-shrink:0;padding-top:2px">${k}</span>
-  <span style="font-size:13px;font-weight:600;color:var(--ink);flex:1">${v||'—'}</span>
+  <span style="font-size:13px;font-weight:600;color:var(--ink);flex:1">${v||’—’}</span>
   </div>`).join('')} </div>`;
-  document.getElementById('admin-preview').style.display = 'block';
+  document.getElementById(‘admin-preview’).style.display = ‘block’;
   
   } catch(e) {
   console.error(e);
-  const statusEl = document.getElementById('admin-status');
-  statusEl.style.background = 'var(–red-light)';
-  statusEl.style.border = '1px solid rgba(240,64,64,.3)';
-  statusEl.style.color = 'var(–red)';
-  statusEl.textContent = '❌ 추출 실패: ' + e.message;
-  document.getElementById('admin-drop').style.display = 'block';
+  const statusEl = document.getElementById(‘admin-status’);
+  statusEl.style.background = ‘var(–red-light)’;
+  statusEl.style.border = ‘1px solid rgba(240,64,64,.3)’;
+  statusEl.style.color = ‘var(–red)’;
+  statusEl.textContent = ’❌ 추출 실패: ’ + e.message;
+  document.getElementById(‘admin-drop’).style.display = ‘block’;
   }
   }
 
-const LISTINGS_API  = 'https://chengyak-proxy.vercel.app/api/listings';
-const KAKAO_AUTH_API = 'https://chengyak-proxy.vercel.app/api/kakao-auth';
-const NAVER_AUTH_API = 'https://chengyak-proxy.vercel.app/api/naver-auth';
-const NAVER_CLIENT_ID = 'AuCmg397QoRRwTurztoe';
-const KAKAO_CLIENT_ID = 'e7389d2463e1980b32b680910e373f5e'; // 카카오 REST API 키
+const LISTINGS_API  = ‘https://chengyak-proxy.vercel.app/api/listings’;
+const KAKAO_AUTH_API = ‘https://chengyak-proxy.vercel.app/api/kakao-auth’;
+const NAVER_AUTH_API = ‘https://chengyak-proxy.vercel.app/api/naver-auth’;
+const NAVER_CLIENT_ID = ‘AuCmg397QoRRwTurztoe’;
+const KAKAO_CLIENT_ID = ‘e7389d2463e1980b32b680910e373f5e’; // 카카오 REST API 키
 
 /* ══ Supabase 설정 ══ */
-const SUPABASE_URL  = 'https://jmgdljcbbdyttfvmfvzx.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZ2RsamNiYmR5dHRmdm1mdnp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NzUwNzUsImV4cCI6MjA4OTU1MTA3NX0.Qxd1CLjnQB7etZ1qi6hKuJDElqOuzvLJCpI3p3_Dcuw';
+const SUPABASE_URL  = ‘https://jmgdljcbbdyttfvmfvzx.supabase.co’;
+const SUPABASE_ANON = ‘eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZ2RsamNiYmR5dHRmdm1mdnp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NzUwNzUsImV4cCI6MjA4OTU1MTA3NX0.Qxd1CLjnQB7etZ1qi6hKuJDElqOuzvLJCpI3p3_Dcuw’;
 
 const sb = {
-headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json' },
-async get(table, query='') {
+headers: { ‘apikey’: SUPABASE_ANON, ‘Authorization’: ‘Bearer ’ + SUPABASE_ANON, ‘Content-Type’: ‘application/json’ },
+async get(table, query=’’) {
 const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: this.headers });
 return res.json();
 },
 async upsert(table, data) {
 const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-method: 'POST',
-headers: { ...this.headers, 'Prefer': 'resolution=merge-duplicates' },
+method: ‘POST’,
+headers: { …this.headers, ‘Prefer’: ‘resolution=merge-duplicates’ },
 body: JSON.stringify(data)
 });
 return res.ok;
 },
 async delete(table, query) {
 const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
-method: 'DELETE', headers: this.headers
+method: ‘DELETE’, headers: this.headers
 });
 return res.ok;
 }
@@ -7643,11 +7634,11 @@ return res.ok;
 /* ── Supabase: 프로필 저장 ── */
 async function sbSaveProfile(user) {
 if (!user?.kakaoId) return;
-await sb.upsert('profiles', {
+await sb.upsert(‘profiles’, {
 id: String(user.kakaoId),
 kakao_id: String(user.kakaoId),
 nickname: user.nickname,
-avatar: user.avatar || ''
+avatar: user.avatar || ‘’
 });
 }
 
@@ -7665,11 +7656,11 @@ dependents: P.dependents, accYears: P.accYears, prefSizes: P.prefSizes,
 elderParent: P.elderParent, isDual: P.isDual, spouseIncome: P.spouseIncome,
 totalIncome: P.totalIncome
 };
-await sb.upsert('profiles', {
+await sb.upsert(‘profiles’, {
 id: String(kakaoUser.kakaoId),
 kakao_id: String(kakaoUser.kakaoId),
 nickname: kakaoUser.nickname,
-avatar: kakaoUser.avatar || '',
+avatar: kakaoUser.avatar || ‘’,
 user_condition: condition
 });
 } catch(e) {}
@@ -7678,58 +7669,58 @@ user_condition: condition
 /* ── Supabase: 조건 불러오기 ── */
 async function sbLoadCondition(userId) {
 try {
-const rows = await sb.get('profiles', `id=eq.${userId}&select=user_condition,nickname`);
+const rows = await sb.get(‘profiles’, `id=eq.${userId}&select=user_condition,nickname`);
 if (Array.isArray(rows) && rows.length > 0 && rows[0].user_condition) {
 const c = rows[0].user_condition;
-Object.keys(c).forEach(k => { if (c[k] !== undefined && c[k] !== '') P[k] = c[k]; });
+Object.keys(c).forEach(k => { if (c[k] !== undefined && c[k] !== ‘’) P[k] = c[k]; });
 if (rows[0].nickname) { P.name = rows[0].nickname; if(kakaoUser) kakaoUser.nickname = rows[0].nickname; }
 updateHero(); renderListings(); updateConsult(); updateMyCondCard();
-const nm = document.getElementById('my-name');
-if (nm && P.name) nm.textContent = P.name + '님';
+const nm = document.getElementById(‘my-name’);
+if (nm && P.name) nm.textContent = P.name + ‘님’;
 }
-} catch(e) { console.warn('조건 불러오기 실패:', e.message); }
+} catch(e) { console.warn(‘조건 불러오기 실패:’, e.message); }
 }
 
 /* ── Supabase: 북마크 불러오기 ── */
 async function sbLoadBookmarks(userId) {
 try {
-const rows = await sb.get('bookmarks', `user_id=eq.${userId}&select=listing_id`);
+const rows = await sb.get(‘bookmarks’, `user_id=eq.${userId}&select=listing_id`);
 if (Array.isArray(rows)) {
 rows.forEach(r => savedIds.add(r.listing_id));
 renderListings();
 renderSaved();
 }
-} catch(e) { console.warn('북마크 불러오기 실패:', e.message); }
+} catch(e) { console.warn(‘북마크 불러오기 실패:’, e.message); }
 }
 
 /* ── Supabase: 북마크 추가 ── */
 async function sbAddBookmark(userId, listingId) {
-await sb.upsert('bookmarks', { user_id: String(userId), listing_id: String(listingId) });
+await sb.upsert(‘bookmarks’, { user_id: String(userId), listing_id: String(listingId) });
 }
 
 /* ── Supabase: 북마크 삭제 ── */
 async function sbRemoveBookmark(userId, listingId) {
-await sb.delete('bookmarks', `user_id=eq.${userId}&listing_id=eq.${listingId}`);
+await sb.delete(‘bookmarks’, `user_id=eq.${userId}&listing_id=eq.${listingId}`);
 }
 
 function _doDeleteListing(l){
 const idx = listings.findIndex(x => x.id === l.id);
 if(idx !== -1) listings.splice(idx, 1);
 renderListings(); renderSaved(); updateHero();
-showToast('공고를 삭제했어요');
+showToast(‘공고를 삭제했어요’);
 }
 function _doAdminDelete(id, src){
-fetch(LISTINGS_API + '?id=' + id + (src?'&src='+src:''), {method:'DELETE'})
-.then(()=>{ renderAdminList(); renderListings(); updateHero(); showToast('공고를 삭제했어요'); })
-.catch(()=>showToast('삭제 실패'));
+fetch(LISTINGS_API + ‘?id=’ + id + (src?’&src=’+src:’’), {method:‘DELETE’})
+.then(()=>{ renderAdminList(); renderListings(); updateHero(); showToast(‘공고를 삭제했어요’); })
+.catch(()=>showToast(‘삭제 실패’));
 }
 async function confirmAdminData(force=false){
 if(!_adminExtracted) return;
 
 try {
 const res = await fetch(LISTINGS_API, {
-method: 'POST',
-headers: {'Content-Type':'application/json'},
+method: ‘POST’,
+headers: {‘Content-Type’:‘application/json’},
 body: JSON.stringify({ listing: _adminExtracted, force })
 });
 const data = await res.json();
@@ -7781,84 +7772,84 @@ renderListings();
 renderRecommend();
 
 } catch(e){
-showToast('❌ 저장 실패: ' + e.message);
+showToast(’❌ 저장 실패: ’ + e.message);
 }
 }
 
 async function renderAdminList(){
-const el = document.getElementById('admin-list');
-const countEl = document.getElementById('admin-count');
-const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+const el = document.getElementById(‘admin-list’);
+const countEl = document.getElementById(‘admin-count’);
+const deleted = JSON.parse(localStorage.getItem(‘deletedListings’)||’[]’);
 try {
 const res = await fetch(LISTINGS_API);
 const data = await res.json();
-const saved = (data.listings||[]).map(l => ({...l, name: cleanName(l.name)})).filter(l => !deleted.includes(l.id));
+const saved = (data.listings||[]).map(l => ({…l, name: cleanName(l.name)})).filter(l => !deleted.includes(l.id));
 countEl.textContent = saved.length;
 if(!saved.length){
-el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>';
+el.innerHTML = ‘<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">아직 추가된 공고가 없어요</div>’;
 } else {
-el.innerHTML = saved.map(l => ` <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px"> <div style="flex:1"> <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div> <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · ${daysText(l.days,'d')}</div> </div> <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button> </div>`).join('');
+el.innerHTML = saved.map(l => ` <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px"> <div style="flex:1"> <div style="font-size:13px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div> <div style="font-size:11px;color:var(--ink-4);margin-top:2px">${l.loc} · ${daysText(l.days,'d')}</div> </div> <button onclick="removeAdminListing(${l.id})" style="background:var(--red-light);border:none;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:var(--red);font-weight:600">삭제</button> </div>`).join(’’);
 }
 } catch(e){
-el.innerHTML = '<div style="font-size:13px;color:var(--red);text-align:center;padding:12px">목록 로드 실패</div>';
+el.innerHTML = ‘<div style="font-size:13px;color:var(--red);text-align:center;padding:12px">목록 로드 실패</div>’;
 }
 // 전체 공고 관리 목록
 renderAdminAllList();
 }
 function renderAdminAllList(){
-const el = document.getElementById('admin-all-list');
+const el = document.getElementById(‘admin-all-list’);
 if(!el) return;
 if(!listings.length){
-el.innerHTML = '<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">표시할 공고가 없어요</div>';
+el.innerHTML = ‘<div style="font-size:13px;color:var(--ink-5);text-align:center;padding:12px">표시할 공고가 없어요</div>’;
 return;
 }
 el.innerHTML = listings.map(l => {
-const src = l._src==='api' ? 'API' : l._src==='pdf' ? 'PDF' : '기본';
-const srcColor = l._src==='api' ? 'var(–accent)' : l._src==='pdf' ? 'var(–gold)' : 'var(–ink-4)';
+const src = l._src===‘api’ ? ‘API’ : l._src===‘pdf’ ? ‘PDF’ : ‘기본’;
+const srcColor = l._src===‘api’ ? ‘var(–accent)’ : l._src===‘pdf’ ? ‘var(–gold)’ : ‘var(–ink-4)’;
 return `<div style="background:var(--bg);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px"> <div style="flex:1;min-width:0"> <div style="font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cleanName(l.name)}</div> <div style="font-size:10px;color:var(--ink-4);margin-top:1px">${l.loc||''} <span style="color:${srcColor};font-weight:600">${src}</span></div> </div> <button onclick="adminDeleteListing(${l.id},'${l._src||''}')" style="background:var(--red-light);border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:11px;color:var(--red);font-weight:600;white-space:nowrap">삭제</button> </div>`;
-}).join('');
+}).join(’’);
 }
 
 async function removeAdminListing(id){
-showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, src); }, true); return;
+showConfirm(‘공고 삭제’, ‘이 공고를 삭제할까요?’, ‘삭제’, () => { _doAdminDelete(id, src); }, true); return;
 const idx = listings.findIndex(l => l.id === id);
 if(idx > -1) listings.splice(idx, 1);
 // 삭제 ID 기억
-const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
+const deleted = JSON.parse(localStorage.getItem(‘deletedListings’)||’[]’);
+if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem(‘deletedListings’, JSON.stringify(deleted)); }
 // 서버 삭제 (응답 기다림)
 try {
 await fetch(LISTINGS_API, {
-method: 'DELETE',
-headers: {'Content-Type':'application/json'},
+method: ‘DELETE’,
+headers: {‘Content-Type’:‘application/json’},
 body: JSON.stringify({ id })
 });
 } catch(e){}
 renderAdminList();
 renderListings();
 updateHero();
-showToast('공고를 삭제했어요');
+showToast(‘공고를 삭제했어요’);
 }
 
 function adminDeleteListing(id, src){
-showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, src); }, true); return;
+showConfirm(‘공고 삭제’, ‘이 공고를 삭제할까요?’, ‘삭제’, () => { _doAdminDelete(id, src); }, true); return;
 const idx = listings.findIndex(l => l.id === id);
 if(idx > -1) listings.splice(idx, 1);
 // PDF 서버 저장 공고면 서버에서도 삭제
-if(src === 'pdf'){
+if(src === ‘pdf’){
 fetch(LISTINGS_API, {
-method: 'DELETE',
-headers: {'Content-Type':'application/json'},
+method: ‘DELETE’,
+headers: {‘Content-Type’:‘application/json’},
 body: JSON.stringify({ id })
 }).catch(()=>{});
 }
 // 삭제된 ID 기억 (새로고침 시 다시 로드 방지)
-const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
+const deleted = JSON.parse(localStorage.getItem(‘deletedListings’)||’[]’);
+if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem(‘deletedListings’, JSON.stringify(deleted)); }
 renderAdminList();
 renderListings();
 updateHero();
-showToast('공고를 삭제했어요');
+showToast(‘공고를 삭제했어요’);
 }
 
 // 관리자 공고는 loadLiveData()에서 이름 기준 병합으로 처리 (중복 방지)
@@ -7869,18 +7860,18 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
 // 앱 시작 시 로그인 상태 복원
 (async function restoreKakaoSession() {
 // 구버전 오염 키 제거
-localStorage.removeItem('kakaoUser');
+localStorage.removeItem(‘kakaoUser’);
 
 // URL에 code 파라미터 있으면 → 로그인 콜백 처리
 const params = new URLSearchParams(window.location.search);
-const code = params.get('code');
-const state = params.get('state');
+const code = params.get(‘code’);
+const state = params.get(‘state’);
 if (code) {
-const sp = document.getElementById('splash');
-if (sp) sp.style.display = 'none';
-history.replaceState({}, '', window.location.pathname);
+const sp = document.getElementById(‘splash’);
+if (sp) sp.style.display = ‘none’;
+history.replaceState({}, ‘’, window.location.pathname);
 // 네이버 state가 sessionStorage에 있으면 네이버 콜백
-const savedNaverState = sessionStorage.getItem('naver_state');
+const savedNaverState = sessionStorage.getItem(‘naver_state’);
 if (state && savedNaverState && state === savedNaverState) {
 handleNaverCallback(code, state);
 } else {
@@ -7891,12 +7882,12 @@ return;
 
 // 이 기기에서 저장한 세션 복원
 try {
-const saved = localStorage.getItem('kakaoUser_v2');
+const saved = localStorage.getItem(‘kakaoUser_v2’);
 if (saved) {
 const parsed = JSON.parse(saved);
 if (parsed?.kakaoId) {
 kakaoUser = parsed;
-P.name = kakaoUser.nickname || kakaoUser.appNickname || '';
+P.name = kakaoUser.nickname || kakaoUser.appNickname || ‘’;
 applyLoginUI();
 updateHero();
 renderListings();
@@ -7906,53 +7897,53 @@ applyLoginUI();
 updateHero();
 updateMyCondCard();
 } else {
-localStorage.removeItem('kakaoUser_v2');
+localStorage.removeItem(‘kakaoUser_v2’);
 }
 }
 } catch(e) {
-localStorage.removeItem('kakaoUser_v2');
+localStorage.removeItem(‘kakaoUser_v2’);
 }
 })();
 
 function openLoginModal() {
-document.getElementById('login-modal').style.display = 'block';
+document.getElementById(‘login-modal’).style.display = ‘block’;
 }
 function closeLoginModal() {
-document.getElementById('login-modal').style.display = 'none';
+document.getElementById(‘login-modal’).style.display = ‘none’;
 }
 
 function naverLogin() {
 const state = Math.random().toString(36).substring(2);
-sessionStorage.setItem('naver_state', state);
-const redirectUri = encodeURIComponent(window.location.origin + '/');
+sessionStorage.setItem(‘naver_state’, state);
+const redirectUri = encodeURIComponent(window.location.origin + ‘/’);
 const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${redirectUri}&state=${state}`;
 window.location.replace(url);
 }
 
 async function handleNaverCallback(code, state) {
 // 스플래시 즉시 숨김
-const sp = document.getElementById('splash');
-if (sp) { sp.classList.add('hide'); setTimeout(() => { sp.style.display='none'; sp.style.visibility='hidden'; }, 300); }
+const sp = document.getElementById(‘splash’);
+if (sp) { sp.classList.add(‘hide’); setTimeout(() => { sp.style.display=‘none’; sp.style.visibility=‘hidden’; }, 300); }
 // 낙관적 UI: 즉시 홈으로 이동 + 로딩 상태 표시
-const _greetEl = document.getElementById('hero-greeting');
-const _myNameEl = document.getElementById('my-name');
-if (_greetEl) _greetEl.textContent = '로그인 중...';
-if (_myNameEl) _myNameEl.textContent = '';
-showScreen('home');
-showToast('네이버 로그인 중...');
+const _greetEl = document.getElementById(‘hero-greeting’);
+const _myNameEl = document.getElementById(‘my-name’);
+if (_greetEl) _greetEl.textContent = ‘로그인 중…’;
+if (_myNameEl) *myNameEl.textContent = ‘’;
+showScreen(‘home’);
+showToast(‘네이버 로그인 중…’);
 try {
-const redirectUri = encodeURIComponent(window.location.origin + '/');
+const redirectUri = encodeURIComponent(window.location.origin + ‘/’);
 const res = await fetch(`${NAVER_AUTH_API}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}&redirect_uri=${redirectUri}`);
 const data = await res.json();
 if (data.error) throw new Error(data.error);
-sessionStorage.removeItem('naver_state');
-kakaoUser = { kakaoId: 'naver*' + data.naverId, nickname: data.nickname, avatar: '', accessToken: data.accessToken, provider: 'naver' };
+sessionStorage.removeItem(‘naver_state’);
+kakaoUser = { kakaoId: ’naver*’ + data.naverId, nickname: data.nickname, avatar: ‘’, accessToken: data.accessToken, provider: ‘naver’ };
 P.name = data.nickname;
-localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
-localStorage.removeItem('kakaoUser');
+localStorage.setItem(‘kakaoUser_v2’, JSON.stringify(kakaoUser));
+localStorage.removeItem(‘kakaoUser’);
 // 닉네임 즉시 반영
 if (_greetEl) _greetEl.textContent = `${data.nickname}님, 안녕하세요`;
-if (_myNameEl) _myNameEl.textContent = data.nickname + '님';
+if (_myNameEl) _myNameEl.textContent = data.nickname + ‘님’;
 applyLoginUI();
 updateHero();
 updateMyCondCard();
@@ -7963,40 +7954,40 @@ sbSaveProfile(kakaoUser);
 sbLoadBookmarks(kakaoUser.kakaoId).then(() => { applyLoginUI(); updateHero(); });
 sbLoadCondition(kakaoUser.kakaoId).then(() => { updateMyCondCard(); });
 } catch(e) {
-showToast('❌ 네이버 로그인 실패: ' + e.message);
+showToast(’❌ 네이버 로그인 실패: ’ + e.message);
 }
 }
 
 function kakaoLogin() {
 // 항상 슬래시 포함된 URL 사용 (카카오 등록값과 일치)
-const redirectUri = encodeURIComponent(window.location.origin + '/');
+const redirectUri = encodeURIComponent(window.location.origin + ‘/’);
 const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${redirectUri}`;
 window.location.replace(url);
 }
 
 async function handleKakaoCallback(code) {
-const sp = document.getElementById('splash');
-if (sp) { sp.classList.add('hide'); setTimeout(() => sp.style.display='none', 300); }
+const sp = document.getElementById(‘splash’);
+if (sp) { sp.classList.add(‘hide’); setTimeout(() => sp.style.display=‘none’, 300); }
 // 낙관적 UI: 즉시 홈으로 이동 + 로딩 상태 표시
-const _greetEl = document.getElementById('hero-greeting');
-const _myNameEl = document.getElementById('my-name');
-if (_greetEl) _greetEl.textContent = '로그인 중...';
-if (_myNameEl) _myNameEl.textContent = '';
-showScreen('home');
-showToast('카카오 로그인 중...');
+const _greetEl = document.getElementById(‘hero-greeting’);
+const _myNameEl = document.getElementById(‘my-name’);
+if (_greetEl) _greetEl.textContent = ‘로그인 중…’;
+if (_myNameEl) _myNameEl.textContent = ‘’;
+showScreen(‘home’);
+showToast(‘카카오 로그인 중…’);
 try {
-const redirectUri = encodeURIComponent(window.location.origin + '/');
+const redirectUri = encodeURIComponent(window.location.origin + ‘/’);
 const res = await fetch(`${KAKAO_AUTH_API}?code=${encodeURIComponent(code)}&redirect_uri=${redirectUri}`);
 const data = await res.json();
 if (data.error) throw new Error(data.error);
 kakaoUser = data;
 kakaoUser.appNickname = data.nickname;
 P.name = data.nickname;
-localStorage.setItem('kakaoUser_v2', JSON.stringify(kakaoUser));
-localStorage.removeItem('kakaoUser');
+localStorage.setItem(‘kakaoUser_v2’, JSON.stringify(kakaoUser));
+localStorage.removeItem(‘kakaoUser’);
 // 닉네임 즉시 반영
 if (_greetEl) _greetEl.textContent = `${data.nickname}님, 안녕하세요`;
-if (_myNameEl) _myNameEl.textContent = data.nickname + '님';
+if (_myNameEl) _myNameEl.textContent = data.nickname + ‘님’;
 applyLoginUI();
 updateHero();
 updateMyCondCard();
@@ -8008,46 +7999,46 @@ sbSaveProfile(kakaoUser);
 sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
 sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); renderListings(); });
 } catch(e) {
-showToast('❌ 로그인 실패: ' + e.message);
+showToast(’❌ 로그인 실패: ’ + e.message);
 }
 }
 
 function kakaoLogout() {
 kakaoUser = null;
-localStorage.removeItem('kakaoUser_v2');
-localStorage.removeItem('kakaoUser');
+localStorage.removeItem(‘kakaoUser_v2’);
+localStorage.removeItem(‘kakaoUser’);
 savedIds.clear();
 // 조건 초기화
-P.name=''; P.byear=''; P.bmonth=''; P.bday=''; P.income=''; P.cash='';
-P.noHomeYears=''; P.depCount=''; P.depAmt=''; P.children=0; P.childDates=[];
-P.marriage='미혼'; P.marriageYear=''; P.household=''; P.isNoHome=true;
-P.region=''; P.dependents=0; P.accYears=''; P.prefSizes=[];
-P.elderParent=false; P.isDual=false; P.spouseIncome=''; P.totalIncome='';
+P.name=’’; P.byear=’’; P.bmonth=’’; P.bday=’’; P.income=’’; P.cash=’’;
+P.noHomeYears=’’; P.depCount=’’; P.depAmt=’’; P.children=0; P.childDates=[];
+P.marriage=‘미혼’; P.marriageYear=’’; P.household=’’; P.isNoHome=true;
+P.region=’’; P.dependents=0; P.accYears=’’; P.prefSizes=[];
+P.elderParent=false; P.isDual=false; P.spouseIncome=’’; P.totalIncome=’’;
 // MY탭 guest/loggedin 전환
-const myGuest = document.getElementById('my-guest');
-const myLoggedIn = document.getElementById('my-loggedin');
-if(myGuest) myGuest.style.display = 'block';
-if(myLoggedIn) myLoggedIn.style.display = 'none';
+const myGuest = document.getElementById(‘my-guest’);
+const myLoggedIn = document.getElementById(‘my-loggedin’);
+if(myGuest) myGuest.style.display = ‘block’;
+if(myLoggedIn) myLoggedIn.style.display = ‘none’;
 applyLoginUI();
 renderListings();
 renderSaved();
 updateHero();
 // 히어로 인사말 초기화
-const _greetEl = document.getElementById('hero-greeting');
-const _nudgeEl = document.getElementById('hero-login-nudge');
-if (_greetEl) _greetEl.textContent = '안녕하세요';
-if (_nudgeEl) _nudgeEl.style.display = 'block';
-showToast('로그아웃됐어요');
+const _greetEl = document.getElementById(‘hero-greeting’);
+const _nudgeEl = document.getElementById(‘hero-login-nudge’);
+if (_greetEl) _greetEl.textContent = ‘안녕하세요’;
+if (_nudgeEl) _nudgeEl.style.display = ‘block’;
+showToast(‘로그아웃됐어요’);
 }
 
 /* ══ 푸시 알림 ══ */
 async function requestPushPermission() {
-if (!('Notification' in window)) return;
-if (Notification.permission === 'granted') {
+if (!(‘Notification’ in window)) return;
+if (Notification.permission === ‘granted’) {
 registerServiceWorker();
 return;
 }
-if (Notification.permission === 'denied') return;
+if (Notification.permission === ‘denied’) return;
 // 로그인 직후 바로 요청하면 거부율이 높아서 약간 딜레이 후 안내 토스트 먼저 표시
 setTimeout(() => {
 showPushNudge();
@@ -8056,54 +8047,54 @@ showPushNudge();
 
 function showPushNudge() {
 // 이미 토스트가 있으면 스킵
-const existing = document.getElementById('push-nudge');
+const existing = document.getElementById(‘push-nudge’);
 if (existing) return;
-const nudge = document.createElement('div');
-nudge.id = 'push-nudge';
-nudge.style.cssText = 'position:fixed;bottom:calc(var(–nav-h)+16px);left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:390px;background:var(–ink-2);border-radius:16px;padding:14px 16px;z-index:300;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.25)';
+const nudge = document.createElement(‘div’);
+nudge.id = ‘push-nudge’;
+nudge.style.cssText = ‘position:fixed;bottom:calc(var(–nav-h)+16px);left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:390px;background:var(–ink-2);border-radius:16px;padding:14px 16px;z-index:300;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.25)’;
 nudge.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> <div style="flex:1"> <div style="font-size:13px;font-weight:700;color:white">청약 마감 알림 받기</div> <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">D-3 임박 공고를 놓치지 마세요</div> </div> <button onclick="enablePush()" style="background:var(--accent);border:none;border-radius:10px;padding:8px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">허용</button> <button onclick="document.getElementById('push-nudge').remove()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 4px;flex-shrink:0">✕</button>`;
 document.body.appendChild(nudge);
 setTimeout(() => { if(nudge.parentNode) nudge.remove(); }, 8000);
 }
 
 async function enablePush() {
-const nudge = document.getElementById('push-nudge');
+const nudge = document.getElementById(‘push-nudge’);
 if (nudge) nudge.remove();
 const permission = await Notification.requestPermission();
-if (permission === 'granted') {
+if (permission === ‘granted’) {
 registerServiceWorker();
-showToast('🔔 청약 마감 알림이 설정됐어요!');
+showToast(‘🔔 청약 마감 알림이 설정됐어요!’);
 } else {
-showToast('알림을 허용해야 마감 알림을 받을 수 있어요');
+showToast(‘알림을 허용해야 마감 알림을 받을 수 있어요’);
 }
 }
 
 async function registerServiceWorker() {
-if (!('serviceWorker' in navigator)) return;
+if (!(‘serviceWorker’ in navigator)) return;
 try {
-const reg = await navigator.serviceWorker.register('/sw.js');
-console.log('SW registered:', reg.scope);
+const reg = await navigator.serviceWorker.register(’/sw.js’);
+console.log(‘SW registered:’, reg.scope);
 // 마감 임박 공고 확인 후 알림
 checkUpcomingDeadlines();
 } catch(e) {
-console.log('SW registration failed:', e);
+console.log(‘SW registration failed:’, e);
 }
 }
 
 function checkUpcomingDeadlines() {
-if (Notification.permission !== 'granted') return;
+if (Notification.permission !== ‘granted’) return;
 const urgent = listings.filter(l => l.days >= 0 && l.days <= 3);
 if (urgent.length > 0 && kakaoUser) {
 const l = urgent[0];
 const title = `⏰ 청약 마감 D-${l.days}`;
 const body = `${l.name} 마감이 ${l.days === 0 ? '오늘' : l.days + '일 후'}예요!`;
-if ('serviceWorker' in navigator) {
+if (‘serviceWorker’ in navigator) {
 navigator.serviceWorker.ready.then(reg => {
 reg.showNotification(title, {
 body,
-icon: '/icon.png',
-badge: '/icon.png',
-tag: 'deadline-' + l.id,
+icon: ‘/icon.png’,
+badge: ‘/icon.png’,
+tag: ‘deadline-’ + l.id,
 data: { listingId: l.id }
 });
 });
@@ -8112,17 +8103,17 @@ data: { listingId: l.id }
 }
 
 function applyLoginUI() {
-const area = document.getElementById('kakao-login-area');
-const nm = document.getElementById('my-name');
+const area = document.getElementById(‘kakao-login-area’);
+const nm = document.getElementById(‘my-name’);
 if (!area) return;
 if (kakaoUser) {
 const displayName = kakaoUser.nickname || P.name;
-if (nm) nm.textContent = displayName + '님';
+if (nm) nm.textContent = displayName + ‘님’;
 if (displayName) P.name = displayName;
 area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
 updateHero();
 } else {
-if (nm) nm.textContent = '';
+if (nm) nm.textContent = ‘’;
 area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
 }
 }
