@@ -322,9 +322,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .wiz-btn:active{transform:scale(.98)}
 
 /* ══ 상세 ══ */
-.det-header{background:linear-gradient(150deg,#0A0E1A,#1A2440,#0D1929);padding:20px 20px 32px;position:relative;overflow:hidden}
-.det-header::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.22) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
-.det-header::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.12) 0%,transparent 70%);bottom:-60px;left:-30px;pointer-events:none}
+.det-header{background:#fff;padding:16px 20px 24px;position:relative;overflow:hidden;border-bottom:1.5px solid #E8F0FE}
+.det-header::before{display:none}
+.det-header::after{display:none}
 .det-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative;z-index:1}
 .det-back{background:none;border:none;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;transition:opacity .15s;padding:0}
 /* 상세 고정 하단 CTA */
@@ -332,14 +332,14 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .det-sticky-cta.show{display:block}
 .det-cta-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px}
 .det-cta-btn:active{transform:scale(.98)}
-.det-bell{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
-.det-bell:active{background:rgba(255,255,255,.25)}
-.det-bell svg{width:18px;height:18px;stroke:white;fill:none;transition:all .2s}
+.det-bell{width:40px;height:40px;border-radius:10px;background:#F0F6FF;border:1.5px solid #DBEAFE;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.det-bell:active{background:#DBEAFE}
+.det-bell svg{width:18px;height:18px;stroke:var(--accent);fill:none;transition:all .2s}
 .det-bell.on{background:rgba(245,166,35,.35);border-color:rgba(245,166,35,.7)}
 .det-bell.on svg{stroke:var(--gold);fill:var(--gold)}
-#det-save-btn.on{background:rgba(245,166,35,.35);border-color:rgba(245,166,35,.7)}
-.det-title{font-size:23px;font-weight:900;color:white;line-height:1.3;letter-spacing:-.5px;position:relative;z-index:1;margin-top:4px}
-.det-loc{font-size:13px;color:rgba(255,255,255,.6);margin-top:7px;position:relative;z-index:1;display:flex;align-items:center;gap:4px}
+#det-save-btn.on{background:#FEF3C7;border-color:#D97706} #det-save-btn.on svg{stroke:#D97706}
+.det-title{font-size:20px;font-weight:800;color:var(--ink);line-height:1.3;letter-spacing:-.4px;position:relative;z-index:1;margin-top:8px}
+.det-loc{font-size:13px;color:var(--ink-4);margin-top:6px;position:relative;z-index:1;display:flex;align-items:center;gap:4px}
 .det-body{padding:0 20px}
 .info-card{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);margin-top:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
 .info-card-title{padding:14px 18px;font-size:14px;font-weight:800;border-bottom:1px solid rgba(0,0,0,.05);background:var(--bg);letter-spacing:-.2px}
@@ -1262,16 +1262,16 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button class="det-back" onclick="goBackWithAnim()"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="det-bell" id="det-delete-btn" onclick="deleteFromDetail()" style="display:none;background:var(--red)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
         <button class="det-bell" id="det-share-btn" onclick="shareDetail()">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
         <button class="det-bell" id="det-save-btn" onclick="toggleSaveFromDetailIcon()">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
         <button class="det-bell" id="det-bell-btn" onclick="toggleDetailAlarm()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </button>
       </div>
     </div>
@@ -3722,7 +3722,7 @@ async function showDetail(id, fromSwipe=false){
   const monthly=Math.round(loan*.04/12),canAfford=cash>=dep;
 
   // ★★★ [하드코딩 — 수정 금지] 상세 헤더 뱃지: 어두운 배경에서 보이게 흰색 글씨 ★★★
-  const detBadgeStyle = 'display:inline-block;margin-bottom:10px;color:white !important;background:rgba(255,255,255,.18) !important;border:1px solid rgba(255,255,255,.3) !important';
+  const detBadgeStyle = 'display:inline-block;margin-bottom:10px';
   document.getElementById('det-badges').innerHTML=`${typeBadge(l).replace(/<span /,`<span style="${detBadgeStyle}" `)}`;
   // ★★★ [하드코딩 끝] ★★★
   document.getElementById('det-title').textContent=cleanName(l.name);
