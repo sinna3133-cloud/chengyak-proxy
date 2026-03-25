@@ -73,11 +73,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 
 /* ══ 홈 히어로 — 리디자인 ══ */
-.hero{background:linear-gradient(160deg,#0B1120 0%,#0F1E3D 50%,#0D1A32 100%);padding:0 20px 0;position:relative;overflow:hidden}
-/* 히어로 데코 — 우상단 원형 글로우 */
-.hero::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.28) 0%,transparent 65%);top:-80px;right:-60px;pointer-events:none}
-/* 히어로 데코 — 좌하단 민트 글로우 */
-.hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.14) 0%,transparent 65%);bottom:-50px;left:-30px;pointer-events:none}
+.hero{background:linear-gradient(160deg,#EFF6FF 0%,#DBEAFE 60%,#EEF2FF 100%);padding:0 20px 0;position:relative;overflow:hidden;border-bottom:1.5px solid #BFDBFE}
+/* 히어로 데코 — 우상단 원형 */
+.hero::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.13) 0%,transparent 65%);top:-80px;right:-60px;pointer-events:none}
+/* 히어로 데코 — 좌하단 */
+.hero::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.1) 0%,transparent 65%);bottom:-40px;left:-30px;pointer-events:none}
 
 
 
@@ -88,19 +88,19 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* 조건 카드 */
 
 .cond-card-top{display:flex;align-items:center;justify-content:space-between}
-.cond-card-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.8px;text-transform:uppercase}
+.cond-card-label{font-size:11px;font-weight:700;color:#2563EB;letter-spacing:.8px;text-transform:uppercase}
 .cond-chevron{color:rgba(255,255,255,.35);font-size:14px;transition:transform .25s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 /* 히어로(어두운 배경)용 - 반투명 오버레이 */
 .type-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
-.type-pill.fp{border-color:rgba(0,201,160,.4);background:rgba(0,201,160,.12);color:#34D399}
-.type-pill.nb{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.12);color:#FCD34D}
-.type-pill.mc{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.12);color:#FCA5A5}
-.type-pill.nw{border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.12);color:#C4B5FD}
-.type-pill.ep{border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.12);color:#FED7AA}
-.type-pill.yt{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.12);color:#DDD6FE}
-.type-pill.gn{border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.12);color:#93C5FD}
+.type-pill.fp{border-color:#0D9488;background:#CCFBF1;color:#0F766E}
+.type-pill.nb{border-color:#D97706;background:#FEF3C7;color:#92400E}
+.type-pill.mc{border-color:#DC2626;background:#FEE2E2;color:#991B1B}
+.type-pill.nw{border-color:#7C3AED;background:#EDE9FE;color:#5B21B6}
+.type-pill.ep{border-color:#EA580C;background:#FFEDD5;color:#9A3412}
+.type-pill.yt{border-color:#6D28D9;background:#EDE9FE;color:#4C1D95}
+.type-pill.gn{border-color:#2563EB;background:#DBEAFE;color:#1E40AF}
 /* 밝은 배경(조건화면·위저드)용 공통 전형 뱃지 */
 .etype-fp{background:#ECFDF5;color:#059669;border:1.5px solid #A7F3D0}
 .etype-nb{background:#FFFBEB;color:#D97706;border:1.5px solid #FDE68A}
@@ -113,10 +113,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .cond-detail.open{max-height:200px}
 .cond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0 4px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px}
-.cond-item-label{font-size:var(--t-xs);color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.3px}
-.cond-item-val{font-size:var(--t-base);font-weight:700;color:white;margin-top:3px}
-.cond-item-val.blank{color:rgba(255,255,255,.22)}
-.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:linear-gradient(135deg,#2563EB,#3B82F6);border:none;border-radius:14px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 20px rgba(37,99,235,.45)}
+.cond-item-label{font-size:var(--t-xs);color:#6B9DC2;font-weight:600;letter-spacing:.3px}
+.cond-item-val{font-size:var(--t-base);font-weight:700;color:#1E3A5F;margin-top:3px}
+.cond-item-val.blank{color:#A8C4DC}
+.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:14px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 16px rgba(29,78,216,.3)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -137,10 +137,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .login-modal-close{width:100%;padding:13px;background:var(--bg);border:none;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-4);cursor:pointer;margin-top:4px}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 /* 하단 탭 라인 */
-.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(255,255,255,.08)}
+.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid #BFDBFE}
 
 /* 알림 배너 */
-.alert-banner{margin:14px -20px 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.alert-banner{margin:14px 0 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .alert-banner-icon{font-size:22px;flex-shrink:0}
 .alert-banner-title{font-size:13px;font-weight:800;color:white}
 .alert-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
@@ -678,8 +678,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ── 히어로 인사말 ── */
 .hero-greet-anim{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 .hero-cheer-anim{animation:fadeUp .5s .12s cubic-bezier(.22,1,.36,1) both}
-.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px 16px;margin-bottom:0;cursor:pointer;transition:all .2s}
-.cond-card:active{background:rgba(255,255,255,.11);transform:scale(.99)}
+.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,.9);border-radius:18px;padding:15px 16px;margin-bottom:0;cursor:pointer;transition:all .2s;box-shadow:0 2px 20px rgba(37,99,235,.1)}
+.cond-card:active{background:rgba(255,255,255,.9);transform:scale(.99)}
 
 /* ── 카드 stagger ── */
 @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1157,13 +1157,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div id="api-indicator" style="display:none"></div>
       <!-- 인사말 영역 -->
       <div style="margin-bottom:16px;position:relative;z-index:1">
-        <div id="hero-greeting" class="hero-greet-anim" style="font-size:23px;font-weight:900;color:white;letter-spacing:-.5px;line-height:1.25"></div>
-        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:rgba(255,255,255,.5);letter-spacing:-.1px;margin-top:3px"></div>
+        <div id="hero-greeting" class="hero-greet-anim" style="font-size:23px;font-weight:900;color:#1E3A5F;letter-spacing:-.5px;line-height:1.25"></div>
+        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:#5B8DB8;letter-spacing:-.1px;margin-top:3px"></div>
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
           <div class="cond-card-label">내 청약 조건</div>
-          <div class="cond-chevron" id="cond-chev" style="color:rgba(255,255,255,.45);font-size:18px;line-height:1">⌄</div>
+          <div class="cond-chevron" id="cond-chev" style="color:#2563EB;font-size:18px;line-height:1">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
 
@@ -1179,7 +1179,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
           </div>
         </div>
         <div id="hero-login-nudge" style="display:none">
-          <div style="font-size:13px;color:rgba(255,255,255,.65);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
+          <div style="font-size:13px;color:#5B8DB8;margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
           <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
         </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
