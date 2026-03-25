@@ -3188,7 +3188,7 @@ function renderListings(){
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
     const prob=calcProb(l,P);
     const wrHTML=isLottoListing(l)
-      ?`<div class="wr-badge lotto">추첨</div>`
+      ? (l.units > 0 && l.units < 20 ? `<div class="wr-badge lotto">추첨</div>` : ``)
       :prob!==null
         ?`<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
         :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
@@ -6904,8 +6904,21 @@ async function autoFetchAllFactors() {
   const el = document.getElementById('det-factors-wrap');
   if(el && _detailCurrentId) {
     const cur = listings.find(l => String(l.id) === String(_detailCurrentId));
-    if(cur && cur.priceFactors && cur.priceFactors.length) el.innerHTML = renderFactors(cur.priceFactors);
+    if(cur) {
+      const key = String(cur.id || cur.name);
+      const factors = cache[key] || cache[String(cur.name)];
+      if(factors && factors.length) {
+        cur.priceFactors = factors;
+        el.innerHTML = renderFactors(factors);
+      }
+    }
   }
+  // 모든 listings에 캐시 적용
+  listings.forEach(l => {
+    const key = String(l.id || l.name);
+    if(cache[key]) l.priceFactors = cache[key];
+    else if(cache[String(l.name)]) l.priceFactors = cache[String(l.name)];
+  });
 }
 
 
