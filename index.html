@@ -3443,7 +3443,18 @@ function renderMyCondDashboard(){
     <div class="dash-section">
       <div class="dash-section-title">신청 가능한 전형</div>
       <div class="dash-types">
-        ${types.length?types.map(t=>`<div class="dash-type-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div class="dash-type-name">${t.l}${t.sub?` <span style="font-size:11px;color:var(--ink-4);font-weight:500">${t.sub}</span>`:''}</div><span class="dash-type-badge ${etypeClass(t.c)}">신청 가능</span></div><div class="dash-type-desc">${t.subNote||(typeDescs[t.l]||{}).desc||''}</div></div>`).join(''):'<div style="font-size:13px;color:var(--ink-4)">조건을 더 입력하면 전형이 표시돼요</div>'}
+        ${types.length?types.map(t=>{
+          // subNote 심플화: 소득% 수치 제거하고 핵심만
+          const simpleNote = t.sub
+            ? (t.sub.includes('우선') ? '우선공급 단계 신청 가능'
+              : t.sub.includes('일반') ? '일반공급 단계 신청 가능'
+              : t.sub.includes('추첨') ? '추첨제 신청 가능'
+              : t.sub.includes('예비') ? '예비신혼부부 신청 가능'
+              : t.sub.includes('민간') ? '민간분양 신청 가능'
+              : t.subNote||'')
+            : (typeDescs[t.l]||{}).desc||'';
+          return `<div class="dash-type-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:nowrap"><div class="dash-type-name" style="flex:1;min-width:0">${t.l}${t.sub?` <span style="font-size:11px;color:var(--ink-4);font-weight:500;white-space:nowrap">${t.sub}</span>`:''}</div><span class="dash-type-badge ${etypeClass(t.c)}" style="white-space:nowrap;flex-shrink:0">신청 가능</span></div><div class="dash-type-desc">${simpleNote}</div></div>`;
+        }).join(''):'<div style="font-size:13px;color:var(--ink-4)">조건을 더 입력하면 전형이 표시돼요</div>'}
       </div>
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
@@ -5057,13 +5068,16 @@ async function generateReport(){
     '인터뷰 답변을 반영하고 있어요...',
     '실거래가 데이터를 조회하고 있어요...',
     '공고를 분석하고 있어요...',
+    '소득·자산 기준을 대조하고 있어요...',
+    '당첨 가능성을 계산하고 있어요...',
+    '자금 계획을 시뮬레이션하고 있어요...',
     'AI가 전략을 작성하고 있어요...',
   ];
   let mi = 0;
   const msgTimer = setInterval(() => {
     const el = document.getElementById('report-loading-msg');
     if(el) el.textContent = msgs[Math.min(mi++, msgs.length - 1)];
-  }, 1800);
+  }, 2200);
 
   // 실거래가 조회 시도 (매칭 공고 상위 3개)
   try {
@@ -5286,11 +5300,12 @@ async function generateReport(){
 
 [SECTION:자금 계획이에요]
 [HEADLINE:계약금 [?]억 준비하면 [단지명] 당첨 즉시 계약 가능해요]
-[STAT:계약금|?만원][STAT:중도금|?%][STAT:월상환액|?만원]
+[STAT:계약금|?만원][STAT:월상환액|?만원][STAT:상환비율|?%]
 
-현금 ${cash.toLocaleString()}만원 / 연소득 ${income.toLocaleString()}만원 기준으로 숫자로 계산해줘요:
+현금 ${cash.toLocaleString()}만원 / 연소득 ${income.toLocaleString()}만원 / 월소득 ${Math.round(income/12).toLocaleString()}만원 기준으로 숫자로 계산해줘요:
 - 계약금(공공10%·민간20%), 중도금(9억초과시 집단대출불가), 잔금(LTV: 투기과열 일반40%·생애최초70%, 비규제 무주택70%·유주택60%, 최대 6억한도, 전매수도권3년·지방1년)
-- 현금 부족 시 솔직하게 "최소 [?]억 이하만 현실적" 명시. 디딤돌 대출 가능 여부(소득6천만원이하·주택5억이하). 월상환액(연4%, 30년).
+- 현금 부족 시 솔직하게 "최소 [?]억 이하만 현실적" 명시. 디딤돌 대출 가능 여부(소득6천만원이하·주택5억이하).
+- [BOLD:월상환액 추정] 반드시 포함: 대출금액·연4%·30년 기준 월상환액 계산 → 월소득 대비 상환 비율(%) → "안정적(25%이하) / 주의(25~35%) / 부담(35%초과)" 판정. 예시: "월상환액 약 OOO만원 (월소득 OOO만원의 OO%) → 안정적 수준"
 
 [SECTION:가점 올리는 법이에요]
 [HEADLINE:지금부터 하면 [?]점 올릴 수 있어요]
@@ -5617,6 +5632,11 @@ function _parseBody(body){
   return body.split('\n').filter(l => l.trim() && l.trim() !== '---' && l.trim() !== '–––' && l.trim() !== '—').map(l => {
     const t = l.trim();
     if(!t) return '';
+    // — 로 시작하는 설명 줄 → 작은 회색 텍스트로 처리
+    if(/^[—–]\s/.test(t)){
+      const rest = _md(t.replace(/^[—–]\s+/,''));
+      return `<div style="font-size:12px;color:var(--ink-4);line-height:1.7;margin:4px 0 8px;padding-left:4px;border-left:2px solid rgba(0,0,0,.1)">${rest}</div>`;
+    }
     // 번호 목록
     if(/^\d+[.)\s]/.test(t)){
       const num = t.match(/^(\d+)/)[1];
