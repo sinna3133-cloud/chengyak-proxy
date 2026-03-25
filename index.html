@@ -5333,15 +5333,19 @@ async function generateReport(){
 3. 이번 달 — 저축·통장 납입 등`;
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55000); // 55초 타임아웃
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 8000,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
+    clearTimeout(timeoutId);
     clearInterval(msgTimer);
     const data = await res.json();
     const text = data.content?.map(c => c.text || '').join('') || '';
@@ -5371,15 +5375,17 @@ async function generateReport(){
     _showReportResult(html, false);
   } catch(e) {
     clearInterval(msgTimer);
+    _reportGenerating = false;
     document.getElementById('report-loading').style.display = 'none';
     document.getElementById('report-content').style.display = 'block';
     const _rb3 = document.getElementById('report-body');
     if(_rb3){ _rb3.style.overflow = 'auto'; _rb3.style.display = 'block'; }
+    const isTimeout = e.name === 'AbortError';
     document.getElementById('report-content').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
         <div style="font-size:40px;margin-bottom:16px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
-        <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">리포트 생성에 실패했어요</div>
-        <div style="font-size:13px;color:var(--ink-4);margin-bottom:20px">${e.message}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">${isTimeout ? '응답 시간이 초과됐어요' : '리포트 생성에 실패했어요'}</div>
+        <div style="font-size:13px;color:var(--ink-4);margin-bottom:20px">${isTimeout ? '서버가 잠시 바빠요. 잠깐 후 다시 시도해주세요.' : e.message}</div>
         <button onclick="generateReport()" style="padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">다시 시도</button>
       </div>`;
   }
