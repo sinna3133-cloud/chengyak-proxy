@@ -3073,9 +3073,9 @@ function updateHero(){
     if(_isPrem){
       _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기';
     } else if(_wc >= 1){
-      _premBtn.innerHTML = '✦ 이번 주 리포트 사용 완료 · 구독하면 더 받을 수 있어요';
-      _premBtn.style.background = 'var(--ink-3)';
-      _premBtn.style.boxShadow = 'none';
+      _premBtn.innerHTML = '🔒 이번 주 무료 리포트 완료 &nbsp;<span style="background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap">구독하면 주 2회 →</span>';
+      _premBtn.style.background = 'linear-gradient(135deg,#1E2535,#2D3748)';
+      _premBtn.style.boxShadow = '0 4px 16px rgba(0,0,0,.3)';
     } else {
       _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기 <span style="opacity:.7;font-size:12px;font-weight:500">· 이번 주 1회 무료</span>';
       _premBtn.style.background = '';
@@ -5245,7 +5245,7 @@ async function generateReport(){
 - 각 섹션 첫 줄: [HEADLINE:핵심을 한 문장으로]
 - 핵심 수치 1~3개: [STAT:라벨|값] — 값은 최대 5자, 쉼표 금지
 - 중요 단어 강조: [BOLD:텍스트]
-- 특히 중요: 공고명은 반드시 [단지명: OOO] 형식, 전형은 [전형: OOO] 형식으로 표시.
+- 특히 중요: 공고명은 반드시 [단지명: 지역 공고명] 형식으로 표시 (예: [단지명: 서울 더샵 프리엘라], [단지명: 경기 과천 푸르지오]). 전형은 [전형: OOO] 형식으로 표시.
 - 항목 나열: - 로 시작
 - 번호 목록: 1. 2. 3.
 
@@ -5262,10 +5262,10 @@ async function generateReport(){
 - 지금 당장 보완하면 가점이 오르는 포인트 1~2가지
 
 [SECTION:지금 이 공고에 지원하세요]
-[HEADLINE:"[단지명] [전형명] — 지금 바로 넣으세요"]
+[HEADLINE:"[지역 공고명] [전형명] — 지금 바로 넣으세요"]
 [STAT:접수일|M/DD][STAT:전형|전형명][STAT:당첨률|?%]
 단호하게 지시하는 톤으로 작성해줘요. 반드시 포함:
-- 첫 문장: "[단지명]에 [전형명]으로 지원하세요. 이유는 [핵심 이유]예요." 형식으로 시작
+- 첫 문장: "[지역 공고명]에 [전형명]으로 지원하세요. 이유는 [핵심 이유]예요." 형식으로 시작
 - 자격 요건 체크리스트: 해당 전형의 실제 조건(소득기준 몇 %, 통장 몇 개월, 자산기준 등)과 고객 조건 대조
 - 이 공고를 추천하는 이유 3가지 (전형 자격 충족, 당첨 가능성, 시세차익 등 숫자 포함)
 - 당첨 가능성: 예상 당첨률과 납입총액 당첨선 분석 결과 구체적으로
@@ -5295,8 +5295,14 @@ async function generateReport(){
 
 [SECTION:로또청약 기회예요]
 [HEADLINE:한 줄로 기회 요약]
-[STAT:시세차익|?억][STAT:마감|?일 후]
+[STAT:시세차익|?억][STAT:계약금|?만원][STAT:자금부족|?만원]
 무순위·줍줍 공고 설명. 없으면 "지금은 로또청약 기회가 없어요."
+로또청약이 있으면 반드시 아래 자금 현실을 함께 안내해줘요:
+- 계약금 얼마 필요한지 (분양가의 10~20%) 와 현금 ${cash.toLocaleString()}만원 대비 가능 여부
+- 부족하다면 얼마 부족한지 명확하게
+- 잔금 대출 한도: LTV ${isFirstBuy?70:isHot?40:70}%(최대 6억) 기준 최대 얼마 받을 수 있는지
+- 실제로 자기자금이 얼마 필요한지 (계약금+잔금 자기부담) vs 보유현금 비교
+- 단호하게: 자금이 부족하면 "현실적으로 계약이 어려워요"라고 솔직하게, 가능하면 "당첨 즉시 계약 가능해요"라고 명확하게
 
 [SECTION:자금 계획이에요]
 [HEADLINE:계약금 [?]억 준비하면 [단지명] 당첨 즉시 계약 가능해요]
@@ -5305,7 +5311,12 @@ async function generateReport(){
 현금 ${cash.toLocaleString()}만원 / 연소득 ${income.toLocaleString()}만원 / 월소득 ${Math.round(income/12).toLocaleString()}만원 기준으로 숫자로 계산해줘요:
 - 계약금(공공10%·민간20%), 중도금(9억초과시 집단대출불가), 잔금(LTV: 투기과열 일반40%·생애최초70%, 비규제 무주택70%·유주택60%, 최대 6억한도, 전매수도권3년·지방1년)
 - 현금 부족 시 솔직하게 "최소 [?]억 이하만 현실적" 명시. 디딤돌 대출 가능 여부(소득6천만원이하·주택5억이하).
-- [BOLD:월상환액 추정] 반드시 포함: 대출금액·연4%·30년 기준 월상환액 계산 → 월소득 대비 상환 비율(%) → "안정적(25%이하) / 주의(25~35%) / 부담(35%초과)" 판정. 예시: "월상환액 약 OOO만원 (월소득 OOO만원의 OO%) → 안정적 수준"
+- [BOLD:월상환액 추정] 반드시 아래 형식으로 출력해요:
+  월상환액 추정(잔금 대출 OOO만원 기준): 대출금리 연 4% 가정
+  * 상환 기간 30년
+  * 월상환액: 약 OOO만원
+  * ${reportName}님 월소득: 약 OOO만원(연 OOO만원 ÷ 12)
+  * 상환 비율: OOO ÷ OOO = 약 OO% → 안정적 수준(25%이하) / 주의(25~35%) / 부담(35%초과) 중 해당 판정
 
 [SECTION:가점 올리는 법이에요]
 [HEADLINE:지금부터 하면 [?]점 올릴 수 있어요]
