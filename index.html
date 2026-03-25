@@ -73,30 +73,34 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 
 /* ══ 홈 히어로 — 리디자인 ══ */
-.hero{background:#fff;padding:0 20px 0;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.06)}
+.hero{background:linear-gradient(160deg,#0B1120 0%,#0F1E3D 50%,#0D1A32 100%);padding:0 20px 0;position:relative;overflow:hidden}
+/* 히어로 데코 — 우상단 원형 글로우 */
+.hero::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.28) 0%,transparent 65%);top:-80px;right:-60px;pointer-events:none}
+/* 히어로 데코 — 좌하단 민트 글로우 */
+.hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.14) 0%,transparent 65%);bottom:-50px;left:-30px;pointer-events:none}
 
 
 
-.hero-inner{position:relative;z-index:1;padding:20px 0 20px}
+.hero-inner{position:relative;z-index:1;padding:22px 0 22px}
 .hero-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .hero-appname{font-size:var(--t-base);font-weight:800;color:white;letter-spacing:-.3px}
 .hero-appname span{color:#60A5FA}
 /* 조건 카드 */
 
 .cond-card-top{display:flex;align-items:center;justify-content:space-between}
-.cond-card-label{font-size:var(--t-sm);font-weight:700;color:var(--accent);letter-spacing:.3px}
+.cond-card-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.8px;text-transform:uppercase}
 .cond-chevron{color:rgba(255,255,255,.35);font-size:14px;transition:transform .25s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 /* 히어로(어두운 배경)용 - 반투명 오버레이 */
-.type-pill{font-size:var(--t-xs);font-weight:700;padding:5px 11px;border-radius:20px;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
-.type-pill.fp{border-color:#0D9488;background:#CCFBF1;color:#0F766E}
-.type-pill.nb{border-color:#D97706;background:#FEF3C7;color:#92400E}
-.type-pill.mc{border-color:#DC2626;background:#FEE2E2;color:#991B1B}
-.type-pill.nw{border-color:#7C3AED;background:#EDE9FE;color:#5B21B6}
-.type-pill.ep{border-color:#EA580C;background:#FFEDD5;color:#9A3412}
-.type-pill.yt{border-color:#6D28D9;background:#EDE9FE;color:#4C1D95}
-.type-pill.gn{border-color:#2563EB;background:#DBEAFE;color:#1E40AF}
+.type-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
+.type-pill.fp{border-color:rgba(0,201,160,.4);background:rgba(0,201,160,.12);color:#34D399}
+.type-pill.nb{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.12);color:#FCD34D}
+.type-pill.mc{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.12);color:#FCA5A5}
+.type-pill.nw{border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.12);color:#C4B5FD}
+.type-pill.ep{border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.12);color:#FED7AA}
+.type-pill.yt{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.12);color:#DDD6FE}
+.type-pill.gn{border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.12);color:#93C5FD}
 /* 밝은 배경(조건화면·위저드)용 공통 전형 뱃지 */
 .etype-fp{background:#ECFDF5;color:#059669;border:1.5px solid #A7F3D0}
 .etype-nb{background:#FFFBEB;color:#D97706;border:1.5px solid #FDE68A}
@@ -109,11 +113,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .cond-detail.open{max-height:200px}
 .cond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0 4px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px}
-.cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
-.cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
-.cond-item-val.blank{color:var(--ink-5)}
-.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:var(--accent);border:none;border-radius:14px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
-.hero-cta-btn:active{background:#0052CC;transform:scale(.98)}
+.cond-item-label{font-size:var(--t-xs);color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.3px}
+.cond-item-val{font-size:var(--t-base);font-weight:700;color:white;margin-top:3px}
+.cond-item-val.blank{color:rgba(255,255,255,.22)}
+.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:linear-gradient(135deg,#2563EB,#3B82F6);border:none;border-radius:14px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 20px rgba(37,99,235,.45)}
+.hero-cta-btn:active{opacity:.9;transform:scale(.98)}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -133,10 +137,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .login-modal-close{width:100%;padding:13px;background:var(--bg);border:none;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-4);cursor:pointer;margin-top:4px}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 /* 하단 탭 라인 */
-.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(0,0,0,.06)}
+.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(255,255,255,.08)}
 
 /* 알림 배너 */
-.alert-banner{margin:12px 0 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.alert-banner{margin:14px -20px 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .alert-banner-icon{font-size:22px;flex-shrink:0}
 .alert-banner-title{font-size:13px;font-weight:800;color:white}
 .alert-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
@@ -674,8 +678,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ── 히어로 인사말 ── */
 .hero-greet-anim{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 .hero-cheer-anim{animation:fadeUp .5s .12s cubic-bezier(.22,1,.36,1) both}
-.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:#F0F6FF;border:1.5px solid #DBEAFE;border-radius:16px;padding:14px 16px;margin-bottom:0;cursor:pointer;transition:all .2s}
-.cond-card:active{background:#DBEAFE;border-color:#93C5FD}
+.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px 16px;margin-bottom:0;cursor:pointer;transition:all .2s}
+.cond-card:active{background:rgba(255,255,255,.11);transform:scale(.99)}
 
 /* ── 카드 stagger ── */
 @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1151,22 +1155,15 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="hero">
     <div class="hero-inner">
       <div id="api-indicator" style="display:none"></div>
-      <!-- 앱 상단바 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-        <div style="display:flex;flex-direction:column;gap:2px">
-          <div id="hero-greeting" class="hero-greet-anim" style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.5px;line-height:1.2"></div>
-          <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <div style="width:40px;height:40px;background:var(--accent-light);border-radius:12px;display:flex;align-items:center;justify-content:center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-        </div>
+      <!-- 인사말 영역 -->
+      <div style="margin-bottom:16px;position:relative;z-index:1">
+        <div id="hero-greeting" class="hero-greet-anim" style="font-size:23px;font-weight:900;color:white;letter-spacing:-.5px;line-height:1.25"></div>
+        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:rgba(255,255,255,.5);letter-spacing:-.1px;margin-top:3px"></div>
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
           <div class="cond-card-label">내 청약 조건</div>
-          <div class="cond-chevron" id="cond-chev" style="color:var(--accent);font-size:18px;line-height:1">⌄</div>
+          <div class="cond-chevron" id="cond-chev" style="color:rgba(255,255,255,.45);font-size:18px;line-height:1">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
 
@@ -1182,7 +1179,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
           </div>
         </div>
         <div id="hero-login-nudge" style="display:none">
-          <div style="font-size:13px;color:var(--ink-4);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.65);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
           <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
         </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
@@ -1195,7 +1192,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="section-row" id="rec-section-row">
     <div class="section-title">내게 맞는 공고</div>
   </div>
-  <div id="rec-container"><div class="notice" style="cursor:pointer;background:#F0F6FF;border:1.5px dashed #BFDBFE;border-radius:12px;padding:14px 16px;color:var(--accent);font-size:13px;font-weight:600;text-align:center" onclick="openMyCondition()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-.15em;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>조건을 설정하면 맞춤 공고를 추천해드려요</div></div>
+  <div id="rec-container"><div class="notice" style="cursor:pointer" onclick="openMyCondition()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-.15em;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>조건을 설정하면 맞춤 공고를 추천해드려요</div></div>
 
   <div class="section-row" style="margin-top:6px">
     <div class="section-title">전체 공고</div>
@@ -4590,7 +4587,7 @@ function renderSaved(){
   if(!sv.length){c.innerHTML=`
   <div class="empty-state">
     <div class="empty-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     </div>
     <div class="empty-title">저장된 공고가 없어요</div>
     <div class="empty-sub">공고 카드 오른쪽 상단의 북마크 아이콘을 탭하면<br>여기에 저장돼요</div>
@@ -5745,22 +5742,22 @@ function renderReportText(text){
 function _sectionIcon(title){
   const t = title || '';
   if(t.includes('점수') || t.includes('상황') || t.includes('진단'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
   if(t.includes('공고') || t.includes('넣으세요'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
   if(t.includes('로또') || t.includes('무순위'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
   if(t.includes('대출') || t.includes('저축') || t.includes('자금'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
   if(t.includes('가점'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`;
   if(t.includes('TOP') || t.includes('넣을 수'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><line x1="22" y1="12" x2="2" y2="12"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><line x1="22" y1="12" x2="2" y2="12"/></svg>`;
   if(t.includes('지원하세요'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
   if(t.includes('할 일') || t.includes('액션') || t.includes('오늘') || t.includes('바로'))
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
-  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
 }
 
 function _sectionViz(title, stats, body){
