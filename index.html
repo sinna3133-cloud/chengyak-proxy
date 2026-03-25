@@ -1,4 +1,4 @@
-=<!DOCTYPE html> 
+<!DOCTYPE html> 
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -1413,6 +1413,9 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       </div>
       <div style="font-size:15px;font-weight:700;color:var(--ink)">리포트 작성 중이에요</div>
       <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">조건을 꼼꼼히 분석하고 있어요...</div>
+      <div style="margin-top:8px;padding:10px 18px;background:var(--accent-light);border-radius:12px;text-align:center">
+        <div style="font-size:12px;color:var(--accent);font-weight:600;line-height:1.7">최대 3분 소요될 수 있어요<br><span style="font-weight:400;color:var(--ink-4)">리포트가 준비되면 알림으로 알려드릴게요</span></div>
+      </div>
       <div style="display:flex;gap:6px;margin-top:4px">
         <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .0s ease-in-out infinite"></div>
         <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .2s ease-in-out infinite"></div>
@@ -1613,7 +1616,7 @@ const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-
 /* ══ 데이터 ══ */
 const listings = [];
 
-let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',marriageYear:'',household:'',isNoHome:true,region:'',dependents:0,accYears:'',prefSizes:[],elderParent:false};
+let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',marriageYear:'',household:'',isNoHome:true,region:'',dependents:'',accYears:'',prefSizes:[],elderParent:false};
 let savedIds = new Set();
 let alarmIds  = new Set(); // 알림 설정된 공고 ID
 let curFilter = 'all';
@@ -2821,11 +2824,17 @@ function gapPill(l){
 function calcScore(p){
   const nh=parseInt(p.noHomeYears||0),dep=parseInt(p.dependents||0),acc=parseInt(p.depCount||0);
   const nhT=[0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32];
-  const nhS=p.isNoHome?nhT[Math.min(nh,16)]:0;
-  const dS=Math.min(35,dep*5+5);
+  // 무주택기간: noHomeYears가 명시적으로 입력됐을 때만
+  const nhS=p.isNoHome&&p.noHomeYears?nhT[Math.min(nh,16)]:0;
+  // 부양가족: dependents가 명시적으로 입력됐을 때만 (+5 본인 포함)
+  // 미입력(p.dependents===undefined||'') → 0점
+  const hasDep = p.dependents !== undefined && p.dependents !== '' && p.dependents !== null;
+  const dS = hasDep ? Math.min(35, dep*5+5) : 0;
+  // 청약통장: depCount가 명시적으로 입력됐을 때만
   const yr=Math.floor(acc/12);
   const aT=[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
-  const aS=aT[Math.min(yr,15)]||2;
+  const hasAcc = p.depCount !== undefined && p.depCount !== '' && p.depCount !== null;
+  const aS = hasAcc ? (aT[Math.min(yr,15)]||2) : 0;
   return{total:nhS+dS+aS,nhS,dS,aS};
 }
 
@@ -4364,7 +4373,7 @@ function goBackWithAnim() {
 }
 
 function goBack(){
-  showScreen(prevScreen);
+  showScreen(prevScreen, true); // _fromBack=true: 스크롤 복원은 아래에서 직접 처리
   if(window._prevScrollY !== undefined){
     const y = window._prevScrollY;
     window._prevScrollY = undefined;
@@ -6578,7 +6587,7 @@ function filterGlossary(){
 }
 
 /* ══ 화면 전환 ══ */
-function showScreen(name){
+function showScreen(name, _fromBack=false){
   if(name==='editcond') renderEditCond();
   // 탭 바운스
   const navMap={home:'nav-home',mycond:'nav-search',consult:'nav-consult',saved:'nav-saved',my:'nav-my'};
@@ -6607,13 +6616,15 @@ function showScreen(name){
     const cheerEl=document.getElementById('hero-cheer');
     if(cheerEl) cheerEl.textContent=CHEER[Math.floor(Math.random()*CHEER.length)];
   }
-  // 네비 탭 클릭 시 최상단, 상세/복귀는 유지
-  const isNavTab = ['home','mycond','consult','saved','my','score','glossary','calendar','editcond'].includes(name);
-  if(isNavTab){
-    window.scrollTo(0, 0);
-  } else {
-    const savedY=scrollPositions['screen-'+name]||0;
-    window.scrollTo(0, name==='detail'?0:savedY);
+  // 스크롤 처리: goBack 호출이면 스크롤 복원은 goBack에서 직접 처리 → 여기서 skip
+  if(!_fromBack){
+    const isNavTab = ['home','mycond','consult','saved','my','score','glossary','calendar','editcond'].includes(name);
+    if(isNavTab){
+      window.scrollTo(0, 0);
+    } else {
+      const savedY=scrollPositions['screen-'+name]||0;
+      window.scrollTo(0, name==='detail'?0:savedY);
+    }
   }
 }
 function renderEditCond(){
