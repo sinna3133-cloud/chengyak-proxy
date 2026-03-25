@@ -1362,7 +1362,6 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       </div>
       <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">✦ 내 청약 전략 리포트 받기</button>
     </div>
-    <div class="prem-lock">지금은 무료로 체험할 수 있어요</div>
   </div>
 </div>
 
@@ -3073,9 +3072,9 @@ function updateHero(){
     if(_isPrem){
       _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기';
     } else if(_wc >= 1){
-      _premBtn.innerHTML = '🔒 이번 주 무료 리포트 완료 &nbsp;<span style="background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap">구독하면 주 2회 →</span>';
-      _premBtn.style.background = 'linear-gradient(135deg,#1E2535,#2D3748)';
-      _premBtn.style.boxShadow = '0 4px 16px rgba(0,0,0,.3)';
+      _premBtn.innerHTML = '이번 주 무료 리포트 완료 &nbsp;<span style="background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap">구독하면 주 2회 분석 가능해요</span>';
+      _premBtn.style.background = 'var(--accent)';
+      _premBtn.style.boxShadow = '0 4px 16px rgba(0,102,255,.3)';
     } else {
       _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기 <span style="opacity:.7;font-size:12px;font-weight:500">· 이번 주 1회 무료</span>';
       _premBtn.style.background = '';
