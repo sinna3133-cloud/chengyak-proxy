@@ -73,31 +73,30 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 
 /* ══ 홈 히어로 — 리디자인 ══ */
-.hero{background:linear-gradient(135deg,#0A0E1A,#1A2236,#0F1A2E,#0A0E1A);background-size:400% 400%;animation:heroShift 10s ease infinite;padding:0 20px 0;position:relative;overflow:hidden}
-@keyframes heroShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.hero-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/Cfilter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");opacity:.4}
-.hero-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.3) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
-.hero-glow2{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,160,.2) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
-.hero-inner{position:relative;z-index:1;padding:20px 0 18px}
+.hero{background:#fff;padding:0 20px 0;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.06)}
+
+
+
+.hero-inner{position:relative;z-index:1;padding:20px 0 20px}
 .hero-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .hero-appname{font-size:var(--t-base);font-weight:800;color:white;letter-spacing:-.3px}
 .hero-appname span{color:#60A5FA}
 /* 조건 카드 */
 
 .cond-card-top{display:flex;align-items:center;justify-content:space-between}
-.cond-card-label{font-size:var(--t-sm);font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase}
+.cond-card-label{font-size:var(--t-sm);font-weight:700;color:var(--accent);letter-spacing:.3px}
 .cond-chevron{color:rgba(255,255,255,.35);font-size:14px;transition:transform .25s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 /* 히어로(어두운 배경)용 - 반투명 오버레이 */
-.type-pill{font-size:var(--t-xs);font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
-.type-pill.fp{border-color:rgba(0,201,160,.5);background:rgba(0,201,160,.15);color:#6EECDA}
-.type-pill.nb{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.15);color:#FDE68A}
-.type-pill.mc{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.15);color:#FCA5A5}
-.type-pill.nw{border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.15);color:#E9D5FF}
-.type-pill.ep{border-color:rgba(251,146,60,.45);background:rgba(251,146,60,.15);color:#FED7AA}
-.type-pill.yt{border-color:rgba(139,92,246,.45);background:rgba(139,92,246,.12);color:#C4B5FD}
-.type-pill.gn{border-color:rgba(99,102,241,.45);background:rgba(99,102,241,.12);color:#A5B4FC}
+.type-pill{font-size:var(--t-xs);font-weight:700;padding:5px 11px;border-radius:20px;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);background:rgba(255,255,255,.07)}
+.type-pill.fp{border-color:#0D9488;background:#CCFBF1;color:#0F766E}
+.type-pill.nb{border-color:#D97706;background:#FEF3C7;color:#92400E}
+.type-pill.mc{border-color:#DC2626;background:#FEE2E2;color:#991B1B}
+.type-pill.nw{border-color:#7C3AED;background:#EDE9FE;color:#5B21B6}
+.type-pill.ep{border-color:#EA580C;background:#FFEDD5;color:#9A3412}
+.type-pill.yt{border-color:#6D28D9;background:#EDE9FE;color:#4C1D95}
+.type-pill.gn{border-color:#2563EB;background:#DBEAFE;color:#1E40AF}
 /* 밝은 배경(조건화면·위저드)용 공통 전형 뱃지 */
 .etype-fp{background:#ECFDF5;color:#059669;border:1.5px solid #A7F3D0}
 .etype-nb{background:#FFFBEB;color:#D97706;border:1.5px solid #FDE68A}
@@ -110,11 +109,11 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .cond-detail.open{max-height:200px}
 .cond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0 4px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px}
-.cond-item-label{font-size:var(--t-xs);color:rgba(255,255,255,.35);font-weight:600;letter-spacing:.3px}
-.cond-item-val{font-size:var(--t-base);font-weight:700;color:white;margin-top:3px}
-.cond-item-val.blank{color:rgba(255,255,255,.25)}
-.hero-cta-btn{display:block;width:100%;margin:14px 0 18px;padding:13px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:14px;color:rgba(255,255,255,.9);font-size:var(--t-base);font-weight:600;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px}
-.hero-cta-btn:active{background:rgba(255,255,255,.18);transform:scale(.98)}
+.cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
+.cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
+.cond-item-val.blank{color:var(--ink-5)}
+.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:var(--accent);border:none;border-radius:14px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
+.hero-cta-btn:active{background:#0052CC;transform:scale(.98)}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -134,10 +133,10 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .login-modal-close{width:100%;padding:13px;background:var(--bg);border:none;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-4);cursor:pointer;margin-top:4px}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 /* 하단 탭 라인 */
-.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(255,255,255,.08)}
+.hero-tabs-wrap{position:relative;z-index:1;margin:0 -20px;padding:0 20px;border-top:1px solid rgba(0,0,0,.06)}
 
 /* 알림 배너 */
-.alert-banner{margin:12px 20px 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.alert-banner{margin:12px 0 0;background:linear-gradient(135deg,#7F1D1D,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .alert-banner-icon{font-size:22px;flex-shrink:0}
 .alert-banner-title{font-size:13px;font-weight:800;color:white}
 .alert-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
@@ -583,7 +582,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .api-step-desc{font-size:13px;color:var(--ink-4);line-height:1.6}
 .api-step-desc b{color:var(--ink-3);font-weight:700}
 .api-step-link{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;background:var(--accent-light);padding:5px 12px;border-radius:20px}
-.api-key-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(--bg);font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--ink);outline:none;margin-top:10px;transition:all .2s;word-break:break-all}
+.api-key-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,.1);background:var(--bg);font-size:16px;font-family:'Noto Sans KR',sans-serif;color:var(--ink);outline:none;margin-top:10px;transition:all .2s;word-break:break-all}
 .api-key-input:focus{border-color:var(--accent);background:var(--bg-card);box-shadow:0 0 0 3px rgba(0,102,255,.09)}
 .api-status-box{margin:4px 0 16px;padding:13px 15px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.5}
 .api-status-box.ok{background:var(--mint-light);color:#00A882;border:1px solid rgba(0,201,160,.3)}
@@ -675,8 +674,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 /* ── 히어로 인사말 ── */
 .hero-greet-anim{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 .hero-cheer-anim{animation:fadeUp .5s .12s cubic-bezier(.22,1,.36,1) both}
-.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 16px;margin-bottom:0;cursor:pointer;transition:background .2s}
-.cond-card:active{background:rgba(255,255,255,.12)}
+.cond-card{animation:fadeUp .45s .2s cubic-bezier(.22,1,.36,1) both;background:#F0F6FF;border:1.5px solid #DBEAFE;border-radius:16px;padding:14px 16px;margin-bottom:0;cursor:pointer;transition:all .2s}
+.cond-card:active{background:#DBEAFE;border-color:#93C5FD}
 
 /* ── 카드 stagger ── */
 @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -739,8 +738,8 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 
 /* ── 히어로 glow 부유 ── */
 @keyframes glowFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.06)}}
-.hero-glow{animation:glowFloat 6s ease-in-out infinite}
-.hero-glow2{animation:glowFloat 8s 1s ease-in-out infinite}
+
+
 
 /* ── 상세 헤더 진입 ── */
 @keyframes detHeaderIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -1150,20 +1149,24 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 <div class="screen active" id="screen-home">
   <!-- 히어로 -->
   <div class="hero">
-    <div class="hero-noise"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-glow2"></div>
     <div class="hero-inner">
       <div id="api-indicator" style="display:none"></div>
-      <!-- 닉네임 + 응원 문구 -->
-      <div style="margin-bottom:16px;position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-        <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:900;color:white;letter-spacing:-.4px;white-space:nowrap"></div>
-        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:300;color:rgba(255,255,255,.6);letter-spacing:-.1px"></div>
+      <!-- 앱 상단바 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div id="hero-greeting" class="hero-greet-anim" style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.5px;line-height:1.2"></div>
+          <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="width:40px;height:40px;background:var(--accent-light);border-radius:12px;display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+        </div>
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
           <div class="cond-card-label">내 청약 조건</div>
-          <div class="cond-chevron" id="cond-chev">⌄</div>
+          <div class="cond-chevron" id="cond-chev" style="color:var(--accent);font-size:18px;line-height:1">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
 
@@ -1179,7 +1182,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
           </div>
         </div>
         <div id="hero-login-nudge" style="display:none">
-          <div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
+          <div style="font-size:13px;color:var(--ink-4);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
           <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
         </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
@@ -1192,7 +1195,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="section-row" id="rec-section-row">
     <div class="section-title">내게 맞는 공고</div>
   </div>
-  <div id="rec-container"><div class="notice" style="cursor:pointer" onclick="openMyCondition()">⚠️ 조건을 설정하면 맞춤 공고를 추천해드려요!</div></div>
+  <div id="rec-container"><div class="notice" style="cursor:pointer;background:#F0F6FF;border:1.5px dashed #BFDBFE;border-radius:12px;padding:14px 16px;color:var(--accent);font-size:13px;font-weight:600;text-align:center" onclick="openMyCondition()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-.15em;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>조건을 설정하면 맞춤 공고를 추천해드려요</div></div>
 
   <div class="section-row" style="margin-top:6px">
     <div class="section-title">전체 공고</div>
@@ -1297,7 +1300,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <div style="font-size:16px;font-weight:700;color:white">청약 가점 계산기</div>
     </div>
     <div class="score-box">
-      <div class="score-num" id="score-total">0</div>
+      <div class="score-num unknown" id="score-total">?</div>
       <div class="score-max">/ 84점</div>
       <div id="score-grade"></div>
       <div class="score-bk">
@@ -1617,6 +1620,43 @@ const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-
 const listings = [];
 
 let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',marriageYear:'',household:'',isNoHome:true,region:'',dependents:'',accYears:'',prefSizes:[],elderParent:false};
+
+// ── 메모이제이션 & 캐시 인프라 ──
+// P 조건 해시 (조건 바뀔 때마다 변경 → 캐시 무효화 기준)
+function _getPKey() {
+  return [P.byear,P.income,P.noHomeYears,P.dependents,P.depCount,P.accYears,
+          P.marriage,P.marriageYear,P.isNoHome?'1':'0',P.children,
+          P.elderParent?'1':'0',P.isDual?'1':'0',
+          (P.childDates||[]).map(c=>(c.year||'')+'/'+(c.month||'')).join(',')
+  ].join('|');
+}
+
+let _cachedScore = null, _cachedScoreKey = '';
+let _cachedTypes = null, _cachedTypesKey = '';
+
+function calcScoreCached() {
+  const k = _getPKey();
+  if(_cachedScore && _cachedScoreKey === k) return _cachedScore;
+  _cachedScore = calcScore(P);
+  _cachedScoreKey = k;
+  return _cachedScore;
+}
+function calcTypesCached(ctx) {
+  const k = _getPKey() + '|' + (ctx ? String(ctx.id||'') : '');
+  if(_cachedTypes && _cachedTypesKey === k) return _cachedTypes;
+  _cachedTypes = calcTypes(P, ctx);
+  _cachedTypesKey = k;
+  return _cachedTypes;
+}
+function invalidateCalcCache() {
+  _cachedScore = null;  _cachedScoreKey = '';
+  _cachedTypes = null;  _cachedTypesKey = '';
+  if(typeof updateHero._lastKey !== 'undefined') updateHero._lastKey = null;
+  if(typeof updateScoreScreen._lastKey !== 'undefined') updateScoreScreen._lastKey = null;
+  if(typeof updateConsult._lk !== 'undefined') updateConsult._lk = null;
+  calcProb._ck = null;  calcProb._cv = undefined;
+  gap._cache = null;
+}
 let savedIds = new Set();
 let alarmIds  = new Set(); // 알림 설정된 공고 ID
 let curFilter = 'all';
@@ -1703,7 +1743,7 @@ function wRadio(el,group){
   const grp = el.closest('.wiz-radio-grp') || el.parentElement;
   grp.querySelectorAll('.wiz-radio,.wiz-chip').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
-  if(group==='homeowner') P.isNoHome=el.textContent==='무주택자';
+  if(group==='homeowner') P.isNoHome=el.textContent==='무주택자'; invalidateCalcCache();
   if(group==='marriage'){
     P.marriage=el.textContent;
     const isMarried = el.textContent==='기혼';
@@ -1726,7 +1766,7 @@ function wRadio(el,group){
     P.elderParent=el.textContent.startsWith('예');
   }
   if(group==='dualincome'){
-    P.isDual=(el.textContent==='맞벌이');
+    P.isDual=(el.textContent==='맞벌이'); invalidateCalcCache();
     // 맞벌이면 배우자 소득 필드 표시
     const sf=document.getElementById('spouse-income-field');
     if(sf) sf.style.display=P.isDual?'block':'none';
@@ -1978,6 +2018,7 @@ function saveWizard(){
 }
 
 function finishWizard(){
+  invalidateCalcCache(); // 조건 변경
   document.getElementById('wizard').classList.remove('open');
   document.getElementById('wiz-done').classList.remove('show');
   document.getElementById('wiz-foot').style.display='';
@@ -2043,7 +2084,14 @@ function getMaxP(l){
   l._maxP = maxVal;
   return maxVal;
 }
-function gap(l){const saleP=getMaxP(l);const g=l.mktP-saleP;return{g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};}
+function gap(l){
+  const _k = String(l.id||l.name)+'|'+(l.mktP||0);
+  if(gap._cache && gap._cache.k === _k) return gap._cache.v;
+  const saleP=getMaxP(l); const g=l.mktP-saleP;
+  const v={g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};
+  gap._cache={k:_k,v};
+  return v;
+}
 function fmtManwon(v){
   // 만원 단위 → "X억 Y천" 형식
   const uk=Math.floor(v/10000);const rem=v%10000;const chun=Math.floor(rem/1000);
@@ -2624,6 +2672,9 @@ function getEligTierAnalysis(l, p) {
 function calcProb(l, p, selectedType){
   const hasConditions = p.noHomeYears || p.depCount || p.income || p.byear;
   if(!hasConditions) return null;
+  // 메모이제이션: 같은 공고+조건이면 캐시 반환
+  const _ck = String(l.id||l.name)+'|'+(selectedType||'')+'|'+(l._selectedComp||'')+'|'+(l._selectedCut||'')+'|'+_getPKey();
+  if(calcProb._ck === _ck && calcProb._cv !== undefined) return calcProb._cv;
 
   const score = calcScore(p);
   const myScore = score.total;
@@ -3035,6 +3086,10 @@ function showSkeletonListings() {
 
 /* ══ 히어로 ══ */
 function updateHero(){
+  // 조건 변화 없으면 재실행 skip (21회 중복 호출 방지)
+  const _hk = _getPKey();
+  if(updateHero._lastKey === _hk) return;
+  updateHero._lastKey = _hk;
   const p=P;
   const hasConditions = p.noHomeYears||p.depCount||p.income||p.byear;
   // 비로그인: 로그인 유도 / 로그인+조건없음: 조건설정 / 로그인+조건있음: 둘 다 숨김
@@ -3111,7 +3166,7 @@ function updateHero(){
   // 마감임박 배너
   const urgSaved=listings.filter(l=>savedIds.has(String(l.id))&&l.days<=3);
   const aEl=document.getElementById('alert-area');
-  aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail(${urgSaved[0].id})"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">${urgSaved[0].days===0?'오늘 마감!':'마감 '+urgSaved[0].days+'일 전!'}</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
+  aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail('${urgSaved[0].id}')"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">${urgSaved[0].days===0?'오늘 마감!':'마감 '+urgSaved[0].days+'일 전!'}</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
 
   renderRecommend();
 }
@@ -3148,7 +3203,12 @@ function renderRecommend(){
 }
 
 /* ══ 매물 렌더 ══ */
-function renderListings(){
+let _renderListingsTimer = null;
+function renderListings() {
+  clearTimeout(_renderListingsTimer);
+  _renderListingsTimer = setTimeout(_doRenderListings, 30);
+}
+function _doRenderListings(){
   const cont=document.getElementById('listings');
   const lb=document.getElementById('lotto-banner');
   // 데이터 로딩 중이면 스켈레톤 표시
@@ -3501,7 +3561,7 @@ function renderMyCondDashboard(){
 
 function showAlarmList(){
   if(alarmIds.size===0){ showToast('설정된 알림 공고가 없어요'); return; }
-  const alarmListings = listings.filter(l=>alarmIds.has(l.id));
+  const alarmListings = listings.filter(l=>alarmIds.has(String(l.id)));
   // mycond 화면 내에 알림 목록 오버레이 표시
   const existing = document.getElementById('alarm-overlay');
   if(existing) existing.remove();
@@ -3852,7 +3912,7 @@ async function showDetail(id, fromSwipe=false){
       <div class="gap-chart" class="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" class="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-track"><div class="gap-bar-fill bar-sale" style="background:var(--accent)"></div></div>
           <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
@@ -3867,7 +3927,7 @@ async function showDetail(id, fromSwipe=false){
       <div class="gap-chart" class="det-gap-chart">
         <div class="gap-bar-row">
           <div class="gap-bar-label">분양가</div>
-          <div class="gap-bar-track"><div class="gap-bar-fill" class="bar-sale" style="background:var(--accent)"></div></div>
+          <div class="gap-bar-track"><div class="gap-bar-fill bar-sale" style="background:var(--accent)"></div></div>
           <div class="gap-bar-val">${(saleP/10000).toFixed(1)}억</div>
         </div>
         <div class="gap-bar-row">
@@ -3973,7 +4033,7 @@ async function showDetail(id, fromSwipe=false){
   ${l.cut?`<div class="info-card" style="margin-top:14px">
     <div class="info-card-title">🏆 가점 커트라인 비교</div>
     <div class="cut-chart" style="padding:12px 18px 12px">
-      <div style="font-size:12px;color:var(--ink-4);margin-bottom:8px;line-height:1.6">내 가점 <b style="color:var(--accent)">${calcScore(P).total}점</b> vs 커트라인 <b style="color:var(--red)">${l.cut}점</b></div>
+      <div style="font-size:12px;color:var(--ink-4);margin-bottom:8px;line-height:1.6">내 가점 <b style="color:var(--accent)">${calcScoreCached().total}점</b> vs 커트라인 <b style="color:var(--red)">${l.cut}점</b></div>
       <div class="cut-chart-bar-wrap">
         <div class="cut-chart-track">
           <div class="cut-chart-my" id="det-cut-my"></div>
@@ -3981,8 +4041,8 @@ async function showDetail(id, fromSwipe=false){
         </div>
       </div>
       <div class="cut-chart-scores" style="margin-top:4px;flex-wrap:wrap;row-gap:2px">
-        <span style="color:var(--accent)">내 가점 ${calcScore(P).total}점</span>
-        <span style="color:${calcScore(P).total>=l.cut?'var(--public)':'var(--red)'};font-weight:700">${calcScore(P).total>=l.cut?`+${calcScore(P).total-l.cut}점 통과`:`${calcScore(P).total-l.cut}점 부족`}</span>
+        <span style="color:var(--accent)">내 가점 ${calcScoreCached().total}점</span>
+        <span style="color:${calcScoreCached().total>=l.cut?'var(--public)':'var(--red)'};font-weight:700">${calcScoreCached().total>=l.cut?`+${calcScoreCached().total-l.cut}점 통과`:`${calcScoreCached().total-l.cut}점 부족`}</span>
         <span style="color:var(--red)">커트라인 ${l.cut}점</span>
       </div>
     </div>
@@ -4039,7 +4099,7 @@ async function showDetail(id, fromSwipe=false){
     }
     // 커트라인 바 애니메이션
     if(l.cut){
-      const myScore=calcScore(P).total;
+      const myScore=calcScoreCached().total;
       const maxScore=84;
       const myBar=document.getElementById('det-cut-my');
       const cutLine=document.getElementById('det-cut-line');
@@ -4053,16 +4113,17 @@ async function showDetail(id, fromSwipe=false){
 
 function toggleDetailAlarm(){
   const btn = document.getElementById('det-bell-btn');
-  // 현재 보고 있는 공고 id 가져오기
-  const title = document.getElementById('det-title').textContent;
-  const l = listings.find(x=>x.name===title);
+  // _detailCurrentId로 공고 탐색 (cleanName 이슈 방지)
+  const rawId = _detailCurrentId;
+  if(!rawId) return;
+  const l = listings.find(x=>String(x.id)===String(rawId));
   if(!l) return;
-  if(alarmIds.has(l.id)){
-    alarmIds.delete(l.id);
+  if(alarmIds.has(String(l.id))){
+    alarmIds.delete(String(l.id));
     btn.classList.remove('on');
     showToast('알림을 해제했어요');
   } else {
-    alarmIds.add(l.id);
+    alarmIds.add(String(l.id));
     btn.classList.add('on');
     showToast('마감 전 알림을 설정했어요 🔔');
   }
@@ -4071,7 +4132,7 @@ function toggleDetailAlarm(){
 function syncDetailAlarmBtn(id){
   const btn = document.getElementById('det-bell-btn');
   if(!btn) return;
-  btn.classList.toggle('on', alarmIds.has(id));
+  btn.classList.toggle('on', alarmIds.has(String(id)));
   // 즐겨찾기 아이콘 상태 동기화
   const saveBtn = document.getElementById('det-save-btn');
   if(saveBtn){
@@ -4181,7 +4242,7 @@ function _swCanGoBack() {
   // 탭바 화면은 뒤로가기 없음
   if(_TAB_SCREENS.has(name)) return false;
   // 바텀시트/모달 열려있으면 차단
-  if(document.querySelector('.wiz-ov.open, .nudge-ov[style*="flex"], [class*="-ov"].open')) return false;
+  if(document.querySelector('.wiz-ov.open, .nudge-ov[style*="flex"], [id$="-ov"].open')) return false;
   return true;
 }
 
@@ -4278,9 +4339,11 @@ document.addEventListener('touchend', e => {
 
     setTimeout(() => {
       // 정리 후 showScreen으로 상태 동기화
-      if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
-      if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
-      _sw.animating = false;
+      try {
+        if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
+        if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
+      } catch(e) {}
+      _sw.animating = false; // 예외 발생 시에도 반드시 플래그 해제
       _sw.tracking = false;
       // showScreen은 DOM 클래스 전환만 (애니메이션은 이미 완료)
       const targetName = prevScreen || 'home';
@@ -4298,7 +4361,9 @@ document.addEventListener('touchend', e => {
       // 스크롤 복원
       const y = window._prevScrollY;
       if(y !== undefined) { window._prevScrollY = undefined; window.scrollTo({top:y, behavior:'instant'}); }
-      // prevScreen 갱신
+      // prevScreen 갱신 — 뒤로간 화면(targetName)에서 다시 뒤로갈 수 있도록
+      // 탭바 화면으로 복귀 시 prevScreen 의미 없으므로 'home'
+      // 서브화면 복귀 시 'home'으로 초기화 (히스토리 스택 미구현)
       prevScreen = 'home';
     }, dur + 10);
 
@@ -4316,8 +4381,10 @@ document.addEventListener('touchend', e => {
       _sw.prevEl.style.opacity = '0.75';
     }
     setTimeout(() => {
-      if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
-      if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
+      try {
+        if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
+        if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
+      } catch(e) {}
       _sw.animating = false;
       _sw.tracking = false;
     }, snapDur + 10);
@@ -4377,19 +4444,20 @@ function goBack(){
   if(window._prevScrollY !== undefined){
     const y = window._prevScrollY;
     window._prevScrollY = undefined;
-    // 화면 전환 후 스크롤 복원 (렌더링 완료 후)
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: y, behavior: 'instant' });
-      });
-    });
+    // animation 없애고 즉시 스크롤 복원 → 깜빡임 완전 제거
+    // (FIX2에서 animation을 끄므로 rAF 없이도 OK)
+    window.scrollTo({ top: y, behavior: 'instant' });
   }
 }
 
 
 /* ══ 가점 ══ */
 function updateScoreScreen(){
-  const p=P;const{total,nhS,dS,aS}=calcScore(p);
+  // 조건 변화 없으면 skip
+  const _sk = _getPKey();
+  if(updateScoreScreen._lastKey === _sk) return;
+  updateScoreScreen._lastKey = _sk;
+  const p=P;const{total,nhS,dS,aS}=calcScoreCached();
   const hasConditions=p.noHomeYears||p.depCount||p.income||p.byear;
   if(!hasConditions){
     document.getElementById('score-total').textContent='?';
@@ -4755,7 +4823,7 @@ function openPremReport(){
 
   // 이번 주 사용 횟수 확인 (localStorage 기반, 서버 검증 보조)
   const FREE_WEEKLY_LIMIT = 1;
-  const DEV_MODE = true; // 🔧 테스트 중 — 실제 제한 비활성화. 출시 시 false로 변경
+  const DEV_MODE = false; // 프로덕션 — 리포트 주간 제한 활성화 (테스트 시 true로 변경)
   const now = new Date();
   // 이번 주 월요일 날짜 계산
   const dayOfWeek = now.getDay(); // 0=일, 1=월...
@@ -5207,8 +5275,8 @@ function _animateSectionContent(sec, sectionIdx){
 async function generateReport(){
   if(_reportGenerating) return;
   _reportGenerating = true;
-  const score    = calcScore(P);
-  const typesRaw  = calcTypes(P);
+  const score    = calcScoreCached();
+  const typesRaw  = calcTypesCached();
   const types     = typesRaw.map(t => t.l);
   // 우선공급/잔여공급/소득기준 포함한 상세 전형 정보
   // 자녀 데이터로 신생아/신혼 자격 자동 판단
@@ -5862,6 +5930,11 @@ function _parseBody(body){
   return body.split('\n').filter(l => l.trim() && l.trim() !== '---' && l.trim() !== '–––' && l.trim() !== '—').map(l => {
     const t = l.trim();
     if(!t) return '';
+    // [BOLD:텍스트] 처리
+    if(t.startsWith('[BOLD:') && t.endsWith(']')) {
+      const boldText = t.slice(6, -1);
+      return `<span style="font-weight:700;color:var(--ink)">${boldText}</span>`;
+    }
     // AI가 [HEADLINE:...] 대신 HEADLINE:텍스트 로 날것 출력한 경우 처리
     if(/^HEADLINE:/.test(t)){
       const rest = _md(t.replace(/^HEADLINE:\s*/,''));
@@ -6239,7 +6312,7 @@ function saveReportHistory(html){
     time: timeStr,
     datetime: now.toISOString(),
     name: P.name || '회원',
-    score: calcScore(P).total,
+    score: calcScoreCached().total,
     types: calcTypes(P).map(t=>t.l).join('·') || '조건 미입력',
     html: html
   };
@@ -6323,6 +6396,41 @@ function updateMyCondCard(){
     </div>
     <button onclick="openWizard()" style="margin-top:14px;padding:0;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:var(--accent);display:none;align-items:center;gap:4px">조건 수정하기 →</button>`;
 }
+
+/* ══ 청약 용어사전 데이터 ══ */
+const GLOSSARY = [
+  {term:'무주택세대구성원',short:'세대원 전원이 주택을 소유하지 않은 상태',full:'세대원 전체(본인·배우자·직계존속·직계비속)가 주택을 소유하지 않아야 해요. 분양권·입주권도 주택으로 봐요. 배우자가 별도 세대를 구성해도 동일하게 적용돼요.',cat:'청약 자격'},
+  {term:'1순위 자격',short:'청약 경쟁에서 우선권을 갖는 조건',full:'민간 투기과열: 24개월+예치금+세대주+5년 미당첨. 민간 기타: 12개월+예치금. 공공: 12개월+24회 이상 납입. 지역에 따라 조건이 달라요.',cat:'청약 자격'},
+  {term:'특별공급',short:'일반공급 전 특정 자격자에게 우선 분양',full:'신혼부부·생애최초·다자녀·노부모부양·신생아특공 등이 있어요. 전체 물량의 일정 비율이 배정되며, 특공으로 당첨되면 일반공급에 중복 신청할 수 없어요.',cat:'청약 자격'},
+  {term:'생애최초 특별공급',short:'세대원 전원이 생애 처음으로 주택을 구입하는 경우',full:'세대원 전원이 주택을 소유한 적이 없어야 해요. 혼인 여부 무관. 소득 기준: 도시근로자 월평균소득 160% 이하(공공). 민간은 소득 기준 없음.',cat:'청약 자격'},
+  {term:'신혼부부 특별공급',short:'혼인 7년 이내 또는 예비 신혼부부 대상',full:'혼인 신고일부터 7년 이내이거나 6개월 이내 혼인 예정자. 무주택 세대구성원. 소득 기준: 공공 우선 70%(맞벌이 80%), 일반 100%(맞벌이 120%).',cat:'청약 자격'},
+  {term:'신생아 특별공급',short:'2년 이내 출산·입양 자녀가 있는 무주택 가구',full:'공공분양: 입주자모집공고일 기준 2세 이하 자녀 보유. 혼인 무관. 소득 140% 이하. 2024년 3월 신설 독립 전형. 민간: 신혼부부·생애최초 특공 내 우선 단계 적용.',cat:'청약 자격'},
+  {term:'다자녀 특별공급',short:'미성년 자녀 3명 이상 보유 가구 대상',full:'미성년 자녀(만 19세 미만)가 3명 이상인 무주택 세대구성원. 자녀 수가 많을수록 우선 배점. 태아도 자녀로 인정. 입주자모집공고일 기준.',cat:'청약 자격'},
+  {term:'노부모부양 특별공급',short:'만 65세 이상 직계존속을 3년 이상 부양한 세대주',full:'만 65세 이상 직계존속을 3년 이상 동일 주민등록표에 등재해 부양해야 해요. 피부양 직계존속도 무주택이어야 하며 소득 기준 없음. 가점제 적용.',cat:'청약 자격'},
+  {term:'청약 가점제',short:'무주택기간·부양가족·통장 기간으로 점수를 매겨 당첨자 선정',full:'84점 만점(무주택기간 32점+부양가족수 35점+청약통장 가입기간 17점). 민간 85㎡ 이하에서 가점제 비율이 높아요. 점수가 높을수록 당첨 확률이 올라가요.',cat:'청약 가점'},
+  {term:'무주택기간',short:'세대원 전원이 주택을 소유하지 않은 기간',full:'만 30세 이후(또는 혼인일)부터 계산. 최대 32점(15년 이상). 2년마다 2점 상승. 주택 처분 후 재무주택 상태도 인정돼요.',cat:'청약 가점'},
+  {term:'부양가족수',short:'청약 신청자와 같은 주민등록표에 등재된 세대원 수',full:'배우자·직계존속(부모·조부모)·직계비속(자녀)이 해당. 본인 포함 1명부터 시작해 최대 6명(35점). 1명당 5점. 1년 이상 동일 등본에 있어야 인정.',cat:'청약 가점'},
+  {term:'청약통장 가입기간',short:'주택청약종합저축 가입 후 경과 기간',full:'6개월 미만 2점부터 최대 15년 이상 17점. 청약저축·청약부금·청약예금 모두 인정. 배우자 통장 기간의 50%(최대 3점)도 합산 가능.',cat:'청약 가점'},
+  {term:'커트라인',short:'해당 공고 당첨에 필요한 최저 가점',full:'이전 당첨자 최저 가점. 공고마다 다르고 경쟁률에 따라 달라져요. 수도권 인기 단지는 60점대 이상도 많아요. 청약홈에서 과거 당첨 가점을 확인할 수 있어요.',cat:'청약 가점'},
+  {term:'분양가 상한제',short:'분양가를 법정 기준가 이하로 제한하는 제도',full:'투기과열지구 등에서 시행. 분양가=택지비+건축비 이하로 제한. 시세보다 저렴하게 공급되는 대신 전매제한·거주의무 기간이 있어요.',cat:'분양 방식'},
+  {term:'전매제한',short:'분양받은 주택을 일정 기간 다른 사람에게 팔 수 없는 규정',full:'투기과열지구 분양가상한제 최대 10년. 수도권 기타 3년, 지방 1년. 기간 내 매도 시 계약 취소 및 과태료.',cat:'분양 방식'},
+  {term:'재당첨 제한',short:'당첨 후 일정 기간 다른 청약에 당첨될 수 없는 제한',full:'투기과열지구·분양가상한제: 10년. 청약과열지구: 7년. 수도권: 5년. 기타: 1년. 특별공급도 동일 적용.',cat:'분양 방식'},
+  {term:'무순위 청약(줍줍)',short:'정당 청약 후 미계약·미분양 물량을 추첨으로 공급',full:'계약 포기, 부적격 취소 물량을 선착순 또는 추첨으로 공급. 자격 제한이 적고 청약통장 불필요. 청약홈에서 공고되는 날 바로 신청 가능.',cat:'분양 방식'},
+  {term:'공공분양',short:'LH·SH 등 공공기관이 시세보다 저렴하게 공급하는 주택',full:'나눔형(시세 70%, 의무거주 5년 후 환매), 선택형(시세 80%, 분양전환), 일반형(시세 80~90%). 소득·자산 기준 충족 필요.',cat:'분양 방식'},
+  {term:'민간분양',short:'건설사가 자체 공급하는 일반 아파트 분양',full:'민간 건설사 공급. 분양가상한제 미적용 지역은 시세 반영 분양. 특별공급+일반공급 순으로 진행. 가점제·추첨제 혼합 선발.',cat:'분양 방식'},
+  {term:'입주자모집공고',short:'분양 공고. 이 날짜 기준으로 자격을 판단해요',full:'입주자모집공고일 기준으로 무주택 여부, 나이, 혼인 상태, 소득 등을 판단해요. 청약홈(applyhome.co.kr)에 공고 내용이 게시돼요.',cat:'청약 절차'},
+  {term:'청약 접수',short:'청약홈에서 실제로 신청하는 기간',full:'입주자모집공고 후 1~2주 내 진행. 1순위와 2순위 접수일이 달라요. 하루 1건만 신청 가능.',cat:'청약 절차'},
+  {term:'당첨자 발표',short:'청약 결과 발표일. 청약홈에서 확인 가능',full:'청약 접수 후 수일~1주 내 발표. 청약홈에서 공고번호 또는 주택명으로 조회. 당첨되면 서류 제출 기간이 짧으니 바로 준비해야 해요.',cat:'청약 절차'},
+  {term:'부적격 당첨',short:'당첨 후 자격 검증에서 부적합 판정을 받는 경우',full:'허위 서류 제출, 자격 조건 미충족 시 당첨 취소. 부적격 이력이 생기면 일정 기간 청약이 불리해질 수 있어요.',cat:'청약 절차'},
+  {term:'예비입주자',short:'당첨자 포기 시를 대비해 순번대로 선정된 예비 당첨자',full:'당첨자 수의 500%까지 예비입주자를 선정해요. 당첨자 포기·부적격 발생 시 순번대로 입주 기회.',cat:'청약 절차'},
+  {term:'디딤돌 대출',short:'무주택 서민을 위한 저금리 주택 구입 자금 대출',full:'연소득 6천만원 이하(부부합산), 주택 가격 5억 이하. 금리 연 2~3%대. LTV 70%, DTI 60% 이내. 생애최초 구입 시 우대 금리 적용.',cat:'대출·자금'},
+  {term:'중도금 대출',short:'계약금 납부 후 입주 전까지의 집단 대출',full:'분양가의 60%가 통상 중도금. 9억 초과 주택은 집단 대출 불가. 이자는 후불제가 많고 입주 시 잔금 대출로 전환.',cat:'대출·자금'},
+  {term:'LTV',short:'주택담보대출비율. 집값 대비 최대 대출 한도',full:'Loan To Value. 생애최초 전국 70%. 투기과열지구 일반 40%. 비규제 무주택 70%. 집값의 최대 몇 %까지 빌릴 수 있는지를 나타내요.',cat:'대출·자금'},
+  {term:'DTI',short:'총부채상환비율. 연소득 대비 연간 원리금 상환액 비율',full:'Debt To Income. 투기과열지구 40%, 수도권 50%, 기타 60% 이내. 초과 시 대출 한도가 줄어요.',cat:'대출·자금'},
+  {term:'투기과열지구',short:'청약·대출 규제가 가장 강한 지역',full:'서울 전 지역, 과천 등. 1순위 조건 강화(세대주·5년 미당첨·24개월), 가점제 비율 확대, LTV 40%, 재당첨 제한 10년 적용.',cat:'지역·규제'},
+  {term:'조정대상지역',short:'투기과열지구 다음 단계의 청약 규제 지역',full:'분양권 전매 제한, 1순위 요건 강화, LTV 50% 등 적용. 청약 시 공고문에서 해당 여부를 반드시 확인하세요.',cat:'지역·규제'},
+  {term:'거주의무기간',short:'입주 후 일정 기간 해당 주택에 실제 거주해야 하는 의무',full:'공공분양 나눔형 5년, 분양가상한제 적용 민간 2~3년. 위반 시 과태료 및 주택 처분 명령 대상. 거주 의무 기간 중 임대 불가.',cat:'지역·규제'},
+];
 
 /* ══ 용어사전 ══ */
 function renderGlossary(data){
@@ -6600,7 +6708,22 @@ function showScreen(name, _fromBack=false){
   const cur=document.querySelector('.screen.active');
   if(cur) scrollPositions[cur.id]=window.scrollY;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
+  const _targetScreen = document.getElementById('screen-'+name);
+  if(_fromBack && _targetScreen) {
+    // 뒤로가기 시 pageIn 애니메이션 비활성화 (스크롤 깜빡임 방지)
+    _targetScreen.style.animation = 'none';
+    _targetScreen.classList.add('active');
+    requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
+  } else if(_targetScreen) {
+    // 이미 active인 화면에 다시 active 추가 시 animation 재트리거 방지
+    // (showDetail async 완료 후 showScreen('detail') 재호출 케이스)
+    const alreadyActive = _targetScreen.classList.contains('active');
+    if(alreadyActive) {
+      _targetScreen.style.animation = 'none';
+      requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
+    }
+    _targetScreen.classList.add('active');
+  }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
   if(name==='saved'){ requestAnimationFrame(()=>renderSaved()); }
@@ -6802,6 +6925,7 @@ function ecHouseholdChange(){
 }
 
 function saveEditCond(){
+  invalidateCalcCache(); // 조건 변경
   P.byear      = document.getElementById('ec-by').value;
   P.bmonth     = document.getElementById('ec-bm').value;
   P.bday       = document.getElementById('ec-bd').value;
@@ -6889,10 +7013,15 @@ const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
 const MKTPCACHE_KEY = 'mktPCache_v3';
 const FACTORS_CACHE_KEY = 'factorsCache_v1';
 
+let _factorsCacheMem = null;
 function loadFactorsCache() {
-  try { return JSON.parse(localStorage.getItem(FACTORS_CACHE_KEY)||'{}'); } catch(e) { return {}; }
+  if(_factorsCacheMem !== null) return _factorsCacheMem;
+  try { _factorsCacheMem = JSON.parse(localStorage.getItem(FACTORS_CACHE_KEY)||'{}'); }
+  catch(e) { _factorsCacheMem = {}; }
+  return _factorsCacheMem;
 }
 function saveFactorsCache(cache) {
+  _factorsCacheMem = cache;
   try { localStorage.setItem(FACTORS_CACHE_KEY, JSON.stringify(cache)); } catch(e) {}
 }
 
@@ -6953,14 +7082,17 @@ function renderFactors(factors) {
   </div>`;
 }
 
+let _mktPCacheMem = null;
 function loadMktPCache() {
+  if(_mktPCacheMem !== null) return _mktPCacheMem;
   try {
     const raw = localStorage.getItem(MKTPCACHE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch(e) { return {}; }
+    _mktPCacheMem = raw ? JSON.parse(raw) : {};
+  } catch(e) { _mktPCacheMem = {}; }
+  return _mktPCacheMem;
 }
-
 function saveMktPCache(cache) {
+  _mktPCacheMem = cache;
   try { localStorage.setItem(MKTPCACHE_KEY, JSON.stringify(cache)); } catch(e) {}
 }
 
@@ -6973,6 +7105,7 @@ function applyMktPCache() {
     if(entry && entry.mktP > 0) {
       l.mktP = entry.mktP;
       l.noMktP = false;
+          gap._cache = null;
       l._mktPAuto = true;
       l._recentDeals = entry.recentDeals || [];
       l._radiusUsed = entry.radiusUsed || '';
@@ -7023,6 +7156,7 @@ async function autoFetchMarketPrices(){
         if(data.mktP && data.mktP > 0){
           l.mktP = data.mktP;
           l.noMktP = false;
+          gap._cache = null;
           l._mktPAuto = true;
           l._recentDeals = (data.recentDeals||[]).slice(0, 3);
           l._radiusUsed = data.radiusUsed || '';
@@ -7280,6 +7414,13 @@ async function fetchCutScore(key, pblancNo){
 ── */
 async function fetchSimilarComp(listing){
   if(!apiKey || !apiConnected) return null;
+  // 타임아웃 4초 — API 느릴 때 블로킹 방지
+  const _timeoutP = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000));
+  try {
+    return await Promise.race([_fetchSimilarCompCore(listing), _timeoutP]);
+  } catch(e) { return null; }
+}
+async function _fetchSimilarCompCore(listing){
   try {
     // 최근 6개월 범위 날짜 계산
     const now = new Date();
