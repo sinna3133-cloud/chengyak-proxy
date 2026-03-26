@@ -8235,7 +8235,7 @@ function applyLoginUI() {
     if (nm) nm.textContent = displayName + '님';
     if (moreNm) moreNm.textContent = displayName + '님';
     if (displayName) P.name = displayName;
-    if (moreArea) moreArea.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer" onclick="openLoginModal()">로그아웃</div>`;
+    if (moreArea) moreArea.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
     area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
     updateHero();
   } else {
