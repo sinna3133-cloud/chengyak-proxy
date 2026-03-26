@@ -480,7 +480,7 @@ input,select{font-family:inherit}
 .menu-item:first-of-type{margin-top:8px;border-top:1px solid rgba(0,0,0,.04)}
 .menu-item:active{background:var(--bg)}
 .menu-section-label{padding:22px 20px 8px;font-size:11px;font-weight:700;color:var(--ink-5);letter-spacing:.8px;text-transform:uppercase}
-.sup-link{font-size:15px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:2px 0}
+.sup-link{font-size:13px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:4px 0}
 .sup-link:active{opacity:.4}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
 .menu-txt{font-size:15px;font-weight:400;flex:1}
@@ -1314,8 +1314,11 @@ input,select{font-family:inherit}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name">더보기</div>
+      <div class="my-name" id="more-name"></div>
       <div class="my-sub">청약에 필요한 모든 것</div>
+    </div>
+    <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
+      <button class="login-btn" onclick="openLoginModal()">로그인하기</button>
     </div>
   </div>
 
@@ -1335,7 +1338,6 @@ input,select{font-family:inherit}
     <div class="sup-link" onclick="showSupport('faq')">FAQ</div>
     <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
     <div class="sup-link" onclick="showSupport('ad')">광고/제휴 문의</div>
-    <div class="sup-link" onclick="showAlarmList()">알림 설정</div>
     <div class="sup-link" onclick="showSupport('terms')">약관/정책</div>
   </div>
 
@@ -8224,16 +8226,22 @@ function checkUpcomingDeadlines() {
 
 function applyLoginUI() {
   const area = document.getElementById('kakao-login-area');
+  const moreArea = document.getElementById('more-login-area');
   const nm = document.getElementById('my-name');
+  const moreNm = document.getElementById('more-name');
   if (!area) return;
   if (kakaoUser) {
     const displayName = kakaoUser.nickname || P.name;
     if (nm) nm.textContent = displayName + '님';
+    if (moreNm) moreNm.textContent = displayName + '님';
     if (displayName) P.name = displayName;
+    if (moreArea) moreArea.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer" onclick="openLoginModal()">로그아웃</div>`;
     area.innerHTML = `<div style="font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;position:relative;z-index:1;white-space:nowrap" onclick="kakaoLogout()">로그아웃</div>`;
     updateHero();
   } else {
     if (nm) nm.textContent = '';
+    if (moreNm) moreNm.textContent = '';
+    if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
   }
 }
