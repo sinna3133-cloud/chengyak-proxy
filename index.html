@@ -519,7 +519,9 @@ input,select{font-family:inherit}
 .prem-features{display:flex;flex-direction:column;gap:10px;margin-top:16px}
 .prem-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3);font-weight:500}
 .prem-feat::before{content:'';width:18px;height:18px;border-radius:50%;background:var(--accent-light);flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066FF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
-.prem-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
+.prem-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:12px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
+.prem-btn.overquota{background:linear-gradient(135deg,#0066FF,#00C9A0);box-shadow:0 4px 20px rgba(0,102,255,.4)}
+.prem-btn.done{background:var(--bg-2);color:var(--ink-3);box-shadow:none}
 .prem-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,102,255,.3)}
 .prem-lock{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--mint-light);border:1px solid rgba(0,201,160,.2);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:12px;color:#00A882;font-weight:700}
 
@@ -1367,14 +1369,20 @@ input,select{font-family:inherit}
       <div style="margin:10px 0 12px;padding:10px 14px;background:var(--accent-light);border-radius:10px;border-left:3px solid var(--accent)">
         <div style="font-size:13px;font-weight:700;color:var(--accent-dark);line-height:1.6">내 조건을 분석해 최적 청약지와<br>당첨 확률이 가장 높은 전형을 추천해드려요</div>
       </div>
-      <div class="prem-sub">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
+      <div class="prem-sub" style="margin-top:10px;margin-bottom:10px">나만을 위한 청약 로드맵을 AI가 분석해드려요</div>
       <div class="prem-features">
         <div class="prem-feat">내 조건 기반 최적 청약지 TOP 5 추천</div>
         <div class="prem-feat">가점 계산 및 경쟁률 심층 분석</div>
         <div class="prem-feat">대출 상품 비교 및 월 상환액 시뮬레이션</div>
         <div class="prem-feat">청약 일정 맞춤 저축 전략 제안</div>
       </div>
-      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">✦ 내 청약 전략 리포트 받기</button>
+      <!-- 초과 말풍선 -->
+      <div id="prem-overquota-bubble" style="display:none;margin-top:16px;text-align:right">
+        <span style="display:inline-flex;align-items:center;gap:5px;background:#FFF3E0;color:#E65100;font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px 20px 4px 20px;white-space:nowrap">
+          ⚠️ 이번 주 무료 횟수를 모두 사용했어요
+        </span>
+      </div>
+      <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">나만의 전략 리포트 받아보기</button>
     </div>
   </div>
 </div>
@@ -3157,16 +3165,22 @@ function updateHero(){
     const _storedWk = localStorage.getItem('report_week_start');
     const _wc = _storedWk === _wk ? parseInt(localStorage.getItem('report_week_count') || '0') : 0;
     const _remaining = _isPrem ? '무제한' : Math.max(0, 1 - _wc);
+    const _bubble = document.getElementById('prem-overquota-bubble');
     if(_isPrem){
-      _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기';
+      _premBtn.textContent = '나만의 전략 리포트 받아보기';
+      _premBtn.className = 'prem-btn';
+      _premBtn.style.cssText = '';
+      if(_bubble) _bubble.style.display = 'none';
     } else if(_wc >= 1){
-      _premBtn.innerHTML = '이번 주 무료 리포트 완료 &nbsp;<span style="background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap">구독하면 주 2회 분석 가능해요</span>';
-      _premBtn.style.background = 'var(--accent)';
-      _premBtn.style.boxShadow = '0 4px 16px rgba(0,102,255,.3)';
+      _premBtn.textContent = '지금 구독하고 더 분석하기';
+      _premBtn.className = 'prem-btn overquota';
+      _premBtn.style.cssText = '';
+      if(_bubble) _bubble.style.display = 'block';
     } else {
-      _premBtn.innerHTML = '✦ 내 청약 전략 리포트 받기 <span style="opacity:.7;font-size:12px;font-weight:500">· 이번 주 1회 무료</span>';
-      _premBtn.style.background = '';
-      _premBtn.style.boxShadow = '';
+      _premBtn.textContent = '나만의 전략 리포트 받아보기';
+      _premBtn.className = 'prem-btn';
+      _premBtn.style.cssText = '';
+      if(_bubble) _bubble.style.display = 'none';
     }
   }
 
