@@ -3108,9 +3108,13 @@ function updateHero(){
     if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
     if(cheerEl) cheerEl.textContent = cheer;
   } else {
-    if(greetEl) greetEl.textContent = '';
+    if(greetEl) greetEl.textContent = '안녕하세요,';
     if(cheerEl) cheerEl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
   }
+
+  // 조건 없으면 chevron 숨김
+  const chevEl = document.getElementById('cond-chev');
+  if(chevEl) chevEl.style.display = hasConditions ? '' : 'none';
 
   // 조건값 업데이트
   const setVal=(id,val,unit='')=>{
