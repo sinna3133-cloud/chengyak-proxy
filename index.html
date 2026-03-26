@@ -1314,6 +1314,7 @@ input,select{font-family:inherit}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
+      <div id="more-headline" style="font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.3px;line-height:1.4;margin-bottom:4px">로그인하고 조건에 맞는<br>공고 확인하세요</div>
       <div class="my-name" id="more-name"></div>
       <div class="my-sub">청약에 필요한 모든 것</div>
     </div>
@@ -8240,7 +8241,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    if (moreNm) moreNm.textContent = '';
+    if (moreNm) moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요';
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
   }
