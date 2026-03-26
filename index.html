@@ -3099,22 +3099,18 @@ function updateHero(){
     if(nudgeEl) nudgeEl.style.display = 'none';
     if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
   }
-  // 이름 설정 — 카카오 로그인 세션이 있으면 랜덤 이름으로 덮어쓰지 않음
-  if(!p.name && !localStorage.getItem('kakaoUser_v2'))p.name=RETRO[Math.floor(Math.random()*RETRO.length)];
-  if(p.name) document.getElementById('my-name').textContent=p.name;
-
+  // 이름 설정 — 로그인 상태에서만 이름 표시
   const greetEl = document.getElementById('hero-greeting');
   const cheerEl = document.getElementById('hero-cheer');
   const cheer = CHEER[Math.floor(Math.random()*CHEER.length)];
-  const LOGIN_NUDGE = [
-    '로그인하면 맞춤 공고를 추천해드려요',
-    '로그인하고 내 가점에 맞는 공고를 찾아보세요',
-    '로그인하면 당첨 확률을 분석해드려요',
-    '로그인하고 나만의 청약 정보를 확인하세요',
-  ];
-  if(greetEl && p.name) greetEl.textContent = `${p.name}님, 안녕하세요`;
-  else if(greetEl) greetEl.textContent = '';
-  if(cheerEl) cheerEl.textContent = p.name ? cheer : '';
+  if(_isLoggedIn && p.name){
+    document.getElementById('my-name').textContent = p.name;
+    if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
+    if(cheerEl) cheerEl.textContent = cheer;
+  } else {
+    if(greetEl) greetEl.textContent = '';
+    if(cheerEl) cheerEl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
+  }
 
   // 조건값 업데이트
   const setVal=(id,val,unit='')=>{
