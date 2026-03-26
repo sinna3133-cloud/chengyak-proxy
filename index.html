@@ -1141,6 +1141,7 @@ input,select{font-family:inherit}
           </div>
         </div>
         <div id="hero-login-nudge" style="display:none">
+          <div id="hero-nudge-txt" style="font-size:13px;color:var(--ink-4);margin-bottom:10px;letter-spacing:-.1px"></div>
           <div style="padding:0 16px"><button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button></div>
         </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
@@ -1598,12 +1599,9 @@ input,select{font-family:inherit}
 /* ══ 상수 ══ */
 const RETRO = ['철수','영수','옥순','순자','복자','덕배','말순','갑돌','분이','점순','갑순','영자','창수','봉수','순희','말희','병철','정자','귀남','복순'];
 const CHEER = [
-  '오늘도 내 집 마련 파이팅!',
-  '청약 고수가 되는 중이에요',
-  '당첨까지 같이 달려봐요!',
-  '오늘도 한 걸음 더 가까워졌어요.',
-  '좋은 공고 같이 찾아봐요',
-  '드림 홈을 향해 달려봐요',
+  '로그인하면 맞춤 공고를 추천해드려요',
+  '로그인하고 내 가점에 맞는 공고를 찾아보세요',
+  '로그인하면 당첨 확률을 분석해드려요',
 ];
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
 const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home'};
@@ -3088,6 +3086,8 @@ function updateHero(){
   try { if(kakaoUser) _isLoggedIn = true; } catch(e) {}
   if (!_isLoggedIn) {
     if(nudgeEl) nudgeEl.style.display = 'block';
+    const nudgeTxt = document.getElementById('hero-nudge-txt');
+    if(nudgeTxt) nudgeTxt.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
     if(ctaBtn) ctaBtn.style.display = 'none';
   } else {
     if(nudgeEl) nudgeEl.style.display = 'none';
@@ -3107,7 +3107,7 @@ function updateHero(){
     '로그인하고 나만의 청약 정보를 확인하세요',
   ];
   if(greetEl && p.name) greetEl.textContent = `${p.name}님, 안녕하세요`;
-  else if(greetEl) greetEl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
+  else if(greetEl) greetEl.textContent = '';
   if(cheerEl) cheerEl.textContent = p.name ? cheer : '';
 
   // 조건값 업데이트
