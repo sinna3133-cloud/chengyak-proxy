@@ -471,7 +471,7 @@ input,select{font-family:inherit}
 .my-name{font-size:18px;font-weight:800;color:var(--ink);position:relative;z-index:1;letter-spacing:-.3px}
 .my-sub{font-size:13px;color:var(--ink-4);margin-top:2px;position:relative;z-index:1}
 .login-btn{font-size:13px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;background:var(--accent);color:white;border:none;transition:all .2s}
-.my-cond-card{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);padding:20px;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:12px}
+.my-cond-card{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.05);margin-bottom:12px}
 .cond-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px}
 .cond-label{font-size:11px;color:var(--ink-5)}
 .cond-val{font-size:14px;font-weight:700;margin-top:3px}
@@ -1142,7 +1142,7 @@ input,select{font-family:inherit}
         </div>
         <div id="hero-login-nudge" style="display:none">
           <div style="font-size:13px;color:var(--ink-4);margin-bottom:10px;letter-spacing:-.1px">로그인하고 맞춤 청약 정보를 받아보세요</div>
-          <button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button>
+          <div style="padding:0 16px"><button class="hero-cta-btn" onclick="event.stopPropagation();openLoginModal()">로그인하기</button></div>
         </div>
         <button class="hero-cta-btn" id="hero-cta" onclick="event.stopPropagation();if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
       </div>
@@ -3101,7 +3101,14 @@ function updateHero(){
   const greetEl = document.getElementById('hero-greeting');
   const cheerEl = document.getElementById('hero-cheer');
   const cheer = CHEER[Math.floor(Math.random()*CHEER.length)];
+  const LOGIN_NUDGE = [
+    '로그인하면 맞춤 공고를 추천해드려요',
+    '로그인하고 내 가점에 맞는 공고를 찾아보세요',
+    '로그인하면 당첨 확률을 분석해드려요',
+    '로그인하고 나만의 청약 정보를 확인하세요',
+  ];
   if(greetEl && p.name) greetEl.textContent = `${p.name}님, 안녕하세요`;
+  else if(greetEl) greetEl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
   if(cheerEl) cheerEl.textContent = cheer;
 
   // 조건값 업데이트
