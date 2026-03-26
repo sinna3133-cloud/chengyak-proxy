@@ -10,18 +10,34 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="쉬운청약">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <meta name="theme-color" content="#0066FF">
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 <title>쉬운청약</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 폰트 비동기 로딩 (렌더 블로킹 제거) -->
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" as="style" fetchpriority="high" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"></noscript>
+<noscript></noscript>
 <style>
+@font-face {
+  font-family: 'RetroSans';
+  src: url('data:font/woff2;base64,d09GMgABAAAAAANoAA4AAAAABmAAAAMWAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbIBwqBmAATBEICoNogzIBNgIkAw4LDAAEIAWDPAcgGykFCB6FccNdCjGUyVGwxOHVx8N/+7X7ZmbtL2LRJCTxBI2227CQOESzSmk0OqERiSSPhE7jr7rP1zPLnv46BeqNsOJE/pB3EJg3wAvdYtY9tedIUwbsv7+2+t9JP2z9bJ3Ri8lZRtSjh0xJjMZIjGbr4pXEKJEQKQV1Y+LhAkllc8i6pR8g0ANIQihCoDKqP7Q9TW+HAgX+FUCgMm84RptPfRRZIEFPGezO+WHsgVwlbWPcAHZwXxxCOYAaGATpL3W7VhNMeBEeX2apUguQO/AbCIhn5gKASQwSMkawAiNyrACVpiS9HN1ZeffW48uKAlu4ebB+Y52pwvW3h5An035Q0X14wl/fjgLIiiI3VTl5WkIKtAWE9FHLgFVBkO/oM07FYBZv6+nG87kcLCI10sGy+3cct/0NuHuN8ba3yLGm70ForddCrA1tVRurLoHMc7lipApIu4eDfn0PyBfHVUCCDwD9hnk9MFKhiUakGIxs21Q71r7jNNvffIjUz739Sv/044WPWL91xZ2C4k3HT1n29V4Sq75w6XzT3yZdlsuiYdjvis9Wm9Np+/lQ1pF08xCeT1ThKXQ8X98kpi1pp28SmqDhkdNbV7esXqcf8vWN+/+hFJEVnKVp/yr9T56/OAU1CiIYwpQTnic8v+c+FV0opSfjr4x/o68ZJ11r6mhql9quzVjQa6s05lpR61TLNGOD0eSp1+kAEAh+X7x5GtLw3wrabDf8HIkPxsMPf4oqFXVpYuMAmhIIckdBeZfQ6imA3H4mxVeB3G1BvWLFEGqOYRDSvoZdrCiFwBtgfJj3kk/6/PHZbORNFpWvWYmReP0VW2RzLDVPRkraAtRwMSNQ5UqVK0PZTGXioEd5qsduBtM3mGqKmSbCZI+RHQRr0FjA6ioe0VPZFc+eSCCgK4X51JVASLgWuRAPrJtGJlmAiktsRoqUoaKWAlh7ZTJqukSolnJoVFw8C0R0jyDDhLRlEhaYlz3zRaowf7BMykKCiHnRfg7OwjzzZZa6ylwobSsbUJMszDpBnBYkRL6UwAL/h5Q7AQA=') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+C26C, U+C6B4, U+CCAD, U+C57D;
+}
   /* 폰트 로딩 전 fallback — 시스템 폰트로 즉시 렌더 */
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+  
+
+/* ── 유틸리티 클래스 (인라인 스타일 대체) ── */
+.u-body{font-size:13px;color:var(--ink-3);line-height:1.8}
+.u-sec-title{font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px}
+.u-mt8{margin-top:8px}
+.u-flex1{flex:1}
+.u-accent{color:var(--accent)}
+.u-ink4{color:var(--ink-4)}
+.u-ink3{color:var(--ink-3)}
 </style>
 <style> 
 :root {
@@ -44,12 +60,12 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden}
+body{font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;background:var(--bg);color:var(--ink);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden}
 .screen{display:none;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px);animation:pageIn .22s ease;contain:paint}
 .screen.active{display:block}
 /* pageIn → 애니메이션 마스터에서 정의 */
-button{font-family:'Noto Sans KR',sans-serif}
-input,select{font-family:'Noto Sans KR',sans-serif}
+button{font-family:inherit}
+input,select{font-family:inherit}
 
 /* ══ 네비 ══ */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav-h);background:rgba(255,255,255,.98);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(0,0,0,.07);display:flex;align-items:center;justify-content:space-around;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 20px rgba(0,0,0,.07)}
@@ -317,7 +333,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .custom-dialog-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.3px}
 .custom-dialog-msg{font-size:14px;color:var(--ink-4);line-height:1.6;margin-bottom:20px}
 .custom-dialog-btns{display:flex;gap:10px}
-.custom-dialog-btn{flex:1;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.custom-dialog-btn{flex:1;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;}
 .custom-dialog-btn.cancel{background:var(--bg-2);color:var(--ink-3)}
 .custom-dialog-btn.confirm{background:var(--accent);color:white;box-shadow:0 4px 14px rgba(0,102,255,.3)}
 .custom-dialog-btn.danger{background:var(--red);color:white}
@@ -459,6 +475,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .cond-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px}
 .cond-label{font-size:11px;color:var(--ink-5)}
 .cond-val{font-size:14px;font-weight:700;margin-top:3px}
+.menu-section{background:var(--bg-card);border-radius:16px;margin:0 16px 8px;overflow:hidden;border:1px solid rgba(0,0,0,.05)}
 .menu-item{display:flex;align-items:center;padding:17px 20px;background:var(--bg-card);border-bottom:1px solid rgba(0,0,0,.04);cursor:pointer;transition:background .15s}
 .menu-item:first-of-type{margin-top:8px;border-top:1px solid rgba(0,0,0,.04)}
 .menu-item:active{background:var(--bg)}
@@ -550,7 +567,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .dash-score-label{font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .dash-score-val{font-size:26px;font-weight:900;color:#1D4ED8;margin-top:4px;letter-spacing:-1px}
 .dash-score-unit{font-size:11px;color:var(--accent);margin-top:2px;font-weight:600}
-.dash-edit-btn{display:block;width:100%;margin-top:14px;padding:11px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;text-align:center;position:relative;z-index:1;font-family:'Noto Sans KR',sans-serif}
+.dash-edit-btn{display:block;width:100%;margin-top:14px;padding:11px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;text-align:center;position:relative;z-index:1;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif}
 /* 가능 전형 */
 .dash-section{padding:20px 20px 0}
 .dash-section-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px}
@@ -753,7 +770,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .empty-icon{animation:badgePop .5s .2s cubic-bezier(.34,1.56,.64,1) both}
 
 /* ── 토스트 스프링 ── */
-.toast{transition:all .35s cubic-bezier(.34,1.56,.64,1)}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:rgba(30,30,30,.92);color:white;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:600;white-space:nowrap;z-index:9000;opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.34,1.56,.64,1);backdrop-filter:blur(8px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── 탭바 활성 배경 팝 ── */
@@ -772,7 +789,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .report-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--mint-light);color:#00A882;margin:3px 3px 3px 0}
 
 /* ══ 스플래시 ══ */
-#splash{position:fixed;inset:0;background:#ffffff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+#splash{position:fixed;inset:0;background:#ffffff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding-bottom:20vh}
 #splash.hide{animation:splashOut .5s ease forwards}
 @keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 /* 지붕 */
@@ -788,7 +805,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
 .sp-icon-g{animation:spBounce .28s cubic-bezier(.34,1.7,.64,1) 1.28s both}
 @keyframes spBounce{from{transform:scale(1)}50%{transform:scale(1.06)}to{transform:scale(1)}}
 /* 텍스트 */
-.splash-logo{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;font-weight:900;font-size:35px;color:#0A0E1A;letter-spacing:-.8px;margin-top:16px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
+.splash-logo{font-family:'RetroSans',sans-serif;font-weight:400;font-size:28px;color:#0A0E1A;letter-spacing:0px;margin-top:14px;opacity:0;animation:spTextUp .5s ease 1.1s forwards}
 .splash-logo span{color:#0066FF}
 @keyframes spTextUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* 로딩바 */
@@ -1293,6 +1310,33 @@ input,select{font-family:'Noto Sans KR',sans-serif}
   <div class="cal-evs" id="cal-evs"></div>
 </div>
 
+<!-- ══ 더보기 ══ -->
+<div class="screen" id="screen-more">
+  <div class="my-hero">
+    <div style="position:relative;z-index:1">
+      <div class="my-name">더보기</div>
+      <div class="my-sub">즐겨찾기와 설정을 관리해요</div>
+    </div>
+  </div>
+
+  <div class="menu-section-label">청약 도구</div>
+  <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showAlarmList()"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('saved')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span><span class="menu-txt">즐겨찾기</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('consult')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="menu-txt">내 리포트 기록</span><span class="menu-arr">›</span></div>
+
+  <div class="menu-section-label">고객센터</div>
+  <div class="menu-item" onclick="showSupport('notice')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><span class="menu-txt">공지사항</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showPolicy('tos')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="menu-txt">이용약관</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showPolicy('privacy')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="menu-txt">개인정보처리방침</span><span class="menu-arr">›</span></div>
+
+  <div style="height:160px"></div>
+</div>
+
+
+<!-- ══ 고객센터 공통 ══ -->
 <!-- ══ 즐겨찾기 ══ -->
 <div class="screen" id="screen-saved">
   <div class="page-header"><div class="page-title">즐겨찾기</div><div class="page-sub">관심 있는 공고를 저장해두세요</div></div>
@@ -1393,12 +1437,13 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
     </div>
   </div>
+  
+  <div class="menu-section-label">청약 도구</div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showToast('곧 지원 예정이에요 🔔')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
-  
-  <div class="menu-section-label">컨설팅 이력</div>
+  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showAlarmList()"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-section-label">내 리포트 기록</div>
   <div style="padding:0 20px 4px" id="report-history-section">
     <div id="report-history-list">
       <div style="font-size:13px;color:var(--ink-4);padding:16px 0">아직 받은 리포트가 없어요.</div>
@@ -1440,7 +1485,7 @@ input,select{font-family:'Noto Sans KR',sans-serif}
       <input class="glo-inp" id="glo-inp" type="text" placeholder="용어를 검색하세요" oninput="filterGlossary()"/>
     </div>
   </div>
-  <div id="glo-list" style="margin-top:12px"></div>
+  <div id="glo-list" style="margin-top:12px;padding-bottom:calc(var(--nav-h) + 40px)"></div>
 </div>
 
 <!-- ══ 당첨률 바텀시트 ══ -->
@@ -1525,21 +1570,17 @@ input,select{font-family:'Noto Sans KR',sans-serif}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>홈</span>
   </div>
-  <div class="nav-item" onclick="openMyCondition()" id="nav-search">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    <span>내 청약</span>
-  </div>
   <div class="nav-item consult" onclick="showScreen('consult')" id="nav-consult">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span>컨설팅</span>
   </div>
-  <div class="nav-item" onclick="showScreen('saved')" id="nav-saved">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-    <span>즐겨찾기</span>
-  </div>
-  <div class="nav-item" onclick="showScreen('my')" id="nav-my">
+  <div class="nav-item" onclick="openMyCondition()" id="nav-my">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>MY</span>
+    <span>내 청약</span>
+  </div>
+  <div class="nav-item" onclick="showScreen('more')" id="nav-more">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>더보기</span>
   </div>
 </nav>
 <div class="toast" id="toast"></div>
@@ -1556,7 +1597,7 @@ const CHEER = [
   '드림 홈을 향해 달려봐요',
 ];
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
-const NAVMAP = {home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-my',mycond:'nav-search',detail:'nav-home'};
+const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home'};
 
 /* ══ 데이터 ══ */
 const listings = [];
@@ -4302,7 +4343,7 @@ document.addEventListener('touchend', e => {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + targetName)?.classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const navId = ({home:'nav-home',consult:'nav-consult',saved:'nav-saved',my:'nav-my',mycond:'nav-search'})[targetName];
+      const navId = ({home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more'})[targetName];
       if(navId) document.getElementById(navId)?.classList.add('active');
       // 화면별 렌더링
       if(targetName==='saved') renderSaved();
@@ -4673,11 +4714,11 @@ function openPremReport(){
         <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">조건을 먼저 설정해주세요</div>
         <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">소득, 무주택 기간, 청약통장 정보를 입력하면<br>맞춤 전략 리포트를 받을 수 있어요</div>
         <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
-          style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Noto Sans KR',sans-serif">
+          style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
           조건 설정하러 가기
         </button>
         <button onclick="document.getElementById('no-cond-sheet-ov').remove();"
-          style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+          style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
           나중에 할게요
         </button>
       </div>`;
@@ -4746,12 +4787,12 @@ function _showLoginRequiredSheet(){
       <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">로그인이 필요해요</div>
       <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">리포트는 로그인 후 <b style="color:var(--ink)">주 1회 무료</b>로 받을 수 있어요</div>
       <button onclick="document.getElementById('login-required-sheet').remove();openLoginModal();"
-        style="width:100%;padding:16px;background:#FEE500;color:#191919;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:12px;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
+        style="width:100%;padding:16px;background:#FEE500;color:#191919;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:12px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#191919"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.91 1.88 5.47 4.72 6.97L5.5 21l4.3-2.26C10.5 18.9 11.24 19 12 19c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>
         카카오로 로그인하기
       </button>
       <button onclick="document.getElementById('login-required-sheet').remove();"
-        style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+        style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
         나중에 할게요
       </button>
     </div>`;
@@ -4804,11 +4845,11 @@ function _showPaywall(usedCount, weekKey){
 
       <!-- 구독 버튼 (추후 결제 연동) -->
       <button onclick="document.getElementById('paywall-sheet').remove();_showSubscribePage();"
-        style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Noto Sans KR',sans-serif;letter-spacing:-.2px">
+        style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;letter-spacing:-.2px">
         ✦ 구독하고 바로 받기
       </button>
       <button onclick="document.getElementById('paywall-sheet').remove();"
-        style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+        style="width:100%;padding:14px;background:none;border:none;font-size:14px;color:var(--ink-4);cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
         다음 주에 무료로 받을게요
       </button>
     </div>`;
@@ -4864,16 +4905,16 @@ function _showIntro(){
       <div style="padding-bottom:48px">
         ${hasConditions ? `
           <button class="intro-btn" onclick="_startInterview()"
-            style="animation-delay:1.8s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;margin-bottom:10px;font-family:'Noto Sans KR',sans-serif">
+            style="animation-delay:1.8s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;margin-bottom:10px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             입력한 조건으로 리포트 받기
           </button>
           <button class="intro-btn" onclick="closeReport();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
-            style="animation-delay:2s;width:100%;padding:14px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+            style="animation-delay:2s;width:100%;padding:14px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             조건 수정하고 받기
           </button>
         ` : `
           <button class="intro-btn" onclick="_startInterview()"
-            style="animation-delay:2s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;font-family:'Noto Sans KR',sans-serif">
+            style="animation-delay:2s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             시작하기
           </button>
         `}
@@ -5515,7 +5556,7 @@ async function generateReport(){
     // 주간 사용 횟수 증가
     const _wc = parseInt(localStorage.getItem('report_week_count') || '0');
     localStorage.setItem('report_week_count', String(_wc + 1));
-    // 컨설팅 이력 저장
+    // 내 리포트 기록 저장
     saveReportHistory(html);
     // Supabase에도 저장 (기기 간 동기화)
     if(kakaoUser?.kakaoId){
@@ -6212,7 +6253,7 @@ function showSupport(type){
           </div>
           <div style="margin-bottom:12px">
             <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:6px">문의 내용</div>
-            <textarea placeholder="문의 내용을 자세히 입력해주세요" style="width:100%;height:130px;border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:none;outline:none;color:var(--ink);background:var(--bg-card)"></textarea>
+            <textarea placeholder="문의 내용을 자세히 입력해주세요" style="width:100%;height:130px;border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;font-size:14px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;resize:none;outline:none;color:var(--ink);background:var(--bg-card)"></textarea>
           </div>
           <button onclick="showToast('문의가 접수됐어요! 영업일 기준 1~2일 안에 답변드려요')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">문의 보내기</button>
         </div>
@@ -6271,7 +6312,7 @@ function filterGlossary(){
 function showScreen(name, _fromBack=false){
   if(name==='editcond') renderEditCond();
   // 탭 바운스
-  const navMap={home:'nav-home',mycond:'nav-search',consult:'nav-consult',saved:'nav-saved',my:'nav-my'};
+  const navMap={home:'nav-home',mycond:'nav-my',consult:'nav-consult',my:'nav-my',more:'nav-more',saved:'nav-more'};
   const navId=navMap[name];
   if(navId){
     const el=document.getElementById(navId);
@@ -6314,7 +6355,7 @@ function showScreen(name, _fromBack=false){
   }
   // 스크롤 처리: goBack 호출이면 스크롤 복원은 goBack에서 직접 처리 → 여기서 skip
   if(!_fromBack){
-    const isNavTab = ['home','mycond','consult','saved','my','score','glossary','calendar','editcond'].includes(name);
+    const isNavTab = ['home','mycond','consult','saved','my','more','score','glossary','calendar','editcond'].includes(name);
     if(isNavTab){
       window.scrollTo(0, 0);
     } else {
