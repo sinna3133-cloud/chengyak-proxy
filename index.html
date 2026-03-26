@@ -1124,7 +1124,7 @@ input,select{font-family:inherit}
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
-          <div class="cond-card-label">내 청약 조건</div>
+          <div class="cond-card-label" id="cond-nudge-label" style="font-size:12px;font-weight:700;color:#2563EB;letter-spacing:0;text-transform:none"></div>
           <div class="cond-chevron" id="cond-chev" style="color:#2563EB;font-size:18px;line-height:1;font-weight:700">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
@@ -1607,9 +1607,11 @@ const CHEER = [
   '드림 홈을 향해 달려봐요',
 ];
 const LOGIN_NUDGE = [
-  '로그인하면 맞춤 공고를 추천해드려요',
-  '로그인하고 내 가점에 맞는 공고를 찾아보세요',
-  '로그인하면 당첨 확률을 분석해드려요',
+  '로그인하고 나에게 딱 맞는 청약 공고, 1초 만에 확인하기',
+  '나와 비슷한 점수대 사람들은 어디에 청약했을까요?',
+  '지금 가장 핫한 청약 단지는 여기예요',
+  '남들 다 아는 정보 말고, 나에게만 딱 맞는 기회를 찾아보세요',
+  '이번 주 놓치면 아쉬운 금주의 청약 일정, 알고 계신가요?',
 ];
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
 const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home'};
@@ -3107,9 +3109,13 @@ function updateHero(){
     document.getElementById('my-name').textContent = p.name;
     if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
     if(cheerEl) cheerEl.textContent = cheer;
+    const nudgeLblL = document.getElementById('cond-nudge-label');
+    if(nudgeLblL) nudgeLblL.textContent = '내 청약 조건';
   } else {
     if(greetEl) greetEl.textContent = '안녕하세요,';
-    if(cheerEl) cheerEl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
+    if(cheerEl) cheerEl.textContent = '';
+    const nudgeLbl = document.getElementById('cond-nudge-label');
+    if(nudgeLbl) nudgeLbl.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
   }
 
   // 조건 없으면 chevron 숨김
