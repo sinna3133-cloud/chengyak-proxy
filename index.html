@@ -136,7 +136,7 @@ input,select{font-family:inherit}
 .cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
 .cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
 .cond-item-val.blank{color:var(--ink-5)}
-.hero-cta-btn{display:block;width:100%;margin:14px 0 0;padding:13px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
+.hero-cta-btn{display:block;width:100%;margin:16px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -1120,12 +1120,12 @@ input,select{font-family:inherit}
       <!-- 인사말 영역 -->
       <div style="margin-bottom:20px;position:relative;z-index:1">
         <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.4px;line-height:1.25"></div>
-        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:13px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px;margin-top:3px"></div>
+        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:12px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px;margin-top:3px"></div>
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
-          <div class="cond-card-label" id="cond-nudge-label" style="font-size:12px;font-weight:700;color:#2563EB;letter-spacing:0;text-transform:none"></div>
-          <div class="cond-chevron" id="cond-chev" style="color:#2563EB;font-size:18px;line-height:1;font-weight:700">⌄</div>
+          <div class="cond-card-label" id="cond-nudge-label" style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:0;text-transform:none"></div>
+          <div class="cond-chevron" id="cond-chev" style="color:var(--accent);font-size:18px;line-height:1;font-weight:700">⌄</div>
         </div>
         <div class="type-pills" id="type-pills">
 
@@ -1314,7 +1314,6 @@ input,select{font-family:inherit}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div id="more-headline" style="font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.3px;line-height:1.4;margin-bottom:4px">로그인하고 조건에 맞는<br>공고 확인하세요</div>
       <div class="my-name" id="more-name"></div>
       <div class="my-sub">청약에 필요한 모든 것</div>
     </div>
@@ -1383,7 +1382,7 @@ input,select{font-family:inherit}
 <!-- ══ 리포트 오버레이 ══ -->
 <div id="report-ov" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:600;max-width:430px;margin:0 auto;flex-direction:column;overflow:hidden">
   <!-- 헤더 -->
-  <div style="background:linear-gradient(135deg,#0A0E1A,#1A2440);padding:20px 20px 24px;position:relative;overflow:hidden;flex-shrink:0">
+  <div style="background:linear-gradient(135deg,var(--ink),var(--ink-2));padding:20px 20px 24px;position:relative;overflow:hidden;flex-shrink:0">
     <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
       <button onclick="closeReport()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white">
@@ -3028,7 +3027,7 @@ function renderSavingsCutTable(l) {
       + '</tr>';
   }).join('');
   const hint = myAmt > 0
-    ? '내 납입총액: <b style="color:var(--accent)">'+myAmt.toLocaleString()+'만원</b> · <span style="background:#ECFDF5;padding:1px 5px;border-radius:4px">초과</span> <span style="background:#EBF2FF;padding:1px 5px;border-radius:4px">범위 내</span>'
+    ? '내 납입총액: <b style="color:var(--accent)">'+myAmt.toLocaleString()+'만원</b> · <span style="background:var(--public-light);padding:1px 5px;border-radius:4px">초과</span> <span style="background:var(--accent-light);padding:1px 5px;border-radius:4px">범위 내</span>'
     : '조건에 납입총액을 입력하면 내 위치를 확인할 수 있어요';
   return '<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:260px">'
     + '<tr style="background:var(--bg-2)">'
@@ -3237,7 +3236,7 @@ function _doRenderListings(){
 
   const activeLotto = listings.filter(l=>isLottoListing(l));
   lb.innerHTML = curFilter==='lotto' && activeLotto.length
-    ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
+    ? `<div style="padding:8px 20px 0"><div style="background:linear-gradient(135deg,var(--lotto),var(--lotto));border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:32px">🎰</span><div><div style="font-size:15px;font-weight:800;color:white">로또청약 · 줍줍</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">현재 ${activeLotto.length}건 진행 중 · 누구나 신청 가능</div></div></div></div>`
     : '';
   // isLottoListing 결과 미리 캐시
   const lottoSet = new Set(listings.filter(l=>isLottoListing(l)).map(l=>l.id));
@@ -3984,7 +3983,7 @@ async function showDetail(id, fromSwipe=false){
 
   <!-- 4. 📊 당첨 예상 확률 + 🏆 가점 커트라인 -->
   ${prob!==null?`
-  <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r)">
+  <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r)">
     <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
     ${/* ★★★ [하드코딩 — 수정 금지] 평형 선택 칩 + 전형 선택 칩 ★★★ */
     (()=>{
@@ -4048,7 +4047,7 @@ async function showDetail(id, fromSwipe=false){
     })()}
   </div>`
   :/* ★★★ [하드코딩 — 수정 금지] 당첨률 CTA: 파란색 배경 + '내 당첨률 확인하기' 텍스트 ★★★ */
-  `<div style="margin:14px 0 0;padding:18px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()"><div style="font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:12px">내 당첨률 확인하기</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--accent-dark)">내 조건을 입력하면 예상 당첨률을 알려드려요</span><span style="display:inline-block;margin-top:4px;padding:8px 20px;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700">조건 설정하기</span></div></div>`
+  `<div style="margin:14px 0 0;padding:18px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()"><div style="font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:12px">내 당첨률 확인하기</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--accent-dark)">내 조건을 입력하면 예상 당첨률을 알려드려요</span><span style="display:inline-block;margin-top:4px;padding:8px 20px;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700">조건 설정하기</span></div></div>`
   /* ★★★ [하드코딩 끝] ★★★ */}
   ${l.cut?`<div class="info-card" style="margin-top:14px">
     <div class="info-card-title">🏆 가점 커트라인 비교</div>
@@ -4079,7 +4078,7 @@ async function showDetail(id, fromSwipe=false){
   </div>`:''}
 
   <!-- 6. 청약홈 버튼 -->
-  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,#0052CC,#0066FF);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 바로 신청하기</a>`;
+  <a href="https://www.applyhome.co.kr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:linear-gradient(135deg,var(--accent-dark),var(--accent));color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:14px;box-shadow:0 4px 16px rgba(0,102,255,.3)">청약홈에서 바로 신청하기</a>`;
   showScreen('detail');
   syncDetailAlarmBtn(l.id);
   // 어드민: 삭제 버튼 표시
@@ -4569,7 +4568,7 @@ function updateScoreScreen(){
             <span style="font-size:18px">${t.icon}</span>
             <span style="font-size:13px;font-weight:700;color:var(--ink)">${t.title}</span>
           </div>
-          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:#00A882;white-space:nowrap">${t.remain}</span>
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:var(--mint);white-space:nowrap">${t.remain}</span>
         </div>
         <div style="font-size:12px;color:var(--ink-4);line-height:1.65;padding-left:26px">${t.desc}</div>
       </div>`).join('')
@@ -5046,11 +5045,11 @@ function _showReportResult(html, fromCache){
   const bannerHtml = fromCache ? `
     <div style="background:var(--gold-light);border:1px solid rgba(245,166,35,.3);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
-        <div style="font-size:13px;font-weight:700;color:#92400E">오늘 이미 받으신 리포트예요</div>
-        <div style="font-size:12px;color:#92400E;opacity:.8;margin-top:2px">내일 자정 이후 새 리포트를 받을 수 있어요</div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold)">오늘 이미 받으신 리포트예요</div>
+        <div style="font-size:12px;color:var(--gold);opacity:.8;margin-top:2px">내일 자정 이후 새 리포트를 받을 수 있어요</div>
       </div>
       <button onclick="if(confirm('새 리포트를 받으면 오늘 리포트는 사라져요. 진행할까요?')){localStorage.removeItem(\'report_last_used\');localStorage.removeItem(\'report_cached\');closeReport();setTimeout(()=>openPremReport(),300);}"
-        style="font-size:12px;font-weight:700;color:#92400E;background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.4);border-radius:8px;padding:6px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0">
+        style="font-size:12px;font-weight:700;color:var(--gold);background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.4);border-radius:8px;padding:6px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0">
         새로 받기
       </button>
     </div>` : '';
@@ -5645,7 +5644,7 @@ function renderReportText(text){
     const isLottoSection = title.includes('로또');
     const isFundSection = title.includes('자금');
     const isTodaySection = title.includes('오늘');
-    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2.5px solid var(--accent);background:linear-gradient(160deg,#E8F0FF 0%,#F2F7FF 60%,white 100%);box-shadow:0 6px 32px rgba(0,102,255,.18)' : ''}${isLottoSection ? ';border:1.5px solid rgba(109,40,217,.2)' : ''}">
+    html += `<div class="report-section" style="padding:0;overflow:hidden${isActionSection ? ';border:2.5px solid var(--accent);background:linear-gradient(160deg,var(--accent-light) 0%,var(--accent-light) 60%,white 100%);box-shadow:0 6px 32px rgba(0,102,255,.18)' : ''}${isLottoSection ? ';border:1.5px solid rgba(109,40,217,.2)' : ''}">
       <!-- 섹션 헤더 -->
       <div style="padding:${isActionSection?'18px 20px 12px':'14px 18px 10px'};border-bottom:1px solid ${isActionSection ? 'rgba(0,102,255,.15)' : (isLottoSection ? 'rgba(109,40,217,.1)' : 'rgba(0,0,0,.06)')}${isActionSection ? ';background:rgba(0,102,255,.09)' : ''}${isLottoSection ? ';background:var(--lotto-light)' : ''}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
@@ -5655,7 +5654,7 @@ function renderReportText(text){
           <div style="display:inline-flex;align-items:center;background:${isLottoSection?'rgba(109,40,217,.1)':isActionSection?'rgba(0,102,255,.15)':'var(--accent-light)'};border-radius:20px;padding:4px 12px 4px 8px;gap:5px">
             <div style="font-size:${isActionSection?'13px':'12px'};font-weight:700;color:${isLottoSection?'var(--lotto)':'var(--accent)'};letter-spacing:-.1px">${_sectionLabel(title)}</div>
           </div>
-          ${isActionSection ? '<div style="display:inline-flex;align-items:center;background:var(--accent);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:white;margin-left:4px">⚡ 지금 바로</div>' : (isTodaySection ? '<div style="display:inline-flex;align-items:center;background:#FFF7ED;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#EA580C;margin-left:4px">⚡ 지금 바로</div>' : '')}
+          ${isActionSection ? '<div style="display:inline-flex;align-items:center;background:var(--accent);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:white;margin-left:4px">⚡ 지금 바로</div>' : (isTodaySection ? '<div style="display:inline-flex;align-items:center;background:var(--gold-light);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--red);margin-left:4px">⚡ 지금 바로</div>' : '')}
         </div>
         ${headline ? `<div style="font-size:${isActionSection?'20px':'16px'};font-weight:900;color:${isActionSection?'var(--accent)':'var(--ink)'};line-height:1.35;letter-spacing:-.4px">${
           title.includes('지원')
@@ -5908,13 +5907,13 @@ function _parseBody(body){
       const rest = _md(t.replace(/^[-•]\s+/,''));
       if(t.includes('✓')){
         return `<div style="display:flex;gap:10px;align-items:flex-start;margin:5px 0;padding:8px 12px;background:rgba(22,163,74,.07);border-radius:10px;border:1px solid rgba(22,163,74,.18)">
-          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span style="font-size:13px;color:#15803D;line-height:1.7;font-weight:600">${rest.replace(/✓\s*/g,'')}</span>
+          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span style="font-size:13px;color:var(--public);line-height:1.7;font-weight:600">${rest.replace(/✓\s*/g,'')}</span>
         </div>`;
       }
       if(t.includes('✗')){
         return `<div style="display:flex;gap:10px;align-items:flex-start;margin:5px 0;padding:8px 12px;background:rgba(0,0,0,.04);border-radius:10px;border:1px solid rgba(0,0,0,.08)">
-          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#9CA3AF;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--ink-5);display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           <span style="font-size:13px;color:var(--ink-4);line-height:1.7">${rest.replace(/✗\s*/g,'')}</span>
         </div>`;
       }
@@ -5936,7 +5935,7 @@ function _md(s){
     .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--accent-dark);font-weight:800">$1</strong>')
     .replace(/`([^`]+)`/g,'<strong style="color:var(--accent);font-weight:700">$1</strong>')
     .replace(/\[단지명:\s*([^\]]+)\]/g,'<strong style="color:var(--accent);font-weight:900;letter-spacing:-.2px">$1</strong>')
-    .replace(/\[전형:\s*([^\]]+)\]/g,'<strong style="color:#00A882;font-weight:800">$1</strong>')
+    .replace(/\[전형:\s*([^\]]+)\]/g,'<strong style="color:var(--mint);font-weight:800">$1</strong>')
     .replace(/\]/g,'')
     .replace(/\[/g,'');
 }
@@ -8260,6 +8259,7 @@ function applyLoginUI() {
   } else {
     if (nm) nm.textContent = '';
     if (moreNm) moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요';
+
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
   }
