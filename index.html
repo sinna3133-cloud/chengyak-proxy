@@ -31,13 +31,6 @@
   
 
 /* ── 유틸리티 클래스 (인라인 스타일 대체) ── */
-.u-body{font-size:13px;color:var(--ink-3);line-height:1.8}
-.u-sec-title{font-size:15px;font-weight:800;color:var(--ink);margin:20px 0 8px}
-.u-mt8{margin-top:8px}
-.u-flex1{flex:1}
-.u-accent{color:var(--accent)}
-.u-ink4{color:var(--ink-4)}
-.u-ink3{color:var(--ink-3)}
 
 /* ── 종 아이콘 ── */
 .bell-btn{position:relative;background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .15s}
@@ -102,13 +95,11 @@ input,select{font-family:inherit}
 .page-sub{font-size:13px;color:var(--ink-4);margin-top:2px}
 .section-row{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 10px}
 .section-title{font-size:var(--t-md);font-weight:800;color:var(--ink);letter-spacing:-.2px}
-.section-more{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;padding:5px 12px;background:var(--accent-light);border-radius:20px}
 
 .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;letter-spacing:-.1px}
 .badge-public{background:var(--public-light);color:var(--public)}
 .badge-private{background:var(--private-light);color:var(--private)}
 .badge-lotto{background:var(--lotto-light);color:var(--lotto)}
-
 
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
 
@@ -117,17 +108,11 @@ input,select{font-family:inherit}
 .hero::before{display:none}
 .hero::after{display:none}
 
-
-
 .hero-inner{position:relative;z-index:1;padding:16px 0 16px}
-.hero-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 
 .hero-appname span{color:#60A5FA}
 /* 조건 카드 */
 
-.cond-card-top{display:flex;align-items:center;justify-content:space-between}
-.cond-card-label{font-size:11px;font-weight:700;color:#2563EB;letter-spacing:.6px;text-transform:uppercase}
-.cond-chevron{color:rgba(255,255,255,.35);font-size:14px;transition:transform .25s}
 .cond-chevron.open{transform:rotate(180deg)}
 .type-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 /* 히어로(어두운 배경)용 - 반투명 오버레이 */
@@ -157,11 +142,7 @@ input,select{font-family:inherit}
 .etype-yt{background:#EDE9FE;color:#6D28D9;border:1.5px solid #C4B5FD}
 .etype-gn{background:#EEF2FF;color:#4338CA;border:1.5px solid #C7D2FE}
 /* 조건 그리드 (드롭다운) */
-.cond-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .cond-detail.open{max-height:200px}
-.cond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0 4px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px}
-.cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
-.cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
 .cond-item-val.blank{color:var(--ink-5)}
 .hero-cta-btn{display:block;width:100%;margin:8px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
@@ -183,9 +164,8 @@ input,select{font-family:inherit}
 .login-kakao{background:#FEE500;color:#191919}
 .login-naver{background:#03C75A;color:white}
 .login-modal-close{width:100%;padding:13px;background:var(--bg);border:none;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-4);cursor:pointer;margin-top:4px}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+to{transform:translateY(0)}}
 /* 하단 탭 라인 */
-
 
 /* 알림 배너 */
 .alert-banner{margin:0 0 0;background:linear-gradient(135deg,#B91C1C,#DC2626);border-radius:12px;border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
@@ -278,30 +258,14 @@ input,select{font-family:inherit}
 .no-res-sub{font-size:13px;color:var(--ink-4);margin-top:5px}
 
 /* ══ 당첨률 설정 목록 바텀시트 ══ */
-.wr-sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-end;justify-content:center;max-width:430px;margin:0 auto}
 .wr-sheet-ov.open{display:flex}
-.wr-sheet{background:var(--bg-card);border-radius:20px 20px 0 0;width:100%;max-height:80vh;overflow-y:auto;animation:slideUp .3s ease}
-.wr-sheet-handle{width:40px;height:4px;background:var(--bg-2);border-radius:20px;margin:12px auto 0}
-.wr-sheet-header{padding:16px 20px 12px;border-bottom:1px solid rgba(0,0,0,.06)}
-.wr-sheet-title{font-size:18px;font-weight:900;color:var(--ink);letter-spacing:-.3px}
-.wr-sheet-sub{font-size:13px;color:var(--ink-4);margin-top:4px;line-height:1.5}
 /* 조건 입력 목록 */
-.wr-cond-list{padding:12px 0 0}
-.wr-cond-item{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer;transition:background .15s;gap:14px}
 .wr-cond-item:active{background:var(--bg)}
 .wr-cond-item:last-child{border-bottom:none}
-.wr-cond-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .wr-cond-icon.set{background:var(--accent-light)}
 .wr-cond-icon.unset{background:var(--bg-2)}
-.wr-cond-body{flex:1}
-.wr-cond-name{font-size:14px;font-weight:700;color:var(--ink)}
-.wr-cond-desc{font-size:12px;color:var(--ink-4);margin-top:2px}
-.wr-cond-status{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0}
 .wr-cond-status.ok{background:var(--accent-light);color:var(--accent)}
 .wr-cond-status.no{background:var(--bg-2);color:var(--ink-4)}
-.wr-cond-arrow{color:var(--ink-5);font-size:16px;flex-shrink:0}
-.wr-sheet-footer{padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom));border-top:1px solid rgba(0,0,0,.06)}
-.wr-start-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3)}
 .wr-start-btn:disabled{background:var(--bg-2);color:var(--ink-5);box-shadow:none;cursor:not-allowed}
 
 /* ══ 위저드 ══ */
@@ -398,13 +362,7 @@ input,select{font-family:inherit}
 .info-rl{font-size:13px;color:var(--ink-4);width:90px;flex-shrink:0}
 .info-rv{font-size:13px;font-weight:600;color:var(--ink);flex:1;line-height:1.5}
 
-
-
-
-
-
 .ai-item:last-child{margin-bottom:0}
-
 
 .fund-card{background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);margin-top:14px;overflow:hidden;box-shadow:var(--shadow-xs)}
 .fund-header{padding:13px 18px;font-size:14px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.06);background:linear-gradient(135deg,#EBF2FF,#DCE8FF)}
@@ -415,9 +373,7 @@ input,select{font-family:inherit}
 .fund-rv.ok{color:var(--public)}
 .fund-rv.no{color:var(--red)}
 .fund-rv.ac{color:var(--accent)}
-.pri-btn{width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;display:block;margin:16px 0 8px}
 .pri-btn:active{transform:scale(.98)}
-.sec-btn{width:100%;padding:14px;background:var(--bg);color:var(--ink-3);border:1.5px solid rgba(0,0,0,.1);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
 
 /* ══ 가점 ══ */
 .score-hero{background:var(--ink-2);padding:24px 20px;position:relative;overflow:hidden}
@@ -513,7 +469,6 @@ input,select{font-family:inherit}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
 .menu-txt{font-size:15px;font-weight:400;flex:1}
 .menu-arr{color:var(--ink-5);font-size:18px}
-.menu-new{font-size:11px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;font-weight:700;margin-right:8px}
 
 /* ══ 컨설팅 ══ */
 .consult-hero{background:#fff;padding:22px 20px 20px;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.07)}
@@ -521,9 +476,6 @@ input,select{font-family:inherit}
 .consult-title{font-size:18px;font-weight:800;color:var(--ink);line-height:1.3;position:relative;letter-spacing:-.3px}
 .consult-sub{font-size:13px;color:var(--ink-4);margin-top:5px;line-height:1.55}
 .consult-badge{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);border:1px solid #BFDBFE;border-radius:20px;padding:4px 11px;margin-top:10px;font-size:11px;font-weight:700;color:var(--accent)}
-.prob-card{margin:16px 20px 0;background:var(--bg-card);border-radius:var(--r);border:1px solid rgba(0,0,0,.07);overflow:hidden;box-shadow:var(--shadow-sm)}
-.prob-hd{padding:14px 18px;background:linear-gradient(135deg,#EBF2FF,#DCE8FF);border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:8px}
-.prob-hd-title{font-size:14px;font-weight:800;color:var(--accent-dark)}
 .prob-item{padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer;transition:background .15s}
 .prob-item:last-child{border-bottom:none}
 .prob-item:active{background:var(--bg)}
@@ -548,10 +500,8 @@ input,select{font-family:inherit}
 .prem-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3);font-weight:500}
 .prem-feat::before{content:'';width:18px;height:18px;border-radius:50%;background:var(--accent-light);flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066FF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
 .prem-btn{width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:12px;box-shadow:0 4px 16px rgba(0,102,255,.35);transition:all .2s;letter-spacing:-.2px}
-.prem-btn.overquota{background:linear-gradient(135deg,#0066FF,#00C9A0);box-shadow:0 4px 20px rgba(0,102,255,.4)}
-.prem-btn.done{background:var(--bg-2);color:var(--ink-3);box-shadow:none}
+.prem-btn.prem-btn.done{background:var(--bg-2);color:var(--ink-3);box-shadow:none}
 .prem-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,102,255,.3)}
-.prem-lock{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--mint-light);border:1px solid rgba(0,201,160,.2);border-top:none;border-radius:0 0 var(--r) var(--r);font-size:12px;color:#00A882;font-weight:700}
 
 /* ══ 용어사전 ══ */
 .glo-search{padding:12px 20px 0}
@@ -615,7 +565,6 @@ input,select{font-family:inherit}
 .dash-match-type{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:#FEF3C7;color:#92400E}
 .dash-match-days{font-size:12px;font-weight:700;color:var(--gold)}
 
-
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 .api-menu-badge-on{font-size:11px;background:var(--mint-light);color:#00A882;padding:3px 9px;border-radius:20px;font-weight:700;margin-right:8px}
 
@@ -628,7 +577,6 @@ input,select{font-family:inherit}
 .prob-gauge-bg{fill:none;stroke:rgba(0,102,255,.12);stroke-width:14;stroke-linecap:round}
 .prob-gauge-fill{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
 .prob-gauge-num{font-size:28px;font-weight:900;text-anchor:middle;dominant-baseline:central}
-.prob-gauge-label{font-size:11px;fill:var(--ink-4);text-anchor:middle}
 
 /* 시세 차익 바 */
 .gap-chart{padding:12px 0 8px}
@@ -640,7 +588,6 @@ input,select{font-family:inherit}
 
 /* 커트라인 비교 바 */
 .cut-chart{display:flex;flex-direction:column;gap:12px;padding:4px 0}
-
 
 .cut-chart-bar-wrap{display:flex;align-items:center;gap:8px}
 .cut-chart-track{flex:1;height:8px;background:rgba(0,0,0,.06);border-radius:10px;overflow:visible;position:relative}
@@ -655,7 +602,6 @@ input,select{font-family:inherit}
 
 /* 대시보드 카드 카운트업 팝 */
 @keyframes dashPop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
-
 
 /* bmSaved → 애니메이션 마스터에서 정의 */
 
@@ -742,7 +688,6 @@ input,select{font-family:inherit}
 .num-pop{animation:numPop .3s cubic-bezier(.34,1.56,.64,1)}
 
 /* ── 당첨률 색상 전환 ── */
-.prob-num{transition:color .6s ease}
 
 /* ── 북마크 저장 팡 ── */
 @keyframes bmSaved{0%{transform:scale(1)}30%{transform:scale(1.7) rotate(-10deg)}60%{transform:scale(.88) rotate(5deg)}80%{transform:scale(1.08)}100%{transform:scale(1)}}
@@ -769,8 +714,6 @@ input,select{font-family:inherit}
 /* ── 히어로 glow 부유 ── */
 50%{transform:translateY(-12px) scale(1.06)}}
 
-
-
 /* ── 상세 헤더 진입 ── */
 @keyframes detHeaderIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .det-title{animation:detHeaderIn .4s .1s cubic-bezier(.22,1,.36,1) both}
@@ -792,7 +735,7 @@ input,select{font-family:inherit}
 .menu-item:nth-child(5){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
 
 /* ── 마감 임박 흔들림 ── */
-@keyframes badgeShake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
+20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
 .rec-d.urgent{animation:badgeShake 2.5s ease infinite;display:inline-block}
 
 /* ── 빈 상태 진입 ── */
@@ -805,7 +748,7 @@ input,select{font-family:inherit}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── 탭바 활성 배경 팝 ── */
-@keyframes navPop{from{transform:translateX(-50%) scale(.5);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+to{transform:translateX(-50%) scale(1);opacity:1}}
 @keyframes loadDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
 /* 리포트 인트로 */
 @keyframes introLineIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -816,8 +759,6 @@ input,select{font-family:inherit}
 .report-section{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);will-change:opacity,transform}
 .report-section-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.5px}
 .report-section-body{font-size:14px;color:var(--ink-3);line-height:1.8}
-.report-highlight{background:var(--accent-light);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:13px;color:var(--accent-dark);font-weight:600;line-height:1.6}
-.report-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--mint-light);color:#00A882;margin:3px 3px 3px 0}
 
 /* ══ 스플래시 ══ */
 #splash{position:fixed;inset:0;background:#ffffff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding-bottom:20vh}
@@ -840,9 +781,6 @@ input,select{font-family:inherit}
 .splash-logo span{color:#0066FF}
 @keyframes spTextUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* 로딩바 */
-.sp-bar-wrap{position:absolute;bottom:40px;width:64px;opacity:0;animation:spTextUp .4s ease 1.5s forwards}
-.sp-bar-track{width:100%;height:2px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden}
-.sp-bar-fill{height:100%;background:linear-gradient(to right,#0066FF,#4DA3FF);border-radius:2px;width:0;animation:spBarFill 1.4s ease 1.55s forwards}
 @keyframes spBarFill{0%{width:0}60%{width:65%}100%{width:100%}}
 
 /* ══ 지역 필터 ══ */
@@ -862,7 +800,6 @@ input,select{font-family:inherit}
 </style>
 </head>
 <body>
-
 
 <!-- ══ 스플래시 ══ -->
 <div id="splash">
@@ -1437,12 +1374,11 @@ input,select{font-family:inherit}
     <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
     <div class="sup-link" onclick="showSupport('ad')">광고/제휴 문의</div>
     <div class="sup-link" onclick="showSupport('terms')">약관/정책</div>
-    <div class="sup-link" id="more-logout-link" onclick="kakaoLogout()" style="display:none;color:var(--red)">로그아웃</div>
+    <div class="sup-link" id="more-logout-link" onclick="kakaoLogout()" style="display:none">로그아웃</div>
   </div>
 
   <div style="height:160px"></div>
 </div>
-
 
 <!-- ══ 고객센터 공통 ══ -->
 
@@ -1537,7 +1473,6 @@ input,select{font-family:inherit}
   </div>
   <div id="support-body" style="padding:20px 20px 0"></div>
 </div>
-
 
 <!-- ══ 당첨률 바텀시트 ══ -->
 <div class="nudge-ov" id="nudge-ov" onclick="closeNudge(event)">
@@ -2042,8 +1977,7 @@ function saveWizard(){
   document.getElementById('wiz-prog-wrap').style.display='none';
   // 리포트 흐름에서 왔으면 버튼 텍스트 변경
   const doneBtn = document.getElementById('wiz-done-btn');
-  if(doneBtn) doneBtn.textContent = window._fromReportFlow ? '리포트 받기' : '공고 보러 가기';
-}
+  if(doneBtn) doneBtn.textContent = }
 
 function finishWizard(){
   invalidateCalcCache(); // 조건 변경
@@ -2054,9 +1988,7 @@ function finishWizard(){
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen(); renderReportHistory();
 
   // 리포트 흐름에서 왔으면 바로 리포트로 (캐시 무효화)
-  if(window._fromReportFlow){
-    window._fromReportFlow = false;
-    localStorage.removeItem('report_last_used');
+  if(        localStorage.removeItem('report_last_used');
     localStorage.removeItem('report_cached');
     showScreen('consult');
     setTimeout(()=> openPremReport(), 300);
@@ -4527,7 +4459,6 @@ function goBack(){
   }
 }
 
-
 /* ══ 가점 ══ */
 function updateScoreScreen(){
   // 조건 변화 없으면 skip
@@ -4798,7 +4729,7 @@ function openPremReport(){
         <div style="font-size:22px;text-align:center;margin-bottom:14px">📋</div>
         <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">조건을 먼저 설정해주세요</div>
         <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">소득, 무주택 기간, 청약통장 정보를 입력하면<br>맞춤 전략 리포트를 받을 수 있어요</div>
-        <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
+        <button onclick="document.getElementById('no-cond-sheet-ov').remove();setTimeout(()=>openWizard(),100);"
           style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
           조건 설정하러 가기
         </button>
@@ -4845,7 +4776,6 @@ function openPremReport(){
   // 유료 여부 확인 (kakaoUser에 is_premium 필드)
   const isPremium = !!_ku?.is_premium;
 
-  // DEV_MODE=true면 횟수 제한 없이 통과, UI 표시만 유지
   if(!DEV_MODE && !isPremium && weekCount >= FREE_WEEKLY_LIMIT){
     _showPaywall(weekCount, weekKey);
     return;
@@ -4993,7 +4923,7 @@ function _showIntro(){
             style="animation-delay:1.8s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;margin-bottom:10px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             입력한 조건으로 리포트 받기
           </button>
-          <button class="intro-btn" onclick="closeReport();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
+          <button class="intro-btn" onclick="closeReport();setTimeout(()=>openWizard(),100);"
             style="animation-delay:2s;width:100%;padding:14px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             조건 수정하고 받기
           </button>
@@ -5620,8 +5550,7 @@ async function generateReport(){
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-      body: JSON.stringify({
+      signal: controller      body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 6000,
         messages: [{ role: 'user', content: prompt }]
@@ -5997,9 +5926,6 @@ function _md(s){
     .replace(/\]/g,'')
     .replace(/\[/g,'');
 }
-
-
-
 
 function saveReportHistory(html){
   const now = new Date();
@@ -6767,7 +6693,6 @@ function applyMktPCache() {
     }
   });
   if(applied > 0) {
-    console.log(`캐시에서 시세 즉시 적용: ${applied}건`);
     renderListings();
     renderRecommend();
   }
@@ -6786,8 +6711,9 @@ async function autoFetchMarketPrices(){
     return true;
   });
 
-  if(!targets.length) { console.log('시세 전체 캐시 적용 완료, 신규 조회 없음'); return; }
-  console.log(`시세 신규조회: ${targets.length}건 (새 공고만)`);
+  if(!targets.length) {
+ return; }
+`);
 
   // 수도권 여부 판별 → 반경 결정
   const isCapital = loc => /서울|경기|인천|과천|성남|고양|용인|화성|수원|안양|의왕|광명|하남|구리|남양주|김포|파주|시흥|안산|의정부|부천|양주|평택|광주시/.test(loc||'');
@@ -6814,7 +6740,7 @@ async function autoFetchMarketPrices(){
           l._recentDeals = (data.recentDeals||[]).slice(0, 3);
           l._radiusUsed = data.radiusUsed || '';
           l._sampleCount = data.sampleCount || 0;
-          console.log(`✓ ${cleanName(l.name)}: 시세 ${(data.mktP/10000).toFixed(1)}억 (${data.sampleCount}건, ${data.radiusUsed})`);
+}: 시세 ${(data.mktP/10000).toFixed(1)}억 (${data.sampleCount}건, ${data.radiusUsed})`);
           // 캐시 저장
           const updatedCache = loadMktPCache();
           updatedCache[String(l.id)] = {
@@ -6825,7 +6751,8 @@ async function autoFetchMarketPrices(){
           };
           saveMktPCache(updatedCache);
         }
-      } catch(e){ console.warn(`시세 조회 실패: ${l.name}`); }
+      } catch(e){
+ }
     }));
     // 10건 처리 후 렌더링 (중간중간 업데이트)
     renderListings();
@@ -6924,7 +6851,6 @@ async function autoFetchAllFactors() {
     else if(cache[String(l.name)]) l.priceFactors = cache[String(l.name)];
   });
 }
-
 
 /* API 상태 업데이트 */
 function updateApiStatus(){
@@ -7086,7 +7012,6 @@ async function _fetchSimilarCompCore(listing){
       region: gu || si
     };
   } catch(e) {
-    console.warn('유사단지 조회 실패:', e.message);
     return null;
   }
 }
@@ -7146,7 +7071,6 @@ function parseAptItem(item, isLotto=false){
   const type = isLotto
     ? (isPublicType ? 'public' : 'private')
     : (isPublicType ? 'public' : 'private');
-
 
   // lttotTopAmount는 API마다 단위가 다름 (만원/원/억 등)
   // 자릿수 기반으로 단위 추정: 원(9자리↑)→÷10000, 억(1~999)→×10000, 나머지 만원 그대로
@@ -7251,12 +7175,6 @@ async function loadLiveData(){
       }
     });
     const parsed = [...apiMap.values()];
-    if(typeof DEV_MODE!=='undefined'&&DEV_MODE) console.log(`[dedup] API 원본: ${filteredAll.length}건 → 중복제거: ${parsed.length}건`);
-
-    if(parsed.length === 0){
-      // API 공고 없어도 PDF 공고는 계속 로드
-      showToast('청약홈 API 응답 없음 — PDF 공고만 표시해요');
-    }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
     // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
@@ -7294,7 +7212,8 @@ async function loadLiveData(){
       const match = apiKeys.find(ak => ak === pk);
       if(!match){
         const similar = apiKeys.find(ak => ak.includes(pk.slice(0,4)) || pk.includes(ak.slice(0,4)));
-        if(similar) console.warn(`[dedup] 불일치! PDF "${pk}" [${[...pk].map(c=>c.codePointAt(0).toString(16)).join(',')}] vs API "${similar}" [${[...similar].map(c=>c.codePointAt(0).toString(16)).join(',')}]`);
+        if(similar)
+.toString(16)).join(',')}] vs API "${similar}" [${[...similar].map(c=>c.codePointAt(0).toString(16)).join(',')}]`);
       }
     });
     // API + PDF 전체를 이름+주소 기준으로 병합 (PDF 우선)
@@ -7400,7 +7319,6 @@ async function loadLiveData(){
     autoFetchAllFactors();   // 호재 백그라운드 일괄 조회 — 계정별 최초 1회
 
   } catch(e){
-    console.error('loadLiveData error:', e);
     apiConnected = false;
     updateApiStatus();
     showToast('API 오류 — 목업 데이터로 표시해요');
@@ -7442,7 +7360,6 @@ calMonth = _today.getMonth();
     setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 3000);
   }
 })();
-
 
 // days 계산 즉시 실행
 // 한국 시간(KST) 기준 오늘 자정
@@ -7501,7 +7418,6 @@ window.renderListings = function(){
   _origRenderListings();
   requestAnimationFrame(observeCards);
 };
-
 
 // ══ 애니메이션 3: 히어로 조건값 카운트업 ══
 const _origUpdateHero = updateHero;
@@ -7793,7 +7709,6 @@ async function onAdminFileSelect(event){
     document.getElementById('admin-preview').style.display = 'block';
 
   } catch(e) {
-    console.error(e);
     const statusEl = document.getElementById('admin-status');
     statusEl.style.background = 'var(--red-light)';
     statusEl.style.border = '1px solid rgba(240,64,64,.3)';
@@ -7882,7 +7797,8 @@ async function sbLoadCondition(userId) {
       const nm = document.getElementById('my-name');
       if (nm && P.name) nm.textContent = P.name + '님';
     }
-  } catch(e) { console.warn('조건 불러오기 실패:', e.message); }
+  } catch(e) {
+ }
 }
 
 /* ── Supabase: 북마크 불러오기 ── */
@@ -7894,7 +7810,8 @@ async function sbLoadBookmarks(userId) {
       renderListings();
       renderSaved();
     }
-  } catch(e) { console.warn('북마크 불러오기 실패:', e.message); }
+  } catch(e) {
+ }
 }
 
 /* ── Supabase: 북마크 추가 ── */
@@ -8297,11 +8214,9 @@ async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('SW registered:', reg.scope);
     // 마감 임박 공고 확인 후 알림
     checkUpcomingDeadlines();
   } catch(e) {
-    console.log('SW registration failed:', e);
   }
 }
 
@@ -8353,7 +8268,6 @@ function applyLoginUI() {
     if (moreNm) moreNm.textContent = displayName + '님';
     const moreSubEl = document.getElementById('more-sub'); if(moreSubEl) moreSubEl.style.display = '';
     if (displayName) P.name = displayName;
-    if (moreArea) moreArea.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
     // screen-my: kakao-login-area → 조건 보기 화살표
     const arrowBtn = document.getElementById('my-cond-arrow-btn');
     if (arrowBtn) { arrowBtn.style.display = 'flex'; }
@@ -8374,7 +8288,6 @@ function applyLoginUI() {
     if (moreNm) { moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '15px'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
-    if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     // screen-my: 화살표 숨기고 로그인 버튼 복원
     const arrowBtn2 = document.getElementById('my-cond-arrow-btn');
     if (arrowBtn2) arrowBtn2.style.display = 'none';
@@ -8393,8 +8306,6 @@ function applyLoginUI() {
 }
 
 </script>
-
-
 
 <!-- 로그인 모달 -->
 <div id="login-modal" style="display:none">
