@@ -5346,9 +5346,7 @@ async function generateReport(){
     `일반공급: 공공 12개월12회+저축총액순(1순위) / 민간 24개월+예치금(1순위)·가점제(60㎡이하40%·60~85㎡70%·85㎡이상80%)+추첨제`
   ].join(' / ');
 
-  const typesDetail = typesRaw.map(t =>
-    `${t.l}${t.sub ? ' '+t.sub : ''}${t.subNote ? ' ('+t.subNote+')' : ''}`
-  ).join(', ');
+  const typesDetail = typesRaw.map(t => t.l).join(', ');
   const reportName = P.name || '회원';
   const age      = P.byear ? new Date().getFullYear() - parseInt(P.byear) : 0;
   const income   = parseInt(P.isDual ? (P.totalIncome || P.income || 0) : (P.income || 0));
@@ -5439,7 +5437,7 @@ async function generateReport(){
     : (P.resideRegion||'').includes('경기') ? '경기'
     : (P.resideRegion||'').includes('인천') ? '경기' : '기타';
 
-  const matchedStr = matchedFiltered.slice(0,5).map(l => {
+  const matchedStr = matchedFiltered.slice(0,3).map(l => {
     const g = gap(l);
     const prob = calcProb(l, P);
     // savingsCut 기반 당첨 가능성 분석
@@ -5458,7 +5456,7 @@ async function generateReport(){
     }
     const tierAnalysis = getEligTierAnalysis(l, P);
     const eligDetailStr = (l.eligDetail && l.eligDetail.length)
-      ? ` / [공고 자격조건(PDF)] ${l.eligDetail.map(d => `${d.type}:${d.condition}`).join(' | ')}`
+      ? ` / [공고자격(PDF)] ${l.eligDetail.slice(0,3).map(d => `${d.type}:${String(d.condition).slice(0,40)}`).join('|')}`
       : '';
     const eligTiersStr = (l.eligTiers && l.eligTiers.length)
       ? ` / [공고 단계별소득(PDF)] ${l.eligTiers.map(t2 => `${t2.name}(${t2.pct}%${t2.dual?'/맞벌이'+t2.dual+'%':''})`).join(' → ')}`
@@ -5466,7 +5464,7 @@ async function generateReport(){
     return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')} / 예상당첨률: ${prob!==null?prob+'%':'조건미입력'}${cutAnalysis}${tierAnalysis?' / 소득기준: '+tierAnalysis:''}${eligDetailStr}${eligTiersStr}`;
   }).join('\n');
 
-  const lottoStr = lottos.slice(0,3).map(l => {
+  const lottoStr = lottos.slice(0,2).map(l => {
     const g = gap(l);
     return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'}`;
   }).join('\n');
@@ -5593,32 +5591,11 @@ async function generateReport(){
 강조: [BOLD:텍스트].
 섹션당 핵심만 간결하게. 전체 리포트가 잘리지 않도록 마지막 섹션까지 반드시 완성할 것.
 
-[청약 자격 판단 기준]
-
-[공공분양 — LH 실측]
-- 신혼부부특공: 혼인 7년 이내. 6개월·6회↑. ①우선(70%):외벌이100%/맞벌이120% ②일반(20%):130%/140% ③추첨(10%)
-- 생애최초특공: 세대주. 전원 생애 첫 주택. 5년 소득세 납부. 12개월·12회·600만원↑. ①우선70%②일반20%③추첨10%
-- 신생아특공: 공고일 기준 만2세↓ 자녀. 6개월·6회↑. ①우선70%②일반20%③추첨10%
-- 일반공급(60㎡↓): 소득100%(맞벌이200%) + 자산기준. 저축총액순
-
-[민간분양 투기과열지구 — 서울 실측]
-- 1순위: 세대주 + 24개월 + 예치금 + 과거5년미당첨
-- 신혼부부특공: 혼인7년이내. 5단계(신생아우선25→신생아일반10→우선25→일반10→추첨30%)
-- 생애최초특공: 5단계(신생아우선15→신생아일반5→우선35→일반15→추첨)
-- 가점제 비율: 60㎡↓40%·60~85㎡70%·85㎡↑80%
-- 대출(2025.10.15 + 6.28 대책 기준):
-  * 생애최초: 수도권·규제 LTV 70% / 비규제 80% (단, 6개월 내 전입 의무)
-  * 일반무주택: 투기과열 LTV 40% / 비규제 LTV 70%
-  * 유주택: 수도권·규제지역 추가 주담대 전면 금지(LTV 0%)
-  * 주담대 한도 차등화(수도권·규제): 15억이하 6억 / 15~25억 4억 / 25억초과 2억
-  * 스트레스 DSR(2025.7 3단계): 수도권·규제 가산금리 3.0%, 비규제 1.5%
-  * DSR 40%(은행권) — 심사 시 스트레스 금리 반영한 원리금으로 계산
-  * 수도권 주담대 최장 30년
-- 9억 초과 중도금 집단대출 불가 (실질적으로 은행 자율로 40% 축소 운영)
-
-[공고 자격 우선순위]
-1순위(최우선): PDF 추출 공고문 데이터
-2순위: 위 기준표
+[자격 기준]
+공공: 신혼(혼인7년·소득100~140%) / 생초(세대주·생애첫주택·소득세5년·소득100~140%) / 신생아(만2세↓자녀) / 일반(저축총액순)
+민간투기과열: 1순위=세대주+24개월+예치금+5년미당첨. 신혼/생초 5단계. 가점제(60㎡↓40%·85㎡↑80%)
+대출(2025): 생초LTV70%(수도권)/일반무주택LTV40%(투기)·70%(비규제)/유주택LTV0%. 주담대한도(수도권): 15억↓6억·15~25억4억·25억↑2억. DSR40%·스트레스금리3%(수도권)/1.5%(비규제). 9억↑중도금집단대출불가
+PDF공고문 데이터 있으면 최우선 적용
 
 [${reportName}님 정보]
 나이: 만 ${age}세 / 혼인: ${P.marriage||'미혼'} / 청약가점: ${score.total}점 (${_scorePct})
@@ -5720,7 +5697,7 @@ ${cash < _contractAmt ? '- 특례보금자리론·디딤돌 대출 활용 방안
       signal: controller.signal,
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 6000,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
