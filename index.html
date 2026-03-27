@@ -7213,10 +7213,19 @@ async function loadLiveData(){
     try {
       const adminRes = await fetch(LISTINGS_API);
       const adminData = await adminRes.json();
+      // KST 기준 오늘 자정 (days 재계산용)
+      const _kst2 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
+      const _adminToday = new Date(_kst2.getFullYear(), _kst2.getMonth(), _kst2.getDate());
       adminSaved = (adminData.listings||[]).map(l => {
         delete l._maxP; delete l._minPSanitized; // 캐시 완전 초기화
         l.mktP = 0;     // 시세는 autoFetchMarketPrices에서 자동 조회
         l.noMktP = true;
+        // 서버에 저장된 days는 등록 시점 기준이므로 deadline으로 재계산
+        if(l.deadline && !String(l.deadline).startsWith('9999')){
+          const _dp2 = String(l.deadline).slice(0,10).split('-');
+          const _end2 = new Date(parseInt(_dp2[0]), parseInt(_dp2[1])-1, parseInt(_dp2[2]));
+          l.days = Math.max(0, Math.ceil((_end2 - _adminToday) / 86400000));
+        }
         return {...l, name: cleanName(l.name), _src:'pdf'};
       });
     } catch(e){}
@@ -7286,6 +7295,16 @@ async function loadLiveData(){
     });
     const deduped = [...nameMap.values()];
     listings.splice(0, listings.length, ...deduped);
+    // listings 교체 후 KST 기준으로 days 전체 재계산 (저장된 days 값 덮어쓰기)
+    const _kst3 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
+    const _liveToday = new Date(_kst3.getFullYear(), _kst3.getMonth(), _kst3.getDate());
+    listings.forEach(l => {
+      if(l.deadline && !String(l.deadline).startsWith('9999')){
+        const _dp3 = String(l.deadline).slice(0,10).split('-');
+        const _end3 = new Date(parseInt(_dp3[0]), parseInt(_dp3[1])-1, parseInt(_dp3[2]));
+        l.days = Math.max(0, Math.ceil((_end3 - _liveToday) / 86400000));
+      }
+    });
     liveListings = parsed;
     apiConnected = true;
     updateApiStatus();
