@@ -870,7 +870,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
         stroke-linecap="round" stroke-linejoin="round"/>
     </g>
   </svg>
-  <div class="splash-logo">쉬운<span>청약</span></div>
+  <div class="splash-logo" id="splash-logo-tap">쉬운<span>청약</span></div>
 
 </div>
 
@@ -7635,13 +7635,24 @@ window.updateHero = function(){
 let _adminExtracted = null;
 let isAdmin = false;
 
-// URL 파라미터로 관리자 진입
-(function checkAdminParam(){
-  const params = new URLSearchParams(window.location.search);
-  if(params.get('admin') === '1234'){
-    isAdmin = true;
-    setTimeout(()=>openAdmin(), 500);
-  }
+// 로고 5회 연속 탭으로 관리자 진입
+(function initAdminTap(){
+  let _tapCount = 0, _tapTimer = null;
+  document.addEventListener('click', function(e){
+    const logo = document.getElementById('splash-logo-tap');
+    // 스플래시 로고 또는 홈 히어로 영역 5번 탭
+    const target = e.target.closest('#splash-logo-tap, .hero-inner');
+    if(!target) { _tapCount = 0; return; }
+    _tapCount++;
+    clearTimeout(_tapTimer);
+    if(_tapCount >= 5){
+      _tapCount = 0;
+      isAdmin = true;
+      openAdmin();
+    } else {
+      _tapTimer = setTimeout(() => { _tapCount = 0; }, 2000);
+    }
+  });
 })();
 
 function openAdmin(){
