@@ -5588,14 +5588,6 @@ async function generateReport(){
   const _debtJudge    = _debtRatio <= 25 ? '안정적' : _debtRatio <= 35 ? '주의' : '부담';
   const _midNote      = _over9bk ? '9억 초과 — 중도금 집단대출 불가, 자력 납부 필요' : '중도금 무이자 집단대출 가능(공공) 또는 이자후불제(민간)';
 
-  // 타임라인 문자열 (프롬프트에 직접 삽입)
-  const _cashflowTable = _repListing ? `${cleanName(_repListing.name)} 분양${(_repPrice/10000).toFixed(1)}억 | 계약금${_repDownPct}%=${_contractAmt.toLocaleString()}만(현금${cash.toLocaleString()}만→${cash>=_contractAmt?'가능':'부족'}) | 중도금60%=${_midAmt.toLocaleString()}만(${_over9bk?'집단대출불가':'집단대출가능'}) | 잔금=${_balanceAmt.toLocaleString()}만(주담대최대${_loanAmt.toLocaleString()}만,LTV${Math.round(_ltvRate*100)}%) | 자기자금필요=${_selfFundNeed.toLocaleString()}만(${_cashShort>0?_cashShort.toLocaleString()+'만부족':'충당가능'}) | 월상환${_monthlyPay.toLocaleString()}만(연4%30년) | DSR심사${_dsrRatio}%(${_debtJudge})` : '매칭공고없음';
-
-  // 청약 일정 타임라인
-  const upcomingSchedule = matched.slice(0,5).map(l =>
-    `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
-  ).join('\n');
-
   // ── DSR 계산 ──
   const _dsrMonthlyMax = Math.round(_monthlyIncome * 0.4); // DSR 40% 한도 월상환 (실제)
   // DSR 심사: 스트레스 금리 반영 대출 한도 역산
@@ -5604,6 +5596,16 @@ async function generateReport(){
     : 0;
   const _dsrOk         = _monthlyPayStress <= _dsrMonthlyMax; // 심사용으로 판단
   const _dsrRatio      = _monthlyIncome > 0 ? Math.round(_monthlyPayStress / _monthlyIncome * 100) : 0; // 심사 기준
+
+  // 타임라인 문자열 (프롬프트에 직접 삽입)
+  const _cashflowTable = _repListing ? `${cleanName(_repListing.name)} 분양${(_repPrice/10000).toFixed(1)}억 | 계약금${_repDownPct}%=${_contractAmt.toLocaleString()}만(현금${cash.toLocaleString()}만→${cash>=_contractAmt?'가능':'부족'}) | 중도금60%=${_midAmt.toLocaleString()}만(${_over9bk?'집단대출불가':'집단대출가능'}) | 잔금=${_balanceAmt.toLocaleString()}만(주담대최대${_loanAmt.toLocaleString()}만,LTV${Math.round(_ltvRate*100)}%) | 자기자금필요=${_selfFundNeed.toLocaleString()}만(${_cashShort>0?_cashShort.toLocaleString()+'만부족':'충당가능'}) | 월상환${_monthlyPay.toLocaleString()}만(연4%30년) | DSR심사${_debtRatio}%(${_debtJudge})` : '매칭공고없음';
+
+  // 청약 일정 타임라인
+  const upcomingSchedule = matched.slice(0,5).map(l =>
+    `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
+  ).join('\n');
+
+
 
   // ── 가점 분위 판단 ──
   const _scoreLevel = score.total >= 60 ? '상위권(60점↑, 서울 주요지역 안정권)'
