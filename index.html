@@ -7046,7 +7046,9 @@ async function _fetchSimilarCompCore(listing){
    예: 주택명, 공급지역명, 청약접수시작일, 청약접수종료일, 당첨자발표일 등
 ── */
 function parseAptItem(item, isLotto=false){
-  const today = new Date();
+  // KST 기준 오늘 자정 (시간 제거해야 날짜 diff 정확)
+  const _kst = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
+  const today = new Date(_kst.getFullYear(), _kst.getMonth(), _kst.getDate());
 
   // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
   const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
@@ -7059,11 +7061,15 @@ function parseAptItem(item, isLotto=false){
   const unitsRaw  = item['전체세대수'] || item['총세대수'] || item['공급규모'] || item['세대수'] || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || item.houseTotsHhldco || item.HOUSE_TOTS_HSHLDCO || 0;
   const priceRaw  = item['분양가'] || item['최고분양가'] || item['분양가(계)'] || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || item.suplyAmount || item.SUPLY_AMOUNT || item.houseAmt || item.HOUSE_AMT || 0;
 
-  // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd)
+  // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd) — KST 자정 기준, UTC 파싱 버그 방지
   function parseDate(s){
     if(!s) return null;
     const clean = String(s).replace(/[^0-9]/g,'');
-    if(clean.length===8) return new Date(`${clean.slice(0,4)}-${clean.slice(4,6)}-${clean.slice(6,8)}`);
+    if(clean.length===8){
+      return new Date(parseInt(clean.slice(0,4)), parseInt(clean.slice(4,6))-1, parseInt(clean.slice(6,8)));
+    }
+    const parts = String(s).slice(0,10).split('-');
+    if(parts.length===3) return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
     return new Date(s);
   }
   function toStr(s){
@@ -7684,7 +7690,7 @@ async function onAdminFileSelect(event){
       cutByType: parsed.cutByType || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
-      days: parsed.aE && !String(parsed.aE).startsWith('9999') ? Math.max(0, Math.ceil((new Date(parsed.aE) - new Date()) / 86400000)) : null,
+      days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.max(0,Math.ceil((_ed-_td)/86400000)); })(),
       priceFactors: [],
       price: parsed.price || '공고 확인 필요',
       sched: normalizedSched,
