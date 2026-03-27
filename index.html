@@ -2956,6 +2956,13 @@ function daysText(d,fmt){
     if(fmt==='d') return '선착순';
     return '선착순';
   }
+  if(d<0){
+    // 마감 완료
+    if(fmt==='badge') return '마감';
+    if(fmt==='remain') return '마감';
+    if(fmt==='d') return '마감';
+    return '마감';
+  }
   if(d===0){
     if(fmt==='badge') return '오늘';
     if(fmt==='remain') return '오늘 마감';
@@ -3206,7 +3213,7 @@ function updateHero(){
   }
 
   // 마감임박 배너
-  const urgSaved=listings.filter(l=>savedIds.has(String(l.id))&&l.days<=3);
+  const urgSaved=listings.filter(l=>savedIds.has(String(l.id))&&l.days>=0&&l.days<=3);
   const aEl=document.getElementById('alert-area');
   aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail('${urgSaved[0].id}')"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">${urgSaved[0].days===0?'오늘 마감!':'마감 '+urgSaved[0].days+'일 전!'}</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
 
@@ -3232,7 +3239,7 @@ function renderRecommend(){
     return;
   }
   const tl=calcTypes(P).map(t=>t.l);
-  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
+  const matched=listings.filter(l=>l.days>=0&&!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
   if(!matched.length){c.innerHTML='<div class="notice u-empty" style="cursor:default">현재 조건에 맞는 진행 중 공고가 없어요. 전체 공고를 확인해보세요.</div>';return;}
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
@@ -3281,6 +3288,8 @@ function _doRenderListings(){
   else if(curFilter==='private') fl=listings.filter(l=>l.type==='private' && !isLotto(l));
   else if(curFilter==='lotto') fl=listings.filter(l=>isLotto(l));
   // 전체 탭: 로또청약 공고는 한 번만 (중복 제거 — 이미 listings에 하나만 있음)
+  // 마감 지난 공고 제외 (days < 0 = 이미 마감)
+  fl = fl.filter(l => l.days === null || l.days >= 0);
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터
   if(selectedRegions.size>0) fl=fl.filter(l=>selectedRegions.has(l.region));
@@ -3562,7 +3571,7 @@ function animateDashVal(id, target){
 }
 function renderMyCondDashboard(){
   const p=P, score=calcScore(p), types=calcTypes(p), tl=types.map(t=>t.l);
-  const matched=listings.filter(l=>!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
+  const matched=listings.filter(l=>l.days>=0&&!isLottoListing(l)&&l.elig.some(e=>tl.includes(e))&&meetsResideReq(l));
   const typeDescs={'생애최초':{desc:'세대원 전원 첫 주택'},'신생아특공':{desc:'만 2세 이하 자녀 보유'},'다자녀특공':{desc:'미성년 자녀 3명 이상'},'신혼부부특공':{desc:'혼인 7년 이내 신혼부부'},'청년특공':{desc:'만 39세 이하 미혼'},'노부모부양':{desc:'만 65세 이상 부모 부양'},'일반공급':{desc:'무주택 세대구성원'}};
   document.getElementById('mycond-body').innerHTML=`
     <div class="dash-hero">
@@ -3611,7 +3620,7 @@ function renderMyCondDashboard(){
 
 function showAlarmList(){
   if(alarmIds.size===0){ showToast('설정된 알림 공고가 없어요'); return; }
-  const alarmListings = listings.filter(l=>alarmIds.has(String(l.id)));
+  const alarmListings = listings.filter(l=>alarmIds.has(String(l.id))&&(l.days===null||l.days>=0));
   // mycond 화면 내에 알림 목록 오버레이 표시
   const existing = document.getElementById('alarm-overlay');
   if(existing) existing.remove();
@@ -3630,7 +3639,7 @@ function showAlarmList(){
             <div style="font-size:14px;font-weight:700;color:var(--ink)">${cleanName(l.name)}</div>
             <div style="font-size:12px;color:var(--ink-4);margin-top:3px">📍 ${l.loc}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days===null||l.days>9999?'선착순 계약':l.days<=3?(l.days===0?'오늘 마감!':'마감임박!'):'D-'+l.days}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--accent)">${l.days===null||l.days>9999?'선착순 계약':l.days<0?'마감':l.days===0?'오늘 마감!':l.days<=3?'마감임박!':'D-'+l.days}</span>
               <span style="font-size:12px;color:var(--ink-4)">${cardPrice(l.price)}</span>
             </div>
           </div>`).join('')}
@@ -4697,7 +4706,7 @@ function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(cal
 /* ══ 즐겨찾기 ══ */
 function renderSaved(){
   const c=document.getElementById('saved-container');
-  const sv=listings.filter(l=>savedIds.has(String(l.id)));
+  const sv=listings.filter(l=>savedIds.has(String(l.id))&&(l.days===null||l.days>=0));
   if(!sv.length){c.innerHTML=`
   <div class="empty-state">
     <div class="empty-icon">
@@ -5322,29 +5331,32 @@ async function generateReport(){
     return d >= cutoff2;
   }).length;
   const marriageYears = P.marriageYear ? new Date().getFullYear() - parseInt(P.marriageYear) : 99;
-  const eligNote = [
-    `신생아특공: ${newbornCount > 0
-      ? `만2세 이하 자녀 ${newbornCount}명 확인됨(생년월일 입력됨) → 신청 가능. 공공: 우선(외벌이100%/맞벌이120%)→일반(외벌이140%/맞벌이150%). 민간: 우선(외벌이100%/맞벌이120%)→일반(외벌이140%/맞벌이160%)→추첨(부동산3.31억이하)`
-      : childDates.length > 0
-        ? `자녀 ${childDates.length}명 있으나 모두 만2세 초과 → 신생아특공 해당 없음`
-        : '자녀 생년월일 미입력 — 자녀가 있다면 생년월일을 입력해야 신생아특공 자격 확인 가능'}`,
-    `신혼부부특공: ${marriageYears <= 7 && P.marriage === '기혼'
-      ? `혼인 ${marriageYears}년차 → 신청 가능. 공공: 우선(70%,외벌이100%/맞벌이120%)→일반(20%,외벌이130%/맞벌이140%)→추첨(10%). 민간(아크로드서초 등 투기과열): 신생아우선(25%)→신생아일반(10%)→우선(25%,외벌이100%)→일반(10%,외벌이140%)→추첨(30%,부동산3.31억이하)`
-      : P.marriage === '미혼' && marriageYears <= 1 ? '예비신혼부부 → 공공분양 신혼부부특공 가능'
-      : '해당 없음'}`,
-    `생애최초: ${P.isNoHome
-      ? `무주택 → 신청 가능. 세대주+5년소득세납부+세대원전원무주택 필수. 공공: 우선(70%,소득100%)→일반(20%,소득130%)→추첨(10%). 민간: 신생아우선(15%)→신생아일반(5%)→우선(35%,소득130%)→일반(15%,소득160%)→추첨(부동산3.31억이하). 1인가구는 민간 추첨만 가능`
-      : '유주택으로 해당 없음'}`,
-    `다자녀: ${parseInt(P.children||0)>=3
-      ? `자녀 ${P.children}명 → 공공(소득120%+자산기준)·민간(배점제) 모두 신청가능`
-      : parseInt(P.children||0)>=2
-        ? `자녀 ${P.children}명 → 민간(배점제, 소득기준없음)만 신청가능(공공은 3명이상 필요)`
-        : '해당 없음'}`,
-    `노부모부양: ${P.elderParent && P.isNoHome
-      ? '만65세↑ 직계존속 3년↑ 부양 → 신청 가능. 세대주 본인만. 공공: 소득120%(맞벌이200%). 민간: 소득기준없음·가점제(84점만점)'
-      : '해당 없음'}`,
-    `일반공급: 공공 12개월12회+저축총액순(1순위) / 민간 24개월+예치금(1순위)·가점제(60㎡이하40%·60~85㎡70%·85㎡이상80%)+추첨제`
-  ].join(' / ');
+  const eligNote = (()=>{
+  const parts = [];
+  // 신생아
+  if(newbornCount > 0) parts.push(`신생아특공:가능(만2세↓${newbornCount}명)`);
+  else if(childDates.length > 0) parts.push('신생아특공:불가(만2세초과)');
+  else parts.push('신생아특공:생년월일미입력');
+  // 신혼
+  if(P.marriage==='기혼' && marriageYears<=7) parts.push(`신혼특공:가능(혼인${marriageYears}년)`);
+  else if(P.marriage==='미혼' && marriageYears<=1) parts.push('신혼특공:예비신혼');
+  else parts.push('신혼특공:해당없음');
+  // 생애최초
+  if(P.isNoHome) parts.push('생초:가능(무주택·세대주·소득세5년확인필요)');
+  else parts.push('생초:불가(유주택)');
+  // 다자녀
+  const ch = parseInt(P.children||0);
+  if(ch>=3) parts.push(`다자녀특공:가능(${ch}명)`);
+  else if(ch>=2) parts.push(`다자녀특공:민간만가능(${ch}명)`);
+  else parts.push('다자녀특공:해당없음');
+  // 노부모
+  if(P.elderParent && P.isNoHome) parts.push('노부모:가능(세대주본인만)');
+  else parts.push('노부모:해당없음');
+  // 일반
+  const rank1ok = acc>=12 && accYr>=12;
+  parts.push(`일반:${rank1ok?'1순위가능':'1순위조건미달'}`);
+  return parts.join(' / ');
+})();
 
   const typesDetail = typesRaw.map(t => t.l).join(', ');
   const reportName = P.name || '회원';
@@ -5370,7 +5382,7 @@ async function generateReport(){
   const a        = _reportAnswers; // 인터뷰 답변
 
   // 매칭 공고
-  const matched  = listings.filter(l =>
+  const matched  = listings.filter(l => (l.days===null||l.days>=0) &&
     !isLottoListing(l) && l.elig.some(e => types.includes(e)) && meetsResideReq(l)
   ).sort((a,b) => (a.days||999)-(b.days||999));
   const lottos   = listings.filter(l => isLottoListing(l))
@@ -5461,12 +5473,12 @@ async function generateReport(){
     const eligTiersStr = (l.eligTiers && l.eligTiers.length)
       ? ` / [공고 단계별소득(PDF)] ${l.eligTiers.map(t2 => `${t2.name}(${t2.pct}%${t2.dual?'/맞벌이'+t2.dual+'%':''})`).join(' → ')}`
       : '';
-    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 마감 ${daysText(l.days,'remain')} / 경쟁률 ${l.comp}:1 / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'} / 전형: ${l.elig.join(',')} / 예상당첨률: ${prob!==null?prob+'%':'조건미입력'}${cutAnalysis}${tierAnalysis?' / 소득기준: '+tierAnalysis:''}${eligDetailStr}${eligTiersStr}`;
+    return `- ${cleanName(l.name)}(${l.loc}) 분양가${cardPrice(l.price)} 마감${daysText(l.days,'remain')} 경쟁${l.comp}:1 차익${g.g>0?fmtManwon(g.g):'?'} 전형:${l.elig.join(',')} 당첨${prob!==null?prob+'%':'?'}${cutAnalysis}${eligDetailStr}`;
   }).join('\n');
 
   const lottoStr = lottos.slice(0,2).map(l => {
     const g = gap(l);
-    return `- ${cleanName(l.name)} / ${l.loc} / 분양가 ${cardPrice(l.price)} / 시세차익 ${g.g>0?fmtManwon(g.g):'정보없음'}`;
+    return `- ${cleanName(l.name)}(${l.loc}) 분양가${cardPrice(l.price)} 차익${g.g>0?fmtManwon(g.g):'?'}`;
   }).join('\n');
 
   const regionTargetLabel = {seoul_only:'서울만', capital:'수도권(서울·경기·인천)', nationwide:'전국', local:'지방'}[a.target_region] || '미응답';
@@ -5539,15 +5551,7 @@ async function generateReport(){
   const _midNote      = _over9bk ? '9억 초과 — 중도금 집단대출 불가, 자력 납부 필요' : '중도금 무이자 집단대출 가능(공공) 또는 이자후불제(민간)';
 
   // 타임라인 문자열 (프롬프트에 직접 삽입)
-  const _cashflowTable = _repListing ? `
-대표 공고: ${cleanName(_repListing.name)} (분양가 약 ${(_repPrice/10000).toFixed(1)}억)
-| 납부 시점 | 항목 | 금액 | 비고 |
-| 계약 시 | 계약금(${_repDownPct}%) | ${_contractAmt.toLocaleString()}만원 | 현금 ${cash.toLocaleString()}만원 → ${cash >= _contractAmt ? '✓ 납부 가능' : '✗ ' + (_contractAmt - cash).toLocaleString() + '만원 부족'} |
-| 입주 전 | 중도금(60%) | ${_midAmt.toLocaleString()}만원 | ${_midNote} |
-| 입주 시 | 잔금(${100-_repDownPct-60}%) | ${_balanceAmt.toLocaleString()}만원 | 주담대 최대 ${_loanAmt.toLocaleString()}만원(LTV ${Math.round(_ltvRate*100)}%, ${isHot?(_repPrice<=150000?'한도 6억':_repPrice<=250000?'한도 4억':'한도 2억'):'비규제'}) |
-| 자기자금 합계 | 계약금+잔금자부담 | ${_selfFundNeed.toLocaleString()}만원 | 현금 ${cash.toLocaleString()}만원 → ${_cashShort > 0 ? _cashShort.toLocaleString() + '만원 부족' : '✓ 충당 가능'} |
-월상환액: 잔금 대출 ${_loanAmt.toLocaleString()}만원 기준 연 4%·30년 → 약 ${_monthlyPay.toLocaleString()}만원/월
-월소득 ${_monthlyIncome.toLocaleString()}만원 대비 상환비율 ${_debtRatio}% → ${_debtJudge}` : '(매칭 공고 없어 시뮬레이션 생략)';
+  const _cashflowTable = _repListing ? `${cleanName(_repListing.name)} 분양${(_repPrice/10000).toFixed(1)}억 | 계약금${_repDownPct}%=${_contractAmt.toLocaleString()}만(현금${cash.toLocaleString()}만→${cash>=_contractAmt?'가능':'부족'}) | 중도금60%=${_midAmt.toLocaleString()}만(${_over9bk?'집단대출불가':'집단대출가능'}) | 잔금=${_balanceAmt.toLocaleString()}만(주담대최대${_loanAmt.toLocaleString()}만,LTV${Math.round(_ltvRate*100)}%) | 자기자금필요=${_selfFundNeed.toLocaleString()}만(${_cashShort>0?_cashShort.toLocaleString()+'만부족':'충당가능'}) | 월상환${_monthlyPay.toLocaleString()}만(연4%30년) | DSR심사${_dsrRatio}%(${_debtJudge})` : '매칭공고없음';
 
   // 청약 일정 타임라인
   const upcomingSchedule = matched.slice(0,5).map(l =>
@@ -5615,11 +5619,7 @@ PDF공고문 데이터 있으면 최우선 적용
 [자금 흐름 사전 계산 — 대표공고: ${_repListing ? cleanName(_repListing.name) : '없음'} 기준]
 ${_cashflowTable}
 
-DSR 분석 (2025년 스트레스 DSR 3단계 기준):
-- 월소득 ${_monthlyIncome.toLocaleString()}만원 × 40% = 월 최대 ${_dsrMonthlyMax.toLocaleString()}만원 상환 가능 (DSR 40% 한도)
-- 스트레스 금리 적용 심사금리: 연 ${Math.round((_baseRate+_stressRate)*100)}% (실제 납부금리 연 ${Math.round(_baseRate*100)}% + 스트레스 ${Math.round(_stressRate*100)}%)
-- 스트레스 DSR 기준 최대 대출: 약 ${(_dsrLoanMax/10000).toFixed(1)}억 (실제 납부 기준 월상환: ${_monthlyPay.toLocaleString()}만원)
-- 심사용 월원리금: ${_monthlyPayStress.toLocaleString()}만원 → 심사 DSR ${_dsrRatio}% → ${_dsrOk ? '기준(40%) 이내' : '기준 초과 — 실제 대출 한도 줄어들 수 있음'}
+DSR: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.toLocaleString()}만상환가능. 심사금리${Math.round((_baseRate+_stressRate)*100)}%(스트레스포함). DSR기준최대대출${(_dsrLoanMax/10000).toFixed(1)}억. 심사DSR${_dsrRatio}%→${_dsrOk?'기준이내':'기준초과'}
 
 중요: 공고 추천은 반드시 희망지역(${regionTargetLabel}) 안에서만.
 
@@ -7217,7 +7217,7 @@ function parseAptItem(item, isLotto=false){
 
   const endDate  = parseDate(rceptEnd);
   const isUndetermined = !endDate || endDate.getFullYear() >= 9000;
-  const daysLeft = isUndetermined ? null : Math.max(0, Math.ceil((endDate - today) / 86400000));
+  const daysLeft = isUndetermined ? null : Math.ceil((endDate - today) / 86400000); // 음수 허용 (마감 지난 공고 필터용)
 
   // 지역 코드 매핑
   const RGN_KR = {'서울':'seoul','경기':'gyeonggi','인천':'incheon','부산':'busan','대전':'daejeon','세종':'sejong'};
@@ -7360,7 +7360,7 @@ async function loadLiveData(){
         if(l.deadline && !String(l.deadline).startsWith('9999')){
           const _dp2 = String(l.deadline).slice(0,10).split('-');
           const _end2 = new Date(parseInt(_dp2[0]), parseInt(_dp2[1])-1, parseInt(_dp2[2]));
-          l.days = Math.max(0, Math.ceil((_end2 - _adminToday) / 86400000));
+          l.days = Math.ceil((_end2 - _adminToday) / 86400000);
         }
         return {...l, name: cleanName(l.name), _src:'pdf'};
       });
@@ -7438,7 +7438,7 @@ async function loadLiveData(){
       if(l.deadline && !String(l.deadline).startsWith('9999')){
         const _dp3 = String(l.deadline).slice(0,10).split('-');
         const _end3 = new Date(parseInt(_dp3[0]), parseInt(_dp3[1])-1, parseInt(_dp3[2]));
-        l.days = Math.max(0, Math.ceil((_end3 - _liveToday) / 86400000));
+        l.days = Math.ceil((_end3 - _liveToday) / 86400000);
       }
     });
     liveListings = parsed;
@@ -7538,7 +7538,7 @@ listings.forEach(l => {
     const _dp = l.deadline.slice(0,10).split('-');
     const end = new Date(parseInt(_dp[0]), parseInt(_dp[1])-1, parseInt(_dp[2]));
     if(end.getFullYear() >= 9000){ l.days = null; }
-    else { l.days = Math.ceil((end - _initToday) / 86400000); }
+    else { l.days = Math.ceil((end - _initToday) / 86400000); } // 음수=마감완료
   }
 });
 restoreRegions();
@@ -7854,7 +7854,7 @@ async function onAdminFileSelect(event){
       cutByType: parsed.cutByType || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
-      days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.max(0,Math.ceil((_ed-_td)/86400000)); })(),
+      days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.ceil((_ed-_td)/86400000); })(),
       priceFactors: [],
       price: parsed.price || '공고 확인 필요',
       sched: normalizedSched,
