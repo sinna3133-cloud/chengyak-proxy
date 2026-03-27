@@ -6344,7 +6344,7 @@ function filterGlossary(){
 function showScreen(name, _fromBack=false){
   if(name==='editcond') renderEditCond();
   // 탭 바운스
-  const navMap={home:'nav-home',mycond:'nav-my',consult:'nav-consult',my:'nav-my',more:'nav-more',saved:'nav-more'};
+  const navMap={home:'nav-home',mycond:'nav-my',consult:'nav-consult',my:'nav-my',more:'nav-more',saved:'nav-more',glossary:'nav-more',score:'nav-more',calendar:'nav-more'};
   const navId=navMap[name];
   if(navId){
     const el=document.getElementById(navId);
@@ -6361,14 +6361,11 @@ function showScreen(name, _fromBack=false){
     _targetScreen.classList.add('active');
     requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
   } else if(_targetScreen) {
-    // 이미 active인 화면에 다시 active 추가 시 animation 재트리거 방지
-    // (showDetail async 완료 후 showScreen('detail') 재호출 케이스)
-    const alreadyActive = _targetScreen.classList.contains('active');
-    if(alreadyActive) {
-      _targetScreen.style.animation = 'none';
-      requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
-    }
+    // animation 강제 리셋 → reflow → active 추가 (display:none→block 전환 시 animation 재트리거 보장)
+    _targetScreen.style.animation = 'none';
     _targetScreen.classList.add('active');
+    _targetScreen.offsetHeight; // reflow 강제
+    _targetScreen.style.animation = '';
   }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
