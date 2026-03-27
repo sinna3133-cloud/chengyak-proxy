@@ -1977,7 +1977,7 @@ function saveWizard(){
   document.getElementById('wiz-prog-wrap').style.display='none';
   // 리포트 흐름에서 왔으면 버튼 텍스트 변경
   const doneBtn = document.getElementById('wiz-done-btn');
-  if(doneBtn) doneBtn.textContent = '공고 보러 가기';
+  if(doneBtn) doneBtn.textContent = window._fromReportFlow ? '리포트 받기' : '공고 보러 가기';
 }
 
 function finishWizard(){
@@ -1989,7 +1989,9 @@ function finishWizard(){
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen(); renderReportHistory();
 
   // 리포트 흐름에서 왔으면 바로 리포트로 (캐시 무효화)
-  if(        localStorage.removeItem('report_last_used');
+  if(window._fromReportFlow){
+    window._fromReportFlow = false;
+    localStorage.removeItem('report_last_used');
     localStorage.removeItem('report_cached');
     showScreen('consult');
     setTimeout(()=> openPremReport(), 300);
@@ -4460,6 +4462,7 @@ function goBack(){
   }
 }
 
+
 /* ══ 가점 ══ */
 function updateScoreScreen(){
   // 조건 변화 없으면 skip
@@ -4730,7 +4733,7 @@ function openPremReport(){
         <div style="font-size:22px;text-align:center;margin-bottom:14px">📋</div>
         <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">조건을 먼저 설정해주세요</div>
         <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">소득, 무주택 기간, 청약통장 정보를 입력하면<br>맞춤 전략 리포트를 받을 수 있어요</div>
-        <button onclick="document.getElementById('no-cond-sheet-ov').remove();setTimeout(()=>openWizard(),100);"
+        <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
           style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);margin-bottom:12px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
           조건 설정하러 가기
         </button>
@@ -4777,6 +4780,7 @@ function openPremReport(){
   // 유료 여부 확인 (kakaoUser에 is_premium 필드)
   const isPremium = !!_ku?.is_premium;
 
+  // DEV_MODE=true면 횟수 제한 없이 통과, UI 표시만 유지
   if(!DEV_MODE && !isPremium && weekCount >= FREE_WEEKLY_LIMIT){
     _showPaywall(weekCount, weekKey);
     return;
@@ -4924,7 +4928,7 @@ function _showIntro(){
             style="animation-delay:1.8s;width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px;margin-bottom:10px;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             입력한 조건으로 리포트 받기
           </button>
-          <button class="intro-btn" onclick="closeReport();setTimeout(()=>openWizard(),100);"
+          <button class="intro-btn" onclick="closeReport();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
             style="animation-delay:2s;width:100%;padding:14px;background:var(--bg-2);color:var(--ink-3);border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif">
             조건 수정하고 받기
           </button>
@@ -5551,7 +5555,8 @@ async function generateReport(){
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller      body: JSON.stringify({
+      signal: controller.signal,
+      body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 6000,
         messages: [{ role: 'user', content: prompt }]
@@ -5927,6 +5932,9 @@ function _md(s){
     .replace(/\]/g,'')
     .replace(/\[/g,'');
 }
+
+
+
 
 function saveReportHistory(html){
   const now = new Date();
@@ -6712,9 +6720,7 @@ async function autoFetchMarketPrices(){
     return true;
   });
 
-  if(!targets.length) {
- return; }
-`);
+  if(!targets.length) { console.log('시세 전체 캐시 적용 완료, 신규 조회 없음'); return; }
 
   // 수도권 여부 판별 → 반경 결정
   const isCapital = loc => /서울|경기|인천|과천|성남|고양|용인|화성|수원|안양|의왕|광명|하남|구리|남양주|김포|파주|시흥|안산|의정부|부천|양주|평택|광주시/.test(loc||'');
@@ -6741,7 +6747,6 @@ async function autoFetchMarketPrices(){
           l._recentDeals = (data.recentDeals||[]).slice(0, 3);
           l._radiusUsed = data.radiusUsed || '';
           l._sampleCount = data.sampleCount || 0;
-}: 시세 ${(data.mktP/10000).toFixed(1)}억 (${data.sampleCount}건, ${data.radiusUsed})`);
           // 캐시 저장
           const updatedCache = loadMktPCache();
           updatedCache[String(l.id)] = {
@@ -6752,8 +6757,7 @@ async function autoFetchMarketPrices(){
           };
           saveMktPCache(updatedCache);
         }
-      } catch(e){
- }
+      } catch(e){ console.warn(`시세 조회 실패: ${l.name}`); }
     }));
     // 10건 처리 후 렌더링 (중간중간 업데이트)
     renderListings();
@@ -6852,6 +6856,7 @@ async function autoFetchAllFactors() {
     else if(cache[String(l.name)]) l.priceFactors = cache[String(l.name)];
   });
 }
+
 
 /* API 상태 업데이트 */
 function updateApiStatus(){
@@ -7073,6 +7078,7 @@ function parseAptItem(item, isLotto=false){
     ? (isPublicType ? 'public' : 'private')
     : (isPublicType ? 'public' : 'private');
 
+
   // lttotTopAmount는 API마다 단위가 다름 (만원/원/억 등)
   // 자릿수 기반으로 단위 추정: 원(9자리↑)→÷10000, 억(1~999)→×10000, 나머지 만원 그대로
   function sanitizePriceRaw(raw) {
@@ -7176,6 +7182,12 @@ async function loadLiveData(){
       }
     });
     const parsed = [...apiMap.values()];
+    if(typeof DEV_MODE!=='undefined'&&DEV_MODE) console.log(`[dedup] API 원본: ${filteredAll.length}건 → 중복제거: ${parsed.length}건`);
+
+    if(parsed.length === 0){
+      // API 공고 없어도 PDF 공고는 계속 로드
+      showToast('청약홈 API 응답 없음 — PDF 공고만 표시해요');
+    }
 
     // 우선 목록 먼저 표시 (경쟁률 로드 전)
     // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
@@ -7213,8 +7225,7 @@ async function loadLiveData(){
       const match = apiKeys.find(ak => ak === pk);
       if(!match){
         const similar = apiKeys.find(ak => ak.includes(pk.slice(0,4)) || pk.includes(ak.slice(0,4)));
-        if(similar)
-.toString(16)).join(',')}] vs API "${similar}" [${[...similar].map(c=>c.codePointAt(0).toString(16)).join(',')}]`);
+        if(similar) console.warn(`[dedup] 불일치! PDF "${pk}" [${[...pk].map(c=>c.codePointAt(0).toString(16)).join(',')}] vs API "${similar}" [${[...similar].map(c=>c.codePointAt(0).toString(16)).join(',')}]`);
       }
     });
     // API + PDF 전체를 이름+주소 기준으로 병합 (PDF 우선)
@@ -7362,6 +7373,7 @@ calMonth = _today.getMonth();
   }
 })();
 
+
 // days 계산 즉시 실행
 // 한국 시간(KST) 기준 오늘 자정
 const _nowKST = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
@@ -7419,6 +7431,7 @@ window.renderListings = function(){
   _origRenderListings();
   requestAnimationFrame(observeCards);
 };
+
 
 // ══ 애니메이션 3: 히어로 조건값 카운트업 ══
 const _origUpdateHero = updateHero;
@@ -7798,8 +7811,7 @@ async function sbLoadCondition(userId) {
       const nm = document.getElementById('my-name');
       if (nm && P.name) nm.textContent = P.name + '님';
     }
-  } catch(e) {
- }
+  } catch(e) { console.warn('조건 불러오기 실패:', e.message); }
 }
 
 /* ── Supabase: 북마크 불러오기 ── */
@@ -7811,8 +7823,7 @@ async function sbLoadBookmarks(userId) {
       renderListings();
       renderSaved();
     }
-  } catch(e) {
- }
+  } catch(e) { console.warn('북마크 불러오기 실패:', e.message); }
 }
 
 /* ── Supabase: 북마크 추가 ── */
@@ -8269,6 +8280,7 @@ function applyLoginUI() {
     if (moreNm) moreNm.textContent = displayName + '님';
     const moreSubEl = document.getElementById('more-sub'); if(moreSubEl) moreSubEl.style.display = '';
     if (displayName) P.name = displayName;
+    if (moreArea) moreArea.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
     // screen-my: kakao-login-area → 조건 보기 화살표
     const arrowBtn = document.getElementById('my-cond-arrow-btn');
     if (arrowBtn) { arrowBtn.style.display = 'flex'; }
@@ -8289,6 +8301,7 @@ function applyLoginUI() {
     if (moreNm) { moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '15px'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
+    if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     // screen-my: 화살표 숨기고 로그인 버튼 복원
     const arrowBtn2 = document.getElementById('my-cond-arrow-btn');
     if (arrowBtn2) arrowBtn2.style.display = 'none';
