@@ -165,7 +165,7 @@ input,select{font-family:inherit}
 .cond-item-val.blank{color:var(--ink-5)}
 .hero-cta-btn{display:block;width:100%;margin:10px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
-.hero-login-btn{width:auto;padding-left:28px;padding-right:28px}
+.hero-login-btn{width:auto;min-width:160px;padding-left:32px;padding-right:32px;margin-left:auto;margin-right:auto;display:block}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -1353,6 +1353,15 @@ input,select{font-family:inherit}
   <div id="notif-list" style="padding-bottom:20px"></div>
 </div>
 
+<!-- ══ 리포트 기록 ══ -->
+<div class="screen" id="screen-report-history">
+  <div class="page-header" style="display:flex;align-items:center;gap:10px">
+    <button class="wiz-back" onclick="showScreen('more')"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
+    <div class="page-title">내 리포트 기록</div>
+  </div>
+  <div id="report-history-list-screen" style="padding:16px 20px"></div>
+</div>
+
 <!-- ══ 더보기 ══ -->
 <div class="screen" id="screen-more">
   <div class="my-hero">
@@ -1368,7 +1377,7 @@ input,select{font-family:inherit}
   <div class="menu-section-label">바로가기</div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showScreen('consult')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="menu-txt">내 리포트 기록</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('report-history')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="menu-txt">내 리포트 기록</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('saved')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span><span class="menu-txt">즐겨찾기</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
 
@@ -1625,23 +1634,10 @@ input,select{font-family:inherit}
 <script>
 /* ══ 상수 ══ */
 const RETRO = ['철수','영수','옥순','순자','복자','덕배','말순','갑돌','분이','점순','갑순','영자','창수','봉수','순희','말희','병철','정자','귀남','복순'];
-const CHEER = [
-  '오늘도 내 집 마련 파이팅!',
-  '청약 고수가 되는 중이에요',
-  '당첨까지 같이 달려봐요!',
-  '오늘도 한 걸음 더 가까워졌어요.',
-  '좋은 공고 같이 찾아봐요',
-  '드림 홈을 향해 달려봐요',
-];
-const LOGIN_NUDGE = [
-  '로그인하고 나에게 딱 맞는 청약 공고, 1초 만에 확인하기',
-  '나와 비슷한 점수대 사람들은 어디에 청약했을까요?',
-  '지금 가장 핫한 청약 단지는 여기예요',
-  '남들 다 아는 정보 말고, 나에게만 딱 맞는 기회를 찾아보세요',
-  '이번 주 놓치면 아쉬운 금주의 청약 일정, 알고 계신가요?',
-];
+
+const LOGIN_NUDGE = '로그인하고 나에게 딱 맞는 청약 공고, 1초 만에 확인하기';
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
-const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home'};
+const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home','report-history':'nav-more'};
 
 /* ══ 데이터 ══ */
 const listings = [];
@@ -3067,6 +3063,36 @@ function renderSavingsCutTable(l) {
 }
 
 /* ══ 커스텀 다이얼로그 ══ */
+function renderReportHistoryScreen() {
+  const el = document.getElementById('report-history-list-screen');
+  if (!el) return;
+  const history = JSON.parse(localStorage.getItem('report_history') || '[]');
+  if (!history.length) {
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;padding:60px 20px;text-align:center">
+        <div style="width:72px;height:72px;border-radius:24px;background:#EFF6FF;border:2px solid #BFDBFE;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px">📋</div>
+        <div style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px">아직 리포트가 없어요</div>
+        <div style="font-size:14px;color:var(--ink-4);line-height:1.7;margin-bottom:28px">AI 맞춤 전략 리포트를 받으면<br>여기서 다시 확인할 수 있어요</div>
+        <button onclick="showScreen('consult')" style="padding:13px 32px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.25)">리포트 받아보기</button>
+      </div>`;
+    return;
+  }
+  el.innerHTML = history.map((item, i) => `
+    <div onclick="openHistoryReport(${item.id})" style="background:var(--bg-card);border-radius:14px;border:1px solid rgba(0,0,0,.07);padding:14px 16px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow-xs);transition:all .15s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:24px;height:24px;border-radius:8px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:12px">✦</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink)">${item.date} ${item.time}</div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-5)">${i === 0 ? '<span style="background:var(--accent);color:white;padding:2px 7px;border-radius:10px;font-weight:700">최신</span>' : ''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <span style="font-size:12px;color:var(--ink-4)">가점 <b style="color:var(--accent)">${item.score}점</b></span>
+        ${item.topLoc ? `<span style="font-size:12px;color:var(--ink-4)">· 추천지 <b style="color:var(--ink-2)">${item.topLoc}</b></span>` : ''}
+      </div>
+    </div>`).join('');
+}
+
 function showConfirm(title, msg, confirmText, onConfirm, danger=false) {
   const ov = document.createElement('div');
   ov.className = 'custom-dialog-ov';
@@ -3122,7 +3148,10 @@ function updateHero(){
     if(nudgeEl) nudgeEl.style.display = 'block';
     if(ctaBtn) ctaBtn.style.display = 'none';
     const nudgeTxt = document.getElementById('hero-nudge-txt');
-    if(nudgeTxt) nudgeTxt.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
+    if(nudgeTxt) nudgeTxt.textContent = LOGIN_NUDGE;
+    // 비로그인 시 hero-cheer 비우기 (랜덤 문구 노출 방지)
+    const cheerElL = document.getElementById('hero-cheer');
+    if(cheerElL) cheerElL.textContent = '';
   } else {
     if(nudgeEl) nudgeEl.style.display = 'none';
     if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
@@ -3130,7 +3159,6 @@ function updateHero(){
   // 이름 설정 — 로그인 상태에서만 이름 표시
   const greetEl = document.getElementById('hero-greeting');
   const cheerEl = document.getElementById('hero-cheer');
-  const cheer = CHEER[Math.floor(Math.random()*CHEER.length)];
   if(_isLoggedIn && p.name){
     document.getElementById('my-name').textContent = p.name;
     if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
@@ -6399,9 +6427,9 @@ function showScreen(name, _fromBack=false){
   if(stickyCta) stickyCta.classList.toggle('show', name==='detail');
   if(name==='glossary')document.getElementById('glo-list').innerHTML=renderGlossary(GLOSSARY);
   if(name==='notif'){ renderNotifList(); markAllNotifsRead(); }
+  if(name==='report-history') renderReportHistoryScreen();
   if(name==='home'){
-    const cheerEl=document.getElementById('hero-cheer');
-    if(cheerEl) cheerEl.textContent=CHEER[Math.floor(Math.random()*CHEER.length)];
+
   }
   // 스크롤 처리: goBack 호출이면 스크롤 복원은 goBack에서 직접 처리 → 여기서 skip
   if(!_fromBack){
@@ -7384,8 +7412,7 @@ if (!localStorage.getItem('kakaoUser_v2')) {
 const _greet = document.getElementById('hero-greeting');
 const _cheer = document.getElementById('hero-cheer');
 if(_greet) _greet.textContent = `${P.name}님, 안녕하세요`;
-const _cheerIdx = Math.floor(Math.random()*CHEER.length);
-if(_cheer) _cheer.textContent = CHEER[_cheerIdx];
+
 const _today = new Date();
 calYear  = _today.getFullYear();
 calMonth = _today.getMonth();
