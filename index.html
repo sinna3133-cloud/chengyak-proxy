@@ -8280,7 +8280,6 @@ function applyLoginUI() {
     if (moreNm) moreNm.textContent = displayName + '님';
     const moreSubEl = document.getElementById('more-sub'); if(moreSubEl) moreSubEl.style.display = '';
     if (displayName) P.name = displayName;
-    if (moreArea) moreArea.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
     // screen-my: kakao-login-area → 조건 보기 화살표
     const arrowBtn = document.getElementById('my-cond-arrow-btn');
     if (arrowBtn) { arrowBtn.style.display = 'flex'; }
