@@ -1362,6 +1362,49 @@ input,select{font-family:inherit}
   <div id="report-history-list-screen" style="padding:16px 20px"></div>
 </div>
 
+<div class="screen" id="screen-my">
+  <div class="my-hero">
+    <div style="position:relative;z-index:1">
+      <div class="my-name" id="my-name"></div>
+      <div class="my-sub">내 조건을 관리하고 전략을 세워봐요</div>
+    </div>
+    <div id="kakao-login-area" style="margin-left:auto;position:relative;z-index:1">
+      <button class="login-btn" id="kakao-login-btn" onclick="openLoginModal()">로그인하기</button>
+    </div>
+  </div>
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
+      <button id="edit-cond-btn" onclick="showScreen('editcond')" style="display:none;font-size:12px;font-weight:700;padding:6px 14px;background:var(--accent-light);color:var(--accent);border:none;border-radius:20px;cursor:pointer">수정</button>
+    </div>
+    <div class="my-cond-card" id="my-cond-card">
+      <div style="font-size:13px;color:var(--ink-4)">아직 설정된 조건이 없어요.</div>
+      <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
+    </div>
+  </div>
+  
+  <div class="menu-section-label">청약 도구</div>
+  <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showAlarmList()"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-section-label">내 리포트 기록</div>
+  <div style="padding:0 20px 4px" id="report-history-section">
+    <div id="report-history-list">
+      <div style="font-size:13px;color:var(--ink-4);padding:16px 0">아직 받은 리포트가 없어요.</div>
+    </div>
+  </div>
+  <div class="menu-section-label">고객센터</div>
+  <div style="padding:20px 20px 8px;display:grid;grid-template-columns:1fr 1fr;row-gap:32px">
+    <div class="sup-link" onclick="showSupport('notice')">공지사항</div>
+    <div class="sup-link" onclick="showSupport('faq')">FAQ</div>
+    <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
+    <div class="sup-link" onclick="showSupport('ad')">광고/제휴 문의</div>
+    <div class="sup-link" onclick="showSupport('terms')">약관/정책</div>
+  </div>
+  <div style="height:160px"></div>
+</div>
+
 <!-- ══ 더보기 ══ -->
 <div class="screen" id="screen-more">
   <div class="my-hero">
@@ -1582,6 +1625,10 @@ input,select{font-family:inherit}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span>컨설팅</span>
   </div>
+  <div class="nav-item" onclick="openMyCondition()" id="nav-my">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>내 청약</span>
+  </div>
   <div class="nav-item" onclick="showScreen('more')" id="nav-more">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     <span>더보기</span>
@@ -1595,7 +1642,7 @@ const RETRO = ['철수','영수','옥순','순자','복자','덕배','말순','�
 
 const LOGIN_NUDGE = '로그인하고 나에게 딱 맞는 청약 공고, 1초 만에 확인하기';
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
-const NAVMAP = {home:'nav-home',consult:'nav-consult',mycond:'nav-more',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home','report-history':'nav-more'};
+const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-more',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home','report-history':'nav-more'};
 
 /* ══ 데이터 ══ */
 const listings = [];
