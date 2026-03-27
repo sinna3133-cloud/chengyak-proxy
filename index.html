@@ -165,7 +165,7 @@ input,select{font-family:inherit}
 .cond-item-val.blank{color:var(--ink-5)}
 .hero-cta-btn{display:block;width:100%;margin:10px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
-.hero-login-btn{width:auto;min-width:160px;padding-left:32px;padding-right:32px;margin-left:auto;margin-right:auto;display:block}
+.hero-login-btn{width:auto;min-width:200px;padding-left:40px;padding-right:40px;margin-left:auto;margin-right:auto;display:block}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -496,7 +496,7 @@ input,select{font-family:inherit}
 .my-hero{background:#fff;padding:20px 20px 16px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.07)}
 .my-hero::before{display:none}
 .my-hero::after{display:none}
-.my-name{font-size:18px;font-weight:800;color:var(--ink);position:relative;z-index:1;letter-spacing:-.3px}
+.my-name{font-size:18px;font-weight:800;color:var(--ink);position:relative;z-index:1;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 .my-sub{font-size:13px;color:var(--ink-4);margin-top:2px;position:relative;z-index:1}
 .login-btn{font-size:13px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;background:var(--accent);color:white;border:none;transition:all .2s}
 .my-cond-card{background:var(--bg-card);border-radius:20px;border:1px solid rgba(0,0,0,.06);padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.05);margin-bottom:12px}
@@ -8352,7 +8352,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    if (moreNm) moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요';
+    if (moreNm) { moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '13px'; moreNm.style.whiteSpace = 'nowrap'; moreNm.style.letterSpacing = '-.3px'; }
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
