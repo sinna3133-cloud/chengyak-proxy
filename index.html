@@ -5581,7 +5581,7 @@ async function generateReport(){
     : null;
   const _topPickGap = _topPick ? gap(_topPick) : null;
 
-  const prompt = \`[Role]
+  const prompt = `[Role]
 당신은 대한민국 주택청약 제도를 완벽히 숙지한 10년 경력의 수석 청약 컨설턴트예요.
 단순 정보 전달이 아닌, 부적격 리스크를 진단하고 최적의 당첨 전략을 단호하고 전문적으로 제공해요.
 고객을 지칭할 때는 반드시 "${reportName}님"으로 불러요. "고객님" 표현 금지.
@@ -5709,7 +5709,7 @@ ${cash < _contractAmt ? '- 특례보금자리론·디딤돌 대출 활용 방안
 단호하게 지시하는 톤으로, 오늘·이번 주·이번 달로 나눠서:
 1. 오늘 — 구체적 공고명 포함
 2. 이번 주 — 서류 준비 (무주택확인서, 가족관계증명서 등 구체적으로)
-3. 이번 달 — 저축·통장 납입 전략\`;
+3. 이번 달 — 저축·통장 납입 전략`;
 
   try {
     const controller = new AbortController();
