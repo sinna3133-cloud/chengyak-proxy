@@ -1,4 +1,4 @@
-=<!DOCTYPE html> 
+<!DOCTYPE html> 
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -163,7 +163,7 @@ input,select{font-family:inherit}
 .cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
 .cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
 .cond-item-val.blank{color:var(--ink-5)}
-.hero-cta-btn{display:block;width:100%;margin:16px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
+.hero-cta-btn{display:block;width:100%;margin:10px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
 .hero-login-btn{width:auto;padding-left:28px;padding-right:28px}
 /* 리포트 인터뷰 대화체 스타일 */
@@ -3121,6 +3121,8 @@ function updateHero(){
   if (!_isLoggedIn) {
     if(nudgeEl) nudgeEl.style.display = 'block';
     if(ctaBtn) ctaBtn.style.display = 'none';
+    const nudgeTxt = document.getElementById('hero-nudge-txt');
+    if(nudgeTxt) nudgeTxt.textContent = LOGIN_NUDGE[Math.floor(Math.random()*LOGIN_NUDGE.length)];
   } else {
     if(nudgeEl) nudgeEl.style.display = 'none';
     if(ctaBtn) ctaBtn.style.display = hasConditions ? 'none' : 'block';
