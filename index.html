@@ -775,6 +775,8 @@ to{transform:translateY(0)}}
 /* ── 탭바 활성 배경 팝 ── */
 to{transform:translateX(-50%) scale(1);opacity:1}}
 @keyframes loadDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+@keyframes typingDot{0%,60%,100%{opacity:.2}30%{opacity:1}}
+.typing-dots span{animation:typingDot 1.4s ease-in-out infinite;display:inline-block}.typing-dots span:nth-child(2){animation-delay:.2s}.typing-dots span:nth-child(3){animation-delay:.4s}
 /* 리포트 인트로 */
 @keyframes introLineIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .intro-line{opacity:0;animation:introLineIn .5s cubic-bezier(.22,1,.36,1) forwards}
@@ -1501,7 +1503,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
         <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       </div>
       <div style="font-size:15px;font-weight:700;color:var(--ink)">리포트 작성 중이에요</div>
-      <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">조건을 꼼꼼히 분석하고 있어요...</div>
+      <div style="font-size:13px;color:var(--ink-4);text-align:center;line-height:1.7" id="report-loading-msg">조건을 꼼꼼히 분석하고 있어요<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></div>
       <div style="margin-top:8px;padding:10px 18px;background:var(--accent-light);border-radius:12px;text-align:center">
         <div style="font-size:12px;color:var(--accent);font-weight:600;line-height:1.7">최대 3분 소요될 수 있어요<br><span style="font-weight:400;color:var(--ink-4)">리포트가 준비되면 알림으로 알려드릴게요</span></div>
       </div>
@@ -5428,19 +5430,20 @@ async function generateReport(){
 
   // 실거래가 API 조회 (희망 지역 기준)
   let mktData = [];
+  const _dot = '<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>';
   const msgs = [
-    '인터뷰 답변을 반영하고 있어요...',
-    '실거래가 데이터를 조회하고 있어요...',
-    '공고를 분석하고 있어요...',
-    '소득·자산 기준을 대조하고 있어요...',
-    '당첨 가능성을 계산하고 있어요...',
-    '자금 계획을 시뮬레이션하고 있어요...',
-    'AI가 전략을 작성하고 있어요...',
+    '인터뷰 답변을 반영하고 있어요' + _dot,
+    '실거래가 데이터를 조회하고 있어요' + _dot,
+    '공고를 분석하고 있어요' + _dot,
+    '소득·자산 기준을 대조하고 있어요' + _dot,
+    '당첨 가능성을 계산하고 있어요' + _dot,
+    '자금 계획을 시뮬레이션하고 있어요' + _dot,
+    'AI가 전략을 작성하고 있어요' + _dot,
   ];
   let mi = 0;
   const msgTimer = setInterval(() => {
     const el = document.getElementById('report-loading-msg');
-    if(el) el.textContent = msgs[Math.min(mi++, msgs.length - 1)];
+    if(el) el.innerHTML = msgs[Math.min(mi++, msgs.length - 1)];
   }, 2200);
 
   // 실거래가 조회 시도 (매칭 공고 상위 3개)
@@ -5665,7 +5668,7 @@ DSR: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.
 
 ===== 리포트 작성 =====
 
-[SECTION:종합 청약 체력 검진]
+[SECTION:${reportName}님의 청약 자격을 진단했어요]
 [HEADLINE:가점 ${score.total}점 — ${_scoreLevel.split('(')[0]} 진단 결과]
 [STAT:청약가점|${score.total}점][STAT:신청전형|${typesRaw.length}개][STAT:매칭공고|${matched.length}건]
 
@@ -5675,9 +5678,14 @@ DSR: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.
 - ${reportName}님이 신청 가능한 전형(${typesDetail||'없음'})별 경쟁력을 솔직하게 평가해요
 - 현재 가점 대비 실현 가능한 목표 지역을 상/중/하 3단계로 명시해요
 
-[SECTION:타겟 공고 핀셋 분석]
+[SECTION:지금 조건에 딱! 추천하고 싶은 공고에요]
 [HEADLINE:${_topPick ? '[단지명: '+cleanName(_topPick.name)+'] TOP PICK 선정' : '현재 추천 공고 없음'}]
 [STAT:시세차익|${_topPickGap && _topPickGap.g > 0 ? (_topPickGap.g/10000).toFixed(1)+'억' : '미정'}][STAT:안전마진|${_topPickGap ? _topPickGap.pct+'%' : '?'}][STAT:전형단계|?단계]
+
+[SECTION:시야를 조금만 넓혀볼까요? 이런 대안도 있어요]
+[HEADLINE:TOP PICK 외에 고려할 만한 공고를 추가로 분석해요]
+[STAT:대안공고수|${matched.length > 1 ? matched.length-1+'건' : '없음'}]
+TOP PICK 외 매칭 공고 중 특징이 다른 1~2개를 골라 간략히 분석해요 (경쟁률·소득기준·전형 차이 위주). 없으면 이 섹션 생략해요.
 
 ${_topPick ? `
 TOP PICK 공고 [단지명: ${cleanName(_topPick.name)}]를 핀셋 분석해요:
@@ -5687,7 +5695,7 @@ TOP PICK 공고 [단지명: ${cleanName(_topPick.name)}]를 핀셋 분석해요:
 - 비선호 타입 전략: 같은 단지에서 경쟁이 덜한 평형·타입 추천 (예: 84A보다 84C)
 - 부적격 리스크 체크: 재당첨 제한·세대주 여부·거주 요건 해당 여부` : '현재 매칭 공고가 없어요. 가점·조건을 입력하면 바로 분석해드릴게요.'}
 
-[SECTION:자금 조달 스트레스 테스트]
+[SECTION:당첨된다면? 미리 그려보는 현실적인 자금 계획]
 [HEADLINE:계약금 납부 ${cash >= _contractAmt ? 'YES — 지금 당장 계약 가능해요' : 'NO — ' + (_contractAmt - cash).toLocaleString() + '만원 부족해요'}]
 [STAT:계약금|${(_contractAmt/10000).toFixed(1)}억][STAT:월상환|${_monthlyPay.toLocaleString()}만][STAT:DSR|${_dsrRatio}%]
 
@@ -5858,13 +5866,13 @@ function renderReportText(text){
 
 function _sectionIcon(title){
   const t = title || '';
-  if(t.includes('점수') || t.includes('상황') || t.includes('진단'))
+  if(t.includes('점수') || t.includes('상황') || t.includes('진단') || t.includes('자격'))
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-  if(t.includes('공고') || t.includes('넣으세요'))
+  if(t.includes('공고') || t.includes('넣으세요') || t.includes('추천') || t.includes('대안'))
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
   if(t.includes('로또') || t.includes('무순위'))
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  if(t.includes('대출') || t.includes('저축') || t.includes('자금'))
+  if(t.includes('대출') || t.includes('저축') || t.includes('자금') || t.includes('현실적'))
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
   if(t.includes('가점'))
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`;
