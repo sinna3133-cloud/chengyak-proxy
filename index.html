@@ -1507,11 +1507,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <div style="margin-top:8px;padding:10px 18px;background:var(--accent-light);border-radius:12px;text-align:center">
         <div style="font-size:12px;color:var(--accent);font-weight:600;line-height:1.7">최대 3분 소요될 수 있어요<br><span style="font-weight:400;color:var(--ink-4)">리포트가 준비되면 알림으로 알려드릴게요</span></div>
       </div>
-      <div style="display:flex;gap:6px;margin-top:4px">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .0s ease-in-out infinite"></div>
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .2s ease-in-out infinite"></div>
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:loadDot 1.2s .4s ease-in-out infinite"></div>
-      </div>
+
     </div>
     <!-- 결과 -->
     <div id="report-content" style="display:none"></div>
@@ -5685,7 +5681,7 @@ DSR: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.
 [SECTION:시야를 조금만 넓혀볼까요? 이런 대안도 있어요]
 [HEADLINE:TOP PICK 외에 고려할 만한 공고를 추가로 분석해요]
 [STAT:대안공고수|${matched.length > 1 ? matched.length-1+'건' : '없음'}]
-TOP PICK 외 매칭 공고 중 특징이 다른 1~2개를 골라 간략히 분석해요 (경쟁률·소득기준·전형 차이 위주). 없으면 이 섹션 생략해요.
+반드시 이 섹션을 출력해야 해요. TOP PICK 외 매칭 공고가 있으면 특징이 다른 1~2개를 경쟁률·소득기준·전형 차이 위주로 분석해요. 매칭 공고가 1건뿐이거나 없으면 "지금은 대안 공고가 없지만, 다음 공고를 노리는 전략"을 구체적으로 서술해요.
 
 ${_topPick ? `
 TOP PICK 공고 [단지명: ${cleanName(_topPick.name)}]를 핀셋 분석해요:
