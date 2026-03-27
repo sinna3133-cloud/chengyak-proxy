@@ -61,7 +61,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;background:var(--bg);color:var(--ink);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden}
-.screen{display:none;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px);animation:pageIn .22s ease}
+.screen{display:none;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px)}
 .screen.active{display:block}
 /* pageIn → 애니메이션 마스터에서 정의 */
 button{font-family:inherit}
@@ -1248,6 +1248,27 @@ input,select{font-family:inherit}
 </div>
 
 <!-- ══ 가점 계산기 ══ -->
+<!-- ══ 즐겨찾기 ══ -->
+<div class="screen" id="screen-saved">
+  <div class="page-header"><div class="page-title">즐겨찾기</div><div class="page-sub">관심 있는 공고를 저장해두세요</div></div>
+  <div id="saved-container"></div>
+</div>
+<!-- ══ 용어사전 ══ -->
+<div class="screen" id="screen-glossary">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="wiz-back" onclick="showScreen('my')"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
+      <div class="page-title">청약 용어 사전</div>
+    </div>
+  </div>
+  <div class="glo-search">
+    <div class="glo-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="glo-inp" id="glo-inp" type="text" placeholder="용어를 검색하세요" oninput="filterGlossary()"/>
+    </div>
+  </div>
+  <div id="glo-list" style="margin-top:12px;padding-bottom:calc(var(--nav-h) + 40px)"></div>
+</div>
 <div class="screen" id="screen-score">
   <div class="score-hero">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;position:relative;z-index:1">
@@ -1342,11 +1363,6 @@ input,select{font-family:inherit}
 
 
 <!-- ══ 고객센터 공통 ══ -->
-<!-- ══ 즐겨찾기 ══ -->
-<div class="screen" id="screen-saved">
-  <div class="page-header"><div class="page-title">즐겨찾기</div><div class="page-sub">관심 있는 공고를 저장해두세요</div></div>
-  <div id="saved-container"></div>
-</div>
 
 <!-- ══ 컨설팅 ══ -->
 <div class="screen" id="screen-consult" style="min-height:auto;padding-bottom:calc(var(--nav-h)+20px)">
@@ -1482,22 +1498,6 @@ input,select{font-family:inherit}
   <div id="support-body" style="padding:20px 20px 0"></div>
 </div>
 
-<!-- ══ 용어사전 ══ -->
-<div class="screen" id="screen-glossary">
-  <div class="page-header">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="wiz-back" onclick="showScreen('my')"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
-      <div class="page-title">청약 용어 사전</div>
-    </div>
-  </div>
-  <div class="glo-search">
-    <div class="glo-bar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="glo-inp" id="glo-inp" type="text" placeholder="용어를 검색하세요" oninput="filterGlossary()"/>
-    </div>
-  </div>
-  <div id="glo-list" style="margin-top:12px;padding-bottom:calc(var(--nav-h) + 40px)"></div>
-</div>
 
 <!-- ══ 당첨률 바텀시트 ══ -->
 <div class="nudge-ov" id="nudge-ov" onclick="closeNudge(event)">
@@ -6361,11 +6361,14 @@ function showScreen(name, _fromBack=false){
     _targetScreen.classList.add('active');
     requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
   } else if(_targetScreen) {
-    // animation 강제 리셋 → reflow → active 추가 (display:none→block 전환 시 animation 재트리거 보장)
+    // animation 재트리거: rAF 두 번 중첩으로 브라우저 paint 사이클 보장
     _targetScreen.style.animation = 'none';
     _targetScreen.classList.add('active');
-    _targetScreen.offsetHeight; // reflow 강제
-    _targetScreen.style.animation = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        _targetScreen.style.animation = '';
+      });
+    });
   }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
