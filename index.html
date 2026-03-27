@@ -685,7 +685,8 @@ input,select{font-family:inherit}
 
 /* ── 화면 전환 ── */
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.screen.active{animation:pageIn .28s cubic-bezier(.22,1,.36,1)}
+.screen.active{display:block}
+.screen.page-anim{animation:pageIn .28s cubic-bezier(.22,1,.36,1)}
 /* 스와이프 뒤로가기 — inline transform으로 처리 (class 불필요) */
 @keyframes swipeBackExit{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
 @keyframes swipeBackEnter{from{transform:translateX(-28%);opacity:.75}to{transform:translateX(0);opacity:1}}
@@ -4372,7 +4373,7 @@ document.addEventListener('touchend', e => {
       // showScreen은 DOM 클래스 전환만 (애니메이션은 이미 완료)
       const targetName = prevScreen || 'home';
       // active 클래스 전환 (애니메이션 없이)
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => {s.classList.remove('active');s.classList.remove('page-anim');});
       document.getElementById('screen-' + targetName)?.classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const navId = ({home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more'})[targetName];
@@ -6353,22 +6354,19 @@ function showScreen(name, _fromBack=false){
   // 현재 화면 스크롤 위치 저장
   const cur=document.querySelector('.screen.active');
   if(cur) scrollPositions[cur.id]=window.scrollY;
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.classList.remove('page-anim');});
   const _targetScreen = document.getElementById('screen-'+name);
   if(_fromBack && _targetScreen) {
-    // 뒤로가기 시 pageIn 애니메이션 비활성화 (스크롤 깜빡임 방지)
-    _targetScreen.style.animation = 'none';
+    // 뒤로가기: 애니메이션 없이 즉시 표시
+    _targetScreen.classList.remove('page-anim');
     _targetScreen.classList.add('active');
-    requestAnimationFrame(() => { _targetScreen.style.animation = ''; });
   } else if(_targetScreen) {
-    // animation 재트리거: rAF 두 번 중첩으로 브라우저 paint 사이클 보장
-    _targetScreen.style.animation = 'none';
+    // 앞으로 이동: page-anim 클래스로 애니메이션 트리거
+    _targetScreen.classList.remove('page-anim');
     _targetScreen.classList.add('active');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        _targetScreen.style.animation = '';
-      });
-    });
+    // void 강제 reflow 후 클래스 추가 → 애니메이션 확실히 재시작
+    void _targetScreen.offsetWidth;
+    _targetScreen.classList.add('page-anim');
   }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(NAVMAP[name])document.getElementById(NAVMAP[name]).classList.add('active');
