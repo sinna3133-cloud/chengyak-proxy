@@ -38,6 +38,28 @@
 .u-accent{color:var(--accent)}
 .u-ink4{color:var(--ink-4)}
 .u-ink3{color:var(--ink-3)}
+
+/* ── 종 아이콘 ── */
+.bell-btn{position:relative;background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .15s}
+.bell-btn:active{background:var(--bg-2)}
+.bell-red-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:#EF4444;border-radius:50%;border:1.5px solid var(--bg-card);display:none}
+.bell-red-dot.show{display:block}
+
+/* ── 알림센터 ── */
+.notif-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.notif-sheet{background:var(--bg-card);border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:75vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.22,1,.36,1)}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;background:var(--bg-card);z-index:1}
+.notif-title{font-size:17px;font-weight:800;color:var(--ink)}
+.notif-close{background:none;border:none;cursor:pointer;color:var(--ink-4);padding:4px;border-radius:8px;display:flex;align-items:center}
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(0,0,0,.04);cursor:pointer;transition:background .15s}
+.notif-item:active{background:var(--bg-2)}
+.notif-item.unread{background:#F0F6FF}
+.notif-item.unread .notif-dot{display:block}
+.notif-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;margin-top:6px;flex-shrink:0;display:none}
+.notif-body{flex:1}
+.notif-msg{font-size:14px;font-weight:600;color:var(--ink);line-height:1.45;letter-spacing:-.2px}
+.notif-time{font-size:11px;color:var(--ink-5);margin-top:3px}
+.notif-empty{padding:48px 20px;text-align:center;color:var(--ink-4);font-size:14px}
 </style>
 <style> 
 :root {
@@ -1121,9 +1143,15 @@ input,select{font-family:inherit}
     <div class="hero-inner">
       <div id="api-indicator" style="display:none"></div>
       <!-- 인사말 영역 -->
-      <div style="margin-bottom:20px;position:relative;z-index:1">
-        <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.4px;line-height:1.25"></div>
-        <div id="hero-cheer" class="hero-cheer-anim" style="font-size:12px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px;margin-top:3px"></div>
+      <div style="margin-bottom:20px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.4px;line-height:1.25"></div>
+          <div id="hero-cheer" class="hero-cheer-anim" style="font-size:12px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px;margin-top:3px"></div>
+        </div>
+        <button class="bell-btn" onclick="openNotifCenter()" aria-label="알림센터">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-red-dot" id="bell-red-dot"></span>
+        </button>
       </div>
       <div class="cond-card" onclick="toggleCond()">
         <div class="cond-card-top">
@@ -4149,6 +4177,7 @@ function toggleDetailAlarm(){
     showToast('알림을 해제했어요');
   } else {
     alarmIds.add(String(l.id));
+    addNotification(`🔔 "${cleanName(l.name)}" 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
     btn.classList.add('on');
     showToast('마감 전 알림을 설정했어요 🔔');
   }
@@ -8254,8 +8283,23 @@ async function registerServiceWorker() {
 }
 
 function checkUpcomingDeadlines() {
+  // D-3, D-0 당일만 1일 1회 알림센터에 적재
+  const today = new Date().toDateString();
+  listings
+    .filter(l => (l.days === 3 || l.days === 0) && alarmIds.has(String(l.id)))
+    .forEach(l => {
+      const sentKey = `notifSent_${l.id}_D${l.days}_${today}`;
+      if (!localStorage.getItem(sentKey)) {
+        const msg = l.days === 0
+          ? `⏰ ${l.name} 오늘 마감이에요! 지금 바로 신청하세요.`
+          : `⏰ ${l.name} 마감 3일 전이에요. 준비되셨나요?`;
+        addNotification(msg, 'deadline', String(l.id));
+        localStorage.setItem(sentKey, '1');
+      }
+    });
+  const urgent = listings.filter(l => l.days >= 0 && l.days <= 3 && alarmIds.has(String(l.id)));
+  // 기존 푸시 알림
   if (Notification.permission !== 'granted') return;
-  const urgent = listings.filter(l => l.days >= 0 && l.days <= 3);
   if (urgent.length > 0 && kakaoUser) {
     const l = urgent[0];
     const title = `⏰ 청약 마감 D-${l.days}`;
@@ -8326,5 +8370,96 @@ function applyLoginUI() {
     청약홈에서 바로 신청하기
   </a>
 </div>
+
+<!-- ══ 알림센터 ══ -->
+<div id="notif-ov" class="notif-ov" style="display:none" onclick="if(event.target===this)closeNotifCenter()">
+  <div class="notif-sheet">
+    <div class="notif-header">
+      <div class="notif-title">알림센터</div>
+      <button class="notif-close" onclick="closeNotifCenter()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+<script>
+/* ══ 알림센터 ══ */
+const NOTIF_KEY = 'appNotifications';
+const NOTIF_READ_KEY = 'notifLastRead';
+
+function getNotifications() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveNotifications(arr) {
+  localStorage.setItem(NOTIF_KEY, JSON.stringify(arr.slice(0, 50))); // 최대 50개
+}
+function addNotification(msg, type='info', listingId=null) {
+  const notifs = getNotifications();
+  notifs.unshift({ id: Date.now(), msg, type, listingId, ts: new Date().toISOString(), read: false });
+  saveNotifications(notifs);
+  updateBellDot();
+}
+function updateBellDot() {
+  const notifs = getNotifications();
+  const hasUnread = notifs.some(n => !n.read);
+  const dot = document.getElementById('bell-red-dot');
+  if (dot) dot.classList.toggle('show', hasUnread);
+}
+function openNotifCenter() {
+  const ov = document.getElementById('notif-ov');
+  if (!ov) return;
+  renderNotifList();
+  ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  // 열었을 때 모두 읽음 처리
+  const notifs = getNotifications();
+  notifs.forEach(n => n.read = true);
+  saveNotifications(notifs);
+  updateBellDot();
+}
+function closeNotifCenter() {
+  const ov = document.getElementById('notif-ov');
+  if (ov) { ov.style.display = 'none'; document.body.style.overflow = ''; }
+}
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  const notifs = getNotifications();
+  if (!notifs.length) {
+    list.innerHTML = '<div class="notif-empty">아직 알림이 없어요</div>';
+    return;
+  }
+  list.innerHTML = notifs.map(n => {
+    const d = new Date(n.ts);
+    const timeStr = formatNotifTime(d);
+    return `<div class="notif-item${n.read ? '' : ' unread'}" onclick="notifItemClick('${n.listingId || ''}')">
+      <div class="notif-dot"></div>
+      <div class="notif-body">
+        <div class="notif-msg">${n.msg}</div>
+        <div class="notif-time">${timeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function formatNotifTime(d) {
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return Math.floor(diff/60) + '분 전';
+  if (diff < 86400) return Math.floor(diff/3600) + '시간 전';
+  if (diff < 604800) return Math.floor(diff/86400) + '일 전';
+  return `${d.getMonth()+1}월 ${d.getDate()}일`;
+}
+function notifItemClick(listingId) {
+  closeNotifCenter();
+  if (listingId) {
+    setTimeout(() => showDetail(listingId), 200);
+  }
+}
+
+// 앱 시작 시 레드닷 상태 복원
+document.addEventListener('DOMContentLoaded', () => { updateBellDot(); });
+</script>
 </body>
 </html>
