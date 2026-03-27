@@ -119,7 +119,7 @@ input,select{font-family:inherit}
 
 
 
-.hero-inner{position:relative;z-index:1;padding:20px 0 20px}
+.hero-inner{position:relative;z-index:1;padding:16px 0 16px}
 .hero-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 
 .hero-appname span{color:#60A5FA}
@@ -163,9 +163,9 @@ input,select{font-family:inherit}
 .cond-item-label{font-size:var(--t-xs);color:var(--ink-4);font-weight:600;letter-spacing:.3px}
 .cond-item-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:3px}
 .cond-item-val.blank{color:var(--ink-5)}
-.hero-cta-btn{display:block;width:100%;margin:10px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
+.hero-cta-btn{display:block;width:100%;margin:8px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
-.hero-login-btn{width:auto;min-width:200px;padding-left:40px;padding-right:40px;margin-left:auto;margin-right:auto;display:block}
+.hero-login-btn{width:auto;min-width:240px;padding-left:48px;padding-right:48px;margin-left:auto;margin-right:auto;display:block}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -1149,7 +1149,7 @@ input,select{font-family:inherit}
     <div class="hero-inner">
       <div id="api-indicator" style="display:none"></div>
       <!-- 인사말 영역 -->
-      <div style="margin-bottom:10px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between">
+      <div style="margin-bottom:6px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between">
         <div>
           <div id="hero-greeting" class="hero-greet-anim" style="font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.4px;line-height:1.25"></div>
           <div id="hero-cheer" class="hero-cheer-anim" style="font-size:12px;font-weight:400;color:var(--ink-4);letter-spacing:-.1px;margin-top:3px"></div>
@@ -1160,7 +1160,7 @@ input,select{font-family:inherit}
         </button>
       </div>
       <div id="hero-login-nudge" style="display:none">
-        <div id="hero-nudge-txt" style="font-size:13px;color:var(--ink-4);margin-bottom:10px;letter-spacing:-.1px"></div>
+        <div id="hero-nudge-txt" style="font-size:13px;color:var(--ink-4);margin-bottom:8px;letter-spacing:-.1px"></div>
         <button class="hero-cta-btn hero-login-btn" onclick="openLoginModal()">로그인하기</button>
       </div>
       <button class="hero-cta-btn" id="hero-cta" onclick="if(typeof kakaoUser!=='undefined'&&kakaoUser){openWizard();}else{openLoginModal();}">조건 설정하기</button>
@@ -1487,6 +1487,9 @@ input,select{font-family:inherit}
     </div>
     <div id="kakao-login-area" style="margin-left:auto;position:relative;z-index:1">
       <button class="login-btn" id="kakao-login-btn" onclick="openLoginModal()">로그인하기</button>
+      <button id="my-cond-arrow-btn" onclick="showScreen('editcond')" style="display:none;background:var(--bg-2);border:none;cursor:pointer;width:36px;height:36px;border-radius:50%;display:none;align-items:center;justify-content:center;color:var(--ink-3)">
+        <svg width="9" height="16" viewBox="0 0 9 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 8,8 1,15"/></svg>
+      </button>
     </div>
   </div>
   <div style="padding:20px 20px 0">
@@ -1518,6 +1521,7 @@ input,select{font-family:inherit}
     <div class="sup-link" onclick="showSupport('contact')">서비스 문의하기</div>
     <div class="sup-link" onclick="showSupport('ad')">광고/제휴 문의</div>
     <div class="sup-link" onclick="showSupport('terms')">약관/정책</div>
+    <div class="sup-link" id="my-logout-link" onclick="kakaoLogout()" style="display:none;color:var(--red)">로그아웃</div>
   </div>
   <div style="height:160px"></div>
 </div>
@@ -8349,7 +8353,14 @@ function applyLoginUI() {
     const moreSubEl = document.getElementById('more-sub'); if(moreSubEl) moreSubEl.style.display = '';
     if (displayName) P.name = displayName;
     if (moreArea) moreArea.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
-    area.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
+    // screen-my: kakao-login-area → 조건 보기 화살표
+    const arrowBtn = document.getElementById('my-cond-arrow-btn');
+    if (arrowBtn) { arrowBtn.style.display = 'flex'; }
+    const loginBtn = document.getElementById('kakao-login-btn');
+    if (loginBtn) loginBtn.style.display = 'none';
+    // 그리드 로그아웃 링크 표시
+    const logoutLink = document.getElementById('my-logout-link');
+    if (logoutLink) logoutLink.style.display = 'block';
     updateHero();
   } else {
     if (nm) nm.textContent = '';
@@ -8357,7 +8368,13 @@ function applyLoginUI() {
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
-    area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
+    // screen-my: 화살표 숨기고 로그인 버튼 복원
+    const arrowBtn2 = document.getElementById('my-cond-arrow-btn');
+    if (arrowBtn2) arrowBtn2.style.display = 'none';
+    const loginBtn2 = document.getElementById('kakao-login-btn');
+    if (loginBtn2) loginBtn2.style.display = 'block';
+    const logoutLink2 = document.getElementById('my-logout-link');
+    if (logoutLink2) logoutLink2.style.display = 'none';
   }
 }
 
