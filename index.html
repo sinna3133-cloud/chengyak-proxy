@@ -1367,7 +1367,7 @@ input,select{font-family:inherit}
   <div class="my-hero">
     <div style="position:relative;z-index:1">
       <div class="my-name" id="more-name" style="font-size:15px;letter-spacing:-.3px">로그인하고 나만의 청약 정보를 확인하세요</div>
-      <div class="my-sub">청약에 필요한 모든 것</div>
+      <div class="my-sub" id="more-sub">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
       <button class="login-btn" onclick="openLoginModal()">로그인하기</button>
@@ -8346,6 +8346,7 @@ function applyLoginUI() {
     const displayName = kakaoUser.nickname || P.name;
     if (nm) nm.textContent = displayName + '님';
     if (moreNm) moreNm.textContent = displayName + '님';
+    const moreSubEl = document.getElementById('more-sub'); if(moreSubEl) moreSubEl.style.display = '';
     if (displayName) P.name = displayName;
     if (moreArea) moreArea.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
     area.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--ink-4);cursor:pointer;position:relative;z-index:1;white-space:nowrap;padding:6px 12px;background:var(--bg-2);border-radius:20px" onclick="kakaoLogout()">로그아웃</div>`;
@@ -8353,6 +8354,7 @@ function applyLoginUI() {
   } else {
     if (nm) nm.textContent = '';
     if (moreNm) { moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '15px'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
+    const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
     area.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
