@@ -2626,29 +2626,6 @@ function countUp(el, target, duration=600){
     el.textContent = Math.round(cur);
   },16);
 }
-/* ★★★ [하드코딩 — 수정 금지] 유사단지 데이터 캐시 & 사전 로드 ★★★ */
-const _similarCache = {};
-async function enrichListingWithHistory(l){
-  // PDF 업로드 공고에 경쟁률/커트라인이 없을 때 유사단지 데이터로 보완
-  if(l._historyEnriched) return;
-  l._historyEnriched = true;
-  const cacheKey = l.loc || l.name || '';
-  if(!cacheKey) return;
-  if(_similarCache[cacheKey]){
-    const c = _similarCache[cacheKey];
-    if(!l.comp || l.comp <= 1) l.comp = c.avgComp || l.comp;
-    if(!l.cut || l.cut <= 0) l.cut = c.avgCut || l.cut;
-    l._historySource = c;
-    return;
-  }
-  const hist = await fetchSimilarComp(l);
-  if(hist){
-    _similarCache[cacheKey] = hist;
-    if(!l.comp || l.comp <= 1) l.comp = hist.avgComp || l.comp;
-    if(!l.cut || l.cut <= 0) l.cut = hist.avgCut || l.cut;
-    l._historySource = hist;
-  }
-}
 /* ★★★ [하드코딩 끝] ★★★ */
 
 /* ★★★ [하드코딩 — 수정 금지] 당첨률 정교화 v2 (6가지 보정 팩터 통합) ★★★ */
@@ -3773,8 +3750,7 @@ async function showDetail(id, fromSwipe=false){
   document.getElementById('det-title').textContent = cleanName(l.name);
   document.getElementById('det-loc').textContent = '📍 ' + l.loc;
   showScreen('detail');
-  await enrichListingWithHistory(l);
-  // 호재: 캐시에서 즉시 적용 (백그라운드 조회 완료 전이면 빈값)
+  // 호재: 캐시에서 즉시 적용
   const _fc = loadFactorsCache();
   const _fkey = String(l.id || l.name);
   if(_fc[_fkey] && !l.priceFactors?.length) l.priceFactors = _fc[_fkey];
@@ -6815,27 +6791,7 @@ function showToast(msg){
   t.classList.add('show');
   t._timer = setTimeout(() => { t.classList.remove('show'); t._timer = null; }, 2600);
 }
-/* ══════════════════════════════════════
-   청약홈 공공데이터 API 연동
-   Base URL: api.odcloud.kr/api
-   APT 분양정보:         /15098547/v1/uddi:...
-   APT 잔여세대(줍줍):   /15098548/v1/uddi:...
-   APT 경쟁률:           /15098905/v1/uddi:...
-
-   ※ 브라우저 CORS 우회: chengyak-proxy-okmj.vercel.app
-   ※ 실서비스 시 자체 백엔드(Node.js 등)로 교체 필요
-   ※ 인증키: Decoding 키 사용 (이미지의 '일반 인증키')
-══════════════════════════════════════ */
-
-let apiKey = 'b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51';
 let apiConnected = false;
-let liveListings = [];
-// 공식 엔드포인트 (api.odcloud.kr 기반)
-const API_APT    = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail';
-const API_LOTTO  = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancDetail';
-const API_CMPET  = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet'; // 경쟁률
-const API_SCORE  = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAptLttotPblancScore'; // 당첨가점
-const PROXY = 'https://chengyak-proxy.vercel.app/api/proxy?url=';
 
 /* ── 국토부 실거래가 시세 자동 조회 ── */
 const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
@@ -7057,293 +7013,6 @@ async function autoFetchAllFactors() {
 }
 
 
-/* API 상태 업데이트 */
-function updateApiStatus(){
-  // api-indicator는 유저에게 노출하지 않음
-  const badge = document.getElementById('api-menu-badge');
-  if(badge){
-    badge.className = apiConnected ? 'api-menu-badge-on' : 'api-menu-badge-off';
-    badge.textContent = apiConnected ? '연동됨' : '미연동';
-  }
-}
-
-function showStatus(type, msg){
-  const el = document.getElementById('api-status-box');
-  el.className = 'api-status-box ' + type;
-  el.style.whiteSpace = 'pre-line';
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-/* ── APT 분양정보 목록 ── */
-async function fetchAptList(key, page=1, num=20){
-  const url = `${API_APT}?serviceKey=${encodeURIComponent(key)}&page=${page}&perPage=${num}`;
-  const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
-  const body  = await res.json();
-  const items = body?.data || body?.response?.body?.items?.item;
-  if(!items) return [];
-  return Array.isArray(items) ? items : [items];
-}
-
-/* ── APT 잔여세대(줍줍) 목록 ── */
-async function fetchLottoList(key, page=1, num=10){
-  const url = `${API_LOTTO}?serviceKey=${encodeURIComponent(key)}&page=${page}&perPage=${num}`;
-  const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
-  const body  = await res.json();
-  const items = body?.data || body?.response?.body?.items?.item;
-  if(!items) return [];
-  return Array.isArray(items) ? items : [items];
-}
-
-/* ── 경쟁률 조회 (공고번호 기준) ──
-   응답: { data: [{ PBLANC_NO, HOUSE_TY, CMPET_RATE, REQ_CNT, RESIDE_SECD, ... }] }
-   CMPET_RATE: "12.5" 형태 문자열
-   RESIDE_SECD: "01"=해당지역, "02"=기타지역, "03"=기타경기
-   → 1순위 해당지역(01) 기준 가중평균 경쟁률 계산
-── */
-async function fetchCmpetRate(key, pblancNo){
-  try {
-    const url = `${API_CMPET}?serviceKey=${encodeURIComponent(key)}&page=1&perPage=50&cond[PBLANC_NO::EQ]=${pblancNo}`;
-    const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
-    const body  = await res.json();
-    const data  = body?.data;
-    if(!data || !data.length) return null;
-
-    // 1순위 해당지역(01) 데이터만 추출해서 평균 경쟁률 계산
-    const rank1 = data.filter(d => String(d.RESIDE_SECD) === '01' && String(d.SUBSCRPT_RANK_CODE) === '1');
-    const target = rank1.length ? rank1 : data;
-
-    const rates = target
-      .map(d => parseFloat(d.CMPET_RATE))
-      .filter(r => !isNaN(r) && r > 0);
-
-    if(!rates.length) return null;
-    const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
-    return Math.round(avg * 10) / 10; // 소수점 1자리
-  } catch(e) {
-    return null;
-  }
-}
-
-/* ── 당첨가점 조회 (공고번호 기준) ──
-   응답 필드: LWET_SCORE(최저), TOP_SCORE(최고), AVRG_SCORE(평균)
-   → 평균가점(AVRG_SCORE)을 커트라인으로 사용
-   → 없으면 최저가점(LWET_SCORE) 사용
-── */
-async function fetchCutScore(key, pblancNo){
-  try {
-    const url = `${API_SCORE}?serviceKey=${encodeURIComponent(key)}&page=1&perPage=20&cond[PBLANC_NO::EQ]=${pblancNo}`;
-    const res  = await fetch(PROXY + encodeURIComponent(url), {cache:'no-store'});
-    const body  = await res.json();
-    const data  = body?.data;
-    if(!data || !data.length) return null;
-
-    // 해당지역(01) + 전용 84㎡ 우선, 없으면 첫 번째 항목
-    const ty84local = data.find(d => String(d.RESIDE_SECD) === '01' && String(d.HOUSE_TY).includes('84'));
-    const ty84      = data.find(d => String(d.HOUSE_TY).includes('84'));
-    const target    = ty84local || ty84 || data[0];
-
-    // AVRG_SCORE → TOP_SCORE → LWET_SCORE 순으로 fallback
-    const score = parseFloat(target.AVRG_SCORE || target.TOP_SCORE || target.LWET_SCORE || 0);
-    return score > 0 ? Math.round(score) : null;
-  } catch(e) {
-    return null;
-  }
-}
-
-/* ★★★ [하드코딩 — 수정 금지] 유사 단지 경쟁률/커트라인 히스토리 조회 ★★★
-   같은 지역(시/구)의 최근 6개월 경쟁률·커트라인을 조회하여 평균값 반환
-   → calcProb에서 커트라인/경쟁률 데이터 없는 PDF 공고에 활용
-── */
-async function fetchSimilarComp(listing){
-  if(!apiKey || !apiConnected) return null;
-  // 타임아웃 4초 — API 느릴 때 블로킹 방지
-  const _timeoutP = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000));
-  try {
-    return await Promise.race([_fetchSimilarCompCore(listing), _timeoutP]);
-  } catch(e) { return null; }
-}
-async function _fetchSimilarCompCore(listing){
-  try {
-    // 최근 6개월 범위 날짜 계산
-    const now = new Date();
-    const sixAgo = new Date(now);
-    sixAgo.setMonth(sixAgo.getMonth() - 6);
-    const fmtD = d => d.toISOString().slice(0,10);
-
-    // 1) 최근 APT 분양 목록 조회 (50건)
-    const listUrl = `${API_APT}?serviceKey=${encodeURIComponent(apiKey)}&page=1&perPage=50`;
-    const listRes = await fetch(PROXY + encodeURIComponent(listUrl));
-    const listBody = await listRes.json();
-    const allItems = listBody?.data || [];
-    if(!allItems.length) return null;
-
-    // 2) 같은 지역 필터 (공급지역명에 listing.loc의 시/구 포함)
-    const locParts = (listing.loc||'').split(/[\s,/]/);
-    const gu = locParts.find(s => s.endsWith('구') || s.endsWith('시') || s.endsWith('군')) || '';
-    const si = locParts[0] || '';
-
-    const similar = allItems.filter(item => {
-      const rgn = item['공급지역명'] || item.SUBSCRPT_AREA_CODE_NM || '';
-      const addr = item['공급위치'] || item.HSSPLY_ADRES || '';
-      const combined = rgn + ' ' + addr;
-      return gu && combined.includes(gu) || si && combined.includes(si);
-    });
-
-    if(!similar.length) return null;
-
-    // 3) 각 유사단지의 공고번호로 경쟁률/커트라인 조회 (최대 5건)
-    const results = [];
-    const targets = similar.slice(0, 5);
-    for(const item of targets){
-      const pNo = item['공고번호'] || item.PBLANC_NO || '';
-      if(!pNo) continue;
-      const [compVal, cutVal] = await Promise.all([
-        fetchCmpetRate(apiKey, pNo),
-        fetchCutScore(apiKey, pNo)
-      ]);
-      if(compVal || cutVal) results.push({ comp: compVal, cut: cutVal });
-    }
-
-    if(!results.length) return null;
-
-    // 4) 평균 계산
-    const comps = results.map(r => r.comp).filter(Boolean);
-    const cuts = results.map(r => r.cut).filter(Boolean);
-    return {
-      avgComp: comps.length ? Math.round(comps.reduce((a,b)=>a+b,0) / comps.length * 10) / 10 : null,
-      avgCut: cuts.length ? Math.round(cuts.reduce((a,b)=>a+b,0) / cuts.length) : null,
-      sampleCount: results.length,
-      region: gu || si
-    };
-  } catch(e) {
-    return null;
-  }
-}
-/* ★★★ [하드코딩 끝] ★★★ */
-
-/* ── API 응답 필드 정규화
-   odcloud 응답은 camelCase 또는 한글 필드명으로 옴
-   예: 주택명, 공급지역명, 청약접수시작일, 청약접수종료일, 당첨자발표일 등
-── */
-function parseAptItem(item, isLotto=false){
-  // KST 기준 오늘 자정 (시간 제거해야 날짜 diff 정확)
-  const _kst = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
-  const today = new Date(_kst.getFullYear(), _kst.getMonth(), _kst.getDate());
-
-  // 필드명 유연하게 처리 (API 버전 / 오퍼레이션마다 다를 수 있음)
-  const name      = item['주택명']       || item.houseNm       || item.HOUSE_NM        || '공고명 확인 필요';
-  const addr      = item['공급위치']     || item.hssplyAdres   || item.HSSPLY_ADRES     || '';
-  const regionRaw = item['공급지역명']   || item.subscrptAreaCodeNm || item.SUBSCRPT_AREA_CODE_NM || '';
-  const rceptBgn  = item['청약접수시작일'] || item.RCEPT_BGNDE || item.GNRL_RCEPT_BGNDE || item.rceptBgnde || '';
-  const rceptEnd  = item['청약접수종료일'] || item.RCEPT_ENDDE || item.GNRL_RCEPT_ENDDE || item.rceptEndde || '';
-  const pblancDe  = item['당첨자발표일'] || item.przwnerPresnatnDe || item.PRZWNER_PRESNATN_DE || '';
-  const houseType = item['주택구분']     || item.houseSecdNm   || item.HOUSE_SECD_NM   || '';
-  const unitsRaw  = item['전체세대수'] || item['총세대수'] || item['공급규모'] || item['세대수'] || item.totSuplyHshldco || item.TOT_SUPLY_HSHLDCO || item.houseTotsHhldco || item.HOUSE_TOTS_HSHLDCO || 0;
-  const priceRaw  = item['분양가'] || item['최고분양가'] || item['분양가(계)'] || item.lttotTopAmount || item.LTTOT_TOP_AMOUNT || item.suplyAmount || item.SUPLY_AMOUNT || item.houseAmt || item.HOUSE_AMT || 0;
-
-  // 날짜 파싱 (yyyymmdd 또는 yyyy-mm-dd) — KST 자정 기준, UTC 파싱 버그 방지
-  function parseDate(s){
-    if(!s) return null;
-    const clean = String(s).replace(/[^0-9]/g,'');
-    if(clean.length===8){
-      return new Date(parseInt(clean.slice(0,4)), parseInt(clean.slice(4,6))-1, parseInt(clean.slice(6,8)));
-    }
-    const parts = String(s).slice(0,10).split('-');
-    if(parts.length===3) return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-    return new Date(s);
-  }
-  function toStr(s){
-    if(!s) return '';
-    const clean = String(s).replace(/[^0-9]/g,'');
-    if(clean.length===8) return `${clean.slice(0,4)}-${clean.slice(4,6)}-${clean.slice(6,8)}`;
-    return String(s);
-  }
-
-  const endDate  = parseDate(rceptEnd);
-  const isUndetermined = !endDate || endDate.getFullYear() >= 9000;
-  const daysLeft = isUndetermined ? null : Math.ceil((endDate - today) / 86400000); // 음수 허용 (마감 지난 공고 필터용)
-
-  // 지역 코드 매핑
-  const RGN_KR = {'서울':'seoul','경기':'gyeonggi','인천':'incheon','부산':'busan','대전':'daejeon','세종':'sejong'};
-  const region = Object.keys(RGN_KR).find(k => regionRaw.includes(k))
-    ? RGN_KR[Object.keys(RGN_KR).find(k => regionRaw.includes(k))]
-    : '';
-
-  // 타입 결정
-  // isLotto(무순위/잔여) API에서 온 경우에도 houseType으로 공공/민간 구분
-  const isPublicType = houseType.includes('국민') || houseType.includes('공공') || houseType.includes('LH') || houseType.includes('공공임대') || houseType.includes('행복주택');
-  const type = isLotto
-    ? (isPublicType ? 'public' : 'private')
-    : (isPublicType ? 'public' : 'private');
-
-
-  // lttotTopAmount는 API마다 단위가 다름 (만원/원/억 등)
-  // 자릿수 기반으로 단위 추정: 원(9자리↑)→÷10000, 억(1~999)→×10000, 나머지 만원 그대로
-  function sanitizePriceRaw(raw) {
-    const n = parseFloat(String(raw||0).replace(/,/g,'')) || 0;
-    if (n <= 0) return 0;
-    if (n >= 1000000000000) return 0;          // 100조 이상 오류
-    if (n >= 100000000) return Math.round(n / 10000); // 원 단위 → 만원
-    if (n < 1000 && n >= 1) return Math.round(n * 10000); // 억 단위 → 만원
-    return n; // 만원 단위 그대로
-  }
-  const minP  = sanitizePriceRaw(priceRaw);
-  const units = parseInt(unitsRaw) || 0;
-  const loc   = addr || `${regionRaw}`;
-
-  // 전형 추론
-  const elig = isLotto
-    ? ['무순위(줍줍)']
-    : type === 'public'
-      ? ['생애최초','신생아특공','일반공급']
-      : ['일반공급','생애최초'];
-
-  let priceLabel = '공고 확인 필요';
-  if(minP) {
-    // 억 단위로 읽기 좋게 변환 (예: 11700 → 1억 1천, 85000 → 8억 5천)
-    const eok = Math.floor(minP / 10000);
-    const chun = Math.round((minP % 10000) / 1000);
-    if(eok > 0 && chun > 0) priceLabel = `${eok}억 ${chun}천~`;
-    else if(eok > 0) priceLabel = `${eok}억~`;
-    else priceLabel = `${(minP/1000).toFixed(0)}천만원~`;
-  }
-
-  return {
-    id:       item['공고번호'] || item.houseManageNo || item.HOUSE_MANAGE_NO || String(Math.random()),
-    name, loc, type, region, lotto: isLotto,
-    price:    priceLabel,
-    minP,
-    mktP:     0,
-    deadline: toStr(rceptEnd),
-    days:     daysLeft,
-    size:     item['주택형'] || item.houseTy || item.HOUSE_TY || '면적 공고 확인',
-    recruitUnits: 0, // PDF 파싱 시 채워짐
-    units,
-    comp:     10,  // 경쟁률은 별도 API (15098905) 필요
-    cut:      0,
-    qual:     isLotto ? '만 19세 이상 누구나' : '청약통장 보유자 (공고 확인 필요)',
-    inc:      type === 'public' ? '도시근로자 월평균소득 기준 이하' : '소득 제한 없음',
-    sched:    `접수: ${toStr(rceptBgn)} ~ ${toStr(rceptEnd)}${pblancDe ? ' / 발표: '+toStr(pblancDe) : ''}`,
-    aS:       toStr(rceptBgn),
-    aE:       toStr(rceptEnd),
-    aD:       toStr(pblancDe),
-    elig,
-    noMktP: true,
-    priceFactors: [],
-    ai:{
-      q: isLotto
-        ? '만 19세 이상 누구나 신청 가능해요. 청약통장·무주택 조건 없어요.'
-        : `청약홈(applyhome.co.kr)에서 ${name} 자격 조건을 확인하세요.`,
-      p: minP
-        ? `분양가 ${priceLabel}이에요.`
-        : '청약홈 공고문에서 분양가를 확인하세요.',
-      s: `청약 접수 ${toStr(rceptBgn)} ~ ${toStr(rceptEnd)}${pblancDe ? ', 당첨 발표 '+toStr(pblancDe) : ''}`,
-      d: '청약홈(applyhome.co.kr)에서 필요 서류를 확인하세요.'
-    }
-  };
-}
-
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
   // PDF 공고만 로드 (API 공고 제거)
@@ -7385,7 +7054,6 @@ async function loadLiveData(){
     });
 
     apiConnected = true;
-    updateApiStatus();
     renderListings();
     if('requestIdleCallback' in window){
       requestIdleCallback(()=>renderRecommend(), {timeout:500});
@@ -7406,8 +7074,7 @@ async function loadLiveData(){
 
   } catch(e){
     apiConnected = false;
-    updateApiStatus();
-    showToast('API 오류 — 목업 데이터로 표시해요');
+    showToast('공고 로드 실패 — 잠시 후 다시 시도해주세요');
   }
 }
 
