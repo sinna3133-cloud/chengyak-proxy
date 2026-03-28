@@ -7769,7 +7769,7 @@ async function onAdminFileSelect(event){
       mktP: 0,
       noMktP: true,
       comp: parseFloat(parsed.comp) || 10,
-      downPct: parseInt(parsed.downPct) || (parsed.type === 'public' ? 5 : 10),
+      downPct: (function(){ const n = parseInt(String(parsed.downPct||'').replace(/[^0-9]/g,'')); return n > 0 ? n : (parsed.type === 'public' ? 5 : 10); })(),
       compByType: parsed.compByType || '',
       cutByType: parsed.cutByType || '',
       eligDetail: parsed.eligDetail || [],
