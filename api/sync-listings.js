@@ -82,10 +82,10 @@ export default async function handler(req, res) {
           throw new Error('PDF 링크를 찾을 수 없어요');
         }
         const atchmnflSeqNo = seqMatch[1];
-        log.push(`atchmnflSeqNo: ${atchmnflSeqNo}, PDF URL: ${pdfUrl.slice(0,100)}`);
 
         // PDF URL 구성 및 다운로드
         const pdfUrl = `https://static.applyhome.co.kr/ai/aia/getAtchmfl.do?houseManageNo=${ann.houseManageNo}&pblancNo=${ann.pblancNo}&atchmnflSeqNo=${atchmnflSeqNo}&atchmnflSn=2`;
+        log.push(`atchmnflSeqNo: ${atchmnflSeqNo}, PDF URL: ${pdfUrl}`);
         const pdfBuffer = await fetch(pdfUrl).then(r => {
           if (!r.ok) throw new Error(`PDF 다운로드 실패: ${r.status}`);
           return r.arrayBuffer();
