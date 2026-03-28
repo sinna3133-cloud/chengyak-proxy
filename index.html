@@ -7766,7 +7766,22 @@ async function onAdminFileSelect(event){
     _adminExtracted = {
       ...parsed,
       id: Date.now(),
-      minP: sanitizeMinP(parsed.minP),
+      minP: (function(){
+        let v = sanitizeMinP(parsed.minP);
+        // minP가 0이면 price 문자열에서 최저값 추출 시도
+        if(!v && parsed.price){
+          const nums = [];
+          // "17억7천~18억7천" 형태에서 숫자 추출
+          const matches = parsed.price.match(/(\d+)억\s*(\d+)?천?/g) || [];
+          matches.forEach(m => {
+            const uk = parseInt((m.match(/(\d+)억/) || [])[1] || 0);
+            const chun = parseInt((m.match(/억\s*(\d+)천/) || [])[1] || 0);
+            if(uk > 0) nums.push(uk * 10000 + chun * 1000);
+          });
+          if(nums.length) v = Math.min(...nums);
+        }
+        return v;
+      })(),
       lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
       mktP: 0,
       noMktP: true,
