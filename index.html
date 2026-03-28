@@ -949,6 +949,16 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       </div>
     </div>
     <div class="wiz-field">
+      <label class="wiz-label">과거 주택 소유 이력</label>
+      <div class="wiz-radio-grp">
+        <div class="wiz-radio on" onclick="wRadio(this,'neverOwned')">한 번도 없음</div>
+        <div class="wiz-radio" onclick="wRadio(this,'neverOwned')">과거 소유했었음</div>
+      </div>
+      <div class="wiz-accuracy-hint">
+        <span>📊 생애최초 특공은 세대원 전원이 과거에도 주택을 소유한 적 없어야 해요</span>
+      </div>
+    </div>
+    <div class="wiz-field">
       <label class="wiz-label">무주택 기간 (년)
         <span class="wiz-label-note" id="nohome-hint"></span>
       </label>
@@ -1635,7 +1645,7 @@ const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-mo
 /* ══ 데이터 ══ */
 const listings = [];
 
-let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',marriageYear:'',household:'',isNoHome:true,region:'',dependents:'',accYears:'',prefSizes:[],elderParent:false};
+let P = {name:'',byear:'',bmonth:'',bday:'',income:'',cash:'',noHomeYears:'',depCount:'',depAmt:'',children:0,childDates:[],marriage:'미혼',marriageYear:'',household:'',isNoHome:true,homeType:'무주택',neverOwned:true,region:'',dependents:'',accYears:'',prefSizes:[],elderParent:false};
 
 // ── 메모이제이션 & 캐시 인프라 ──
 // P 조건 해시 (조건 바뀔 때마다 변경 → 캐시 무효화 기준)
@@ -1760,7 +1770,12 @@ function wRadio(el,group){
   const grp = el.closest('.wiz-radio-grp') || el.parentElement;
   grp.querySelectorAll('.wiz-radio,.wiz-chip').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
-  if(group==='homeowner') P.isNoHome=el.textContent==='무주택자'; invalidateCalcCache();
+  if(group==='homeowner'){
+    P.isNoHome = el.textContent==='무주택자';
+    P.homeType = el.textContent; // '무주택자' | '1주택자' | '2주택↑'
+    invalidateCalcCache();
+  }
+  if(group==='neverOwned'){ P.neverOwned = el.textContent==='한 번도 없음'; invalidateCalcCache(); }
   if(group==='marriage'){
     P.marriage=el.textContent;
     const isMarried = el.textContent==='기혼';
@@ -2190,12 +2205,11 @@ function calcTypes(p, listingCtx){
   const isDual=!!p.isDual;
 
   // ── 생애최초 특별공급 ──────────────────────────────────────
-  // 공통: 세대주, 세대원 전원 생애 최초, 5년 소득세 납부, 혼인중or미성년자녀or1인가구(민간)
+  // 공통: 세대주, 세대원 전원 생애 최초(과거 소유 이력 없어야 함), 5년 소득세 납부
   // 공공: 소득 130%(맞벌이200%), 12개월 12회+납입600만원이상
   // 민간: 소득 130%(우선)/160%(일반)/추첨(부동산3.31억), 24개월, 1인가구도추첨가능
-  if(p.isNoHome){
-    // 공공: 외벌이130%, 맞벌이200%
-    // 민간: 외벌이160%, 맞벌이200% (추첨 포함)
+  if(p.isNoHome && p.neverOwned !== false){
+    // neverOwned가 명시적으로 false(과거 소유)이면 생애최초 자격 없음
     const fpPublicLim = isDual ? 200 : 130;
     const fpPrivateLim = isDual ? 200 : 160;
     if(incPct===0||incPct<=(100+nbBonus)){
@@ -2205,7 +2219,6 @@ function calcTypes(p, listingCtx){
     } else if(incPct<=(160+nbBonus)){
       t.push({l:'생애최초',c:'fp',sub:'추첨(민간전용)',subNote:`소득 ${160+nbBonus}% 이하 → 민간 추첨제 신청 가능`});
     } else if(!_isPublic){
-      // 소득 초과해도 민간 추첨(부동산가액 3.31억이하)은 가능
       t.push({l:'생애최초',c:'fp',sub:'추첨(민간·자산조건)',subNote:'소득 초과 시 부동산 3억3100만원 이하 조건 충족 시 추첨 가능'});
     }
   }
@@ -2287,16 +2300,15 @@ function calcTypes(p, listingCtx){
   }
 
   // ── 일반공급 ────────────────────────────────────────
-  // 공공: 소득 100%(60㎡이하), 자산기준(60㎡이하), 12개월 12회 이상(1순위), 저축총액 순
-  //       신생아우선50%→우선공급30%→추첨20%
-  // 민간 투기과열지구: 24개월+예치금(1순위), 세대주, 1주택자는 추첨제만
-  //       가점제 비율: 60㎡이하 40%, 60~85㎡ 70%, 85㎡이상 80%
-  //       과거 2년 내 가점제 당첨자는 가점제 신청 불가
   if(p.isNoHome){
+    // 무주택자
     t.push({l:'일반공급',c:'gn',subNote:_isPublic
       ?'12개월 12회+납입총액(1순위). 전용60㎡이하: 소득100%+자산기준. 신생아우선50%→우선공급30%→추첨20%. 저축총액(월최대25만원) 순'
-      :'24개월+예치금(1순위, 투기과열지구). 세대주 필수. 가점제 비율: 60㎡이하 40%·60~85㎡ 70%·85㎡이상 80%. 1주택자는 추첨제만. 최대 84점'
+      :'24개월+예치금(1순위, 투기과열지구). 가점제 비율: 60㎡이하 40%·60~85㎡ 70%·85㎡이상 80%. 최대 84점'
     });
+  } else if(p.homeType === '1주택자'){
+    // 1주택자 → 민간 추첨제만 가능 (투기과열지구 외)
+    t.push({l:'일반공급',c:'gn',sub:'추첨제만',subNote:'1주택자 — 민간분양 추첨제만 신청 가능 (투기과열지구 제외). 가점제 신청 불가'});
   }
   return t;
 }
@@ -4136,7 +4148,7 @@ async function showDetail(id, fromSwipe=false){
     <div class="info-card-title" style="border-top:1px solid rgba(0,0,0,.06)">🎯 신청 가능한 전형</div>
     ${/* ★★★ [하드코딩 — 수정 금지] 전형별 상세 자격 진단 UI ★★★ */
     (()=>{
-      const hasConditions = P.noHomeYears || P.depCount || P.income || P.byear;
+      const hasConditions = P.byear || P.income || P.noHomeYears || P.depCount || P.accYears;
       const defaultDescs = {
         '생애최초':'세대원 전원 처음 집 사는 분','신생아특공':'만 2세 이하 자녀가 있는 분',
         '다자녀특공':'미성년 자녀 3명 이상인 분','청년특공':'만 39세 이하 미혼 무주택자',
@@ -6846,6 +6858,14 @@ function renderEditCond(){
         </div>
       </div>
       <div>
+        <div class="wiz-label">과거 주택 소유 이력</div>
+        <div class="wiz-radio-grp" id="ec-never-owned-grp" style="margin-top:8px">
+          <div class="wiz-radio ${p.neverOwned!==false?'on':''}" onclick="ecNeverOwned(this)">한 번도 없음</div>
+          <div class="wiz-radio ${p.neverOwned===false?'on':''}" onclick="ecNeverOwned(this)">과거 소유했었음</div>
+        </div>
+        <div class="wiz-accuracy-hint" style="margin-top:6px"><span>📊 생애최초 특공은 세대원 전원이 과거에도 주택을 소유한 적 없어야 해요</span></div>
+      </div>
+      <div>
         <div class="wiz-label">거주 지역</div>
         <select class="wiz-sel" id="ec-region" style="margin-top:8px">
           <option value="">선택하세요</option>
@@ -6910,6 +6930,10 @@ function ecElderParent(el){
   el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
   el.classList.add('on');
 }
+function ecNeverOwned(el){
+  el.parentElement.querySelectorAll('.wiz-radio').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+}
 function ecHouseholdChange(){
   const h = parseInt(document.getElementById('ec-household').value||0);
   document.getElementById('ec-elder-wrap').style.display = h>=2?'block':'none';
@@ -6959,6 +6983,13 @@ function saveEditCond(){
   if(elderGrp){
     const selE = elderGrp.querySelector('.wiz-radio.on');
     P.elderParent = selE ? selE.textContent.startsWith('예') : false;
+  }
+
+  // 과거 주택 소유 이력
+  const neverOwnedGrp = document.getElementById('ec-never-owned-grp');
+  if(neverOwnedGrp){
+    const selN = neverOwnedGrp.querySelector('.wiz-radio.on');
+    P.neverOwned = selN ? selN.textContent.includes('없음') : true;
   }
 
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen(); renderReportHistory();
