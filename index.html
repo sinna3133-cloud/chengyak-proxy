@@ -3908,7 +3908,17 @@ function recalcDetailProb(l){
     fillEl.setAttribute('stroke-dashoffset', offset);
   }
   if(reasonEl && l._probReason){
-    reasonEl.textContent = '📐 산출 근거: ' + l._probReason;
+    reasonEl.innerHTML = `
+      <div style="font-size:10px;font-weight:600;color:var(--ink-4);margin-bottom:6px;letter-spacing:.3px">산출 근거</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${l._probReason.split(' · ').map(r => {
+          const isGood = r.includes('1순위') || r.includes('우선공급') || r.includes('당해지역') || r.includes('대단지') || r.includes('통과') || r.includes('저소득') || r.includes('브랜드');
+          const isBad  = r.includes('부족') || r.includes('기타지역') || r.includes('체감경쟁↑') || r.includes('희소') || r.includes('소규모') || r.includes('2순위') || r.includes('추첨공급만') || r.includes('고경쟁') || r.includes('초과');
+          const bg = isGood ? 'rgba(5,150,105,.1)' : isBad ? 'rgba(220,38,38,.08)' : 'rgba(0,0,0,.05)';
+          const color = isGood ? '#059669' : isBad ? '#DC2626' : 'var(--ink-3)';
+          return '<span style="display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;background:'+bg+';color:'+color+';line-height:1.4">'+r+'</span>';
+        }).join('')}
+      </div>`;
   }
 }
 /* ★★★ [하드코딩 끝] ★★★ */
@@ -4234,43 +4244,21 @@ async function showDetail(id, fromSwipe=false){
     </div>
   </div>
 
-  <!-- 4. 📊 당첨 예상 확률 + 🏆 가점 커트라인 -->
+  <!-- 4. 📊 내 당첨 평균 예상 확률 + 🏆 가점 커트라인 -->
   ${prob!==null?`
   <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r)">
-    <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 예상 확률</div>
-    ${/* ★★★ [하드코딩 — 수정 금지] 평형 선택 칩 + 전형 선택 칩 ★★★ */
+    <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 평균 예상 확률</div>
+    ${/* ★★★ [하드코딩 — 수정 금지] 전형 선택 칩만 표시 ★★★ */
     (()=>{
-      // 평형 칩: compByType 또는 price에서 평형 목록 추출
-      const sizeLabels = [];
-      if(l.compByType){
-        l.compByType.split('|').forEach(s=>{
-          const m = s.match(/^([^\s]+)/);
-          if(m) sizeLabels.push(m[1]);
-        });
-      } else if(l.price && l.price.includes('|')){
-        l.price.split('|').forEach(s=>{
-          const m = s.trim().match(/^([^\s]+)/);
-          if(m) sizeLabels.push(m[1]);
-        });
-      }
-      const autoMatch = l._autoMatchedSize || '';
-      const defaultSize = autoMatch || (sizeLabels.length ? sizeLabels[0] : '');
-      const sizeChips = sizeLabels.length > 1
-        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-size-chips">`
-          + sizeLabels.map(s=>`<span class="det-chip ${s===defaultSize?'det-chip-on':''}" onclick="selectSizeChip(this,'${l.id}','${s}')" data-size="${s}">${s}</span>`).join('')
-          + (autoMatch && !sizeLabels.includes(autoMatch) ? '' : '')
-          + `</div>`
-          + (autoMatch ? `<div style="font-size:10px;color:var(--accent);margin-bottom:4px">📌 관심 평형(${[...selectedSizes].map(k=>SIZE_MAP[k]?.label||'').join(', ')}) 기준 자동 선택</div>` : '')
-        : '';
       // 전형 칩: 특공 vs 일반
       const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
       const specials = eligList.filter(e => e!=='일반공급' && e!=='무순위(줍줍)');
       const typeChips = specials.length > 0
-        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 6px" id="det-type-chips">`
+        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-type-chips">`
           + `<span class="det-chip det-chip-on" onclick="selectTypeChip(this,'${l.id}','')" data-etype="">일반공급</span>`
           + specials.map(s=>`<span class="det-chip" onclick="selectTypeChip(this,'${l.id}','${s}')" data-etype="${s}">${s}</span>`).join('')
           + `</div>` : '';
-      return sizeChips + typeChips;
+      return typeChips;
     })()}
     <div class="prob-gauge-wrap">
       <svg class="prob-gauge-svg" viewBox="0 0 160 100" style="height:96px">
@@ -4285,7 +4273,18 @@ async function showDetail(id, fromSwipe=false){
       </svg>
     </div>
     ${/* ★★★ [하드코딩 — 수정 금지] 확률 산출 근거 표시 ★★★ */
-    l._probReason ? `<div id="det-prob-reason" style="margin-top:8px;padding:8px 12px;background:rgba(0,102,255,.06);border-radius:8px;font-size:11px;color:var(--ink-3);line-height:1.5">📐 산출 근거: ${l._probReason}</div>` : ''}
+    l._probReason ? `<div id="det-prob-reason" style="margin-top:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--ink-4);margin-bottom:6px;letter-spacing:.3px">산출 근거</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${l._probReason.split(' · ').map(r => {
+          const isGood = r.includes('1순위') || r.includes('우선공급') || r.includes('당해지역') || r.includes('대단지') || r.includes('통과') || r.includes('저소득') || r.includes('브랜드');
+          const isBad  = r.includes('부족') || r.includes('기타지역') || r.includes('체감경쟁↑') || r.includes('희소') || r.includes('소규모') || r.includes('2순위') || r.includes('추첨공급만') || r.includes('고경쟁') || r.includes('초과');
+          const bg = isGood ? 'rgba(5,150,105,.1)' : isBad ? 'rgba(220,38,38,.08)' : 'rgba(0,0,0,.05)';
+          const color = isGood ? '#059669' : isBad ? '#DC2626' : 'var(--ink-3)';
+          return `<span style="display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;background:${bg};color:${color};line-height:1.4">${r}</span>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
     ${(()=>{
       const effTxt = effectiveCompText(l, P);
       return effTxt ? `<div id="det-effective-comp" style="margin-top:6px;padding:8px 12px;background:rgba(0,0,0,.03);border-radius:8px;font-size:11px;color:var(--ink-4);line-height:1.5">📊 ${effTxt}</div>` : `<div id="det-effective-comp" style="display:none"></div>`;
