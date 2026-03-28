@@ -8,13 +8,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Cron 또는 관리자만 실행 가능
-  const authHeader = req.headers.authorization;
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   const REDIS_URL = process.env.KV_REST_API_URL;
   const REDIS_TOKEN = process.env.KV_REST_API_TOKEN;
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
