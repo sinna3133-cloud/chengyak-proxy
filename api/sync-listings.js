@@ -65,8 +65,29 @@ export default async function handler(req, res) {
       try {
         log.push(`처리 중: ${ann.name} (${ann.houseManageNo})`);
 
+        // 상세 팝업 API 호출해서 atchmnflSeqNo 가져오기
+        const detailForm = new URLSearchParams({
+          houseManageNo: ann.houseManageNo,
+          pblancNo: ann.pblancNo
+        });
+        const detailRes = await fetch('https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancDetail.do', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'Mozilla/5.0 (compatible; ChengyakBot/1.0)',
+            'Referer': 'https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancListView.do'
+          },
+          body: detailForm.toString()
+        });
+        const detailHtml = await detailRes.text();
+
+        // atchmnflSeqNo 추출 (getAtchmfl.do 링크에서)
+        const seqMatch = detailHtml.match(/atchmnflSeqNo=(\d+)/);
+        if (!seqMatch) throw new Error('PDF 링크를 찾을 수 없어요');
+        const atchmnflSeqNo = seqMatch[1];
+
         // PDF URL 구성 및 다운로드
-        const pdfUrl = `https://static.applyhome.co.kr/ai/aia/getAtchmfl.do?houseManageNo=${ann.houseManageNo}&pblancNo=${ann.pblancNo}&atchmnflSeqNo=${ann.atchmnflSeqNo}&atchmnflSn=2`;
+        const pdfUrl = `https://static.applyhome.co.kr/ai/aia/getAtchmfl.do?houseManageNo=${ann.houseManageNo}&pblancNo=${ann.pblancNo}&atchmnflSeqNo=${atchmnflSeqNo}&atchmnflSn=2`;
         const pdfBuffer = await fetch(pdfUrl).then(r => {
           if (!r.ok) throw new Error(`PDF 다운로드 실패: ${r.status}`);
           return r.arrayBuffer();
@@ -116,31 +137,28 @@ export default async function handler(req, res) {
 function parseAnnouncementList(html) {
   const announcements = [];
 
-  // PDF 링크에서 파라미터 추출
-  // getAtchmfl.do?houseManageNo=XXX&pblancNo=XXX&atchmnflSeqNo=XXX
-  const pdfRegex = /getAtchmfl\.do\?houseManageNo=(\d+)&pblancNo=(\d+)&atchmnflSeqNo=(\d+)/g;
-  const nameRegex = /<td[^>]*>[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/g;
+  // data-hmno, data-pbno 속성에서 추출
+  const rowRegex = /data-hmno="(\d+)"[^>]*data-pbno="(\d+)"|data-pbno="(\d+)"[^>]*data-hmno="(\d+)"/g;
+  let match;
+  while ((match = rowRegex.exec(html)) !== null) {
+    const hmno = match[1] || match[4];
+    const pbno = match[2] || match[3];
+    if (!hmno || !pbno) continue;
 
-  // 단지명 추출 (공고 목록 테이블의 주택명 컬럼)
-  const nameMatches = [...html.matchAll(/<a[^>]*class="[^"]*houseName[^"]*"[^>]*>([\s\S]*?)<\/a>/g)];
+    // 해당 tr 블록에서 단지명 추출
+    const trStart = html.lastIndexOf('<tr', match.index);
+    const trEnd = html.indexOf('</tr>', match.index) + 5;
+    const trBlock = html.slice(trStart, trEnd);
+    const nameMatch = trBlock.match(/class="txt_l_b"[^>]*>([\s\S]*?)<\/a>/) ||
+                      trBlock.match(/class="[^"]*houseName[^"]*"[^>]*>([\s\S]*?)<\/a>/);
+    const name = nameMatch
+      ? nameMatch[1].replace(/<[^>]+>/g, '').trim()
+      : `공고_${hmno}`;
 
-  let pdfMatch;
-  let idx = 0;
-  while ((pdfMatch = pdfRegex.exec(html)) !== null) {
-    const name = nameMatches[idx]
-      ? nameMatches[idx][1].replace(/<[^>]+>/g, '').trim()
-      : `공고_${pdfMatch[1]}`;
-
-    announcements.push({
-      houseManageNo: pdfMatch[1],
-      pblancNo: pdfMatch[2],
-      atchmnflSeqNo: pdfMatch[3],
-      name: name
-    });
-    idx++;
+    announcements.push({ houseManageNo: hmno, pblancNo: pbno, name });
   }
 
-  // 중복 제거 (같은 houseManageNo)
+  // 중복 제거
   const seen = new Set();
   return announcements.filter(a => {
     if (seen.has(a.houseManageNo)) return false;
