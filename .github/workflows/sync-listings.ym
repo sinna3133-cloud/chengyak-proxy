@@ -1,0 +1,25 @@
+name: 청약홈 공고 자동 동기화
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 매일 오전 10시 KST (UTC 01:00)
+  workflow_dispatch:      # 수동 실행 가능
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 청약홈 공고 동기화
+        run: |
+          curl -X GET https://chengyak-proxy.vercel.app/api/sync-listings \
+            --max-time 300 \
+            --silent \
+            --show-error \
+            -o result.json
+          cat result.json
+          
+          # 결과 확인
+          added=$(cat result.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('results',{}).get('added',0))")
+          echo "추가된 공고: $added 건"
