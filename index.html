@@ -4245,11 +4245,14 @@ async function showDetail(id, fromSwipe=false){
   ${prob!==null?`
   <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r)">
     <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 평균 예상 확률</div>
-    ${/* ★★★ [하드코딩 — 수정 금지] 전형 선택 칩만 표시 ★★★ */
+    ${/* ★★★ [하드코딩 — 수정 금지] 전형 선택 칩만 표시 (사용자 자격 있는 전형만) ★★★ */
     (()=>{
-      // 전형 칩: 특공 vs 일반
+      // 사용자가 신청 가능한 전형 목록
+      const myTypes = calcTypes(P).map(t => t.l);
       const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
-      const specials = eligList.filter(e => e!=='일반공급' && e!=='무순위(줍줍)');
+      const specials = eligList.filter(e =>
+        e !== '일반공급' && e !== '무순위(줍줍)' && myTypes.includes(e)
+      );
       const typeChips = specials.length > 0
         ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-type-chips">`
           + `<span class="det-chip det-chip-on" onclick="selectTypeChip(this,'${l.id}','')" data-etype="">일반공급</span>`
