@@ -2669,7 +2669,13 @@ function calcProb(l, p, selectedType){
 
   const score = calcScore(p);
   const myScore = score.total;
-  const comp = parseFloat(l._selectedComp || l.comp) || 10;
+  // prevComp(공고문 이전 차수 경쟁률) > _selectedComp(평형 선택) > comp(유사단지) 순 우선
+  const _prevCompNum = (function(){
+    const s = l.prevComp || '';
+    const m = s.match(/(\d+(?:\.\d+)?)\s*[:：대]/);
+    return m ? parseFloat(m[1]) : 0;
+  })();
+  const comp = parseFloat(l._selectedComp) || (_prevCompNum > 0 ? _prevCompNum : null) || parseFloat(l.comp) || 10;
   const cut = parseInt(l._selectedCut || l.cut) || 0;
   const nh = parseInt(p.noHomeYears||0);
   const inc = parseInt(p.income||0);
@@ -2678,6 +2684,12 @@ function calcProb(l, p, selectedType){
   const units = parseInt(l.units)||0;
   const types = calcTypes(p);
   const myTypes = types.map(t=>t.l);
+
+  // prevComp 사용 시 reasons에 표시
+  if(_prevCompNum > 0 && !l._selectedComp) {
+    // reasons에 나중에 추가 (prob 계산 후)
+    l._usedPrevComp = true;
+  }
 
   const eligMatch = (l.elig||[]).some(e => myTypes.includes(e));
   const isLotto = isLottoListing(l);
@@ -2774,23 +2786,75 @@ function calcProb(l, p, selectedType){
       prob = Math.round(sigmoid * compFactor * 90 * 10) / 10;
       prob = Math.max(0.5, Math.min(90, prob));
       reasons.push(`가점 ${myScore}점 (추정 커트 ~${estCut}점)`);
-      if(l._historySource) reasons.push(`${l._historySource.region} ${l._historySource.sampleCount}개 단지 참고`);
+      if(l._historySource){
+        const tierLabel = {lotto:'로또급',hot:'인기단지',normal:'일반단지',premium:'시세초과'}[l._historySource.gapTier] || '';
+        const brandLabel = _isPremiumBuilder(l.builder) ? ' 1군브랜드' : '';
+        reasons.push(`${l._historySource.region} ${tierLabel}${brandLabel} ${l._historySource.sampleCount}개 단지 참고`);
+      }
     }
     if(inc > 0 && inc <= 3000){ prob = Math.min(95, prob * 1.15); reasons.push('저소득 가산'); }
     else if(inc > 0 && inc <= 4000){ prob = Math.min(95, prob * 1.05); }
 
   } else {
-    // ── 민간분양: 가점 40% + 추첨 60% ──
+    // ── 민간분양: 지역·면적별 가점제/추첨제 비율 정확 적용 ──
     if(!eligMatch){
       prob = 0.5;
       reasons.push('신청 가능한 전형 없음');
     } else {
-      const scoreRatio = Math.min(1, myScore / 70);
-      const scorePart = scoreRatio * 0.4;
-      const lotPart = (1 / comp) * 0.6;
-      prob = Math.round((scorePart + lotPart) * 100 * 10) / 10;
+      // 1. 면적 파악 (selectedType 또는 listing.size에서 추출)
+      const sqm = parseInt(String(selectedType || l.size || '').replace(/[^0-9]/g,'')) || 84;
+
+      // 2. 규제지역 여부 (투기과열지구 기준)
+      const isHotZone2 = ['서울','과천','성남','하남','광명','고양','남양주','화성','구리','안양','의왕'].some(z=>(l.loc||'').includes(z));
+
+      // 3. 가점제 비율 산출 (주택공급에 관한 규칙 기준)
+      let scoreRatioPct; // 가점제 비율 (0~1)
+      if(isHotZone2){
+        // 투기과열지구
+        if(sqm <= 60)       scoreRatioPct = 0.40;
+        else if(sqm <= 85)  scoreRatioPct = 0.70;
+        else                scoreRatioPct = 0.80;
+      } else {
+        // 비규제지역 (청약과열지구 아닌 수도권 포함)
+        if(sqm <= 60)       scoreRatioPct = 0.40;
+        else if(sqm <= 85)  scoreRatioPct = 0.40;
+        else                scoreRatioPct = 0.0; // 85㎡ 초과 비규제 → 추첨 100%
+      }
+      const lotRatioPct = 1 - scoreRatioPct; // 추첨제 비율
+
+      // 4. 내 가점으로 가점제 물량에서 당첨 가능한지 판단
+      // 추정 커트라인: 경쟁률 기반으로 추정
+      const estCut = comp >= 50 ? 68 : comp >= 30 ? 63 : comp >= 15 ? 55 : comp >= 5 ? 45 : 35;
+      const scoreDiff = myScore - (cut > 0 ? cut : estCut);
+      // 시그모이드로 가점제 당첨 확률 계산
+      const scoreWinProb = scoreRatioPct > 0
+        ? Math.max(0, Math.min(1, 1 / (1 + Math.exp(-scoreDiff / 4)))) * scoreRatioPct
+        : 0;
+
+      // 5. 추첨제 당첨 확률 (경쟁률 기반)
+      // 가점제 당첨자 제외한 나머지가 추첨 경쟁
+      // 추첨 실질 경쟁률 = 전체 지원자 / 추첨 물량
+      const effectiveLotComp = lotRatioPct > 0 ? comp / lotRatioPct : 999;
+      const lotWinProb = lotRatioPct > 0
+        ? Math.min(0.8, 1 / effectiveLotComp) * lotRatioPct
+        : 0;
+
+      prob = Math.round((scoreWinProb + lotWinProb) * 100 * 10) / 10;
       prob = Math.max(0.5, Math.min(95, prob));
-      reasons.push(`가점 ${myScore}점(40%) + 추첨(60%)`);
+
+      const scoreLabel = scoreRatioPct > 0 ? `가점제 ${Math.round(scoreRatioPct*100)}%` : '';
+      const lotLabel = `추첨제 ${Math.round(lotRatioPct*100)}%`;
+      const zoneLabel = isHotZone2 ? '규제지역' : '비규제';
+      reasons.push(`${zoneLabel} ${sqm}㎡ [${[scoreLabel,lotLabel].filter(Boolean).join('+')}]`);
+      if(cut > 0) reasons.push(`커트라인 ${cut}점 vs 내 가점 ${myScore}점`);
+      else reasons.push(`추정 커트 ~${estCut}점 vs 내 가점 ${myScore}점`);
+
+      if(l._historySource){
+        const tierLabel = {lotto:'로또급',hot:'인기단지',normal:'일반단지',premium:'시세초과'}[l._historySource.gapTier] || '';
+        const brandLabel = _isPremiumBuilder(l.builder) ? ' 1군브랜드' : '';
+        reasons.push(`${l._historySource.region} ${tierLabel}${brandLabel} ${l._historySource.sampleCount}개 단지 참고`);
+      }
+      if(_isPremiumBuilder(l.builder)) reasons.push('1군 브랜드 가중');
     }
   }
 
@@ -2808,6 +2872,113 @@ function calcProb(l, p, selectedType){
     if(units >= 1000){ prob *= 1.15; reasons.push(`대단지 ${units}세대`); }
     else if(units >= 500){ prob *= 1.08; }
     else if(units <= 100){ prob *= 0.90; reasons.push(`소규모 ${units}세대`); }
+  }
+
+  // ── D-2. 평형별 세대수 희소성 보정 ──
+  if(selectedType && l.typeUnits && !isLotto){
+    const typeUnitSegments = l.typeUnits.split('|');
+    const matchSeg = typeUnitSegments.find(s => {
+      const sqm = String(selectedType).replace(/[^0-9]/g,'');
+      return sqm && s.includes(sqm);
+    });
+    if(matchSeg){
+      const typeUnitCount = parseInt((matchSeg.match(/(\d+)세대/) || [])[1]) || 0;
+      if(typeUnitCount > 0 && typeUnitCount < 10){
+        prob *= 0.85; reasons.push(`선택 평형 ${typeUnitCount}세대 (희소)`);
+      } else if(typeUnitCount >= 10 && typeUnitCount < 20){
+        prob *= 0.93;
+      }
+    }
+  }
+
+  // ── D-2b. 타입×전형 교차 물량 보정 (가장 정밀한 분모) ──
+  if(selectedType && l.typeSpecialQuota && !isLotto){
+    const sqm = String(selectedType).replace(/[^0-9]/g,'');
+    const typeSeg = l.typeSpecialQuota.split('|').find(s => sqm && s.includes(sqm));
+    if(typeSeg){
+      // 사용자 전형에 맞는 물량 추출
+      const eligKey = (selectedType||'').includes('신혼') ? '신혼부부특공'
+        : (selectedType||'').includes('생애') ? '생애최초'
+        : (selectedType||'').includes('신생아') ? '신생아특공'
+        : (selectedType||'').includes('다자녀') ? '다자녀특공'
+        : '일반공급';
+      const quotaMatch = typeSeg.match(new RegExp(eligKey + '\\s*(\\d+)세대'));
+      const quotaUnits = quotaMatch ? parseInt(quotaMatch[1]) : 0;
+      if(quotaUnits > 0){
+        // 실제 경쟁 물량 기반으로 확률 재보정
+        const baseProb = Math.min(90, (quotaUnits / Math.max(1, comp)) * 100);
+        prob = (prob + baseProb) / 2; // 기존 확률과 평균
+        if(quotaUnits < 5){
+          prob *= 0.80;
+          reasons.push(`${eligKey} ${quotaUnits}세대 (극소량 — 변동성 큼)`);
+        } else {
+          reasons.push(`${eligKey} ${quotaUnits}세대 기준`);
+        }
+      }
+    }
+  }
+
+  // ── D-2c. 특공 낙수 효과 (eligTiers 단계별 우선공급 반영) ──
+  if(selectedType && l.eligTiers && l.eligTiers.length && !isLotto){
+    const myTiers = l.eligTiers.filter(t =>
+      t.parent && selectedType && (
+        t.parent.includes(selectedType) ||
+        selectedType.includes(t.parent.replace('특공',''))
+      )
+    );
+    if(myTiers.length > 0 && inc > 0){
+      // 소득 기준으로 어느 단계까지 접근 가능한지 판별
+      const isDual = p.married === 'married' && parseInt(p.income2||0) > 0;
+      let myStep = 0;
+      let totalPct = 0;
+      // 도시근로자 월평균소득 100% 기준 (2025년, 3인이하 기준 월 753만원)
+      // P.household로 가구원수 파악, inc는 월 만원 단위
+      const household = parseInt(p.household || 3);
+      const BASE_INCOME = { // 월평균소득 100% (만원)
+        1: 490, 2: 622, 3: 753, 4: 880, 5: 933, 6: 991, 7: 1049
+      };
+      const baseInc = BASE_INCOME[Math.min(7, Math.max(1, household))] || 753;
+      // 내 월소득의 도시근로자 대비 % 계산
+      const myIncPct = inc > 0 ? Math.round(inc / baseInc * 100) : 999;
+
+      for(const tier of myTiers){
+        const limit = isDual ? (tier.incDual || tier.incSingle || 999) : (tier.incSingle || 999);
+        if(myIncPct <= limit){
+          totalPct += (tier.pct || 0);
+          myStep++;
+        }
+      }
+      if(myStep > 0 && totalPct > 0){
+        // 우선공급 대상: 더 많은 물량에 먼저 도전 → 확률 상승
+        const tierBoost = 1 + (totalPct / 100) * 0.5;
+        prob = Math.min(92, prob * tierBoost);
+        reasons.push(`소득 기준 ${myStep}단계 진입(${totalPct}% 물량 우선도전)`);
+      } else {
+        // 추첨 단계만 가능 → 확률 하락
+        prob *= 0.75;
+        reasons.push('소득 초과 — 추첨공급만 가능');
+      }
+    }
+  }
+
+  // ── D-3. 당해지역 우선 배정 반영 → 체감 경쟁률 보정 ──
+  if(!isLotto && l.localPriorityRatio > 0 && l.localPriorityRatio < 100){
+    const ratio = l.localPriorityRatio / 100; // 예: 50% → 0.5
+    const isLocal = (p.resideRegion||'').includes(
+      (l.loc||'').match(/(\S+(시|군|구))/)?.[1] || '____'
+    ) || (l.region === 'gyeonggi' && (p.resideRegion||'').includes('경기'))
+      || (l.region === 'seoul'    && (p.resideRegion||'').includes('서울'));
+    if(isLocal){
+      // 당해 거주자: 전체 물량 중 ratio 비율 안에서 경쟁 → 유리
+      const localBoost = 1 / ratio;
+      prob = Math.min(95, prob * Math.sqrt(localBoost)); // sqrt로 완충
+      reasons.push(`당해지역 우선배정 ${l.localPriorityRatio}% → 체감경쟁↓`);
+    } else {
+      // 기타 거주자: 당해 탈락자까지 합산 → 불리
+      const otherPenalty = 1 + (ratio * 1.2);
+      prob = prob / otherPenalty;
+      reasons.push(`기타지역 (당해 ${l.localPriorityRatio}% 우선배정) → 체감경쟁↑`);
+    }
   }
 
   // ── E. 지역별 보정 계수 ──
@@ -2841,12 +3012,18 @@ function calcProb(l, p, selectedType){
 
   prob = Math.max(0.5, Math.min(95, Math.round(prob * 10) / 10));
 
+  // prevComp 사용 시 표시
+  if(l._usedPrevComp && _prevCompNum > 0){
+    reasons.unshift(`이전 차수 경쟁률 ${_prevCompNum}:1 기준`);
+  }
+
   l._probReason = reasons.join(' · ');
   l._probFactors = { rankPenalty, rgnFactor, units, accYr, selectedType };
   return prob;
 }
 /* ★★★ [하드코딩 끝] ★★★ */
-function pClass(v){return v>=20?'hi':v>=5?'mi':'lo';}
+
+{return v>=20?'hi':v>=5?'mi':'lo';}
 function pColor(v){return v>=20?'#059669':v>=5?'#D97706':'#DC2626';}
 function typeBadge(l){
   const isLotto = isLottoListing(l);
@@ -3737,6 +3914,17 @@ function recalcDetailProb(l){
 /* ★★★ [하드코딩 끝] ★★★ */
 
 /* ══ 상세 ══ */
+/* 유사단지 경쟁률/커트라인으로 PDF 공고 보완 */
+async function enrichListingWithHistory(l) {
+  if (l._historyEnriched) return;
+  l._historyEnriched = true;
+  const hist = await fetchSimilarComp(l);
+  if (!hist) return;
+  if (!l.comp || l.comp <= 1) l.comp = hist.avgComp || l.comp;
+  if (!l.cut  || l.cut  <= 0) l.cut  = hist.avgCut  || l.cut;
+  l._historySource = hist;
+}
+
 async function showDetail(id, fromSwipe=false){
   _detailCurrentId = id;
   const l=listings.find(x=>String(x.id)===String(id));
@@ -3754,6 +3942,15 @@ async function showDetail(id, fromSwipe=false){
   const _fc = loadFactorsCache();
   const _fkey = String(l.id || l.name);
   if(_fc[_fkey] && !l.priceFactors?.length) l.priceFactors = _fc[_fkey];
+  // 유사단지 경쟁률 보완 (비동기 — 상세 렌더 후 백그라운드)
+  enrichListingWithHistory(l).then(() => {
+    // 경쟁률 보완 후 당첨 확률만 재렌더 (전체 재렌더 없이)
+    const probEl = document.getElementById('det-prob');
+    if(probEl){ const p = calcProb(l, P); if(p !== null) probEl.textContent = p + '%'; }
+    // 체감 경쟁률 문구 업데이트
+    const effEl = document.getElementById('det-effective-comp');
+    if(effEl){ const txt = effectiveCompText(l, P); if(txt) effEl.textContent = txt; }
+  });
   // ★★★ [하드코딩 — 수정 금지] 관심 평형 자동 매칭: 사용자 선택 평형과 가장 가까운 면적 적용 ★★★
   if(selectedSizes.size > 0){
     const closest = findClosestSize(l);
@@ -4089,6 +4286,10 @@ async function showDetail(id, fromSwipe=false){
     </div>
     ${/* ★★★ [하드코딩 — 수정 금지] 확률 산출 근거 표시 ★★★ */
     l._probReason ? `<div id="det-prob-reason" style="margin-top:8px;padding:8px 12px;background:rgba(0,102,255,.06);border-radius:8px;font-size:11px;color:var(--ink-3);line-height:1.5">📐 산출 근거: ${l._probReason}</div>` : ''}
+    ${(()=>{
+      const effTxt = effectiveCompText(l, P);
+      return effTxt ? `<div id="det-effective-comp" style="margin-top:6px;padding:8px 12px;background:rgba(0,0,0,.03);border-radius:8px;font-size:11px;color:var(--ink-4);line-height:1.5">📊 ${effTxt}</div>` : `<div id="det-effective-comp" style="display:none"></div>`;
+    })()}
     ${(()=>{
       const tips=[];
       const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
@@ -6793,7 +6994,211 @@ function showToast(msg){
 }
 let apiConnected = false;
 
-/* ── 국토부 실거래가 시세 자동 조회 ── */
+/* ══════════════════════════════════════
+   청약홈 경쟁률 조회 (마감 후 과거 데이터 — 유사단지 참고용)
+══════════════════════════════════════ */
+const PROXY = 'https://chengyak-proxy.vercel.app/api/proxy?url=';
+const API_CMPET = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet';
+const API_SCORE = 'https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAptLttotPblancScore';
+const API_APT   = 'https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail';
+const CHEONGYAK_KEY = 'b4584f7c0ecade0209ebced7ab8fd3195c0a0a397fbab62084ceb5c8638b0b51';
+
+/* 공고번호로 경쟁률 조회 */
+async function fetchCmpetRate(pblancNo) {
+  try {
+    const url = `${API_CMPET}?serviceKey=${encodeURIComponent(CHEONGYAK_KEY)}&page=1&perPage=50&cond[PBLANC_NO::EQ]=${pblancNo}`;
+    const res = await fetch(PROXY + encodeURIComponent(url), { cache: 'no-store' });
+    const body = await res.json();
+    const data = body?.data;
+    if (!data || !data.length) return null;
+    const rank1 = data.filter(d => String(d.RESIDE_SECD) === '01' && String(d.SUBSCRPT_RANK_CODE) === '1');
+    const target = rank1.length ? rank1 : data;
+    const rates = target.map(d => parseFloat(d.CMPET_RATE)).filter(r => !isNaN(r) && r > 0);
+    if (!rates.length) return null;
+    return Math.round(rates.reduce((a, b) => a + b, 0) / rates.length * 10) / 10;
+  } catch(e) { return null; }
+}
+
+/* 공고번호로 당첨가점 커트라인 조회 */
+async function fetchCutScore(pblancNo) {
+  try {
+    const url = `${API_SCORE}?serviceKey=${encodeURIComponent(CHEONGYAK_KEY)}&page=1&perPage=20&cond[PBLANC_NO::EQ]=${pblancNo}`;
+    const res = await fetch(PROXY + encodeURIComponent(url), { cache: 'no-store' });
+    const body = await res.json();
+    const data = body?.data;
+    if (!data || !data.length) return null;
+    const scores = data.map(d => parseInt(d.AVG_SCRE || d.LTSB_SCRE || 0)).filter(s => s > 0);
+    if (!scores.length) return null;
+    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  } catch(e) { return null; }
+}
+
+/* 유사단지(같은 지역, 최근 마감) 경쟁률·커트라인 평균 조회 */
+const _similarCache = {};
+async function fetchSimilarComp(listing) {
+  const cacheKey = (listing.loc || '') + '|' + _getGapTier(listing) + '|' + (listing.type || '');
+  if (_similarCache[cacheKey]) return _similarCache[cacheKey];
+  try {
+    const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+    const result = await Promise.race([_fetchSimilarCompCore(listing), _timeout]);
+    if (result) _similarCache[cacheKey] = result;
+    return result;
+  } catch(e) { return null; }
+}
+
+/* 시세차익 구간 분류 */
+function _getGapTier(listing) {
+  const { g, pct } = gap(listing);
+  if (listing.noMktP || !listing.mktP) return 'unknown';
+  if (pct >= 20) return 'lotto';   // 갭 20%+ → 로또
+  if (pct >= 10) return 'hot';     // 갭 10~20% → 인기
+  if (pct >= 0)  return 'normal';  // 갭 0~10% → 보통
+  return 'premium';                 // 시세 이상 → 프리미엄
+}
+
+/* 1군 브랜드 여부 */
+function _isPremiumBuilder(builder) {
+  const tier1 = ['현대건설','삼성물산','GS건설','대우건설','DL이앤씨','롯데건설','포스코이앤씨','HDC현대산업개발','SK에코플랜트','호반건설'];
+  return tier1.some(b => (builder||'').includes(b));
+}
+
+async function _fetchSimilarCompCore(listing) {
+  try {
+    // 1. 청약홈에서 최근 100건 APT 공고 조회
+    const listUrl = `${API_APT}?serviceKey=${encodeURIComponent(CHEONGYAK_KEY)}&page=1&perPage=100`;
+    const listRes = await fetch(PROXY + encodeURIComponent(listUrl));
+    const listBody = await listRes.json();
+    const allItems = listBody?.data || [];
+    if (!allItems.length) return null;
+
+    // 2. 위치에서 구(자치구) 추출
+    const locParts = (listing.loc || '').split(/[\s,]/);
+    const gu  = locParts.find(s => s.endsWith('구')) || '';
+    const si  = locParts.find(s => s.endsWith('시') || s.endsWith('군')) || locParts[0] || '';
+    const targetTier = _getGapTier(listing);
+    const targetType = listing.type || 'private';
+    const targetUnits = parseInt(listing.units) || 0;
+
+    // 3. 유사단지 필터 (구 단위 우선, 없으면 시 단위로 확대)
+    function scoreItem(item) {
+      const combined = (item['공급지역명'] || '') + ' ' + (item['공급위치'] || '');
+      const itemUnits = parseInt(item['전체세대수'] || item['공급규모'] || 0);
+      const isPublic = (item['주택구분'] || '').includes('국민') || (item['주택구분'] || '').includes('공공');
+      const itemType = isPublic ? 'public' : 'private';
+
+      let score = 0;
+
+      // 지역 매칭 (구 일치 > 시 일치)
+      if (gu && combined.includes(gu)) score += 30;
+      else if (si && combined.includes(si)) score += 15;
+      else return -1; // 지역 불일치 → 제외
+
+      // 주택 유형 일치
+      if (itemType === targetType) score += 20;
+
+      // 단지 규모 유사성 (세대수 ±200% 이내)
+      if (targetUnits > 0 && itemUnits > 0) {
+        const ratio = Math.min(targetUnits, itemUnits) / Math.max(targetUnits, itemUnits);
+        if (ratio >= 0.5) score += 15;
+        else if (ratio >= 0.25) score += 5;
+      }
+
+      return score;
+    }
+
+    const scored = allItems
+      .map(item => ({ item, score: scoreItem(item) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8); // 상위 8건
+
+    if (!scored.length) return null;
+
+    // 4. 경쟁률/커트라인 조회
+    const results = [];
+    for (const { item, score } of scored) {
+      const pNo = item['공고번호'] || item.PBLANC_NO || '';
+      if (!pNo) continue;
+      const [comp, cut] = await Promise.all([fetchCmpetRate(pNo), fetchCutScore(pNo)]);
+      if (comp) results.push({ comp, cut, score });
+    }
+    if (!results.length) return null;
+
+    // 5. 가중 평균 (score 높을수록 가중치 큼)
+    const totalScore = results.reduce((s, r) => s + r.score, 0);
+    const weightedComp = results.reduce((s, r) => s + r.comp * r.score, 0) / totalScore;
+    const cutsWithScore = results.filter(r => r.cut);
+    const weightedCut = cutsWithScore.length
+      ? cutsWithScore.reduce((s, r) => s + r.cut * r.score, 0) / cutsWithScore.reduce((s, r) => s + r.score, 0)
+      : null;
+
+    // 6. 시세차익 가중치 보정
+    let compFinal = Math.round(weightedComp * 10) / 10;
+    if (targetTier === 'lotto')   compFinal = Math.round(compFinal * 1.8 * 10) / 10; // 로또 → 1.8배
+    else if (targetTier === 'hot') compFinal = Math.round(compFinal * 1.3 * 10) / 10; // 인기 → 1.3배
+    else if (targetTier === 'premium') compFinal = Math.round(compFinal * 0.6 * 10) / 10; // 시세이상 → 0.6배
+
+    // 7. 브랜드 가중치 (1군이면 +20%)
+    if (_isPremiumBuilder(listing.builder)) {
+      compFinal = Math.round(compFinal * 1.2 * 10) / 10;
+    }
+
+    return {
+      avgComp: compFinal,
+      avgCut: weightedCut ? Math.round(weightedCut) : null,
+      sampleCount: results.length,
+      gapTier: targetTier,
+      region: gu || si
+    };
+  } catch(e) { return null; }
+}
+
+/* ══════════════════════════════════════
+   체감 경쟁률 계산 (지역 우선 배정 + 타입 희소성 반영)
+   - rawComp: 유사단지 평균 or PDF 추출 경쟁률
+   - localPriorityRatio: 당해지역 우선 배정 비율 (0~1, PDF 파싱)
+   - isLocal: 사용자가 당해지역 거주자인지
+   - typeUnits: 선택 타입 세대수 (희소성 보정용)
+══════════════════════════════════════ */
+function calcEffectiveComp(rawComp, localPriorityRatio, isLocal, typeUnits) {
+  if (!rawComp || rawComp <= 0) return null;
+  let effective = rawComp;
+
+  // 1. 지역 우선 배정 반영
+  const ratio = localPriorityRatio > 0 ? localPriorityRatio : 0.5; // 기본 50%
+  if (isLocal) {
+    // 당해지역: 우선 배정 물량(ratio) 안에서만 경쟁
+    effective = rawComp * ratio;
+  } else {
+    // 기타지역: 당해 탈락자까지 합산 → 경쟁자 증가
+    effective = rawComp * (1 + ratio * 0.8);
+  }
+
+  // 2. 물량 희소성 보정 (10세대 미만은 변동성 크므로 보수적으로)
+  if (typeUnits > 0 && typeUnits < 10) effective *= 1.4;
+
+  return Math.round(effective * 10) / 10;
+}
+
+/* 체감 경쟁률 문구 생성 */
+function effectiveCompText(listing, P) {
+  const rawComp = parseFloat(listing._selectedComp || listing.comp) || 0;
+  if (!rawComp || rawComp <= 0) return null;
+
+  const localRatio = parseFloat(listing.localPriorityRatio) || 0.5;
+  const isLocal = (P.region && listing.region && P.region === listing.region)
+    || (P.region === 'gyeonggi' && listing.region === 'gyeonggi');
+  const typeUnits = parseInt(listing._selectedTypeUnits) || 0;
+
+  const effective = calcEffectiveComp(rawComp, localRatio, isLocal, typeUnits);
+  if (!effective) return null;
+
+  const localLabel = isLocal ? '당해지역 거주자' : '기타지역 거주자';
+  const unitNote = typeUnits > 0 && typeUnits < 10 ? ` (${typeUnits}세대 소규모 — 변동성 주의)` : '';
+  return `전체 경쟁률 ${rawComp}:1 → ${localLabel} 체감 경쟁률 약 ${effective}:1${unitNote}`;
+}
+
+
 const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
 
 /* ── 시세 캐시 (localStorage) — 영구 보존, 새 공고만 신규 조회 ── */
@@ -7303,9 +7708,13 @@ async function onAdminFileSelect(event){
 - 거주지역: 해당 지역 거주 요건(기간 포함) 추출
 - 청약통장: 가입기간, 납입횟수 등 요건 추출
 - 당첨자 선정방법: 단계별 소득구분(우선/일반/잔여/추첨)을 꼼꼼하게 추출
+- localPriorityRatio: 당해 주택건설지역(시/군/구) 거주자 우선 배정 비율(%). 예) '해당지역 50%, 기타지역 50%' → 50. 100%면 100. 없으면 100.
+- typeUnits: 공급대상 표에서 평형별 총공급세대수 추출. 예: '40A5H 5세대|42A4H 5세대|43A1H 10세대'. 반드시 숫자(integer)로만 출력.
 
 {
   "name": "단지명",
+  "pblancNo": "공고번호. 공고문 상단 '주택관리번호' 또는 '공고번호' 항목에서 추출. 예: 2026000070. 없으면 빈 문자열",
+  "builder": "시공사(건설사)명. 예: 현대건설, 삼성물산, GS건설, DL이앤씨, 롯데건설, 포스코이앤씨, HDC현대산업개발. 없으면 빈 문자열",
   "loc": "공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
@@ -7363,6 +7772,9 @@ async function onAdminFileSelect(event){
   "compByType": "평형별 경쟁률 (| 구분). 없으면 빈 문자열",
   "cutByType": "평형별 가점 커트라인 (| 구분). 없으면 빈 문자열",
   "prevComp": "이전 차수 경쟁률 정보. 없으면 빈 문자열",
+  "localPriorityRatio": 0,
+  "typeUnits": "평형별 세대수 (| 구분). 예: 40㎡ 5세대|43㎡ 10세대|59㎡ 20세대. 없으면 빈 문자열",
+  "typeSpecialQuota": "평형별 전형별 세대수. 형식: '40㎡ 일반공급 2세대 신혼부부특공 3세대 생애최초 1세대|43㎡ 일반공급 5세대 신혼부부특공 2세대'. 공급대상 표에서 추출. 없으면 빈 문자열",
   "ai": {
     "q": "자격 요건을 쉽게 설명 1~2문장. 거주요건+무주택+통장 조건 포함",
     "p": "분양가를 쉽게 설명 1~2문장. 최저~최고 범위와 평당가 언급",
@@ -7435,6 +7847,8 @@ async function onAdminFileSelect(event){
     _adminExtracted = {
       ...parsed,
       id: Date.now(),
+      pblancNo: parsed.pblancNo || '',
+      builder: parsed.builder || '',
       minP: (function(){
         let v = sanitizeMinP(parsed.minP);
         // minP가 0이면 price 문자열에서 최저값 추출 시도
@@ -7457,6 +7871,9 @@ async function onAdminFileSelect(event){
       downPct: (function(){ const n = parseInt(String(parsed.downPct||'').replace(/[^0-9]/g,'')); return n > 0 ? n : (parsed.type === 'public' ? 5 : 10); })(),
       compByType: parsed.compByType || '',
       cutByType: parsed.cutByType || '',
+      localPriorityRatio: (function(){ const n = parseInt(parsed.localPriorityRatio); return (n > 0 && n <= 100) ? n : 100; })(),
+      typeUnits: parsed.typeUnits || '',
+      typeSpecialQuota: parsed.typeSpecialQuota || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
       days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.ceil((_ed-_td)/86400000); })(),
@@ -7666,6 +8083,11 @@ async function confirmAdminData(force=false){
           eligTiers: (l.eligTiers && l.eligTiers.length ? l.eligTiers : null) || (localMatch && localMatch.eligTiers) || [],
           downPct: l.downPct || (localMatch && localMatch.downPct) || 10,
           comp: l.comp || (localMatch && localMatch.comp) || 10,
+          localPriorityRatio: l.localPriorityRatio || (localMatch && localMatch.localPriorityRatio) || 100,
+          typeUnits: l.typeUnits || (localMatch && localMatch.typeUnits) || '',
+          typeSpecialQuota: l.typeSpecialQuota || (localMatch && localMatch.typeSpecialQuota) || '',
+          pblancNo: l.pblancNo || (localMatch && localMatch.pblancNo) || '',
+          builder: l.builder || (localMatch && localMatch.builder) || '',
           name: cleanName(l.name),
           _src: 'pdf'
         };
