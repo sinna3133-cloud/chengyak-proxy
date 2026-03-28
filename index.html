@@ -1556,8 +1556,8 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <div class="page-title">내 조건 수정</div>
     </div>
   </div>
-  <div id="editcond-body" style="padding:20px 20px 100px;overflow-y:auto;flex:1"></div>
-  <div style="position:sticky;bottom:0;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--bg-card);border-top:1px solid rgba(0,0,0,.07);box-shadow:0 -4px 16px rgba(0,0,0,.06)">
+  <div id="editcond-body" style="padding:20px 20px 120px;"></div>
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--bg-card);border-top:1px solid rgba(0,0,0,.07);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:50;display:none" id="editcond-save-bar">
     <button onclick="saveEditCond()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,.35)">저장하기</button>
   </div>
 </div>
@@ -1640,7 +1640,7 @@ const RETRO = ['철수','영수','옥순','순자','복자','덕배','말순','�
 
 const LOGIN_NUDGE = '로그인하고 나에게 딱 맞는 청약 공고, 1초 만에 확인하기';
 const RGN = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남','':`미설정`};
-const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-more',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home','report-history':'nav-more'};
+const NAVMAP = {home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more',score:'nav-more',glossary:'nav-more',calendar:'nav-more',detail:'nav-home',notif:'nav-home','report-history':'nav-more'};
 
 /* ══ 데이터 ══ */
 const listings = [];
@@ -2020,6 +2020,9 @@ function saveWizard(){
   P.household=document.getElementById('w-household').value;
   P.marriageYear=document.getElementById('w-marriageYear')?.value||'';
   P.dependents=wDep;
+  // 과거 주택 소유 이력 (wiz step2)
+  const _neverOwnedEl = document.querySelector('[onclick*="neverOwned"].wiz-radio.on');
+  if(_neverOwnedEl) P.neverOwned = _neverOwnedEl.textContent.includes('없음');
   if(!P.name) P.name=RETRO[Math.floor(Math.random()*RETRO.length)];
   sbSaveCondition();
 
@@ -4680,7 +4683,7 @@ document.addEventListener('touchend', e => {
       document.querySelectorAll('.screen').forEach(s => {s.classList.remove('active');s.classList.remove('page-anim');});
       document.getElementById('screen-' + targetName)?.classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const navId = ({home:'nav-home',consult:'nav-consult',mycond:'nav-more',more:'nav-more',saved:'nav-more'})[targetName];
+      const navId = ({home:'nav-home',consult:'nav-consult',my:'nav-my',mycond:'nav-my',more:'nav-more',saved:'nav-more'})[targetName];
       if(navId) document.getElementById(navId)?.classList.add('active');
       // 화면별 렌더링
       if(targetName==='saved') renderSaved();
@@ -6691,6 +6694,10 @@ const _ROOT_TABS = new Set(['home','consult','more','my','notif']);
 function showScreen(name, _fromBack=false){
   if(name==='editcond') renderEditCond();
 
+  // editcond 저장 바 표시/숨김
+  const _saveBar = document.getElementById('editcond-save-bar');
+  if(_saveBar) _saveBar.style.display = name === 'editcond' ? 'block' : 'none';
+
   // history 관리: 뒤로가기 시(_fromBack)는 pushState 안 함
   if(!_fromBack){
     if(_ROOT_TABS.has(name)){
@@ -6703,7 +6710,7 @@ function showScreen(name, _fromBack=false){
   }
 
   // 탭 바운스
-  const navMap={home:'nav-home',mycond:'nav-more',consult:'nav-consult',more:'nav-more',saved:'nav-more',glossary:'nav-more',score:'nav-more',calendar:'nav-more'};
+  const navMap={home:'nav-home',my:'nav-my',mycond:'nav-my',consult:'nav-consult',more:'nav-more',saved:'nav-more',glossary:'nav-more',score:'nav-more',calendar:'nav-more'};
   const navId=navMap[name];
   if(navId){
     const el=document.getElementById(navId);
@@ -7986,7 +7993,7 @@ async function sbSaveCondition() {
       household: P.household, isNoHome: P.isNoHome, region: P.region,
       dependents: P.dependents, accYears: P.accYears, prefSizes: P.prefSizes,
       elderParent: P.elderParent, isDual: P.isDual, spouseIncome: P.spouseIncome,
-      totalIncome: P.totalIncome
+      totalIncome: P.totalIncome, neverOwned: P.neverOwned, homeType: P.homeType
     };
     await sb.upsert('profiles', {
       id: String(kakaoUser.kakaoId),
@@ -8382,6 +8389,7 @@ function kakaoLogout() {
   P.marriage='미혼'; P.marriageYear=''; P.household=''; P.isNoHome=true;
   P.region=''; P.dependents=0; P.accYears=''; P.prefSizes=[];
   P.elderParent=false; P.isDual=false; P.spouseIncome=''; P.totalIncome='';
+  P.neverOwned=true; P.homeType='무주택';
   // MY탭 guest/loggedin 전환
   const myGuest = document.getElementById('my-guest');
   const myLoggedIn = document.getElementById('my-loggedin');
