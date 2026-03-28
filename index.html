@@ -7346,62 +7346,18 @@ function parseAptItem(item, isLotto=false){
 
 /* ── 실시간 전체 데이터 로드 ── */
 async function loadLiveData(){
-  if(!apiKey){ updateApiStatus(); return; }
-
-  const ind = document.getElementById('api-indicator');
-  if(ind){ ind.className='api-ind api-ind-loading'; ind.textContent='불러오는 중...'; }
-
+  // PDF 공고만 로드 (API 공고 제거)
   try {
-    // 1단계: 분양정보 + 줍줍 목록 동시 조회
-    const [aptItems, lottoItems] = await Promise.all([
-      fetchAptList(apiKey,  1, 20).catch(()=>[]),
-      fetchLottoList(apiKey, 1, 10).catch(()=>[])
-    ]);
-
-    const allParsed = [
-      ...lottoItems.map(i => parseAptItem(i, true)),
-      ...aptItems.map(i   => parseAptItem(i, false))
-    ];
-    const filteredAll = allParsed.filter(l => (l.days === null || l.days >= 0) && !l.name.includes('임대'));
-    // API 내부 중복 제거 (로또+일반 동시 등장 시 로또 우선)
-    const apiNorm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
-    const apiMap = new Map();
-    filteredAll.forEach(l => {
-      const key = apiNorm(l.name);
-      if(!apiMap.has(key)){
-        apiMap.set(key, l);
-      } else {
-        // 이미 있으면 lotto 플래그 병합
-        const ex = apiMap.get(key);
-        if(l.lotto) ex.lotto = true;
-        // 더 상세한 데이터로 보충
-        if(l.minP && !ex.minP) ex.minP = l.minP;
-        if(l.price && l.price !== '공고 확인 필요' && (!ex.price || ex.price === '공고 확인 필요')) ex.price = l.price;
-        if(l.loc && l.loc.length > (ex.loc||'').length) ex.loc = l.loc;
-      }
-    });
-    const parsed = [...apiMap.values()];
-    if(typeof DEV_MODE!=='undefined'&&DEV_MODE) console.log(`[dedup] API 원본: ${filteredAll.length}건 → 중복제거: ${parsed.length}건`);
-
-    if(parsed.length === 0){
-      // API 공고 없어도 PDF 공고는 계속 로드
-      showToast('청약홈 API 응답 없음 — PDF 공고만 표시해요');
-    }
-
-    // 우선 목록 먼저 표시 (경쟁률 로드 전)
-    // 관리자 등록 공고 유지 (API 데이터와 중복이면 API 데이터 우선)
     let adminSaved = [];
     try {
       const adminRes = await fetch(LISTINGS_API);
       const adminData = await adminRes.json();
-      // KST 기준 오늘 자정 (days 재계산용)
       const _kst2 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
       const _adminToday = new Date(_kst2.getFullYear(), _kst2.getMonth(), _kst2.getDate());
       adminSaved = (adminData.listings||[]).map(l => {
-        delete l._maxP; delete l._minPSanitized; // 캐시 완전 초기화
-        l.mktP = 0;     // 시세는 autoFetchMarketPrices에서 자동 조회
+        delete l._maxP; delete l._minPSanitized;
+        l.mktP = 0;
         l.noMktP = true;
-        // 서버에 저장된 days는 등록 시점 기준이므로 deadline으로 재계산
         if(l.deadline && !String(l.deadline).startsWith('9999')){
           const _dp2 = String(l.deadline).slice(0,10).split('-');
           const _end2 = new Date(parseInt(_dp2[0]), parseInt(_dp2[1])-1, parseInt(_dp2[2]));
@@ -7410,73 +7366,14 @@ async function loadLiveData(){
         return {...l, name: cleanName(l.name), _src:'pdf'};
       });
     } catch(e){}
-    parsed.forEach(l => l._src = 'api');
+
     const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
-    const norm = s => (s||'').replace(/[\s\u00A0\u3000\u200B\u200C\u200D\uFEFF]+/g,'').replace(/공공분양주택|조합원취소분|취소분|무순위|잔여세대|입주자모집공고/g,'').replace(/\(.*?\)/g,'').replace(/[·ㆍ‧・\-]/g,'').normalize('NFC').toLowerCase();
-    // PDF 삭제 적용
     const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
-    // 디버깅: norm 키 + 코드포인트 비교
-    const apiKeys = parsed.map(l => norm(l.name));
-    const pdfKeys = validAdmin.map(l => norm(l.name));
-    
-    
-    pdfKeys.forEach(pk => {
-      const match = apiKeys.find(ak => ak === pk);
-      if(!match){
-        const similar = apiKeys.find(ak => ak.includes(pk.slice(0,4)) || pk.includes(ak.slice(0,4)));
-        if(similar) console.warn(`[dedup] 불일치! PDF "${pk}" [${[...pk].map(c=>c.codePointAt(0).toString(16)).join(',')}] vs API "${similar}" [${[...similar].map(c=>c.codePointAt(0).toString(16)).join(',')}]`);
-      }
-    });
-    // API + PDF 전체를 이름+주소 기준으로 병합 (PDF 우선)
-    const nameMap = new Map();
-    // 주소 정규화 함수
-    const normLoc = s => (s||'').replace(/\s+/g,'').replace(/일원$/,'').replace(/\d+번지$/,'').toLowerCase();
-    // 1) API 먼저 등록
-    parsed.forEach(l => {
-      const key = norm(l.name);
-      if(!nameMap.has(key)) nameMap.set(key, {...l});
-    });
-    // 2) PDF 데이터로 보충/추가 (이름 동일 OR 이름 유사+주소 동일이면 PDF 우선 덮어쓰기)
-    validAdmin.forEach(l => {
-      const key = norm(l.name);
-      const existing = nameMap.get(key);
-      // 이름 유사(앞 4글자 겹침) + 주소 동일한 API 항목 찾기
-      let similarKey = null;
-      if(!existing){
-        const pShort = key.slice(0,5);
-        const pLoc = normLoc(l.loc);
-        for(const [ak, av] of nameMap.entries()){
-          if(av._src === 'api' && (ak.includes(pShort) || pShort.includes(ak.slice(0,5))) && normLoc(av.loc) === pLoc){
-            similarKey = ak;
-            break;
-          }
-        }
-      }
-      if(!existing && !similarKey){
-        // API에 없는 공고 → PDF 데이터 그대로 추가
-        nameMap.set(key, {...l});
-      } else {
-        // 이름 동일이거나 유사+주소 동일 → PDF가 API를 덮어쓰기
-        const targetKey = existing ? key : similarKey;
-        const base = nameMap.get(targetKey);
-        // PDF 데이터로 전면 업데이트 (PDF 우선)
-        const merged = {
-          ...base,
-          ...l,
-          // API에서만 갖는 값은 유지
-          id: base.id || l.id,
-          comp: base.comp || l.comp || 0,
-          cut: base.cut || l.cut || 0,
-          mktP: base.mktP || 0,
-          _src: 'pdf',
-        };
-        nameMap.delete(targetKey); // 기존 키 제거
-        nameMap.set(key, merged);  // PDF 이름 기준으로 새 키로 등록
-      }
-    });
-    const deduped = [...nameMap.values()];
-    listings.splice(0, listings.length, ...deduped);
-    // listings 교체 후 KST 기준으로 days 전체 재계산 (저장된 days 값 덮어쓰기)
+    const filtered = validAdmin.filter(l => l.days === null || l.days >= 0);
+
+    listings.splice(0, listings.length, ...filtered);
+
+    // days 전체 재계산
     const _kst3 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
     const _liveToday = new Date(_kst3.getFullYear(), _kst3.getMonth(), _kst3.getDate());
     listings.forEach(l => {
@@ -7486,37 +7383,15 @@ async function loadLiveData(){
         l.days = Math.ceil((_end3 - _liveToday) / 86400000);
       }
     });
-    liveListings = parsed;
+
     apiConnected = true;
     updateApiStatus();
     renderListings();
-    // 추천 섹션은 idle 시 렌더 (메인 리스트 먼저)
     if('requestIdleCallback' in window){
       requestIdleCallback(()=>renderRecommend(), {timeout:500});
     } else {
       setTimeout(renderRecommend, 300);
     }
-    showToast(`✓ 공고 ${parsed.length}건 로드 — 경쟁률 업데이트 중...`);
-
-    // 2단계: 공고별 경쟁률 + 커트라인 병렬 조회 (일반분양만)
-    const normalListings = parsed.filter(l => !isLottoListing(l) && l.id);
-    const enrichPromises = normalListings.map(async (l) => {
-      const pblancNo = l.id; // parseAptItem에서 공고번호를 id로 저장
-      const [comp, cut] = await Promise.all([
-        fetchCmpetRate(apiKey, pblancNo),
-        fetchCutScore(apiKey,  pblancNo)
-      ]);
-      if(comp !== null) l.comp = comp;
-      if(cut  !== null) l.cut  = cut;
-    });
-
-    // 최대 5개 동시 요청 (API 과부하 방지)
-    for(let i = 0; i < enrichPromises.length; i += 5){
-      await Promise.all(enrichPromises.slice(i, i + 5));
-    }
-
-    // 경쟁률·커트라인 반영 후 재렌더
-    renderListings();
     updateConsult();
     updateScoreScreen();
     showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
