@@ -86,7 +86,13 @@ export default async function handler(req, res) {
         // PDF URL 구성 및 다운로드
         const pdfUrl = `https://static.applyhome.co.kr/ai/aia/getAtchmfl.do?houseManageNo=${ann.houseManageNo}&pblancNo=${ann.pblancNo}&atchmnflSeqNo=${atchmnflSeqNo}&atchmnflSn=2`;
         log.push(`atchmnflSeqNo: ${atchmnflSeqNo}, PDF URL: ${pdfUrl}`);
-        const pdfBuffer = await fetch(pdfUrl).then(r => {
+        const pdfBuffer = await fetch(pdfUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Referer': 'https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancListView.do',
+            'Accept': 'application/pdf,*/*'
+          }
+        }).then(r => {
           if (!r.ok) throw new Error(`PDF 다운로드 실패: ${r.status}`);
           return r.arrayBuffer();
         });
