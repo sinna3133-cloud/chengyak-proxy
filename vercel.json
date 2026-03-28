@@ -2,6 +2,9 @@
   "functions": {
     "api/*.js": { "maxDuration": 60 }
   },
+  "crons": [
+    { "path": "/api/sync-listings", "schedule": "0 1 * * *" }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
