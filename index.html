@@ -7613,20 +7613,22 @@ async function onAdminFileSelect(event){
 - 표에서 '계' 컬럼(대지비+건축비 합계)의 금액만 사용
 - 단위 변환 필수:
   · 숫자가 1,000,000,000 수준(9자리) → 원 단위 → ÷10000 하여 만원으로 변환
-    예) 1,222,373,000원 → 122237만원 → 약 12억 2천
+    예) 530,800,000원 → 53080만원 → minP: 53080
   · 숫자가 100,000 수준(6자리) → 만원 단위 → 그대로 사용
   · 단위가 '천원'으로 명시 → ÷10 하여 만원으로 변환
 - price 필드: 평형(타입)별 최저층~최고층 범위로 표시. 층별로 다르면 해당 타입의 최저~최고
   예) 44타입: 2층 84252만원 ~ 15층이상 88500만원 → "44㎡ 8억4천~8억8천"
   예) 59A타입: 2층 122237만원 ~ 15층이상 130039만원 → "59A㎡ 12억2천~13억"
 - price 구분자: 평형별로 | 로 구분
-- minP: 전체 평형 중 계 컬럼 최저값(만원). 위 예시에서는 44타입 최저층 값
+- minP: 전체 평형 중 계 컬럼 최저값을 반드시 만원 단위 정수로 입력. 절대 0이나 null 금지.
   ★ 주의: 계약금(10~20%), 중도금, 잔금 컬럼 금액이 아닌 반드시 '계(대지비+건축비 합계)' 컬럼만 사용
-  ★ 예) 표에 "계: 1,756,910,000원" → 175691만원 → minP: 175691
+  ★ 예) 표에 "계: 530,800,000원" → 53080 / 표에 "계: 53,080만원" → 53080
+  ★ minP는 반드시 숫자(integer)로만 출력. 문자열/null/0 절대 금지.
+- mktP: 주변 시세 만원 단위 숫자. 공고에 없으면 반드시 0(숫자)으로 출력.
 
 [세대수]
-- units: '총 N세대' 또는 '지상 N층 N개동 총 N세대' 에서 단지 전체 세대수
-- recruitUnits: '일반분양 N세대' 또는 '특별공급 N세대+일반공급 N세대' 합계 (이번 공고 모집인원)
+- units: '총 N세대' 또는 '지상 N층 N개동 총 N세대' 에서 단지 전체 세대수. 반드시 숫자(integer)로만 출력.
+- recruitUnits: '일반분양 N세대' 또는 '특별공급 N세대+일반공급 N세대' 합계 (이번 공고 모집인원). 반드시 숫자(integer)로만 출력.
 
 [기타]
 - 소득기준: 공고에 명시된 도시근로자 월평균소득 대비 %를 정확히 추출
@@ -7641,12 +7643,12 @@ async function onAdminFileSelect(event){
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
   "price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 예: 44㎡ 8억4천~8억8천|59A㎡ 12억2천~13억|84A㎡ 17억~18억",
-  "minP": 전체 평형 중 분양가(계) 최저값 만원 단위 숫자,
-  "mktP": 주변 시세 만원 단위 숫자 (없으면 0),
+  "minP": 0,
+  "mktP": 0,
   "deadline": "청약 접수 마감일 YYYY-MM-DD",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
-  "units": 총 세대수 숫자 (단지 전체 세대수),
-  "recruitUnits": 이번 공고 모집인원 숫자 (특별공급+일반공급 합산. 총 세대수와 다를 수 있음),
+  "units": 0,
+  "recruitUnits": 0,
   "qual": "신청 자격 핵심 요약 (거주지역 요건, 세대주 요건, 무주택 요건 포함). 예: 서울 거주 무주택 세대구성원, 청약통장 2년+24회 납입",
   "inc": "소득 기준 핵심 요약. 전형별 소득기준이 다르면 범위로 표시. 예: 특공 100~160% / 일반 100%(60㎡이하)",
   "sched": "접수: YYYY-MM-DD ~ YYYY-MM-DD / 발표: YYYY-MM-DD / 계약: YYYY-MM-DD ~ YYYY-MM-DD",
@@ -7981,7 +7983,26 @@ async function confirmAdminData(force=false){
 
     if(data.listings){
       const normN = s => (s||'').replace(/\s|\(|\)|조합원취소분|취소분|무순위|잔여세대/g,'').toLowerCase();
-      const adminListings = data.listings.map(l => ({...l, name: cleanName(l.name), _src:'pdf'}));
+      const adminListings = data.listings.map(l => {
+        // 서버가 minP/price/eligDetail 등 핵심 파싱 필드를 누락할 수 있으므로
+        // _adminExtracted (로컬 파싱 결과)를 베이스로 하고 서버 데이터로 보완
+        const localMatch = _adminExtracted && (
+          l.id === _adminExtracted.id || normN(l.name) === normN(_adminExtracted.name)
+        ) ? _adminExtracted : null;
+        return {
+          ...(localMatch || {}),
+          ...l,
+          // 핵심 수치 필드는 로컬 파싱값 우선 (서버에서 유실되는 경우 방어)
+          minP: (l.minP > 0 ? l.minP : null) || (localMatch && localMatch.minP > 0 ? localMatch.minP : 0),
+          price: l.price || (localMatch && localMatch.price) || '공고 확인 필요',
+          eligDetail: (l.eligDetail && l.eligDetail.length ? l.eligDetail : null) || (localMatch && localMatch.eligDetail) || [],
+          eligTiers: (l.eligTiers && l.eligTiers.length ? l.eligTiers : null) || (localMatch && localMatch.eligTiers) || [],
+          downPct: l.downPct || (localMatch && localMatch.downPct) || 10,
+          comp: l.comp || (localMatch && localMatch.comp) || 10,
+          name: cleanName(l.name),
+          _src: 'pdf'
+        };
+      });
       adminListings.forEach(l => {
         // id 또는 이름 둘 다 비교해서 중복 제거
         const existIdx = listings.findIndex(x =>
