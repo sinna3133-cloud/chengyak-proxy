@@ -3023,7 +3023,7 @@ function calcProb(l, p, selectedType){
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 
-{return v>=20?'hi':v>=5?'mi':'lo';}
+function pClass(v){return v>=20?'hi':v>=5?'mi':'lo';}
 function pColor(v){return v>=20?'#059669':v>=5?'#D97706':'#DC2626';}
 function typeBadge(l){
   const isLotto = isLottoListing(l);
