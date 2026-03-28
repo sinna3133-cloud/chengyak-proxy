@@ -2334,7 +2334,17 @@ function calcTypes(p, listingCtx){
 */
 function calcEligDetail(l, p){
   const results = [];
-  const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
+  // 전형명 정규화: PDF 파싱 시 '생애최초특공' 등으로 올 수 있어서 통일
+  function normalizeTypeName(e){
+    if(e.includes('생애최초')) return '생애최초';
+    if(e.includes('신생아')) return '신생아특공';
+    if(e.includes('다자녀')) return '다자녀특공';
+    if(e.includes('신혼부부')) return '신혼부부특공';
+    if(e.includes('노부모')) return '노부모부양';
+    if(e.includes('청년')) return '청년특공';
+    return e;
+  }
+  const eligList = (l.elig || []).filter(e => !e.includes('기관추천')).map(normalizeTypeName);
   const details = l.eligDetail || [];
   const inc = parseInt(p.isDual ? (p.totalIncome||p.income||0) : (p.income||0));
   const nh = parseInt(p.noHomeYears||0);
@@ -2732,7 +2742,16 @@ function calcProb(l, p, selectedType){
     l._usedPrevComp = true;
   }
 
-  const eligMatch = (l.elig||[]).some(e => myTypes.includes(e));
+  function _normEligType(e){
+    if(e.includes('생애최초')) return '생애최초';
+    if(e.includes('신생아')) return '신생아특공';
+    if(e.includes('다자녀')) return '다자녀특공';
+    if(e.includes('신혼부부')) return '신혼부부특공';
+    if(e.includes('노부모')) return '노부모부양';
+    if(e.includes('청년')) return '청년특공';
+    return e;
+  }
+  const eligMatch = (l.elig||[]).some(e => myTypes.includes(_normEligType(e)));
   const isLotto = isLottoListing(l);
 
   let prob, reasons = [];
@@ -4290,9 +4309,18 @@ async function showDetail(id, fromSwipe=false){
     (()=>{
       // 사용자가 신청 가능한 전형 목록
       const myTypes = calcTypes(P).map(t => t.l);
+      function _normType(e){
+        if(e.includes('생애최초')) return '생애최초';
+        if(e.includes('신생아')) return '신생아특공';
+        if(e.includes('다자녀')) return '다자녀특공';
+        if(e.includes('신혼부부')) return '신혼부부특공';
+        if(e.includes('노부모')) return '노부모부양';
+        if(e.includes('청년')) return '청년특공';
+        return e;
+      }
       const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
       const specials = eligList.filter(e =>
-        e !== '일반공급' && e !== '무순위(줍줍)' && myTypes.includes(e)
+        e !== '일반공급' && e !== '무순위(줍줍)' && myTypes.includes(_normType(e))
       );
       const typeChips = specials.length > 0
         ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-type-chips">`
