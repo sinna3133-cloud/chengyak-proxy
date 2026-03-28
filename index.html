@@ -2802,7 +2802,17 @@ function calcProb(l, p, selectedType){
       reasons.push('신청 가능한 전형 없음');
     } else {
       // 1. 면적 파악 (selectedType 또는 listing.size에서 추출)
-      const sqm = parseInt(String(selectedType || l.size || '').replace(/[^0-9]/g,'')) || 84;
+      // 면적 추출: selectedType에서 숫자 없으면 l.size 첫 번째 값 사용
+      let sqm = 84;
+      if(selectedType){
+        const n = parseInt(String(selectedType).replace(/[^0-9]/g,''));
+        if(n >= 20 && n <= 300) sqm = n;
+      }
+      if(sqm === 84 && l.size){
+        // l.size: "40㎡ / 43㎡" 또는 "59㎡" 형태 — 첫 번째 숫자만 추출
+        const firstNum = String(l.size).match(/(\d+)/);
+        if(firstNum) { const n = parseInt(firstNum[1]); if(n >= 20 && n <= 300) sqm = n; }
+      }
 
       // 2. 규제지역 여부 (투기과열지구 기준)
       const isHotZone2 = ['서울','과천','성남','하남','광명','고양','남양주','화성','구리','안양','의왕'].some(z=>(l.loc||'').includes(z));
@@ -3907,19 +3917,6 @@ function recalcDetailProb(l){
     fillEl.style.transition = 'stroke-dashoffset .6s ease';
     fillEl.setAttribute('stroke-dashoffset', offset);
   }
-  if(reasonEl && l._probReason){
-    reasonEl.innerHTML = `
-      <div style="font-size:10px;font-weight:600;color:var(--ink-4);margin-bottom:6px;letter-spacing:.3px">산출 근거</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">
-        ${l._probReason.split(' · ').map(r => {
-          const isGood = r.includes('1순위') || r.includes('우선공급') || r.includes('당해지역') || r.includes('대단지') || r.includes('통과') || r.includes('저소득') || r.includes('브랜드');
-          const isBad  = r.includes('부족') || r.includes('기타지역') || r.includes('체감경쟁↑') || r.includes('희소') || r.includes('소규모') || r.includes('2순위') || r.includes('추첨공급만') || r.includes('고경쟁') || r.includes('초과');
-          const bg = isGood ? 'rgba(5,150,105,.1)' : isBad ? 'rgba(220,38,38,.08)' : 'rgba(0,0,0,.05)';
-          const color = isGood ? '#059669' : isBad ? '#DC2626' : 'var(--ink-3)';
-          return '<span style="display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;background:'+bg+';color:'+color+';line-height:1.4">'+r+'</span>';
-        }).join('')}
-      </div>`;
-  }
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 
@@ -4272,23 +4269,7 @@ async function showDetail(id, fromSwipe=false){
         <text x="140" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">100%</text>
       </svg>
     </div>
-    ${/* ★★★ [하드코딩 — 수정 금지] 확률 산출 근거 표시 ★★★ */
-    l._probReason ? `<div id="det-prob-reason" style="margin-top:10px">
-      <div style="font-size:10px;font-weight:600;color:var(--ink-4);margin-bottom:6px;letter-spacing:.3px">산출 근거</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">
-        ${l._probReason.split(' · ').map(r => {
-          const isGood = r.includes('1순위') || r.includes('우선공급') || r.includes('당해지역') || r.includes('대단지') || r.includes('통과') || r.includes('저소득') || r.includes('브랜드');
-          const isBad  = r.includes('부족') || r.includes('기타지역') || r.includes('체감경쟁↑') || r.includes('희소') || r.includes('소규모') || r.includes('2순위') || r.includes('추첨공급만') || r.includes('고경쟁') || r.includes('초과');
-          const bg = isGood ? 'rgba(5,150,105,.1)' : isBad ? 'rgba(220,38,38,.08)' : 'rgba(0,0,0,.05)';
-          const color = isGood ? '#059669' : isBad ? '#DC2626' : 'var(--ink-3)';
-          return `<span style="display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;background:${bg};color:${color};line-height:1.4">${r}</span>`;
-        }).join('')}
-      </div>
-    </div>` : ''}
-    ${(()=>{
-      const effTxt = effectiveCompText(l, P);
-      return effTxt ? `<div id="det-effective-comp" style="margin-top:6px;padding:8px 12px;background:rgba(0,0,0,.03);border-radius:8px;font-size:11px;color:var(--ink-4);line-height:1.5">📊 ${effTxt}</div>` : `<div id="det-effective-comp" style="display:none"></div>`;
-    })()}
+    
     ${(()=>{
       const tips=[];
       const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
