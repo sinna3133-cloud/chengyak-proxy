@@ -4609,7 +4609,10 @@ window.addEventListener('popstate', (e) => {
 
 // 앱 최초 진입 시 초기 state 설정
 if(!history.state || !history.state.screen) {
-  history.replaceState({screen: 'home'}, '', window.location.pathname);
+  // 카카오/네이버 콜백 중이면 URL 건드리지 않음
+  if(!new URLSearchParams(window.location.search).get('code')) {
+    history.replaceState({screen: 'home'}, '', window.location.pathname);
+  }
 }
 
 // ── 오버레이 open 시 히스토리 연동 ──
