@@ -1416,7 +1416,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name" id="more-name" style="font-size:13px;letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
+      <div class="my-name" id="more-name" style="font-size:14px;letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
       <div class="my-sub" id="more-sub" style="display:none">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
@@ -4930,57 +4930,111 @@ function updateScoreScreen(){
   const nh=parseInt(p.noHomeYears||0), dep=parseInt(p.dependents||0), acc=parseInt(p.depCount||0);
   const nhRemain=32-nhS, dRemain=35-dS, aRemain=17-aS;
   const tips=[];
+  const age = parseInt(p.byear||0) ? new Date().getFullYear()-parseInt(p.byear) : 0;
+  const isUnder30Single = age > 0 && age < 30 && p.marriage === '미혼';
+  const depAmt = parseInt(p.depAmt||0); // 납입총액 (만원)
 
-  // 무주택 기간 팁
-  if(nhS<32){
-    const nextScore=nhS+2;
+  // ── 부적격 방지 경고 (최우선) ──
+  if(isUnder30Single && nhS > 0){
     tips.push({
-      icon:'🏠', cat:'무주택 기간', remain:`+${nhRemain}점 가능`,
-      title: nh===0 ? '무주택 기간을 쌓기 시작하세요' : `${nh+2}년이 되면 +2점 추가돼요`,
-      desc: nh===0
-        ? '만 30세부터 무주택 기간이 인정돼요. 지금부터 무주택을 유지하면 2년마다 2점씩 올라요.'
-        : `현재 ${nh}년 무주택이에요. 무주택을 계속 유지하면 2년마다 2점씩 최대 32점까지 올라가요.`,
-      gain: nhRemain
+      icon:'⚠️', cat:'부적격 방지', remain:'위험',
+      title:'무주택 기간 가점 오류 위험이 있어요',
+      desc:`만 30세 미만 미혼은 무주택 기간이 0점이에요. 현재 ${nhS}점으로 계산하셨다면 당첨 후 부적격 취소 위험이 있어요. 만 30세가 되거나 혼인신고일부터 무주택 기간이 인정돼요.`,
+      gain:99, urgent:true
     });
   }
 
-  // 부양가족 팁
+  // ── 무주택 기간 팁 ──
+  if(nhS<32 && !isUnder30Single){
+    if(nh < 5 && dS >= 20){
+      // 생애최초 전략 제안
+      tips.push({
+        icon:'🏠', cat:'무주택 기간', remain:`+${nhRemain}점 가능`,
+        title:`지금 바로 생애최초 특공을 노리는 게 더 유리해요`,
+        desc:`가점이 ${total}점으로 일반공급 경쟁은 불리하지만, 생애최초 특공은 소득 기준만 맞으면 경쟁률이 훨씬 낮아요. 무주택 기간을 기다리는 것보다 지금 특공에 집중해보세요.`,
+        gain: nhRemain
+      });
+    } else {
+      const yrsTo2pt = 2 - (nh % 2);
+      tips.push({
+        icon:'🏠', cat:'무주택 기간', remain:`+${nhRemain}점 가능`,
+        title: nh===0 ? '무주택 기간을 쌓기 시작하세요' : `${yrsTo2pt}년 후 +2점 추가돼요`,
+        desc: nh===0
+          ? '만 30세(또는 혼인신고일)부터 무주택 기간이 인정돼요. 지금부터 유지하면 2년마다 2점, 최대 32점까지 올라가요.'
+          : `현재 ${nh}년 무주택이에요. 앞으로 ${yrsTo2pt}년 유지하면 +2점이에요. 만점(32점)까지 ${nhRemain}점 남았어요.`,
+        gain: nhRemain
+      });
+    }
+  }
+
+  // ── 부양가족 팁 ──
   if(dS<35){
-    tips.push({
-      icon:'👨‍👩‍👧', cat:'부양가족', remain:`+${dRemain}점 가능`,
-      title: dep===0 ? '부양가족이 가장 빠른 가점 상승 방법이에요' : `부양가족 1명 추가 시 +5점`,
-      desc: dep===0
-        ? '배우자, 자녀, 직계존속(부모·조부모)이 부양가족으로 인정돼요. 1명당 5점, 최대 35점(6명 이상)까지 올라가요.'
-        : `현재 ${dep}명이에요. 부양가족 1명 추가 시 +5점, ${Math.ceil(dRemain/5)}명 더 늘면 최대점수에 도달해요.`,
-      gain: dRemain
-    });
+    if(!p.elderParent && dep >= 1){
+      // 노부모 특공 가능성 제안
+      tips.push({
+        icon:'👨‍👩‍👧', cat:'부양가족', remain:`+${dRemain}점 가능`,
+        title:'부모님 합가 3년이 지나면 노부모 특공 자격이 생겨요',
+        desc:`노부모부양 특공은 만 65세 이상 직계존속을 3년 이상 같은 등본에 부양하면 신청 가능해요. 경쟁률이 일반공급의 1/10 수준이에요. 부모님 합가를 고려해보세요.`,
+        gain: dRemain
+      });
+    } else {
+      tips.push({
+        icon:'👨‍👩‍👧', cat:'부양가족', remain:`+${dRemain}점 가능`,
+        title: dep===0 ? '부양가족이 가장 빠른 가점 상승 방법이에요' : `부양가족 1명 추가 시 +5점`,
+        desc: dep===0
+          ? '배우자, 자녀, 부모·조부모(3년 이상 동일 등본)가 인정돼요. 1명당 5점, 최대 6명(35점)까지예요.'
+          : `현재 ${dep}명이에요. 부양가족 ${Math.ceil(dRemain/5)}명 더 늘면 최대 35점이에요. 1인당 +5점씩 올라가요.`,
+        gain: dRemain
+      });
+    }
   }
 
-  // 청약통장 팁
-  if(aS<17){
-    const yrsNeeded=15-Math.floor(acc/12);
+  // ── 청약통장 팁 ──
+  if(aS>=17){
+    // 만점 → 예치금으로 전환 가이드
+    const depAmtNeeded = p.region === 'seoul' ? 1500 : p.region === 'gyeonggi' || p.region === 'incheon' ? 1000 : 500;
     tips.push({
-      icon:'🏦', cat:'청약통장 기간', remain:`+${aRemain}점 가능`,
-      title: acc===0 ? '청약통장을 지금 당장 개설하세요' : `${yrsNeeded}년 후 최고점 17점 달성`,
-      desc: acc===0
-        ? '청약통장은 가입 기간이 길수록 유리해요. 지금 바로 개설하면 2년 후 +3점, 15년 이상이면 최고 17점이에요.'
-        : `현재 납입 ${acc}회(약 ${Math.floor(acc/12)}년)예요. 매월 꾸준히 납입하면 15년(180회) 후 최고 17점이에요. 월 2만원 이상 납입을 유지하세요.`,
-      gain: aRemain
+      icon:'🏦', cat:'청약통장', remain:'만점 달성!',
+      title:'통장 가점은 만점이에요! 이제 예치금을 확인하세요',
+      desc:`통장 기간 점수는 더 올릴 수 없어요. 지금은 민영 85㎡ 초과 신청을 위한 지역별 예치금(${depAmtNeeded.toLocaleString()}만원)을 맞추는 데 집중하세요. 현재 납입총액 ${depAmt.toLocaleString()}만원${depAmt < depAmtNeeded ? `으로 ${(depAmtNeeded-depAmt).toLocaleString()}만원 부족해요.` : '으로 기준 충족이에요.'}`,
+      gain:0
     });
+  } else {
+    // 예치금 안내도 함께
+    if(depAmt > 0){
+      const depAmtNeeded85 = p.region === 'seoul' ? 300 : p.region === 'gyeonggi' || p.region === 'incheon' ? 250 : 200;
+      tips.push({
+        icon:'🏦', cat:'청약통장 기간', remain:`+${aRemain}점 가능`,
+        title: acc===0 ? '청약통장을 지금 당장 개설하세요' : `매월 납입으로 꾸준히 점수를 쌓아요`,
+        desc: acc===0
+          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 2만원 이상 납입하세요.'
+          : `현재 ${acc}회(약 ${Math.floor(acc/12)}년) 납입이에요. 15년(180회)까지 ${180-acc}회 남았어요. 납입총액 ${depAmt.toLocaleString()}만원${depAmt >= depAmtNeeded85 ? ' — 85㎡ 이하 예치금 충족이에요.' : `으로 85㎡ 예치금(${depAmtNeeded85}만원)${depAmt < depAmtNeeded85 ? ` 달성까지 ${depAmtNeeded85-depAmt}만원 남았어요.` : '을 충족했어요.'}`}`,
+        gain: aRemain
+      });
+    } else {
+      tips.push({
+        icon:'🏦', cat:'청약통장 기간', remain:`+${aRemain}점 가능`,
+        title: acc===0 ? '청약통장을 지금 당장 개설하세요' : `${15-Math.floor(acc/12)}년 후 최고점 17점 달성`,
+        desc: acc===0
+          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 2만원 이상 납입하세요.'
+          : `현재 납입 ${acc}회(약 ${Math.floor(acc/12)}년)예요. 15년(180회) 후 최고 17점이에요. 공공분양은 납입 횟수와 총액이 중요해요.`,
+        gain: aRemain
+      });
+    }
   }
 
-  // 가장 올리기 쉬운 순으로 정렬
-  tips.sort((a,b)=>b.gain-a.gain);
+  // 긴급 항목 우선, 나머지는 gain 순
+  tips.sort((a,b) => (b.urgent?1:0)-(a.urgent?1:0) || b.gain-a.gain);
 
   document.getElementById('score-tips').innerHTML = tips.length
     ? tips.map(t=>`
-      <div style="padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.05)">
+      <div style="padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.05)${t.urgent?';background:#fff8f0':''}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:18px">${t.icon}</span>
-            <span style="font-size:13px;font-weight:700;color:var(--ink)">${t.title}</span>
+            <span style="font-size:13px;font-weight:700;color:${t.urgent?'var(--red)':'var(--ink)'}">${t.title}</span>
           </div>
-          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:var(--mint);white-space:nowrap">${t.remain}</span>
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:${t.urgent?'rgba(220,38,38,.1)':t.gain===0?'rgba(5,150,105,.1)':'var(--mint-light)'};color:${t.urgent?'var(--red)':t.gain===0?'var(--public)':'var(--mint)'};white-space:nowrap">${t.remain}</span>
         </div>
         <div style="font-size:12px;color:var(--ink-4);line-height:1.65;padding-left:26px">${t.desc}</div>
       </div>`).join('')
@@ -8651,7 +8705,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    if (moreNm) { moreNm.innerHTML = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '13px'; moreNm.style.lineHeight = '1.4'; moreNm.style.whiteSpace = 'nowrap'; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
+    if (moreNm) { moreNm.innerHTML = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '14px'; moreNm.style.lineHeight = '1.4'; moreNm.style.whiteSpace = 'nowrap'; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
