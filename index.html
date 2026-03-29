@@ -171,7 +171,7 @@ input,select{font-family:inherit}
 .cond-item-val.blank{color:var(--ink-5)}
 .hero-cta-btn{display:block;width:100%;margin:8px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
-.hero-login-btn{width:auto;min-width:240px;padding-left:48px;padding-right:48px;padding-top:14px;padding-bottom:14px;margin-left:auto;margin-right:auto;display:block;line-height:1.2}
+.hero-login-btn{width:auto;min-width:240px;padding-left:48px;padding-right:48px;padding-top:14px;padding-bottom:14px;margin-left:auto;margin-right:auto;margin-top:10px;display:block;line-height:1.2}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -1317,8 +1317,8 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <div id="score-tips"></div>
     </div>
     <div style="height:100px"></div>
-    <div style="margin:0 0 16px;padding:12px 16px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11px;color:var(--ink-5);line-height:1.7;text-align:center">
-      청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있으며<br>쉬운청약에서는 이에 책임을 지지 않습니다.
+    <div style="padding:8px 20px 4px;text-align:center;font-size:11px;color:var(--ink-5);line-height:1.7">
+      청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있어요.<br>쉬운청약은 이에 대한 법적 책임을 지지 않습니다.
     </div>
   </div>
 </div>
@@ -1416,7 +1416,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name" id="more-name" style="font-size:15px;letter-spacing:-.3px;line-height:1.4">로그인하고 나만의<br>청약 정보를 확인하세요</div>
+      <div class="my-name" id="more-name" style="font-size:13px;letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
       <div class="my-sub" id="more-sub" style="display:none">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
@@ -1483,6 +1483,9 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <button class="prem-btn" id="prem-start-btn" onclick="openPremReport()">나만의 전략 리포트 받아보기</button>
     </div>
   </div>
+  <div style="padding:8px 20px 4px;text-align:center;font-size:11px;color:var(--ink-5);line-height:1.7">
+    본 서비스는 예상 분석을 제공하며, 착오 신청에 따른 책임은 청약자 본인에게 있어요.<br>쉬운청약은 이에 대한 법적 책임을 지지 않습니다.
+  </div>
 </div>
 
 <!-- ══ 리포트 오버레이 ══ -->
@@ -1524,8 +1527,8 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
     </div>
     <!-- 결과 -->
     <div id="report-content" style="display:none"></div>
-    <div style="margin:16px 20px;padding:12px 16px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11px;color:var(--ink-5);line-height:1.7;text-align:center">
-      청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있으며<br>쉬운청약에서는 이에 책임을 지지 않습니다.
+    <div style="padding:8px 20px 16px;text-align:center;font-size:11px;color:var(--ink-5);line-height:1.7">
+      본 서비스는 예상 분석을 제공하며, 착오 신청에 따른 책임은 청약자 본인에게 있어요.<br>쉬운청약은 이에 대한 법적 책임을 지지 않습니다.
     </div>
   </div>
 </div>
@@ -8648,7 +8651,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    if (moreNm) { moreNm.innerHTML = '로그인하고 나만의<br>청약 정보를 확인하세요'; moreNm.style.fontSize = '15px'; moreNm.style.lineHeight = '1.4'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
+    if (moreNm) { moreNm.innerHTML = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '13px'; moreNm.style.lineHeight = '1.4'; moreNm.style.whiteSpace = 'nowrap'; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
@@ -8700,6 +8703,23 @@ function applyLoginUI() {
 /* ══ 알림센터 ══ */
 const NOTIF_KEY = 'appNotifications';
 const NOTIF_READ_KEY = 'notifLastRead';
+
+// 기존 알림 메시지에서 쌍따옴표 제거 마이그레이션
+(function migrateNotifQuotes(){
+  try {
+    const raw = localStorage.getItem(NOTIF_KEY);
+    if(!raw) return;
+    const notifs = JSON.parse(raw);
+    let changed = false;
+    notifs.forEach(n => {
+      if(n.msg && n.msg.includes('"')){
+        n.msg = n.msg.replace(/"/g, '');
+        changed = true;
+      }
+    });
+    if(changed) localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs));
+  } catch(e) {}
+})();
 
 function getNotifications() {
   try { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]'); } catch(e) { return []; }
