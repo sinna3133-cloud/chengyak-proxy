@@ -171,7 +171,7 @@ input,select{font-family:inherit}
 .cond-item-val.blank{color:var(--ink-5)}
 .hero-cta-btn{display:block;width:100%;margin:8px 0 0;padding:12px 16px;background:var(--accent);border:none;border-radius:12px;color:white;font-size:var(--t-base);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;position:relative;z-index:1;letter-spacing:-.1px;box-shadow:0 4px 14px rgba(0,102,255,.25)}
 .hero-cta-btn:active{opacity:.9;transform:scale(.98)}
-.hero-login-btn{width:auto;min-width:240px;padding-left:48px;padding-right:48px;margin-left:auto;margin-right:auto;display:block}
+.hero-login-btn{width:auto;min-width:240px;padding-left:48px;padding-right:48px;padding-top:14px;padding-bottom:14px;margin-left:auto;margin-right:auto;display:block;line-height:1.2}
 /* 리포트 인터뷰 대화체 스타일 */
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -454,7 +454,9 @@ to{transform:translateY(0)}}
 .cal-dot.ac{background:var(--accent)}
 .cal-dot.an{background:var(--public)}
 .cal-dot.ug{background:var(--red)}
-.cal-evs{padding:0 20px;margin-top:8px}
+.cal-evs{padding:0 20px;margin-top:8px;padding-bottom:calc(var(--nav-h) + 80px)}
+.cal-day.selected .cal-dn{background:transparent;border:2px solid var(--accent);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.cal-day.today.selected .cal-dn{background:var(--accent);color:white;border:2px solid var(--accent);width:28px;height:28px}
 .cal-ev{background:var(--bg-card);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid rgba(0,0,0,.06);box-shadow:var(--shadow-xs);cursor:pointer;display:flex;align-items:center;gap:12px}
 .cal-ev:active{background:var(--bg)}
 .cal-ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
@@ -1165,7 +1167,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
   </div>
   <div id="rec-container"><div class="notice" style="cursor:pointer" onclick="openMyCondition()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-.15em;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>조건을 설정하면 맞춤 공고를 추천해드려요</div></div>
 
-  <div class="section-row" style="margin-top:6px">
+  <div class="section-row" style="margin-top:2px;padding-top:10px;padding-bottom:6px">
     <div class="section-title">전체 공고</div>
   </div>
   <div class="search-wrap">
@@ -1287,7 +1289,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-score">
   <div class="score-hero">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;position:relative;z-index:1">
-      <button class="det-back" onclick="showScreen('more')"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
+      <button class="wiz-back" onclick="showScreen('more')" style="background:rgba(255,255,255,0.2);color:white;box-shadow:none"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg></button>
       <div style="font-size:16px;font-weight:700;color:white">청약 가점 계산기</div>
     </div>
     <div class="score-box">
@@ -1315,10 +1317,11 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <div id="score-tips"></div>
     </div>
     <div style="height:100px"></div>
+    <div style="margin:0 0 16px;padding:12px 16px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11px;color:var(--ink-5);line-height:1.7;text-align:center">
+      청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있으며<br>쉬운청약에서는 이에 책임을 지지 않습니다.
+    </div>
   </div>
 </div>
-
-<!-- ══ 캘린더 ══ -->
 <div class="screen" id="screen-calendar">
   <div class="page-header">
     <div style="display:flex;align-items:center;gap:10px">
@@ -1391,7 +1394,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
-  <div class="menu-item" onclick="showAlarmList()"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('notif')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
   <div class="menu-section-label">내 리포트 기록</div>
   <div style="padding:0 20px 4px" id="report-history-section">
     <div id="report-history-list">
@@ -1413,7 +1416,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name" id="more-name" style="font-size:18px;letter-spacing:-.3px">로그인하고 나만의 청약 정보를 확인하세요</div>
+      <div class="my-name" id="more-name" style="font-size:15px;letter-spacing:-.3px;line-height:1.4">로그인하고 나만의<br>청약 정보를 확인하세요</div>
       <div class="my-sub" id="more-sub" style="display:none">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
@@ -1432,7 +1435,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
   <div class="menu-item" onclick="showScreen('glossary')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="menu-txt">청약 용어 사전</span><span class="menu-arr">›</span></div>
 
   <div class="menu-section-label">설정</div>
-  <div class="menu-item" onclick="showAlarmList()"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
+  <div class="menu-item" onclick="showScreen('notif')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="menu-txt">알림 설정</span><span class="menu-arr">›</span></div>
 
   <div class="menu-section-label">고객센터</div>
   <div style="padding:16px 20px 8px;display:grid;grid-template-columns:1fr 1fr;column-gap:16px;row-gap:12px">
@@ -1521,10 +1524,11 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
     </div>
     <!-- 결과 -->
     <div id="report-content" style="display:none"></div>
+    <div style="margin:16px 20px;padding:12px 16px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11px;color:var(--ink-5);line-height:1.7;text-align:center">
+      청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있으며<br>쉬운청약에서는 이에 책임을 지지 않습니다.
+    </div>
   </div>
 </div>
-
-<!-- ══ 마이페이지 ══ -->
 
 <!-- ══ 고객센터 공통 ══ -->
 <div class="screen" id="screen-support">
@@ -3302,7 +3306,7 @@ function renderSavingsCutTable(l) {
 function renderReportHistoryScreen() {
   const el = document.getElementById('report-history-list-screen');
   if (!el) return;
-  const history = JSON.parse(localStorage.getItem('report_history') || '[]');
+  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
   if (!history.length) {
     el.innerHTML = `
       <div class="empty-state">
@@ -3784,7 +3788,7 @@ function toggleSave(e,id){
   const isSaved=savedIds.has(String(id));
   if(isSaved){
     savedIds.delete(String(id));
-    showToast('즐겨찾기에서 뺐어요');
+    showToast('즐겨찾기를 취소했어요');
     if(btn){ btn.className='bm-btn unsaved'; btn.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'; }
     // Supabase 북마크 삭제
     if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
@@ -3827,7 +3831,7 @@ function renderMyCondDashboard(){
       <div class="dash-score-row">
         <div class="dash-score-card" onclick="showScreen('score')" style="cursor:pointer"><div class="dash-score-label">청약 가점</div><div class="dash-score-val" id="dash-val-score">${score.total}</div><div class="dash-score-unit">/ 84점</div></div>
         <div class="dash-score-card" onclick="document.getElementById('dash-matched-section')?.scrollIntoView({behavior:'smooth',block:'start'})" style="cursor:pointer"><div class="dash-score-label">매칭 공고</div><div class="dash-score-val" id="dash-val-match">${matched.length}</div><div class="dash-score-unit">건</div></div>
-        <div class="dash-score-card" onclick="showAlarmList()" style="cursor:pointer"><div class="dash-score-label">알림 설정</div><div class="dash-score-val" id="dash-val-alarm">${alarmIds.size}</div><div class="dash-score-unit">건</div></div>
+        <div class="dash-score-card" onclick="showScreen('notif')" style="cursor:pointer"><div class="dash-score-label">알림 설정</div><div class="dash-score-val" id="dash-val-alarm">${alarmIds.size}</div><div class="dash-score-unit">건</div></div>
       </div>
       <button class="dash-edit-btn" onclick="openWizard()" style="display:none"></button>
     </div>
@@ -4461,7 +4465,7 @@ function toggleDetailAlarm(){
     showToast('알림을 해제했어요');
   } else {
     alarmIds.add(String(l.id));
-    addNotification(`🔔 "${cleanName(l.name)}" 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
+    addNotification(`🔔 ${cleanName(l.name)} 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
     btn.classList.add('on');
     showToast('마감 전 알림을 설정했어요 🔔');
   }
@@ -4494,7 +4498,7 @@ function toggleSaveFromDetailIcon(){
   const isSaved = savedIds.has(String(id));
   if(isSaved){
     savedIds.delete(String(id));
-    showToast('즐겨찾기에서 뺐어요');
+    showToast('즐겨찾기를 취소했어요');
     if(kakaoUser?.kakaoId) sbRemoveBookmark(String(kakaoUser.kakaoId), String(id));
   } else {
     savedIds.add(String(id));
@@ -4656,6 +4660,8 @@ document.addEventListener('touchstart', e => {
   _sw.tracking = false;
   _sw.blocked = false;
   _sw.prevEl = null;
+  _sw._t0 = Date.now();
+  _sw._scrollY = window.scrollY; // 스와이프 시작 시 스크롤 위치 저장
 }, {passive: true});
 
 document.addEventListener('touchmove', e => {
@@ -4735,12 +4741,24 @@ document.addEventListener('touchend', e => {
     _sw.prevEl.style.opacity = '1';
 
     setTimeout(() => {
-      // 정리 후 showScreen으로 상태 동기화
       try {
-        if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
-        if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
+        // 현재 화면: active 제거 + 인라인 스타일만 제거 (cssText 전체 초기화 금지)
+        if(cur) {
+          cur.style.transform = '';
+          cur.style.opacity = '';
+          cur.style.transition = '';
+          cur.classList.remove('swipe-dragging');
+          cur.classList.remove('active');
+        }
+        // 이전 화면: 스와이프 관련 스타일만 제거
+        if(_sw.prevEl) {
+          _sw.prevEl.style.transform = '';
+          _sw.prevEl.style.opacity = '';
+          _sw.prevEl.style.transition = '';
+          _sw.prevEl.classList.remove('swipe-prev-peek');
+        }
       } catch(e) {}
-      _sw.animating = false; // 예외 발생 시에도 반드시 플래그 해제
+      _sw.animating = false;
       _sw.tracking = false;
       // showScreen은 DOM 클래스 전환만 (애니메이션은 이미 완료)
       const targetName = prevScreen || 'home';
@@ -4755,9 +4773,12 @@ document.addEventListener('touchend', e => {
       if(targetName==='consult') updateConsult();
       if(targetName==='my') { updateMyCondCard?.(); renderReportHistory?.(); }
       if(targetName==='score') updateScoreScreen();
-      // 스크롤 복원
-      const y = window._prevScrollY;
-      if(y !== undefined) { window._prevScrollY = undefined; window.scrollTo({top:y, behavior:'instant'}); }
+      // 스크롤 복원: _prevScrollY 우선, 없으면 scrollPositions에서 복원
+      const y = window._prevScrollY !== undefined
+        ? window._prevScrollY
+        : (scrollPositions['screen-' + targetName] || 0);
+      window._prevScrollY = undefined;
+      requestAnimationFrame(() => { window.scrollTo({top: y, behavior: 'instant'}); });
       // prevScreen 갱신 — 뒤로간 화면(targetName)에서 다시 뒤로갈 수 있도록
       // 탭바 화면으로 복귀 시 prevScreen 의미 없으므로 'home'
       // 서브화면 복귀 시 'home'으로 초기화 (히스토리 스택 미구현)
@@ -4779,8 +4800,18 @@ document.addEventListener('touchend', e => {
     }
     setTimeout(() => {
       try {
-        if(cur) { cur.style.cssText = ''; cur.classList.remove('swipe-dragging'); }
-        if(_sw.prevEl) { _sw.prevEl.style.cssText = ''; _sw.prevEl.classList.remove('swipe-prev-peek'); }
+        if(cur) {
+          cur.style.transform = '';
+          cur.style.opacity = '';
+          cur.style.transition = '';
+          cur.classList.remove('swipe-dragging');
+        }
+        if(_sw.prevEl) {
+          _sw.prevEl.style.transform = '';
+          _sw.prevEl.style.opacity = '';
+          _sw.prevEl.style.transition = '';
+          _sw.prevEl.classList.remove('swipe-prev-peek');
+        }
       } catch(e) {}
       _sw.animating = false;
       _sw.tracking = false;
@@ -4972,6 +5003,13 @@ function renderCalendar(){
   showCalEvs(today.getDate());
 }
 function showCalEvs(day){
+  // 선택된 날짜 원형 테두리 표시
+  document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+  const allDays = document.querySelectorAll('.cal-day:not(.empty)');
+  allDays.forEach(el => {
+    const dn = el.querySelector('.cal-dn');
+    if(dn && parseInt(dn.textContent) === day) el.classList.add('selected');
+  });
   const evs=[];
   listings.forEach(l=>{[[l.aS,'ac','접수 시작'],[l.aE,'ug','접수 마감'],[l.aD,'an','당첨 발표']].forEach(([ds,type,label])=>{if(!ds)return;const d=new Date(ds);if(d.getFullYear()===calYear&&d.getMonth()===calMonth&&d.getDate()===day)evs.push({type,label,l});});});
   const el=document.getElementById('cal-evs');
@@ -6374,17 +6412,17 @@ function saveReportHistory(html){
     types: calcTypes(P).map(t=>t.l).join('·') || '조건 미입력',
     html: html
   };
-  const history = JSON.parse(localStorage.getItem('report_history') || '[]');
+  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
   history.unshift(item); // 최신이 맨 앞
   if(history.length > 20) history.pop(); // 최대 20개 보관
-  localStorage.setItem('report_history', JSON.stringify(history));
+  localStorage.setItem('report_history_'+(kakaoUser?.kakaoId||'guest'), JSON.stringify(history));
   renderReportHistory();
 }
 
 function renderReportHistory(){
   const el = document.getElementById('report-history-list');
   if(!el) return;
-  const history = JSON.parse(localStorage.getItem('report_history') || '[]');
+  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
   if(!history.length){
     el.innerHTML = '<div class="u-report-empty">아직 받은 리포트가 없어요.</div>';
     return;
@@ -6408,7 +6446,7 @@ function renderReportHistory(){
 }
 
 function openHistoryReport(id){
-  const history = JSON.parse(localStorage.getItem('report_history') || '[]');
+  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
   const item = history.find(h => h.id === id);
   if(!item) return;
   // 리포트 오버레이 열고 내용 표시
@@ -6460,34 +6498,34 @@ const GLOSSARY = [
   {term:'무주택세대구성원',short:'세대원 전원이 주택을 소유하지 않은 상태',full:'세대원 전체(본인·배우자·직계존속·직계비속)가 주택을 소유하지 않아야 해요. 분양권·입주권도 주택으로 봐요. 배우자가 별도 세대를 구성해도 동일하게 적용돼요.',cat:'청약 자격'},
   {term:'1순위 자격',short:'청약 경쟁에서 우선권을 갖는 조건',full:'민간 투기과열: 24개월+예치금+세대주+5년 미당첨. 민간 기타: 12개월+예치금. 공공: 12개월+24회 이상 납입. 지역에 따라 조건이 달라요.',cat:'청약 자격'},
   {term:'특별공급',short:'일반공급 전 특정 자격자에게 우선 분양',full:'신혼부부·생애최초·다자녀·노부모부양·신생아특공 등이 있어요. 전체 물량의 일정 비율이 배정되며, 특공으로 당첨되면 일반공급에 중복 신청할 수 없어요.',cat:'청약 자격'},
-  {term:'생애최초 특별공급',short:'세대원 전원이 생애 처음으로 주택을 구입하는 경우',full:'세대원 전원이 주택을 소유한 적이 없어야 해요. 혼인 여부 무관. 소득 기준: 도시근로자 월평균소득 160% 이하(공공). 민간은 소득 기준 없음.',cat:'청약 자격'},
+  {term:'생애최초 특별공급',short:'세대원 전원이 생애 처음으로 주택을 구입하는 경우',full:'세대원 전원이 주택을 소유한 적이 없어야 해요. 혼인 여부 무관. 소득 기준: 도시근로자 월평균소득 160% 이하(공공). 민간은 소득 기준이 없어요.',cat:'청약 자격'},
   {term:'신혼부부 특별공급',short:'혼인 7년 이내 또는 예비 신혼부부 대상',full:'혼인 신고일부터 7년 이내이거나 6개월 이내 혼인 예정자. 무주택 세대구성원. 소득 기준: 공공 우선 70%(맞벌이 80%), 일반 100%(맞벌이 120%).',cat:'청약 자격'},
   {term:'신생아 특별공급',short:'2년 이내 출산·입양 자녀가 있는 무주택 가구',full:'공공분양: 입주자모집공고일 기준 2세 이하 자녀 보유. 혼인 무관. 소득 140% 이하. 2024년 3월 신설 독립 전형. 민간: 신혼부부·생애최초 특공 내 우선 단계 적용.',cat:'청약 자격'},
   {term:'다자녀 특별공급',short:'미성년 자녀 3명 이상 보유 가구 대상',full:'미성년 자녀(만 19세 미만)가 3명 이상인 무주택 세대구성원. 자녀 수가 많을수록 우선 배점. 태아도 자녀로 인정. 입주자모집공고일 기준.',cat:'청약 자격'},
-  {term:'노부모부양 특별공급',short:'만 65세 이상 직계존속을 3년 이상 부양한 세대주',full:'만 65세 이상 직계존속을 3년 이상 동일 주민등록표에 등재해 부양해야 해요. 피부양 직계존속도 무주택이어야 하며 소득 기준 없음. 가점제 적용.',cat:'청약 자격'},
+  {term:'노부모부양 특별공급',short:'만 65세 이상 직계존속을 3년 이상 부양한 세대주',full:'만 65세 이상 직계존속을 3년 이상 동일 주민등록표에 등재해 부양해야 해요. 피부양 직계존속도 무주택이어야 하며 소득 기준이 없어요. 가점제 적용.',cat:'청약 자격'},
   {term:'청약 가점제',short:'무주택기간·부양가족·통장 기간으로 점수를 매겨 당첨자 선정',full:'84점 만점(무주택기간 32점+부양가족수 35점+청약통장 가입기간 17점). 민간 85㎡ 이하에서 가점제 비율이 높아요. 점수가 높을수록 당첨 확률이 올라가요.',cat:'청약 가점'},
   {term:'무주택기간',short:'세대원 전원이 주택을 소유하지 않은 기간',full:'만 30세 이후(또는 혼인일)부터 계산. 최대 32점(15년 이상). 2년마다 2점 상승. 주택 처분 후 재무주택 상태도 인정돼요.',cat:'청약 가점'},
   {term:'부양가족수',short:'청약 신청자와 같은 주민등록표에 등재된 세대원 수',full:'배우자·직계존속(부모·조부모)·직계비속(자녀)이 해당. 본인 포함 1명부터 시작해 최대 6명(35점). 1명당 5점. 1년 이상 동일 등본에 있어야 인정.',cat:'청약 가점'},
   {term:'청약통장 가입기간',short:'주택청약종합저축 가입 후 경과 기간',full:'6개월 미만 2점부터 최대 15년 이상 17점. 청약저축·청약부금·청약예금 모두 인정. 배우자 통장 기간의 50%(최대 3점)도 합산 가능.',cat:'청약 가점'},
   {term:'커트라인',short:'해당 공고 당첨에 필요한 최저 가점',full:'이전 당첨자 최저 가점. 공고마다 다르고 경쟁률에 따라 달라져요. 수도권 인기 단지는 60점대 이상도 많아요. 청약홈에서 과거 당첨 가점을 확인할 수 있어요.',cat:'청약 가점'},
   {term:'분양가 상한제',short:'분양가를 법정 기준가 이하로 제한하는 제도',full:'투기과열지구 등에서 시행. 분양가=택지비+건축비 이하로 제한. 시세보다 저렴하게 공급되는 대신 전매제한·거주의무 기간이 있어요.',cat:'분양 방식'},
-  {term:'전매제한',short:'분양받은 주택을 일정 기간 다른 사람에게 팔 수 없는 규정',full:'투기과열지구 분양가상한제 최대 10년. 수도권 기타 3년, 지방 1년. 기간 내 매도 시 계약 취소 및 과태료.',cat:'분양 방식'},
-  {term:'재당첨 제한',short:'당첨 후 일정 기간 다른 청약에 당첨될 수 없는 제한',full:'투기과열지구·분양가상한제: 10년. 청약과열지구: 7년. 수도권: 5년. 기타: 1년. 특별공급도 동일 적용.',cat:'분양 방식'},
-  {term:'무순위 청약(줍줍)',short:'정당 청약 후 미계약·미분양 물량을 추첨으로 공급',full:'계약 포기, 부적격 취소 물량을 선착순 또는 추첨으로 공급. 자격 제한이 적고 청약통장 불필요. 청약홈에서 공고되는 날 바로 신청 가능.',cat:'분양 방식'},
-  {term:'공공분양',short:'LH·SH 등 공공기관이 시세보다 저렴하게 공급하는 주택',full:'나눔형(시세 70%, 의무거주 5년 후 환매), 선택형(시세 80%, 분양전환), 일반형(시세 80~90%). 소득·자산 기준 충족 필요.',cat:'분양 방식'},
-  {term:'민간분양',short:'건설사가 자체 공급하는 일반 아파트 분양',full:'민간 건설사 공급. 분양가상한제 미적용 지역은 시세 반영 분양. 특별공급+일반공급 순으로 진행. 가점제·추첨제 혼합 선발.',cat:'분양 방식'},
+  {term:'전매제한',short:'분양받은 주택을 일정 기간 다른 사람에게 팔 수 없는 규정',full:'투기과열지구 분양가상한제 최대 10년. 수도권 기타 3년, 지방 1년. 기간 내 매도 시 계약 취소 및 과태료가 부과돼요.',cat:'분양 방식'},
+  {term:'재당첨 제한',short:'당첨 후 일정 기간 다른 청약에 당첨될 수 없는 제한',full:'투기과열지구·분양가상한제: 10년. 청약과열지구: 7년. 수도권: 5년. 기타: 1년. 특별공급도 동일하게 적용돼요.',cat:'분양 방식'},
+  {term:'무순위 청약(줍줍)',short:'정당 청약 후 미계약·미분양 물량을 추첨으로 공급',full:'계약 포기, 부적격 취소 물량을 선착순 또는 추첨으로 공급. 자격 제한이 적고 청약통장이 필요 없어요. 청약홈에서 공고되는 날 바로 신청할 수 있어요.',cat:'분양 방식'},
+  {term:'공공분양',short:'LH·SH 등 공공기관이 시세보다 저렴하게 공급하는 주택',full:'나눔형(시세 70%, 의무거주 5년 후 환매), 선택형(시세 80%, 분양전환), 일반형(시세 80~90%). 소득·자산 기준을 충족해야 해요.',cat:'분양 방식'},
+  {term:'민간분양',short:'건설사가 자체 공급하는 일반 아파트 분양',full:'민간 건설사 공급. 분양가상한제 미적용 지역은 시세 반영 분양. 특별공급+일반공급 순으로 진행. 가점제·추첨제를 혼합해서 선발해요.',cat:'분양 방식'},
   {term:'입주자모집공고',short:'분양 공고. 이 날짜 기준으로 자격을 판단해요',full:'입주자모집공고일 기준으로 무주택 여부, 나이, 혼인 상태, 소득 등을 판단해요. 청약홈(applyhome.co.kr)에 공고 내용이 게시돼요.',cat:'청약 절차'},
-  {term:'청약 접수',short:'청약홈에서 실제로 신청하는 기간',full:'입주자모집공고 후 1~2주 내 진행. 1순위와 2순위 접수일이 달라요. 하루 1건만 신청 가능.',cat:'청약 절차'},
+  {term:'청약 접수',short:'청약홈에서 실제로 신청하는 기간',full:'입주자모집공고 후 1~2주 내 진행. 1순위와 2순위 접수일이 달라요. 하루 1건만 신청할 수 있어요.',cat:'청약 절차'},
   {term:'당첨자 발표',short:'청약 결과 발표일. 청약홈에서 확인 가능',full:'청약 접수 후 수일~1주 내 발표. 청약홈에서 공고번호 또는 주택명으로 조회. 당첨되면 서류 제출 기간이 짧으니 바로 준비해야 해요.',cat:'청약 절차'},
   {term:'부적격 당첨',short:'당첨 후 자격 검증에서 부적합 판정을 받는 경우',full:'허위 서류 제출, 자격 조건 미충족 시 당첨 취소. 부적격 이력이 생기면 일정 기간 청약이 불리해질 수 있어요.',cat:'청약 절차'},
   {term:'예비입주자',short:'당첨자 포기 시를 대비해 순번대로 선정된 예비 당첨자',full:'당첨자 수의 500%까지 예비입주자를 선정해요. 당첨자 포기·부적격 발생 시 순번대로 입주 기회.',cat:'청약 절차'},
   {term:'디딤돌 대출',short:'무주택 서민을 위한 저금리 주택 구입 자금 대출',full:'연소득 6천만원 이하(부부합산), 주택 가격 5억 이하. 금리 연 2~3%대. LTV 70%, DTI 60% 이내. 생애최초 구입 시 우대 금리 적용.',cat:'대출·자금'},
-  {term:'중도금 대출',short:'계약금 납부 후 입주 전까지의 집단 대출',full:'분양가의 60%가 통상 중도금. 9억 초과 주택은 집단 대출 불가. 이자는 후불제가 많고 입주 시 잔금 대출로 전환.',cat:'대출·자금'},
+  {term:'중도금 대출',short:'계약금 납부 후 입주 전까지의 집단 대출',full:'분양가의 60%가 통상 중도금. 9억 초과 주택은 집단 대출 불가. 이자는 후불제가 많고 입주 시 잔금 대출로 전환돼요.',cat:'대출·자금'},
   {term:'LTV',short:'주택담보대출비율. 집값 대비 최대 대출 한도',full:'Loan To Value. 생애최초 전국 70%. 투기과열지구 일반 40%. 비규제 무주택 70%. 집값의 최대 몇 %까지 빌릴 수 있는지를 나타내요.',cat:'대출·자금'},
   {term:'DTI',short:'총부채상환비율. 연소득 대비 연간 원리금 상환액 비율',full:'Debt To Income. 투기과열지구 40%, 수도권 50%, 기타 60% 이내. 초과 시 대출 한도가 줄어요.',cat:'대출·자금'},
   {term:'투기과열지구',short:'청약·대출 규제가 가장 강한 지역',full:'서울 전 지역, 과천 등. 1순위 조건 강화(세대주·5년 미당첨·24개월), 가점제 비율 확대, LTV 40%, 재당첨 제한 10년 적용.',cat:'지역·규제'},
   {term:'조정대상지역',short:'투기과열지구 다음 단계의 청약 규제 지역',full:'분양권 전매 제한, 1순위 요건 강화, LTV 50% 등 적용. 청약 시 공고문에서 해당 여부를 반드시 확인하세요.',cat:'지역·규제'},
-  {term:'거주의무기간',short:'입주 후 일정 기간 해당 주택에 실제 거주해야 하는 의무',full:'공공분양 나눔형 5년, 분양가상한제 적용 민간 2~3년. 위반 시 과태료 및 주택 처분 명령 대상. 거주 의무 기간 중 임대 불가.',cat:'지역·규제'},
+  {term:'거주의무기간',short:'입주 후 일정 기간 해당 주택에 실제 거주해야 하는 의무',full:'공공분양 나눔형 5년, 분양가상한제 적용 민간 2~3년. 위반 시 과태료 및 주택 처분 명령 대상. 거주 의무 기간 중에는 임대가 불가해요.',cat:'지역·규제'},
 ];
 
 /* ══ 용어사전 ══ */
@@ -7518,7 +7556,11 @@ async function loadLiveData(){
         delete l._maxP; delete l._minPSanitized;
         l.mktP = 0;
         l.noMktP = true;
-        if(l.deadline && !String(l.deadline).startsWith('9999')){
+        // 선착순 공고 방어: sched에 선착순 포함 시 deadline 강제 9999
+        if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
+          l.deadline = '9999-12-31';
+          l.days = null;
+        } else if(l.deadline && !String(l.deadline).startsWith('9999')){
           const _dp2 = String(l.deadline).slice(0,10).split('-');
           const _end2 = new Date(parseInt(_dp2[0]), parseInt(_dp2[1])-1, parseInt(_dp2[2]));
           l.days = Math.ceil((_end2 - _adminToday) / 86400000);
@@ -7537,7 +7579,10 @@ async function loadLiveData(){
     const _kst3 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
     const _liveToday = new Date(_kst3.getFullYear(), _kst3.getMonth(), _kst3.getDate());
     listings.forEach(l => {
-      if(l.deadline && !String(l.deadline).startsWith('9999')){
+      if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
+        l.deadline = '9999-12-31';
+        l.days = null;
+      } else if(l.deadline && !String(l.deadline).startsWith('9999')){
         const _dp3 = String(l.deadline).slice(0,10).split('-');
         const _end3 = new Date(parseInt(_dp3[0]), parseInt(_dp3[1])-1, parseInt(_dp3[2]));
         l.days = Math.ceil((_end3 - _liveToday) / 86400000);
@@ -7783,8 +7828,12 @@ async function onAdminFileSelect(event){
   · 숫자가 100,000 수준(6자리) → 만원 단위 → 그대로 사용
   · 단위가 '천원'으로 명시 → ÷10 하여 만원으로 변환
 - price 필드: 평형(타입)별 최저층~최고층 범위로 표시. 층별로 다르면 해당 타입의 최저~최고
-  예) 44타입: 2층 84252만원 ~ 15층이상 88500만원 → "44㎡ 8억4천~8억8천"
-  예) 59A타입: 2층 122237만원 ~ 15층이상 130039만원 → "59A㎡ 12억2천~13억"
+  ★ 반드시 만원 단위로 변환 후 억+천 형식으로 표기
+  예) 계 485,925,000원 → ÷10000 → 48,592만원 → "4억 8천" (4억8592만원)
+  예) 계 511,500,000원 → ÷10000 → 51,150만원 → "5억 1천" (5억1150만원)
+  예) 59타입 최저 4억8천 ~ 최고 5억1천 → "59㎡ 4억8천~5억1천"
+  예) 84타입 530,800,000원 → 53080만원 → "8억 3천" → "84㎡ 8억3천"
+  ★ 절대 주의: 485,925,000원을 "48억5천"이나 "47억5천"으로 표기하면 안 됨. 반드시 원→만원 변환 후 억 단위 표기
 - price 구분자: 평형별로 | 로 구분
 - minP: 전체 평형 중 계 컬럼 최저값을 반드시 만원 단위 정수로 입력. 절대 0이나 null 금지.
   ★ 주의: 계약금(10~20%), 중도금, 잔금 컬럼 금액이 아닌 반드시 '계(대지비+건축비 합계)' 컬럼만 사용
@@ -7812,10 +7861,10 @@ async function onAdminFileSelect(event){
   "loc": "공급위치 주소. 반드시 공고문의 공급위치 항목에서 정확한 법정동 주소 추출. 절대 임의 추정 금지. 예: 서울특별시 서초구 반포동",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
-  "price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 예: 44㎡ 8억4천~8억8천|59A㎡ 12억2천~13억|84A㎡ 17억~18억",
+  "price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 원단위→만원→억+천 변환 필수. 예: 59㎡ 4억8천~5억1천|84㎡ 8억4천~8억8천",
   "minP": 0,
   "mktP": 0,
-  "deadline": "청약 접수 마감일 YYYY-MM-DD",
+  "deadline": "청약 접수 마감일 YYYY-MM-DD. 선착순 분양/계약 공고이거나 마감일이 명시되지 않은 경우 반드시 '9999-12-31'로 입력",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
   "units": 0,
   "recruitUnits": 0,
@@ -8599,7 +8648,7 @@ function applyLoginUI() {
     updateHero();
   } else {
     if (nm) nm.textContent = '';
-    if (moreNm) { moreNm.textContent = '로그인하고 나만의 청약 정보를 확인하세요'; moreNm.style.fontSize = '18px'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
+    if (moreNm) { moreNm.innerHTML = '로그인하고 나만의<br>청약 정보를 확인하세요'; moreNm.style.fontSize = '15px'; moreNm.style.lineHeight = '1.4'; moreNm.style.whiteSpace = ''; moreNm.style.overflow = ''; moreNm.style.textOverflow = ''; moreNm.style.maxWidth = ''; moreNm.style.letterSpacing = '-.3px'; }
     const moreSub = document.getElementById('more-sub'); if(moreSub) moreSub.style.display = 'none';
 
     if (moreArea) moreArea.innerHTML = `<button class="login-btn" onclick="openLoginModal()">로그인하기</button>`;
