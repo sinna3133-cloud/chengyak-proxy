@@ -4151,6 +4151,7 @@ function renderMyCondDashboard(){
       </div>
       <button class="dash-edit-btn" onclick="openWizard()" style="display:none"></button>
     </div>
+    ${(()=>{ const _t=getGoldenTier(p); return _t ? tierCardHTML(_t) : ''; })()}
     <div class="dash-section">
       <div class="dash-section-title">신청 가능한 전형</div>
       <div class="dash-types">
