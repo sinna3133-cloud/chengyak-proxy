@@ -1388,7 +1388,6 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <button class="login-btn" id="kakao-login-btn" onclick="openLoginModal()">로그인하기</button>
     </div>
   </div>
-  <div id="my-tier-card-area" style="padding:16px 20px 0"></div>
   <div style="padding:20px 20px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;color:var(--ink)">저장된 내 조건</div>
@@ -1399,6 +1398,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <button onclick="openWizard()" style="margin-top:14px;width:100%;padding:11px;background:var(--accent-light);color:var(--accent);border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer">조건 설정하기</button>
     </div>
   </div>
+  <div id="my-tier-card-area" style="padding:4px 20px 0"></div>
   
   <div class="menu-section-label">청약 도구</div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
@@ -3366,7 +3366,9 @@ function isGoldenTicket(p) {
 }
 function getGoldenTier(p) {
   const depAmt = parseInt(p.depAmt || 0);
-  if (!p.depAmt && !depAmt) return null;
+  // depAmt 미입력이어도 조건 설정된 유저면 Lv.1 반환
+  const hasAnyCond = !!(p.byear || p.income || p.noHomeYears || p.accYears || p.depCount);
+  if (!p.depAmt && !depAmt && !hasAnyCond) return null;
   for (const t of TIER_DEFS) { if (depAmt >= t.min) return t; }
   return TIER_DEFS[TIER_DEFS.length - 1];
 }
@@ -3702,9 +3704,8 @@ function updateHero(){
     document.getElementById('my-name').textContent = p.name;
     if(greetEl) greetEl.textContent = `${p.name}님, 안녕하세요`;
     if(cheerEl) {
-      const _gt = getGoldenTier(p);
       cheerEl.textContent = hasConditions
-        ? (_gt && _gt.lv >= 2 ? `${_gt.emoji} ${_gt.label} — ${_gt.desc}` : `${p.name}님의 청약 조건이 적용 중이에요`)
+        ? `${p.name}님의 청약 조건이 적용 중이에요`
         : '';
     }
   } else {
@@ -3781,10 +3782,7 @@ function renderRecommend(){
 
   // 조건 수정 버튼: 조건 있을 때만 표시
   if(row){
-    const _gt2 = getGoldenTier(P);
-    row.innerHTML = (_gt2 && _gt2.lv >= 4)
-      ? `<div class="section-title">${_gt2.emoji} 자산 가치 극대화 추천</div><div style="font-size:11px;color:var(--accent);margin:-8px 20px 8px;font-weight:600">차익이 큰 상급지 우선 · 통장 아까운 단지는 하단 배치</div>`
-      : `<div class="section-title">내게 맞는 공고</div>`;
+    row.innerHTML = `<div class="section-title">내게 맞는 공고</div>`;
   }
 
   if(!hasConditions){
@@ -5995,7 +5993,7 @@ function _showReportResult(html, fromCache){
 
   // 티어 카드 삽입 (리포트 최상단)
   const _rptTier = getGoldenTier(P);
-  const _tierHtml = (_rptTier && _rptTier.lv >= 2) ? tierCardHTML(_rptTier) : '';
+  const _tierHtml = _rptTier ? tierCardHTML(_rptTier) : '';
   document.getElementById('report-content').innerHTML = _tierHtml + bannerHtml + html;
   document.getElementById('report-content').style.display   = 'block';
   const _rb2 = document.getElementById('report-body');
@@ -7032,7 +7030,7 @@ function openHistoryReport(id){
       <div style="font-size:13px;color:var(--ink-4);font-weight:600">${item.date} ${item.time} 리포트</div>
     </div>`;
   const _hRptTier = getGoldenTier(P);
-  const _hTierHtml = (_hRptTier && _hRptTier.lv >= 2) ? tierCardHTML(_hRptTier) : '';
+  const _hTierHtml = _hRptTier ? tierCardHTML(_hRptTier) : '';
   document.getElementById('report-content').innerHTML = _hTierHtml + historyBanner + item.html;
   document.getElementById('report-content').style.display = 'block';
   requestAnimationFrame(() => _animateReport());
