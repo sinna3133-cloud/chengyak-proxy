@@ -7243,6 +7243,36 @@ function _isPremiumBuilder(builder) {
   return tier1.some(b => (builder||'').includes(b));
 }
 
+/* ── 1군 브랜드 아파트명 판별 (실거래 deal.name 기준) ── */
+function _isPremiumAptName(name) {
+  const kw = ['래미안','아크로','자이','더샵','힐스테이트','롯데캐슬','푸르지오','디에이치',
+    'DH','아이파크','e편한세상','SK뷰','호반써밋','프레스티지','르엘','오르에',
+    '센트럴파크','더펜트하우스','헤리티지','포레나','써밋','에피트','클래시안',
+    '라클라쎄','위브'];
+  return kw.some(k => (name||'').includes(k));
+}
+
+/* ── 시세 재계산: 비슷한 급(1군 브랜드) 단지만 필터링 ──
+   - listing이 1군 브랜드이면 → recentDeals 중 1군 거래만 골라 평균
+   - 1군 거래 없으면 → 전체 거래 중 최고가 사용 (보수적 추정)
+   - 비1군 listing이면 → null 반환 (API 시세 그대로 사용)             */
+function _recalcMktPByTier(listing, allDeals) {
+  if (!allDeals || !allDeals.length) return null;
+  const isPremium = _isPremiumBuilder(listing.builder) || _isPremiumAptName(listing.name);
+  if (!isPremium) return null;
+
+  // 1군 브랜드 거래 필터
+  const premDeals = allDeals.filter(d => _isPremiumAptName(d.name));
+  if (premDeals.length > 0) {
+    const avg = Math.round(premDeals.reduce((s, d) => s + (d.price||0), 0) / premDeals.length);
+    return { mktP: avg, deals: premDeals, method: 'premium_avg' };
+  }
+
+  // 1군 거래 없음 → 최고가 거래를 비교 기준으로 (보수적)
+  const maxDeal = allDeals.reduce((mx, d) => (d.price||0) > (mx.price||0) ? d : mx, allDeals[0]);
+  return { mktP: maxDeal.price, deals: [maxDeal], method: 'max_fallback' };
+}
+
 async function _fetchSimilarCompCore(listing) {
   try {
     // 1. 청약홈에서 최근 100건 APT 공고 조회
@@ -7426,22 +7456,46 @@ function saveMktPCache(cache) {
 }
 
 // 캐시에서 시세 즉시 적용 (앱 로드 시 호출) — TTL 없음, 영구 적용
+// ※ 기존 캐시(mktPMethod 없음)는 recentDeals로 재계산 시도
 function applyMktPCache() {
   const cache = loadMktPCache();
   let applied = 0;
+  let recalced = 0;
   listings.forEach(l => {
     const entry = cache[String(l.id)];
     if(entry && entry.mktP > 0) {
-      l.mktP = entry.mktP;
+      // 기존 캐시에 mktPMethod가 없으면 → 보정 전 데이터일 수 있으므로 재계산 시도
+      if (!entry.mktPMethod && entry.recentDeals && entry.recentDeals.length) {
+        const tierResult = _recalcMktPByTier(l, entry.recentDeals);
+        if (tierResult && tierResult.mktP > 0) {
+          l.mktP = tierResult.mktP;
+          l._recentDeals = tierResult.deals.slice(0, 3);
+          l._mktPMethod = tierResult.method;
+          // 캐시도 보정값으로 업데이트
+          entry.mktPRaw = entry.mktP;
+          entry.mktP = tierResult.mktP;
+          entry.mktPMethod = tierResult.method;
+          entry.recentDeals = tierResult.deals.slice(0, 3);
+          recalced++;
+        } else {
+          l.mktP = entry.mktP;
+          l._recentDeals = entry.recentDeals || [];
+          l._mktPMethod = 'api_raw';
+        }
+      } else {
+        l.mktP = entry.mktP;
+        l._recentDeals = entry.recentDeals || [];
+        l._mktPMethod = entry.mktPMethod || 'api_raw';
+      }
       l.noMktP = false;
-          gap._cache = null;
+      gap._cache = null;
       l._mktPAuto = true;
-      l._recentDeals = entry.recentDeals || [];
       l._radiusUsed = entry.radiusUsed || '';
       l._sampleCount = entry.sampleCount || 0;
       applied++;
     }
   });
+  if (recalced > 0) saveMktPCache(cache); // 보정된 캐시 저장
   if(applied > 0) {
     renderListings();
     renderRecommend();
@@ -7481,18 +7535,31 @@ async function autoFetchMarketPrices(){
         const res = await fetch(url);
         const data = await res.json();
         if(data.mktP && data.mktP > 0){
-          l.mktP = data.mktP;
+          // ── 1군 브랜드 필터링: 비슷한 급 단지만으로 시세 재계산 ──
+          const allDeals = data.recentDeals || [];
+          const tierResult = _recalcMktPByTier(l, allDeals);
+          if (tierResult && tierResult.mktP > 0) {
+            l.mktP = tierResult.mktP;
+            l._recentDeals = tierResult.deals.slice(0, 3);
+            l._mktPMethod = tierResult.method; // 'premium_avg' | 'max_fallback'
+            console.log(`[시세 보정] ${cleanName(l.name)}: API ${data.mktP}→${tierResult.mktP} (${tierResult.method}, ${tierResult.deals.length}건)`);
+          } else {
+            l.mktP = data.mktP;
+            l._recentDeals = allDeals.slice(0, 3);
+            l._mktPMethod = 'api_raw';
+          }
           l.noMktP = false;
           gap._cache = null;
           l._mktPAuto = true;
-          l._recentDeals = (data.recentDeals||[]).slice(0, 3);
           l._radiusUsed = data.radiusUsed || '';
           l._sampleCount = data.sampleCount || 0;
-          // 캐시 저장
+          // 캐시 저장 (보정된 시세 저장)
           const updatedCache = loadMktPCache();
           updatedCache[String(l.id)] = {
-            mktP: data.mktP,
-            recentDeals: (data.recentDeals||[]).slice(0,3),
+            mktP: l.mktP,
+            mktPRaw: data.mktP,
+            mktPMethod: l._mktPMethod,
+            recentDeals: l._recentDeals,
             radiusUsed: data.radiusUsed||'',
             sampleCount: data.sampleCount||0,
           };
