@@ -1139,6 +1139,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
     <div class="wiz-done-title">조건 설정 완료!</div>
     <div class="wiz-done-sub" id="wiz-done-sub"></div>
     <div class="wiz-done-types" id="wiz-done-types"></div>
+    <div id="wiz-done-tier" style="width:100%"></div>
     <button class="wiz-done-btn" id="wiz-done-btn" onclick="finishWizard()">공고 보러 가기</button>
   </div>
 </div>
@@ -2067,6 +2068,10 @@ function saveWizard(){
   document.getElementById('wiz-done-types').innerHTML = types.length
     ? types.map(t=>`<div class="wiz-done-type ${etypeClass(t.c)}">${t.l}${t.sub?` <span style="font-size:11px;font-weight:400;opacity:.7">(${t.sub})</span>`:''}</div>`).join('')
     : '<div class="wiz-done-type" style="background:var(--bg-2);color:var(--ink-4);border-color:var(--bg-2)">조건 추가 입력 시 전형 확인 가능</div>';
+
+  // 티어 카드
+  const _wizTierEl = document.getElementById('wiz-done-tier');
+  if(_wizTierEl){ const _wt=getGoldenTier(P); _wizTierEl.innerHTML=_wt?tierCardHTML(_wt):''; }
 
   // 스텝 영역 숨기고 완료 화면 표시
   for(let i=1;i<=4;i++) document.getElementById('ws'+i).style.display='none';
@@ -4151,7 +4156,7 @@ function renderMyCondDashboard(){
       </div>
       <button class="dash-edit-btn" onclick="openWizard()" style="display:none"></button>
     </div>
-    ${(()=>{ const _t=getGoldenTier(p); return _t ? tierCardHTML(_t) : ''; })()}
+    ${(()=>{ const _t=getGoldenTier(p); return _t ? `<div style="margin-bottom:-4px">${tierCardHTML(_t)}</div>` : ''; })()}
     <div class="dash-section">
       <div class="dash-section-title">신청 가능한 전형</div>
       <div class="dash-types">
