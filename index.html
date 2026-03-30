@@ -1057,6 +1057,14 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <label class="wiz-label">납입 총액</label>
       <div class="wiz-inp-unit"><input type="number" class="wiz-inp" id="w-da" placeholder="예: 1500"/><span class="unit">만원</span></div>
     </div>
+    <div class="wiz-field" id="w-spouse-acc-field" style="display:none">
+      <label class="wiz-label">배우자 청약통장 보유</label>
+      <div style="display:flex;gap:8px">
+        <div class="wiz-chip" onclick="wRadio(this,'spouseAcc')">있음</div>
+        <div class="wiz-chip" onclick="wRadio(this,'spouseAcc')">없음</div>
+      </div>
+      <div class="wiz-accuracy-hint"><span>📊 부부 동시 청약 시 당첨 확률이 대폭 올라요 (부부 중복 청약 허용)</span></div>
+    </div>
     <div class="wiz-field">
       <label class="wiz-label">관심 평형</label>
       <div class="region-chips" id="wiz-size-chips" style="padding:0">
@@ -1316,10 +1324,10 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       <div class="info-card-title">💡 내 가점 올리는 방법</div>
       <div id="score-tips"></div>
     </div>
-    <div style="height:100px"></div>
-    <div style="padding:8px 20px 4px;text-align:center;font-size:11px;color:var(--ink-5);line-height:1.7">
+    <div style="padding:12px 20px 8px;margin-top:14px;text-align:center;font-size:11px;color:var(--ink-5);line-height:1.7;background:var(--bg-2);border-radius:12px;margin-left:16px;margin-right:16px">
       청약가점계산기는 예상으로 점수를 확인하는 서비스이며,<br>착오 신청에 따른 책임은 청약자 본인에게 있어요.<br>쉬운청약은 이에 대한 법적 책임을 지지 않습니다.
     </div>
+    <div style="height:100px"></div>
   </div>
 </div>
 <div class="screen" id="screen-calendar">
@@ -1744,6 +1752,13 @@ function openWizard(){
   onBirthChange();
   setTimeout(_updateWizRegionUI, 50);
   // 거주 조건 복원
+  // 배우자 청약통장 복원
+  const spAccField2=document.getElementById('w-spouse-acc-field');
+  if(spAccField2) spAccField2.style.display=isMarried?'block':'none';
+  if(isMarried && P.spouseAcc !== undefined){
+    const spChips=spAccField2?.querySelectorAll('.wiz-chip');
+    if(spChips) spChips.forEach(c=>c.classList.toggle('on', P.spouseAcc ? c.textContent==='있음' : c.textContent==='없음'));
+  }
   if(P.resideYears) { const el = document.getElementById('w-resideYears'); if(el) el.value = P.resideYears; }
   if(P.resideRegion){
     const grp = document.getElementById('wiz-reside-grp');
@@ -1797,7 +1812,13 @@ function wRadio(el,group){
     const childField=document.getElementById('children-field');
     if(childField) childField.style.display=hasChildren?'block':'none';
     if(!hasChildren){ P.children=0; P.childDates=[]; renderChildDates(); }
-    if(!isMarried){ P.isDual=false; P.marriageYear=''; onIncomeChange(); }
+    if(!isMarried){ P.isDual=false; P.marriageYear=''; P.spouseAcc=false; onIncomeChange(); }
+    // 배우자 통장 필드: 기혼일 때만 표시
+    const spAccField=document.getElementById('w-spouse-acc-field');
+    if(spAccField) spAccField.style.display=isMarried?'block':'none';
+  } else if(group==='spouseAcc'){
+    P.spouseAcc = el.textContent==='있음';
+    invalidateCalcCache();
   } else if(group==='reside'){
     P.resideRegion = el.textContent;
   }
@@ -2030,6 +2051,9 @@ function saveWizard(){
   // 과거 주택 소유 이력 (wiz step2)
   const _neverOwnedEl = document.querySelector('[onclick*="neverOwned"].wiz-radio.on');
   if(_neverOwnedEl) P.neverOwned = _neverOwnedEl.textContent.includes('없음');
+  // 배우자 통장 보유 여부
+  const _spAccEl = document.querySelector('[onclick*="spouseAcc"].wiz-chip.on');
+  if(_spAccEl) P.spouseAcc = _spAccEl.textContent === '있음';
   if(!P.name) P.name=RETRO[Math.floor(Math.random()*RETRO.length)];
   sbSaveCondition();
 
@@ -2126,11 +2150,50 @@ function getMaxP(l){
   l._maxP = maxVal;
   return maxVal;
 }
+/* ── gap() + 신축 프리미엄 보정 (v2) ──
+   _recalcMktPByTier로 보정된 mktP → 이미 연식+면적+브랜드 반영됨
+   API 원시세(api_raw) 사용 시에만 fallback 연식 보정 적용 (2%/년) */
 function gap(l){
-  const _k = String(l.id||l.name)+'|'+(l.mktP||0);
+  const _k = String(l.id||l.name)+'|'+(l.mktP||0)+'|'+(l._mktPMethod||'')+'|'+(l.minP||0);
   if(gap._cache && gap._cache.k === _k) return gap._cache.v;
   const saleP=getMaxP(l); const g=l.mktP-saleP;
-  const v={g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP};
+
+  // ── 실질 취득가 계산 (발코니 확장비 + 취득세) ──
+  // 발코니 확장비: 84㎡ 기준 평균 2,500만원, 면적 비례
+  const _sqm = (()=>{ const s = String(l.size||'84'); const m = s.match(/(\d+)/); return m ? parseInt(m[1]) : 84; })();
+  const balconyExt = Math.round(2500 * _sqm / 84); // 만원
+  // 취득세: 6억이하 1.1%, 6~9억 구간세율(~2%), 9억초과 3.3%, 조정대상지역 +1%
+  const _isHotForTax = ['서울','과천','성남','하남','광명'].some(z=>(l.loc||'').includes(z));
+  const _acqTaxRate = saleP <= 60000 ? 0.011 : saleP <= 90000 ? 0.02 : 0.033;
+  const _acqTaxAdj = _isHotForTax && saleP > 60000 ? 0.01 : 0;
+  const acqTax = Math.round(saleP * (_acqTaxRate + _acqTaxAdj)); // 만원
+  const realCost = saleP + balconyExt + acqTax; // 실질 취득가
+  const realGap = l.mktP - realCost; // 진짜 차익
+
+  // 보정 시세 계산
+  let adjMktP = l.mktP, avgAge = 0, agePremium = 0;
+  if (l._mktPMethod && l._mktPMethod !== 'api_raw') {
+    const deals = l._recentDeals || [];
+    avgAge = deals.length && deals[0]._age ? Math.round(deals.reduce((s,d) => s + (d._age||15), 0) / deals.length) : 0;
+    adjMktP = l.mktP;
+    agePremium = avgAge > 0 ? avgAge * 2 : 0;
+  } else if (l.mktP > 0 && l._recentDeals && l._recentDeals.length) {
+    const ages = l._recentDeals.map(d => _estimateDealAge(d.name));
+    avgAge = Math.round(ages.reduce((s,a) => s+a, 0) / ages.length);
+    const factor = 1 + (avgAge * 0.02);
+    adjMktP = Math.round(l.mktP * factor);
+    agePremium = Math.round((factor - 1) * 100);
+  }
+
+  const adjG = adjMktP - saleP;
+  const adjRealGap = adjMktP - realCost; // 보정시세 기준 진짜 차익
+  const v={g,pct:l.mktP?Math.round(g/l.mktP*100):0,saleP,
+    adjMktP, adjG, adjPct:adjMktP?Math.round(adjG/adjMktP*100):0,
+    avgAge, agePremium,
+    // 실질 취득가 관련
+    balconyExt, acqTax, realCost, realGap,
+    realPct:l.mktP?Math.round(realGap/l.mktP*100):0,
+    adjRealGap, adjRealPct:adjMktP?Math.round(adjRealGap/adjMktP*100):0};
   gap._cache={k:_k,v};
   return v;
 }
@@ -2181,7 +2244,7 @@ function getDownPct(l) {
 
 // 계약금 금액 계산 (만원)
 
-function isLottoListing(l){ if(!l.minP || l.minP <= 0 || l.price === '공고 확인 필요') return false; return l.lotto || (l.mktP > 0 && !l.noMktP && getMaxP(l) > 0 && gap(l).g >= 20000); } // 로또청약 기준: 분양가 없으면 무조건 제외
+function isLottoListing(l){ if(!l.minP || l.minP <= 0 || l.price === '공고 확인 필요') return false; const _g = gap(l); return l.lotto || (l.mktP > 0 && !l.noMktP && getMaxP(l) > 0 && (_g.g >= 20000 || _g.adjG >= 20000)); } // 로또청약 기준: 원시세 or 보정시세 2억↑
 /* ★★★ [하드코딩 끝] ★★★ */
 function calcTypes(p, listingCtx){
   if(!p.name&&!p.byear)return[];
@@ -2744,7 +2807,7 @@ function calcProb(l, p, selectedType){
   const comp = parseFloat(l._selectedComp) || (_prevCompNum > 0 ? _prevCompNum : null) || parseFloat(l.comp) || 10;
   const cut = parseInt(l._selectedCut || l.cut) || 0;
   const nh = parseInt(p.noHomeYears||0);
-  const inc = parseInt(p.income||0);
+  const inc = parseInt(p.isDual ? (p.totalIncome||p.income||0) : (p.income||0)); // 맞벌이면 합산소득
   const accYr = parseInt(p.accYears||0);
   const depCnt = parseInt(p.depCount||0);
   const units = parseInt(l.units)||0;
@@ -2798,27 +2861,135 @@ function calcProb(l, p, selectedType){
     reasons.push(`무순위 추첨 경쟁률 ${comp}:1`);
 
   } else if(selectedType && ['신혼부부특공','생애최초','신생아특공','다자녀특공','청년특공'].includes(selectedType)){
-    // ── 특별공급: 소득+자산 기준 (가점제 아님) ──
-    let specProb = 50;
-    // 소득 기준 충족도
-    if(inc > 0){
-      if(selectedType==='생애최초' && inc <= 13000) specProb += 15;
-      else if(selectedType==='신혼부부특공' && inc <= 14000) specProb += 15;
-      else if(selectedType==='신생아특공' && inc <= 14000) specProb += 15;
-      else if(inc <= 10000) specProb += 10;
+    // ── 생애최초 1인 가구 60㎡ 제한 체크 ──
+    if(selectedType === '생애최초'){
+      const _hh = parseInt(p.household||3);
+      const _sqmForFp = (()=>{ const s=String(l.size||'84'); const m=s.match(/(\d+)/); return m?parseInt(m[1]):84; })();
+      if(_hh === 1 && _sqmForFp > 60){
+        prob = 0;
+        reasons.push('1인 가구는 생애최초 60㎡ 이하만 가능');
+        l._probReason = reasons.join(' · ');
+        l._probFactors = { rankPenalty, rgnFactor: 1, units, accYr, selectedType };
+        calcProb._ck = _ck; calcProb._cv = prob;
+        return prob;
+      }
+      // 자산 기준 추첨제: 소득 초과해도 자산 3.31억 이하면 추첨 가능
+      if(inc > 0 && inc > 14000 && l.type !== 'public'){
+        const myCash = parseInt(p.cash||0);
+        if(myCash <= 33100){ // 부동산 자산 3.31억 이하
+          prob = Math.min(30, Math.round(100 / Math.max(1, comp * 3))); // 추첨 30% 물량
+          prob = Math.max(0.5, prob);
+          reasons.push(`생애최초 자산기준 추첨제(3.31억↓) 진입`);
+          // 나머지 보정 건너뛰기
+          l._probReason = reasons.join(' · ');
+          l._probFactors = { rankPenalty, rgnFactor: 1, units, accYr, selectedType };
+          calcProb._ck = _ck; calcProb._cv = prob;
+          return prob;
+        }
+      }
     }
+
+    // ── 특별공급: Waterfall 다단계 당첨 확률 ──
+    // 단계별: 우선공급 → 일반공급 → 잔여(추첨) 순으로 낙수
+    // 당해거주자 comp×0.5, 기타지역 comp×2.2
+
+    // 거주지 판단
+    const isLocal = (p.resideRegion||'').includes(
+      (l.loc||'').match(/(\S+(시|군|구))/)?.[1] || '____'
+    ) || (l.region === 'gyeonggi' && (p.resideRegion||'').includes('경기'))
+      || (l.region === 'seoul' && (p.resideRegion||'').includes('서울'));
+    const compLocal = isLocal ? comp * 0.5 : comp * 2.2;
+
+    // 단계별 물량 비율 설정 (특공별 우선/일반/추첨)
+    const stageRatios = {
+      '신혼부부특공': [0.50, 0.30, 0.20], // 우선50%→일반30%→추첨20%
+      '생애최초':     [0.40, 0.40, 0.20],
+      '신생아특공':   [0.50, 0.30, 0.20],
+      '다자녀특공':   [0.60, 0.30, 0.10],
+      '청년특공':     [0.30, 0.50, 0.20],
+    };
+    const stages = stageRatios[selectedType] || [0.40, 0.40, 0.20];
+
+    // 각 단계 통과 확률 계산
+    let stageProbs = [];
+    // 1단계: 우선공급 (소득 100% 이하)
+    const isIncomeOk100 = inc > 0 && inc <= 10000;
+    const isIncomeOk140 = inc > 0 && inc <= 14000;
+    if(isIncomeOk100){
+      const p1Comp = compLocal * (1 / stages[0]); // 단계 물량 대비 경쟁률
+      stageProbs.push(Math.min(0.9, 1 / Math.max(1, p1Comp)));
+    } else {
+      stageProbs.push(0); // 소득 초과 → 1단계 불가
+    }
+    // 2단계: 일반공급 (소득 140% 이하)
+    if(isIncomeOk140){
+      const p2Comp = compLocal * (1 / stages[1]);
+      stageProbs.push(Math.min(0.85, 1 / Math.max(1, p2Comp)));
+    } else {
+      stageProbs.push(0);
+    }
+    // 3단계: 추첨 (소득 무관)
+    const p3Comp = comp * (1 / stages[2]);
+    stageProbs.push(Math.min(0.7, 1 / Math.max(1, p3Comp)));
+
+    // Waterfall: 1 - (P1_fail × P2_fail × P3_fail)
+    const failAll = stageProbs.reduce((acc, sp) => acc * (1 - sp), 1);
+    let waterfallProb = (1 - failAll) * 100;
+
     // 무주택 보너스
-    if(nh >= 5) specProb += 10;
-    else if(nh >= 3) specProb += 5;
-    // 경쟁률 반영
-    specProb = specProb * Math.min(1, 8 / comp);
-    prob = Math.max(0.5, Math.min(90, specProb));
-    reasons.push(`${selectedType} 소득·자산 기준`);
+    if(nh >= 5) waterfallProb *= 1.12;
+    else if(nh >= 3) waterfallProb *= 1.06;
+
+    // 비선호 타입 보너스
+    if(selectedType && l.typeUnits){
+      const segs = l.typeUnits.split('|');
+      const sqmStr = String(selectedType).replace(/[^0-9]/g,'');
+      const matchSeg = segs.find(s => sqmStr && s.includes(sqmStr));
+      if(matchSeg){
+        const typeCount = parseInt((matchSeg.match(/(\d+)세대/)||[])[1])||0;
+        const totalForType = parseInt(l.units)||300;
+        if(typeCount > 0 && typeCount < totalForType * 0.1){
+          waterfallProb *= 1.15; // 비선호타입 +15%
+          reasons.push('비선호 타입 +15%');
+        }
+      }
+    }
+
+    prob = Math.max(0.5, Math.min(92, Math.round(waterfallProb * 10) / 10));
+    const stageLabels = stageProbs.map((p,i) => `${i+1}단계${Math.round(p*100)}%`).filter((_,i) => stageProbs[i]>0).join('→');
+    reasons.push(`${selectedType} Waterfall(${stageLabels})`);
+    if(isLocal) reasons.push('당해거주 경쟁률×0.5');
+    else reasons.push('기타지역 경쟁률×2.2');
 
   } else if(l.type === 'public'){
+    // ── 공공분양 일반공급 내 신생아 우선배정(50%) 판별 ──
+    const _nbCutoff2 = new Date(); _nbCutoff2.setFullYear(_nbCutoff2.getFullYear()-2);
+    const _hasNewbornForGeneral = (p.childDates||[]).some(c => {
+      if(!c.year||!c.month) return false;
+      return new Date(parseInt(c.year), parseInt(c.month)-1, 1) >= _nbCutoff2;
+    });
+    const _isDualForNb = !!p.isDual;
+    const _nbIncOk = _isDualForNb ? (inc <= 14000) : (inc <= 9800); // 맞벌이 200%(~1.4억), 외벌이 140%(~9,800만원) 도시근로자 가구소득 기준
+
     if(!eligMatch){
       prob = 0.5;
       reasons.push('신청 가능한 전형 없음');
+    } else if(_hasNewbornForGeneral && _nbIncOk && (!selectedType || selectedType === '일반공급')){
+      // 공공 일반공급 신생아 우선배정: 50% 물량 우선 배정
+      // 경쟁률이 일반의 절반 수준
+      const nbComp = Math.max(1, comp * 0.5); // 50% 물량에 신생아 가구만 경쟁
+      const nbBase = Math.min(90, Math.round(100 / nbComp));
+      prob = Math.max(5, nbBase);
+      // 실패 시 나머지 50% 일반공급으로 낙수
+      const generalComp = Math.max(1, comp * 2); // 나머지 50%에 전체 경쟁
+      const generalBase = Math.min(70, Math.round(100 / generalComp));
+      // Waterfall: 1 - (신생아우선 실패 × 일반 실패)
+      const nbFail = 1 - (prob / 100);
+      const gnFail = 1 - (generalBase / 100);
+      prob = Math.round((1 - nbFail * gnFail) * 100 * 10) / 10;
+      prob = Math.max(1, Math.min(92, prob));
+      reasons.push(`일반공급 신생아 우선배정(50%) → 경쟁률 ${nbComp.toFixed(1)}:1`);
+      reasons.push(`낙수 일반공급(50%) 합산 Waterfall`);
     } else if(l.savingsCut && l.savingsCut.length > 0 && parseInt(p.depAmt||0) > 0) {
       // 저축총액 기반 당첨선 계산
       const myAmt = parseInt(p.depAmt||0);
@@ -3096,6 +3267,22 @@ function calcProb(l, p, selectedType){
   else if(nh >= 5) prob = Math.min(95, prob * 1.04);
 
   prob = Math.max(0.5, Math.min(95, Math.round(prob * 10) / 10));
+
+  // ── H. 부부 중복 청약 확률 보정 ──
+  // 신혼부부특공: 부부가 같은 단지에 동시 청약 가능 (2024~ 정책)
+  // P_final = 1 - (P_fail_본인 × P_fail_배우자)
+  if(p.spouseAcc && p.marriage === '기혼' && !isLotto){
+    const myFail = 1 - (prob / 100);
+    // 배우자 확률: 본인 확률의 80~100% 수준으로 추정 (통장 조건 다를 수 있음)
+    const spouseProb = prob * 0.85; // 보수적 추정
+    const spouseFail = 1 - (spouseProb / 100);
+    const combinedProb = (1 - myFail * spouseFail) * 100;
+    const boost = Math.round((combinedProb - prob) * 10) / 10;
+    if(boost > 0.5){
+      prob = Math.min(95, Math.round(combinedProb * 10) / 10);
+      reasons.push(`부부 동시 청약 +${boost}%p`);
+    }
+  }
 
   // prevComp 사용 시 표시
   if(l._usedPrevComp && _prevCompNum > 0){
@@ -4054,7 +4241,7 @@ async function showDetail(id, fromSwipe=false){
     }
   }
   const prob=calcProb(l,P);
-  const{g,pct,saleP}=gap(l);
+  const{g,pct,saleP,adjMktP,adjG,adjPct,avgAge,agePremium,balconyExt,acqTax,realCost,realGap,realPct,adjRealGap,adjRealPct}=gap(l);
   const price=l.minP,dep=Math.round(price*.1),mid=Math.round(price*.6),rem=price-dep-mid;
   const cash=parseInt(P.cash||0);
   // ── 정책 LTV 적용 (2025.10.15 + 6.28 기준) ──
@@ -4077,8 +4264,22 @@ async function showDetail(id, fromSwipe=false){
   const selfFund = dep + Math.max(0, balance - loan);
   const canAfford = cash >= dep;
   const lr = price > 0 ? Math.round(loan / price * 100) : 0;
-  const monthly = Math.round(loan * 0.04 / 12);
+  const _detBaseRate = 0.04;
+  const _detStressRate = _isHotZone ? 0.03 : 0.015;
+  const _detFullRate = _detBaseRate + _detStressRate;
+  const _detMonthlyRate = _detBaseRate / 12;
+  const _detMonthlyRateStress = _detFullRate / 12;
+  const _detMonths = 360;
+  const monthly = loan > 0 ? Math.round(loan * _detMonthlyRate * Math.pow(1+_detMonthlyRate, _detMonths) / (Math.pow(1+_detMonthlyRate, _detMonths)-1)) : 0;
+  const _detMonthlyStress = loan > 0 ? Math.round(loan * _detMonthlyRateStress * Math.pow(1+_detMonthlyRateStress, _detMonths) / (Math.pow(1+_detMonthlyRateStress, _detMonths)-1)) : 0;
+  const _detIncome = parseInt(P.isDual ? (P.totalIncome || P.income || 0) : (P.income || 0));
+  const _detMonthlyIncome = Math.round(_detIncome / 12);
+  const _detDsrPct = _detMonthlyIncome > 0 ? Math.round(_detMonthlyStress / _detMonthlyIncome * 100) : 0;
+  const _detDsrOk = _detDsrPct <= 40;
+  const _detDsrMaxMonthly = Math.round(_detMonthlyIncome * 0.4);
   const cashShortage = Math.max(0, selfFund - cash);
+  // 전세가 방어선 (시세의 60~70%)
+  const _jeonseDefense = l.mktP > 0 ? Math.round(l.mktP * 0.65) : 0;
 
   // ★★★ [하드코딩 — 수정 금지] 상세 헤더 뱃지: 어두운 배경에서 보이게 흰색 글씨 ★★★
   const detBadgeStyle = 'display:inline-block;margin-bottom:10px';
@@ -4290,17 +4491,32 @@ async function showDetail(id, fromSwipe=false){
           <div class="gap-bar-val">${(l.mktP/10000).toFixed(1)}억</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 12px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px 6px;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:4px">
         <span style="font-size:13px;color:var(--ink-4)">시세 대비 차익</span>
         <span style="font-size:15px;font-weight:800;color:${g>0?'var(--public)':'var(--red)'}">${g>0?`약 ${fmtManwon(Math.abs(g))} 저렴해요 🎉`:`약 ${fmtManwon(Math.abs(g))} 비싸요`}</span>
       </div>
+      ${(adjMktP > 0 && avgAge > 0)?`<div style="padding:0 18px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+          <span style="font-size:11px;color:var(--ink-5)">신축 보정 시세</span>
+          <span style="font-size:13px;font-weight:700;color:${adjG>0?'var(--public)':'var(--red)'}">${adjG>0?`약 ${fmtManwon(Math.abs(adjG))} 저렴`:`약 ${fmtManwon(Math.abs(adjG))} 비쌈`} <span style="font-size:11px;font-weight:600;color:var(--ink-5)">(보정 ${(adjMktP/10000).toFixed(1)}억)</span></span>
+        </div>
+        <div style="font-size:10px;color:var(--ink-5);margin-top:3px;line-height:1.45">비교 단지 평균 연식 약 ${avgAge}년 → 신축 프리미엄 +${agePremium}% 반영 (평당가 정규화·연 2% 가치 상승분 적용)${l._mktPMethod && l._mktPMethod !== 'api_raw' ? ' · 유사 등급 단지만 비교' : ''}</div>
+      </div>`:''}
+      ${(saleP > 0 && l.mktP > 0)?`<div style="padding:6px 18px 10px;border-top:1px solid rgba(0,0,0,.04)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+          <span style="font-size:11px;color:var(--ink-5)">실질 취득가 기준 진짜 차익</span>
+          <span style="font-size:13px;font-weight:700;color:${realGap>0?'var(--public)':'var(--red)'}">${realGap>0?`약 ${fmtManwon(Math.abs(realGap))} 이익`:`약 ${fmtManwon(Math.abs(realGap))} 손해`}</span>
+        </div>
+        <div style="font-size:10px;color:var(--ink-5);margin-top:3px;line-height:1.45">발코니 확장비 약 ${balconyExt.toLocaleString()}만원 + 취득세 약 ${acqTax.toLocaleString()}만원 포함 → 실질 취득가 ${(realCost/10000).toFixed(1)}억</div>
+      </div>`:''}
       ${(l._recentDeals&&l._recentDeals.length)?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:10px 18px 12px">
-        <div style="font-size:11px;font-weight:700;color:var(--ink-5);margin-bottom:6px;letter-spacing:.3px">📋 주변 최근 실거래 ${l._radiusUsed?`${l._radiusUsed.startsWith('(')?l._radiusUsed:'('+l._radiusUsed+')'}`:''}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink-5);margin-bottom:6px;letter-spacing:.3px">📋 주변 최근 실거래 ${l._radiusUsed?`(${l._radiusUsed})`:''}</div>
         ${l._recentDeals.map(d=>{
           const p = d.price >= 10000 ? `${Math.floor(d.price/10000)}억${d.price%10000?` ${(d.price%10000).toLocaleString()}`:''}`:`${d.price.toLocaleString()}만`;
+          const tagStr = d._tags && d._tags.length ? ` <span style="color:var(--accent);font-size:9px;font-weight:600">${d._tags.join('·')}</span>` : '';
           return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:var(--ink-4)">
-            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px">${d.name} <span style="color:var(--ink-5)">${d.size?Math.round(d.size)+'㎡':''}</span></span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px">${d.name} <span style="color:var(--ink-5)">${d.size?Math.round(d.size)+'㎡':''}</span>${tagStr}</span>
             <span style="flex-shrink:0;font-weight:600;color:var(--ink-3)">${p}</span>
             <span style="flex-shrink:0;margin-left:6px;color:var(--ink-5);font-size:10px">${d.date||''}</span>
           </div>`;
@@ -4391,15 +4607,45 @@ async function showDetail(id, fromSwipe=false){
     </div>
   </div>`:''}
 
-  <!-- 5. 💰 내 자금 계획 -->
+  <!-- 5. 💰 내 자금 계획 + DSR 스트레스 테스트 -->
   ${P.cash?`<div class="fund-card" style="margin-top:14px">
     <div class="fund-header">💰 내 자금 계획</div>
     <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
+    <div class="fund-row"><span class="fund-rl">실질 취득가</span><span class="fund-rv" style="font-size:11px">${(realCost/10000).toFixed(1)}억 <span style="color:var(--ink-5)">(발코니+취득세 포함)</span></span></div>
     <div class="fund-row"><span class="fund-rl">계약금 (${getDownPct(l)}%)</span><span class="fund-rv ${canAfford?'ok':'no'}">${(dep/10000).toFixed(1)}억 ${canAfford?'✓':'✗ 부족'}</span></div>
-    <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억 무이자대출</span></div>
+    <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억 ${price>90000?'<span style="color:var(--red);font-size:10px">집단대출 불가(9억 초과)</span>':'무이자대출'}</span></div>
     <div class="fund-row"><span class="fund-rl">주담대 한도 (LTV ${Math.round(_policyLtv*100)}%${_hasHome?'·유주택대출불가':''})</span><span class="fund-rv ${_hasHome?'no':lr<=_policyLtv*100+1?'ok':''}">${_hasHome?'대출 불가':((loan/10000).toFixed(1)+'억')}</span></div>
     <div class="fund-row"><span class="fund-rl">자기자금 필요액</span><span class="fund-rv ${cashShortage>0?'no':'ok'}">${(selfFund/10000).toFixed(1)}억 ${cashShortage>0?'✗ '+Math.round(cashShortage/10000*10)/10+'억 부족':'✓ 충당 가능'}</span></div>
     <div style="padding:12px 18px;background:${canAfford?'var(--public-light)':'var(--red-light)'}"><span style="font-size:13px;font-weight:700;color:${canAfford?'var(--public)':'var(--red)'}">${canAfford?`✓ 계약금 납부 가능! 월 상환 약 ${monthly.toLocaleString()}만원 (연4%·30년)`:`✗ 계약금 ${(Math.max(0,dep-cash)/10000).toFixed(1)}억 부족`}</span></div>
+    ${(!_hasHome && loan > 0 && _detMonthlyIncome > 0)?`
+    <div style="border-top:1px solid rgba(0,0,0,.06);padding:12px 18px">
+      <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">📊 DSR 스트레스 테스트</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-4);padding:3px 0"><span>기준금리</span><span>${Math.round(_detBaseRate*100)}%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-4);padding:3px 0"><span>스트레스 금리</span><span>+${_isHotZone?'3':'1.5'}% (${_isHotZone?'수도권·규제':'비규제'})</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-4);padding:3px 0"><span>DSR 심사금리</span><span style="font-weight:700">${Math.round(_detFullRate*100)}%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-4);padding:3px 0"><span>월 소득</span><span>${_detMonthlyIncome.toLocaleString()}만원</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-4);padding:3px 0"><span>DSR 기준 월 상환 한도 (40%)</span><span>${_detDsrMaxMonthly.toLocaleString()}만원</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-top:1px solid rgba(0,0,0,.04);margin-top:4px">
+        <span style="font-weight:700;color:var(--ink)">심사 기준 월 상환액</span>
+        <span style="font-weight:700;color:${_detDsrOk?'var(--public)':'var(--red)'}">${_detMonthlyStress.toLocaleString()}만원 (DSR ${_detDsrPct}%)</span>
+      </div>
+      <div style="margin-top:6px;padding:8px 12px;border-radius:8px;background:${_detDsrOk?'var(--public-light)':'var(--red-light)'}">
+        <span style="font-size:11px;font-weight:700;color:${_detDsrOk?'var(--public)':'var(--red)'}">${_detDsrOk?`✓ DSR 기준 이내 — 대출 실행 가능`:`✗ DSR 기준 초과(${_detDsrPct}%>40%) — 대출 한도 축소 가능`}</span>
+      </div>
+    </div>`:''}
+    ${(!canAfford && cash > 0)?`
+    <div style="border-top:1px solid rgba(0,0,0,.06);padding:10px 18px;background:#FFF8F0">
+      <div style="font-size:11px;font-weight:700;color:var(--red)">⚠️ 계약금 부족 경고</div>
+      <div style="font-size:10px;color:var(--ink-4);margin-top:4px;line-height:1.5">계약금 ${(dep/10000).toFixed(1)}억 > 보유현금 ${(cash/10000).toFixed(1)}억 — 부족액 ${((dep-cash)/10000).toFixed(1)}억. 당첨 후 계약 포기 시 재당첨 제한(10년)에 걸릴 수 있어요. 계약 전 자금 확보 계획을 세우세요.</div>
+    </div>`:''}
+    ${(_jeonseDefense > 0 && l.mktP > 0)?`
+    <div style="border-top:1px solid rgba(0,0,0,.06);padding:10px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--ink-5)">전세가 방어선 (시세 65%)</span>
+        <span style="font-size:12px;font-weight:700;color:${_jeonseDefense >= price ? 'var(--public)':'var(--red)'}">${(_jeonseDefense/10000).toFixed(1)}억 ${_jeonseDefense >= price ? '✓ 분양가 방어':'✗ 분양가 미방어'}</span>
+      </div>
+      <div style="font-size:10px;color:var(--ink-5);margin-top:2px">${_jeonseDefense >= price ? '전세 놓아도 분양가를 회수할 수 있어 안전해요' : '전세로는 분양가 회수가 어려워요. 갭투자 시 추가 자금이 필요해요'}</div>
+    </div>`:''}
   </div>`:''}
 
   <!-- 6. 청약홈 버튼 -->
@@ -5007,7 +5253,7 @@ function updateScoreScreen(){
         icon:'🏦', cat:'청약통장 기간', remain:`+${aRemain}점 가능`,
         title: acc===0 ? '청약통장을 지금 당장 개설하세요' : `매월 납입으로 꾸준히 점수를 쌓아요`,
         desc: acc===0
-          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 2만원 이상 납입하세요.'
+          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 25만원(인정 한도) 납입을 추천해요.'
           : `현재 ${acc}회(약 ${Math.floor(acc/12)}년) 납입이에요. 15년(180회)까지 ${180-acc}회 남았어요. 납입총액 ${depAmt.toLocaleString()}만원${depAmt >= depAmtNeeded85 ? ' — 85㎡ 이하 예치금 충족이에요.' : `으로 85㎡ 예치금(${depAmtNeeded85}만원)${depAmt < depAmtNeeded85 ? ` 달성까지 ${depAmtNeeded85-depAmt}만원 남았어요.` : '을 충족했어요.'}`}`,
         gain: aRemain
       });
@@ -5016,11 +5262,79 @@ function updateScoreScreen(){
         icon:'🏦', cat:'청약통장 기간', remain:`+${aRemain}점 가능`,
         title: acc===0 ? '청약통장을 지금 당장 개설하세요' : `${15-Math.floor(acc/12)}년 후 최고점 17점 달성`,
         desc: acc===0
-          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 2만원 이상 납입하세요.'
+          ? '지금 바로 개설하면 2년 후 +3점, 15년(180회) 이상이면 최고 17점이에요. 월 25만원(인정 한도) 납입을 추천해요.'
           : `현재 납입 ${acc}회(약 ${Math.floor(acc/12)}년)예요. 15년(180회) 후 최고 17점이에요. 공공분양은 납입 횟수와 총액이 중요해요.`,
         gain: aRemain
       });
     }
+  }
+
+  // ── 월 납입액 25만원 상향 팁 (2024~ 정책) ──
+  if(depAmt > 0 && acc > 0){
+    const avgMonthlyDep = Math.round(depAmt / Math.max(1, acc)); // 회당 평균 납입액
+    if(avgMonthlyDep < 25){
+      const monthsToTarget = 60; // 5년 목표
+      const currentProjection = depAmt + (avgMonthlyDep * monthsToTarget);
+      const boostedProjection = depAmt + (25 * monthsToTarget);
+      tips.push({
+        icon:'💡', cat:'납입액 상향', remain:'지금 실행',
+        title:'월 인정액이 25만원으로 올랐어요! 납입액을 올리세요',
+        desc:`현재 회당 평균 ${avgMonthlyDep}만원 납입 중이에요. 2024년부터 월 인정 납입 한도가 10만원→25만원으로 상향됐어요. 지금부터 매달 25만원씩 넣으면 5년 후 납입총액 ${boostedProjection.toLocaleString()}만원(현재 속도면 ${currentProjection.toLocaleString()}만원)으로 공공분양 당첨권을 조기 확보할 수 있어요.`,
+        gain: 2
+      });
+    }
+  } else if(acc > 0 && depAmt === 0){
+    tips.push({
+      icon:'💡', cat:'납입액 상향', remain:'지금 실행',
+      title:'매달 25만원씩 넣어서 공공분양 당첨권을 확보하세요',
+      desc:'2024년부터 청약저축 월 인정 납입 한도가 25만원으로 올랐어요. 공공분양은 저축총액 순으로 당첨되니, 한도까지 불입하면 당첨권 확보가 훨씬 빨라져요. 소득공제(연 300만원)도 받을 수 있어요.',
+      gain: 2
+    });
+  }
+
+  // ── 졸업제 전략 (통장 기간 17점 만점 달성 시) ──
+  if(aS >= 17 && total < 60){
+    tips.push({
+      icon:'🎓', cat:'졸업제 전략', remain:'전략 팁',
+      title:'통장 가점 만점! 예치금 증액으로 85㎡ 초과 공략하세요',
+      desc:`통장 기간 17점 만점을 달성했지만 총점 ${total}점이에요. 서울 가점 평균(62점)에 미달하므로, 85㎡ 초과 추첨제(비규제 100% 추첨)를 노리면서 예치금을 ${p.region==='seoul'?'1,500':'1,000'}만원 이상으로 늘려두세요. 추첨제에서는 가점이 아닌 운이 결정해요.`,
+      gain: 0
+    });
+  }
+
+  // ── 부양가족 합가 전략 ──
+  if(dS < 25 && dep < 3 && p.marriage !== '미혼'){
+    const potentialGain = Math.min(35, (dep+3)*5) - dS; // 점수=(dep+1)*5, 부모2명 합가 → (dep+2+1)*5
+    tips.push({
+      icon:'🏡', cat:'합가 전략', remain:`+${potentialGain}점 가능`,
+      title:'부모님 합가로 가점을 단기간에 +10점 올릴 수 있어요',
+      desc:`만 65세 이상 직계존속을 동일 등본에 3년 이상 등재하면 부양가족으로 인정돼요. 부모 2분 합가 시 +10점이 추가되고, 노부모부양 특별공급(경쟁률 1/10 수준) 자격도 생겨요. 3년 전 합가하면 3년 뒤 최대 효과예요.`,
+      gain: potentialGain
+    });
+  }
+
+  // ── 타겟 변경 권고 (가점 47점 이하 → 102㎡ 추첨제 권고) ──
+  if(total <= 47 && total > 0){
+    tips.push({
+      icon:'🎯', cat:'타겟 변경', remain:'전략 전환',
+      title:`가점 ${total}점이면 85㎡ 초과 추첨제가 유리해요`,
+      desc:`가점 ${total}점으로는 서울·수도권 84㎡ 가점제(커트 55~65점)에서 불리해요. 85㎡ 초과 평형은 비규제지역 100% 추첨, 규제지역도 추첨 20%가 적용돼요. 102㎡·112㎡ 타입은 경쟁률이 84㎡의 1/3 수준이에요. 넓은 평형으로 전략을 바꿔보세요.`,
+      gain: 0
+    });
+  }
+
+  // ── 가점 상승 시뮬레이션 (1·2·3년 후 예측) ──
+  if(total < 75 && total > 0){
+    const nh1 = Math.min(32, nhS + (nh < 15 ? 2 : 0)); // 1년 후 무주택 +2
+    const a1 = Math.min(17, aS + (acc < 180 ? 1 : 0)); // 1년 후 통장 +1
+    const future1 = nh1 + dS + a1;
+    const future3 = Math.min(84, total + (nh < 13 ? 6 : nh < 15 ? 4 : 0) + (acc < 156 ? 3 : 0));
+    tips.push({
+      icon:'📊', cat:'가점 시뮬레이션', remain:`→${future1}점`,
+      title:`1년 후 ${future1}점, 3년 후 약 ${future3}점으로 올라요`,
+      desc:`무주택 유지·통장 납입만으로 매년 약 ${Math.min(3, 32-nhS > 0 ? 2 : 0) + (aS < 17 ? 1 : 0)}점씩 자동 상승해요. ${future3 >= 60 ? `3년 후 ${future3}점이면 서울 중위권 진입이 가능해요.` : `추첨제 병행 전략이 현실적이에요.`}`,
+      gain: future1 - total
+    });
   }
 
   // 긴급 항목 우선, 나머지는 gain 순
@@ -5957,9 +6271,20 @@ async function generateReport(){
     : null;
   const _topPickGap = _topPick ? gap(_topPick) : null;
 
+  // 실질 취득가 계산 (리포트용 대표 공고)
+  const _repGap = _repListing ? gap(_repListing) : null;
+  const _repRealCost = _repGap ? _repGap.realCost : 0;
+  const _repBalconyExt = _repGap ? _repGap.balconyExt : 0;
+  const _repAcqTax = _repGap ? _repGap.acqTax : 0;
+  const _repRealGap = _repGap ? _repGap.realGap : 0;
+
+  // Waterfall 당첨확률 (대표 공고)
+  const _repProb = _repListing ? calcProb(_repListing, P) : null;
+
   const prompt = `[Role]
-당신은 대한민국 주택청약 제도를 완벽히 숙지한 10년 경력의 수석 청약 컨설턴트예요.
-단순 정보 전달이 아닌, 부적격 리스크를 진단하고 최적의 당첨 전략을 단호하고 전문적으로 제공해요.
+당신은 대한민국 주택청약 시장에서 200건 이상 당첨 컨설팅을 성공시킨 15년 경력 수석 청약 컨설턴트예요.
+부동산 시장의 냉혹한 현실을 직시하면서도, 고객 한 명 한 명에게 실행 가능한 최적 전략을 제시하는 것이 당신의 강점이에요.
+단순 정보 나열 절대 금지 — 숨은 리스크를 먼저 진단하고, 구체적 수치 근거와 함께 단호한 전략을 제안해요.
 고객을 지칭할 때는 반드시 "${reportName}님"으로 불러요. "고객님" 표현 금지.
 말투: "~했어요", "~해요", "~할 수 있어요" 처럼 자연스러운 구어체. '~다', '~합니다' 체 금지.
 마크다운(#, ##, **) 절대 사용 금지. 영어 단어 절대 사용 금지.
@@ -5970,9 +6295,11 @@ async function generateReport(){
 섹션당 핵심만 간결하게. 전체 리포트가 잘리지 않도록 마지막 섹션까지 반드시 완성할 것.
 
 [자격 기준]
-공공: 신혼(혼인7년·소득100~140%) / 생초(세대주·생애첫주택·소득세5년·소득100~140%) / 신생아(만2세↓자녀) / 일반(저축총액순)
+공공: 신혼(혼인7년·소득100~140%) / 생초(세대주·생애첫주택·소득세5년·소득100~140%) / 신생아(만2세↓자녀) / 일반(저축총액순, 신생아우선50%배정)
 민간투기과열: 1순위=세대주+24개월+예치금+5년미당첨. 신혼/생초 5단계. 가점제(60㎡↓40%·85㎡↑80%)
+정책변화(2024~): 부부동시청약허용(같은단지중복신청), 생애최초1인가구60㎡이하만, 자산기준추첨제(부동산3.31억↓), 월인정납입25만원상향
 대출(2025): 생초LTV70%(수도권)/일반무주택LTV40%(투기)·70%(비규제)/유주택LTV0%. 주담대한도(수도권): 15억↓6억·15~25억4억·25억↑2억. DSR40%·스트레스금리3%(수도권)/1.5%(비규제). 9억↑중도금집단대출불가
+배우자통장: ${P.spouseAcc?'보유→부부동시청약가능(확률2배가능)':'미보유/미확인'}
 PDF공고문 데이터 있으면 최우선 적용
 
 [${reportName}님 정보]
@@ -5992,80 +6319,79 @@ PDF공고문 데이터 있으면 최우선 적용
 
 [자금 흐름 사전 계산 — 대표공고: ${_repListing ? cleanName(_repListing.name) : '없음'} 기준]
 ${_cashflowTable}
+실질취득가: 분양가${(_repPrice/10000).toFixed(1)}억+발코니확장${_repBalconyExt.toLocaleString()}만+취득세${_repAcqTax.toLocaleString()}만=${(_repRealCost/10000).toFixed(1)}억 → 진짜차익=${_repRealGap>0?'+':''}${(_repRealGap/10000).toFixed(1)}억
 
-DSR: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.toLocaleString()}만상환가능. 심사금리${Math.round((_baseRate+_stressRate)*100)}%(스트레스포함). DSR기준최대대출${(_dsrLoanMax/10000).toFixed(1)}억. 심사DSR${_dsrRatio}%→${_dsrOk?'기준이내':'기준초과'}
+DSR스트레스테스트: 월소득${_monthlyIncome.toLocaleString()}만×40%=최대${_dsrMonthlyMax.toLocaleString()}만상환가능. 기준금리${Math.round(_baseRate*100)}%+스트레스금리${Math.round(_stressRate*100)}%=심사금리${Math.round((_baseRate+_stressRate)*100)}%. DSR기준최대대출${(_dsrLoanMax/10000).toFixed(1)}억. 심사DSR${_dsrRatio}%→${_dsrOk?'기준이내':'[BOLD:기준초과→대출한도축소]'}
+전세가방어선: 시세65%=${_repListing&&_repListing.mktP?((  _repListing.mktP*0.65)/10000).toFixed(1)+'억':'미정'} vs 분양가${(_repPrice/10000).toFixed(1)}억 → ${_repListing&&_repListing.mktP&&_repListing.mktP*0.65>=_repPrice?'방어가능':'방어불가(갭투자시추가자금필요)'}
 
 중요: 공고 추천은 반드시 희망지역(${regionTargetLabel}) 안에서만.
 
-===== 리포트 작성 =====
+===== 리포트 작성 (4대 섹션: 냉정한 진단 → 핀셋 추천 → 자금 압박 테스트 → 오늘의 액션) =====
 
-[SECTION:${reportName}님의 청약 자격을 진단했어요]
-[HEADLINE:가점 ${score.total}점 — ${_scoreLevel.split('(')[0]} 진단 결과]
+[SECTION:냉정한 진단 — ${reportName}님의 청약 현주소]
+[HEADLINE:가점 ${score.total}점, ${_scoreLevel.split('(')[0]} — 무엇이 가능하고 무엇이 불가능한지 솔직하게 진단해요]
 [STAT:청약가점|${score.total}점][STAT:신청전형|${typesRaw.length}개][STAT:매칭공고|${matched.length}건]
 
-가점 ${score.total}점의 현재 위치를 분석해요:
+냉정하게 현실을 진단해요:
 - 서울 평균 당첨 가점(${_seoulAvgScore}점) 대비 위치: ${_scorePct}
-- 가점 수준별 타겟 지역과 전략을 구체적으로 안내해요 (높으면 강남·서초·송파·용산 대기 전략, 낮으면 추첨제 집중)
-- ${reportName}님이 신청 가능한 전형(${typesDetail||'없음'})별 경쟁력을 솔직하게 평가해요
-- 현재 가점 대비 실현 가능한 목표 지역을 상/중/하 3단계로 명시해요
+- 가점 ${score.total}점으로 [BOLD:가능한 전략]: (60점↑=서울 강남·서초 가점제 정면승부, 45~59점=경기·인천+서울 비인기지역+비선호타입 공략, 44점↓=85㎡ 초과 추첨제+특별공급 올인)
+- 신청 가능 전형(${typesDetail||'없음'}) 각각의 현실적 경쟁력을 냉정히 평가해요
+- 가점 전략: ${score.total >= 60 ? '지금 가점으로 승부 가능해요. 더 쌓으면 서울 핵심지역도 노릴 수 있어요.' : score.total >= 45 ? '가점제로는 서울이 어려워요. 추첨제 병행이 현실적이에요.' : '가점제 승부는 불리해요. 특공이나 추첨제로 전략을 완전히 전환하세요.'}
+- ${score.total <= 47 ? '[BOLD:타겟 변경 권고]: 85㎡ 초과 추첨제가 훨씬 유리해요. 102㎡·112㎡는 경쟁률이 84㎡의 1/3 수준이에요.' : ''}
+- 부양가족 합가 전략: ${dep < 3 ? '부모님 합가(3년 이상 등본 등재) 시 +10점, 노부모부양 특공 자격까지 확보 가능해요.' : '부양가족 가점은 양호해요.'}
 
-[SECTION:지금 조건에 딱! 추천하고 싶은 공고에요]
-[HEADLINE:${_topPick ? '[단지명: '+cleanName(_topPick.name)+'] TOP PICK 선정' : '현재 추천 공고 없음'}]
-[STAT:시세차익|${_topPickGap && _topPickGap.g > 0 ? (_topPickGap.g/10000).toFixed(1)+'억' : '미정'}][STAT:안전마진|${_topPickGap ? _topPickGap.pct+'%' : '?'}][STAT:전형단계|?단계]
-
-[SECTION:시야를 조금만 넓혀볼까요? 이런 대안도 있어요]
-[HEADLINE:TOP PICK 외에 고려할 만한 공고를 추가로 분석해요]
-[STAT:대안공고수|${matched.length > 1 ? matched.length-1+'건' : '없음'}]
-TOP PICK 외 매칭 공고 중 특징이 다른 1~2개를 골라 간략히 분석해요 (경쟁률·소득기준·전형 차이 위주). 없으면 이 섹션 생략해요.
+[SECTION:핀셋 추천 — 지금 조건에 딱 맞는 공고]
+[HEADLINE:${_topPick ? '[단지명: '+cleanName(_topPick.name)+'] TOP PICK — 이 공고를 노리세요' : '현재 추천 공고 없음'}]
+[STAT:시세차익|${_topPickGap && _topPickGap.g > 0 ? (_topPickGap.g/10000).toFixed(1)+'억' : '미정'}][STAT:진짜차익|${_repRealGap > 0 ? (_repRealGap/10000).toFixed(1)+'억' : '?'}][STAT:당첨률|${_repProb!==null?_repProb+'%':'?'}]
 
 ${_topPick ? `
-TOP PICK 공고 [단지명: ${cleanName(_topPick.name)}]를 핀셋 분석해요:
-- 분양가 vs 주변 실거래가 비교 → 안전 마진 수치로 제시
+[단지명: ${cleanName(_topPick.name)}] 핀셋 분석:
+- [BOLD:시세차익]: 분양가 대비 ${_topPickGap.g > 0 ? fmtManwon(_topPickGap.g)+' 저렴' : '시세 이하'}
+- [BOLD:진짜 차익](발코니 확장비+취득세 포함): ${_repRealGap > 0 ? fmtManwon(_repRealGap)+' 실질 이익' : '실질 이익 미미'}
+- Waterfall 당첨 확률: ${_repProb!==null?_repProb+'%':'미계산'} (특공→일반→추첨 다단계 낙수 효과 반영)
 - PDF 추출 단계별 소득 기준: ${reportName}님(연소득 ${income.toLocaleString()}만원, 도시근로자 ${incPct}%)이 몇 단계(우선/일반/추첨)에 해당하는지 정확히 명시
-- 가점제 적용 비율, 경쟁률, 당첨 커트라인 분석
-- 비선호 타입 전략: 같은 단지에서 경쟁이 덜한 평형·타입 추천 (예: 84A보다 84C)
+- 비선호 타입 전략: 같은 단지에서 경쟁이 덜한 평형·타입 추천 (84A보다 84C 등)
 - 부적격 리스크 체크: 재당첨 제한·세대주 여부·거주 요건 해당 여부` : '현재 매칭 공고가 없어요. 가점·조건을 입력하면 바로 분석해드릴게요.'}
 
-[SECTION:당첨된다면? 미리 그려보는 현실적인 자금 계획]
-[HEADLINE:계약금 납부 ${cash >= _contractAmt ? 'YES — 지금 당장 계약 가능해요' : 'NO — ' + (_contractAmt - cash).toLocaleString() + '만원 부족해요'}]
-[STAT:계약금|${(_contractAmt/10000).toFixed(1)}억][STAT:월상환|${_monthlyPay.toLocaleString()}만][STAT:DSR|${_dsrRatio}%]
+${matched.length > 1 ? `
+대안 공고 분석: TOP PICK 외 매칭 공고 중 특징이 다른 1~2개를 골라 간략히 비교해요 (경쟁률·소득기준·전형 차이 위주).` : ''}
 
-위에서 계산된 자금 흐름 표를 바탕으로 스트레스 테스트 결과를 전달해요:
+[SECTION:자금 압박 테스트 — 당첨 후 버틸 수 있는지 시뮬레이션]
+[HEADLINE:${cash >= _contractAmt ? '계약금 납부 가능 — 하지만 이후가 중요해요' : '⚠️ 계약금 ' + (_contractAmt - cash).toLocaleString() + '만원 부족'}]
+[STAT:실질취득가|${(_repRealCost/10000).toFixed(1)}억][STAT:월상환|${_monthlyPay.toLocaleString()}만][STAT:DSR|${_dsrRatio}%]
 
-계약금 납부: ${cash >= _contractAmt ? '[BOLD:YES]' : '[BOLD:NO]'} (보유현금 ${cash.toLocaleString()}만원 vs 계약금 ${_contractAmt.toLocaleString()}만원)
-${cash < _contractAmt ? '→ 부족액 [BOLD:' + (_contractAmt-cash).toLocaleString() + '만원]. 아래 방법을 검토해요:' : '→ 계약금 납부 후 잔여현금: ' + (cash-_contractAmt).toLocaleString() + '만원'}
+1단계 계약금: ${cash >= _contractAmt ? '[BOLD:납부 가능]' : '[BOLD:납부 불가]'} (보유 ${cash.toLocaleString()}만 vs 필요 ${_contractAmt.toLocaleString()}만)
+${cash < _contractAmt ? '→ [BOLD:' + (_contractAmt-cash).toLocaleString() + '만원 부족]. 당첨 후 계약 포기 시 재당첨 제한 10년! 반드시 자금 확보 후 청약하세요.' : '→ 잔여 ' + (cash-_contractAmt).toLocaleString() + '만원'}
 
-중도금: ${_midNote}
-잔금 주담대: 최대 ${(_loanAmt/10000).toFixed(1)}억 (LTV ${Math.round(_ltvRate*100)}%, 한도 6억)
+2단계 중도금: ${_midNote}
+3단계 잔금 주담대: 최대 ${(_loanAmt/10000).toFixed(1)}억 (LTV ${Math.round(_ltvRate*100)}%)
+[BOLD:실질 취득가]: 분양가 ${(_repPrice/10000).toFixed(1)}억 + 발코니 확장 ${_repBalconyExt.toLocaleString()}만 + 취득세 ${_repAcqTax.toLocaleString()}만 = [BOLD:${(_repRealCost/10000).toFixed(1)}억]
 
-[BOLD:DSR 분석]
-- 월소득 ${_monthlyIncome.toLocaleString()}만원 × 40% = DSR 기준 월 최대 ${_dsrMonthlyMax.toLocaleString()}만원 상환 가능
-- 예상 월원리금: 약 ${_monthlyPay.toLocaleString()}만원 → DSR ${_dsrRatio}%
-- ${_dsrOk ? '기준(40%) 이내로 대출 실행 가능해요' : '[BOLD:DSR 기준 초과] — 실제 대출 한도가 줄어들 수 있어요. 소득 증빙 강화 또는 대출 금액 조정이 필요해요'}
-- 디딤돌 대출(2025년 한도 축소 반영): ${income <= 6000 ? '[BOLD:해당 가능] — 연소득 6천만원 이하. 주택 5억 이하·LTV 최대 70%(수도권·규제). 단, 2025년 공급총량 25% 감축으로 실행 어려울 수 있음' : '해당 안 됨 (연소득 6천만원 초과)'}
-${cash < _contractAmt ? '- 특례보금자리론·디딤돌 대출 활용 방안을 구체적으로 안내해요' : ''}
+[BOLD:DSR 스트레스 테스트]
+- 기준금리 ${Math.round(_baseRate*100)}% + 스트레스 금리 ${Math.round(_stressRate*100)}% = 심사금리 ${Math.round((_baseRate+_stressRate)*100)}%
+- 월소득 ${_monthlyIncome.toLocaleString()}만 × 40% = DSR 한도 ${_dsrMonthlyMax.toLocaleString()}만
+- 심사 기준 월상환: ${_monthlyPayStress.toLocaleString()}만원 → DSR ${_dsrRatio}%
+- ${_dsrOk ? '기준 이내 — 대출 실행 가능' : '[BOLD:DSR 초과] — 대출 한도 축소 불가피. 소득 증빙 강화 또는 대출 금액 조정 필요'}
+- 디딤돌 대출: ${income <= 6000 ? '[BOLD:해당 가능](연소득 6천만↓)' : '해당 안 됨(연소득 초과)'}
 
-[SECTION:전문가 원포인트 레슨]
-[HEADLINE:부적격 제로, 당첨 확률 극대화 전략]
+전세가 방어선: 시세 65% = ${_repListing&&_repListing.mktP?((_repListing.mktP*0.65)/10000).toFixed(1)+'억':'미정'} → ${_repListing&&_repListing.mktP&&_repListing.mktP*0.65>=_repPrice?'분양가 방어 가능(전세 놓아도 안전)':'[BOLD:분양가 미방어] — 갭투자 시 추가 현금 필요'}
 
-부적격 당첨 체크리스트 (반드시 확인):
-1. 세대주 여부: ${reportName}님이 신청하는 전형에서 세대주 조건 충족 여부
-2. 재당첨 제한: 최근 5~10년 이내 당첨 이력 여부
-3. 청약통장 조건: ${acc}회 납입 현황 vs 전형별 필요 조건 충족 여부
-4. 세대원 무주택: 세대 전원 무주택 요건 충족 여부
-5. 소득 기준: 맞벌이/외벌이 여부에 따른 정확한 소득 산정
+[SECTION:오늘의 액션 — 지금 당장 실행하세요]
+[HEADLINE:${reportName}님이 이번 주 안에 해야 할 3가지]
 
-당첨 확률 1% 높이는 전략:
-- 같은 단지 내 비선호 타입·평형 공략법 (84A vs 84C 등 구체적으로)
-- 가점 상승 로드맵: 무주택 기간 ${nh}년 현재 → 추가 1·2·3년 시 점수 변화
-- 지금 당장 실천할 1가지를 단호하게 지시해줘요
+수석 컨설턴트로서 단호하게 지시해요. 순서대로 하나씩:
 
-[SECTION:오늘 바로 하세요]
-[HEADLINE:지금 이 순서대로 실행하세요]
-단호하게 지시하는 톤으로, 오늘·이번 주·이번 달로 나눠서:
-1. 오늘 — 구체적 공고명 포함
-2. 이번 주 — 서류 준비 (무주택확인서, 가족관계증명서 등 구체적으로)
-3. 이번 달 — 저축·통장 납입 전략`;
+[BOLD:오늘 당장]
+- 구체적 공고명과 함께 당장 확인해야 할 것 (청약홈 가입확인, 통장 잔액, 서류 준비)
+
+[BOLD:이번 주 안에]
+- 서류 준비: 무주택확인서, 가족관계증명서, 소득금액증명원 등 구체적 목록
+- 부적격 방지: 세대주·무주택·소득 요건 재확인
+
+[BOLD:이번 달 전략]
+- 가점 올리기: ${score.total < 60 ? '부양가족 합가 검토, 통장 예치금 증액' : '현재 가점 유지하면서 최적 공고 대기'}
+- 자금 로드맵: 월 저축 ${monthlyNeeded > 0 ? monthlyNeeded.toLocaleString()+'만원 목표' : '현재 수준 유지'}
+- 지금 당장 실천할 1가지를 단호하게 명시해요`;
 
   try {
     const controller = new AbortController();
@@ -7252,25 +7578,162 @@ function _isPremiumAptName(name) {
   return kw.some(k => (name||'').includes(k));
 }
 
-/* ── 시세 재계산: 비슷한 급(1군 브랜드) 단지만 필터링 ──
-   - listing이 1군 브랜드이면 → recentDeals 중 1군 거래만 골라 평균
-   - 1군 거래 없으면 → 전체 거래 중 최고가 사용 (보수적 추정)
-   - 비1군 listing이면 → null 반환 (API 시세 그대로 사용)             */
+/* ── 비교 단지 추정 연식 (아파트명 기반) ── */
+function _estimateDealAge(dealName) {
+  // 1군 브랜드별 대표 준공 연도 (브랜드 첫 등장 ~ 현재 중간값 추정)
+  const brandYear = {
+    '디에이치':2018,'르엘':2020,'오르에':2022,'에피트':2022,
+    '아크로':2015,'프레스티지':2015,'에스티지':2012,
+    '래미안':2005,'자이':2007,'힐스테이트':2008,'더샵':2008,
+    '푸르지오':2007,'롯데캐슬':2005,'아이파크':2008,'e편한세상':2008,
+    'SK뷰':2013,'호반써밋':2016,'포레나':2019,'위브':2010,
+    '센트럴파크':2012,'클래시안':2020,'라클라쎄':2018
+  };
+  const now = new Date().getFullYear();
+  const n = dealName || '';
+  // 더 구체적 브랜드 우선 매칭 (에스티지 > 래미안)
+  for (const [brand, yr] of Object.entries(brandYear)) {
+    if (n.includes(brand)) return Math.max(1, now - yr);
+  }
+  // 구축 키워드 → 20~30년
+  if (/현대|한양|한신|삼익|두진|우성|동아|극동|진흥|미주|쌍용|삼호|경남|벽산/.test(n)) return 25;
+  if (/대림|한화|라이프|코오롱|금호/.test(n)) return 18;
+  return 15; // 알 수 없으면 보수적 15년
+}
+
+/* ══════════════════════════════════════════════════════════
+   시세 재계산 v2: 3단계 필터 + 평당가 정규화 + 연식 보정
+   ──────────────────────────────────────────────────────────
+   Gemini 제안 반영:
+   ① 1순위 필터: 연식 — 구축(20년+) 제외, 준신축(10년 이내) 우선
+   ② 2순위 필터: 브랜드 등급 — 1군 브랜드 우선 매칭
+   ③ 3순위 필터: 규모 — 대단지(1000+) vs 소규모(100-) 보정
+   + 평당가(㎡당 단가) 정규화: 비교 단지 면적 ≠ 분양 면적일 때 보정
+   + 연식 보정: 비교시세 = 실거래가 × (1 + age × 0.02)
+   ══════════════════════════════════════════════════════════ */
 function _recalcMktPByTier(listing, allDeals) {
   if (!allDeals || !allDeals.length) return null;
-  const isPremium = _isPremiumBuilder(listing.builder) || _isPremiumAptName(listing.name);
-  if (!isPremium) return null;
 
-  // 1군 브랜드 거래 필터
-  const premDeals = allDeals.filter(d => _isPremiumAptName(d.name));
-  if (premDeals.length > 0) {
-    const avg = Math.round(premDeals.reduce((s, d) => s + (d.price||0), 0) / premDeals.length);
-    return { mktP: avg, deals: premDeals, method: 'premium_avg' };
+  const isPremium = _isPremiumBuilder(listing.builder) || _isPremiumAptName(listing.name);
+  const targetUnits = parseInt(listing.units) || 0;
+  // 분양 단지 전용면적 목록 (복수 타입 지원)
+  const sizeNums = (listing.size||'').match(/\d+/g);
+  const availSizes = sizeNums ? [...new Set(sizeNums.map(Number))].sort((a,b)=>a-b) : [84];
+  // 각 거래에 대해 가장 가까운 분양 평형으로 매칭
+  function _closestSize(dealSize) {
+    if (!dealSize || availSizes.length === 1) return availSizes[0];
+    return availSizes.reduce((best, s) => Math.abs(s - dealSize) < Math.abs(best - dealSize) ? s : best, availSizes[0]);
   }
 
-  // 1군 거래 없음 → 최고가 거래를 비교 기준으로 (보수적)
-  const maxDeal = allDeals.reduce((mx, d) => (d.price||0) > (mx.price||0) ? d : mx, allDeals[0]);
-  return { mktP: maxDeal.price, deals: [maxDeal], method: 'max_fallback' };
+  // ── 각 거래에 점수 매기기 ──
+  const scored = allDeals.map(d => {
+    const dSize = d.size ? Math.round(d.size) : 0;
+    const dAge = _estimateDealAge(d.name);
+    const dPremium = _isPremiumAptName(d.name);
+    let score = 0;
+    let tags = [];
+
+    // ① 연식 점수 (가장 중요 — 최대 40점)
+    if (dAge <= 5)       { score += 40; tags.push('초신축'); }
+    else if (dAge <= 10) { score += 35; tags.push('준신축'); }
+    else if (dAge <= 15) { score += 20; tags.push(dAge + '년'); }
+    else if (dAge <= 20) { score += 10; tags.push(dAge + '년'); }
+    else                 { score += 0;  tags.push('구축' + dAge + '년'); }
+
+    // ② 브랜드 등급 (최대 30점)
+    if (isPremium && dPremium)      { score += 30; tags.push('1군'); }
+    else if (!isPremium && !dPremium) { score += 20; }
+    else if (isPremium && !dPremium) { score += 0;  tags.push('비1군'); }
+    else                             { score += 15; }
+
+    // ③ 면적 유사성 — 가장 가까운 분양 평형 기준 (±10% 이내 최대 20점)
+    const matchedSize = _closestSize(dSize);
+    if (dSize > 0 && matchedSize > 0) {
+      const sizeRatio = Math.min(dSize, matchedSize) / Math.max(dSize, matchedSize);
+      if (sizeRatio >= 0.90) { score += 20; }
+      else if (sizeRatio >= 0.80) { score += 12; }
+      else if (sizeRatio >= 0.65) { score += 5; }
+      else { score -= 5; tags.push('면적차이'); }
+    }
+
+    // ④ 평당가 정규화 (㎡당 단가 × 매칭된 분양 면적으로 환산)
+    let normalizedPrice = d.price || 0;
+    if (dSize > 0 && matchedSize > 0 && Math.abs(dSize - matchedSize) > 3) {
+      const pricePerSqm = (d.price || 0) / dSize;
+      normalizedPrice = Math.round(pricePerSqm * matchedSize);
+    }
+
+    // ⑤ 연식 보정: 보정가 = 실거래가(정규화) × (1 + age × 0.02)
+    const ageFactor = 1 + (dAge * 0.02);
+    const adjustedPrice = Math.round(normalizedPrice * ageFactor);
+
+    return {
+      ...d,
+      score, tags, dAge, dSize,
+      normalizedPrice,  // 면적 보정만 적용
+      adjustedPrice,    // 면적 + 연식 보정 모두 적용
+      ageFactor
+    };
+  });
+
+  // ── 필터링 전략 (단계적 완화) ──
+  // 1차: 1군 브랜드 + 15년 이내 (엄격)
+  let filtered = scored.filter(d => d.score >= 50);
+  let method = 'tier1_strict';
+
+  // 2차: 점수 35+ (준신축 or 1군)
+  if (!filtered.length) {
+    filtered = scored.filter(d => d.score >= 35);
+    method = 'tier2_relaxed';
+  }
+
+  // 3차: 점수 20+ (최소 기준)
+  if (!filtered.length) {
+    filtered = scored.filter(d => d.score >= 20);
+    method = 'tier3_broad';
+  }
+
+  // 4차: 전체 중 최고가 (폴백)
+  if (!filtered.length) {
+    const best = scored.reduce((mx, d) => d.adjustedPrice > mx.adjustedPrice ? d : mx, scored[0]);
+    filtered = [best];
+    method = 'max_fallback';
+  }
+
+  // ── 가중 평균 계산 (점수 기반) ──
+  const totalScore = filtered.reduce((s, d) => s + d.score, 0) || 1;
+  let weightedMktP = Math.round(
+    filtered.reduce((s, d) => s + d.adjustedPrice * d.score, 0) / totalScore
+  );
+
+  // ── 대단지 보정: 비교군이 1000세대+ 대단지인데 분양 단지가 소규모면 5~10% 감가 ──
+  // (반대로 분양 단지가 대단지이고 비교군이 소규모면 약간 할증)
+  let scaleAdj = '';
+  if (targetUnits > 0 && targetUnits < 300) {
+    // 소규모 분양 단지 → 대단지 대비 약간 할인 (프리미엄 낮음)
+    // 단, 이미 비교군이 소규모면 보정 불요
+    scaleAdj = '소규모';
+  } else if (targetUnits >= 1000) {
+    // 대단지 분양 → 대단지 프리미엄 약 5% 가산
+    weightedMktP = Math.round(weightedMktP * 1.05);
+    scaleAdj = '대단지+5%';
+  }
+
+  // 표시용 거래: 점수 높은 순 상위 3건 (원본 price 유지)
+  const displayDeals = filtered
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(d => ({ name: d.name, price: d.price, size: d.dSize || d.size, date: d.date,
+      _score: d.score, _tags: d.tags, _adjPrice: d.adjustedPrice, _age: d.dAge }));
+
+  return {
+    mktP: weightedMktP,
+    deals: displayDeals,
+    method,
+    scaleAdj,
+    avgAge: Math.round(filtered.reduce((s, d) => s + d.dAge, 0) / filtered.length),
+    sampleCount: filtered.length
+  };
 }
 
 async function _fetchSimilarCompCore(listing) {
@@ -7325,14 +7788,13 @@ async function _fetchSimilarCompCore(listing) {
 
     if (!scored.length) return null;
 
-    // 4. 경쟁률/커트라인 조회
-    const results = [];
-    for (const { item, score } of scored) {
-      const pNo = item['공고번호'] || item.PBLANC_NO || '';
-      if (!pNo) continue;
+    // 4. 경쟁률/커트라인 조회 — 전건 병렬 처리
+    const pNoList = scored.map(x => ({ pNo: x.item['공고번호'] || x.item.PBLANC_NO || '', score: x.score })).filter(x => x.pNo);
+    const fetched = await Promise.all(pNoList.map(async ({ pNo, score }) => {
       const [comp, cut] = await Promise.all([fetchCmpetRate(pNo), fetchCutScore(pNo)]);
-      if (comp) results.push({ comp, cut, score });
-    }
+      return comp ? { comp, cut, score } : null;
+    }));
+    const results = fetched.filter(Boolean);
     if (!results.length) return null;
 
     // 5. 가중 평균 (score 높을수록 가중치 큼)
@@ -7528,48 +7990,65 @@ async function autoFetchMarketPrices(){
       try {
         const sizeNums = (l.size||'').match(/\d+/g);
         const size = sizeNums ? Math.max(...sizeNums.map(Number)) : 84;
-        const radius = isCapital(l.loc) ? '0.3' : '1';
-        // 쉼표로 여러 동이 나열된 경우 첫 번째 동만 사용
         const locClean = (l.loc||'').split(',')[0].replace(/\s+일원.*$/,'').trim();
-        const url = `${MARKET_API}?loc=${encodeURIComponent(locClean)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if(data.mktP && data.mktP > 0){
-          // ── 1군 브랜드 필터링: 비슷한 급 단지만으로 시세 재계산 ──
+        const isPrem = _isPremiumBuilder(l.builder) || _isPremiumAptName(l.name);
+
+        // ── 반경 자동 확장: 1차 조회 → 1군 비교군 없으면 반경 넓혀 재조회 ──
+        const radii = isCapital(l.loc) ? ['0.5', '1', '2'] : ['1', '2', '3'];
+        let bestResult = null, bestData = null, bestRadius = radii[0];
+
+        for (const radius of radii) {
+          const url = `${MARKET_API}?loc=${encodeURIComponent(locClean)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          if (!data.mktP || data.mktP <= 0) continue;
+
           const allDeals = data.recentDeals || [];
           const tierResult = _recalcMktPByTier(l, allDeals);
-          if (tierResult && tierResult.mktP > 0) {
-            l.mktP = tierResult.mktP;
-            l._recentDeals = tierResult.deals.slice(0, 3);
-            l._mktPMethod = tierResult.method; // 'premium_avg' | 'max_fallback'
-            console.log(`[시세 보정] ${cleanName(l.name)}: API ${data.mktP}→${tierResult.mktP} (${tierResult.method}, ${tierResult.deals.length}건)`);
+
+          if (!bestResult || (tierResult && tierResult.method !== 'max_fallback')) {
+            bestResult = tierResult;
+            bestData = data;
+            bestRadius = radius;
+          }
+          // 엄격 필터(tier1_strict) 통과했으면 확장 중단
+          if (tierResult && (tierResult.method === 'tier1_strict' || tierResult.method === 'tier2_relaxed')) break;
+          // 비1군 단지는 첫 조회로 충분
+          if (!isPrem) break;
+        }
+
+        if (bestData && bestData.mktP > 0) {
+          if (bestResult && bestResult.mktP > 0) {
+            l.mktP = bestResult.mktP;
+            l._recentDeals = bestResult.deals.slice(0, 3);
+            l._mktPMethod = bestResult.method;
+            console.log(`[시세 보정] ${cleanName(l.name)}: API ${bestData.mktP}→${bestResult.mktP} (${bestResult.method}, r=${bestRadius}km, ${bestResult.sampleCount}건)`);
           } else {
-            l.mktP = data.mktP;
-            l._recentDeals = allDeals.slice(0, 3);
+            l.mktP = bestData.mktP;
+            l._recentDeals = (bestData.recentDeals||[]).slice(0, 3);
             l._mktPMethod = 'api_raw';
           }
           l.noMktP = false;
           gap._cache = null;
           l._mktPAuto = true;
-          l._radiusUsed = data.radiusUsed || '';
-          l._sampleCount = data.sampleCount || 0;
+          l._radiusUsed = bestRadius + 'km';
+          l._sampleCount = bestData.sampleCount || 0;
           // 캐시 저장 (보정된 시세 저장)
           const updatedCache = loadMktPCache();
           updatedCache[String(l.id)] = {
             mktP: l.mktP,
-            mktPRaw: data.mktP,
+            mktPRaw: bestData.mktP,
             mktPMethod: l._mktPMethod,
             recentDeals: l._recentDeals,
-            radiusUsed: data.radiusUsed||'',
-            sampleCount: data.sampleCount||0,
+            radiusUsed: l._radiusUsed,
+            sampleCount: bestData.sampleCount||0,
           };
           saveMktPCache(updatedCache);
         }
       } catch(e){ console.warn(`시세 조회 실패: ${l.name}`); }
     }));
-    // 10건 처리 후 렌더링 (중간중간 업데이트)
-    renderListings();
   }
+  // 전체 완료 후 1회만 렌더링
   renderListings();
 }
 
@@ -7599,10 +8078,10 @@ async function autoFetchAllFactors() {
     }
   } catch(e) {}
 
-  // 남은 공고 AI 호출 (최대 10개, 2개씩 순차)
+  // 남은 공고 AI 호출 (최대 10개, 5개씩 병렬 — 대기 제거)
   const toFetch = targets.filter(l => !cache[String(l.id || l.name)]).slice(0, 10);
-  for(let i = 0; i < toFetch.length; i += 2) {
-    const batch = toFetch.slice(i, i + 2);
+  for(let i = 0; i < toFetch.length; i += 5) {
+    const batch = toFetch.slice(i, i + 5);
     await Promise.all(batch.map(async l => {
       const key = String(l.id || l.name);
       try {
@@ -7627,7 +8106,6 @@ async function autoFetchAllFactors() {
         }
       } catch(e) {}
     }));
-    await new Promise(r => setTimeout(r, 500));
   }
 
   saveFactorsCache(cache);
@@ -7772,13 +8250,15 @@ if (_OAUTH_CODE) {
     // 카카오/네이버 콜백 — 즉시 숨김
     s.style.display = 'none';
   } else {
-    // 2초 후 무조건 숨김 (애니메이션 실패해도 강제 제거)
+    // 캐시 데이터 있으면 즉시 숨김, 없으면 1초 후 숨김
+    const hasCachedData = !!localStorage.getItem(MKTPCACHE_KEY);
+    const splashDelay = hasCachedData ? 400 : 1000;
     setTimeout(()=>{
       s.classList.add('hide');
-      setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 600);
-    }, 2000);
-    // 혹시 모르니 3초 후 강제 제거
-    setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 3000);
+      setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 500);
+    }, splashDelay);
+    // 안전장치: 2초 후 강제 제거
+    setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 2000);
   }
 })();
 
@@ -8239,7 +8719,8 @@ async function sbSaveCondition() {
       household: P.household, isNoHome: P.isNoHome, region: P.region,
       dependents: P.dependents, accYears: P.accYears, prefSizes: P.prefSizes,
       elderParent: P.elderParent, isDual: P.isDual, spouseIncome: P.spouseIncome,
-      totalIncome: P.totalIncome, neverOwned: P.neverOwned, homeType: P.homeType
+      totalIncome: P.totalIncome, neverOwned: P.neverOwned, homeType: P.homeType,
+      spouseAcc: P.spouseAcc, resideRegion: P.resideRegion, resideYears: P.resideYears
     };
     await sb.upsert('profiles', {
       id: String(kakaoUser.kakaoId),
@@ -8511,8 +8992,10 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
         applyLoginUI();
         updateHero();
         renderListings();
-        await sbLoadBookmarks(String(kakaoUser.kakaoId));
-        await sbLoadCondition(String(kakaoUser.kakaoId));
+        await Promise.all([
+          sbLoadBookmarks(String(kakaoUser.kakaoId)),
+          sbLoadCondition(String(kakaoUser.kakaoId))
+        ]);
         applyLoginUI();
         updateHero();
         updateMyCondCard();
