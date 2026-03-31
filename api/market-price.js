@@ -8135,7 +8135,7 @@ function effectiveCompText(listing, P) {
 const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
 
 /* ── 시세 캐시 (localStorage) — 영구 보존, 새 공고만 신규 조회 ── */
-const MKTPCACHE_KEY = 'mktPCache_v3';
+const MKTPCACHE_KEY = 'mktPCache_v4';
 const FACTORS_CACHE_KEY = 'factorsCache_v1';
 
 let _factorsCacheMem = null;
@@ -8186,9 +8186,10 @@ function applyMktPCache() {
   listings.forEach(l => {
     const entry = cache[String(l.id)];
     if(entry && entry.mktP > 0) {
-      // 기존 캐시에 mktPMethod가 없으면 → 보정 전 데이터일 수 있으므로 재계산 시도
-      if (!entry.mktPMethod && entry.recentDeals && entry.recentDeals.length) {
-        const tierResult = _recalcMktPByTier(l, entry.recentDeals);
+      // 캐시에 recentDeals 있으면 항상 최신 로직으로 재계산
+      const _rawDeals = entry.recentDeals || entry._rawDeals || [];
+      if (_rawDeals.length) {
+        const tierResult = _recalcMktPByTier(l, _rawDeals);
         if (tierResult && tierResult.mktP > 0) {
           l.mktP = tierResult.mktP;
           l._recentDeals = tierResult.deals.slice(0, 3);
@@ -8197,8 +8198,8 @@ function applyMktPCache() {
           l._bestCompName = tierResult.bestCompName || '';
           l._mktPMin = tierResult.mktPMin || tierResult.mktP;
           l._mktPMax = tierResult.mktPMax || tierResult.mktP;
-          // 캐시도 보정값으로 업데이트
-          entry.mktPRaw = entry.mktP;
+          // 캐시 업데이트
+          entry._rawDeals = _rawDeals; // 원본 보존
           entry.mktP = tierResult.mktP;
           entry.mktPMethod = tierResult.method;
           entry.recentDeals = tierResult.deals.slice(0, 3);
@@ -8209,12 +8210,12 @@ function applyMktPCache() {
           recalced++;
         } else {
           l.mktP = entry.mktP;
-          l._recentDeals = entry.recentDeals || [];
+          l._recentDeals = [];
           l._mktPMethod = 'api_raw';
         }
       } else {
         l.mktP = entry.mktP;
-        l._recentDeals = entry.recentDeals || [];
+        l._recentDeals = [];
         l._mktPMethod = entry.mktPMethod || 'api_raw';
       }
       l.noMktP = false;
