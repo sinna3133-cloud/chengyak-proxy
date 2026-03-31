@@ -8524,11 +8524,22 @@ window.updateHero = function(){
 let _adminExtracted = null;
 let isAdmin = false;
 
-// URL 해시로 관리자 진입 (예: index.html#admin1234)
-if(location.hash === '#admin1234'){
-  isAdmin = true;
-  setTimeout(()=>{ try{ openAdmin(); }catch(e){} }, 2500);
-}
+// URL 파라미터 또는 해시로 관리자 진입
+// 예: ?admin=1234 또는 #admin1234
+(function(){
+  const q = new URLSearchParams(window.location.search).get('admin');
+  const h = location.hash === '#admin1234';
+  if(q === '1234' || h){
+    isAdmin = true;
+    window.addEventListener('DOMContentLoaded', function(){
+      setTimeout(()=>{ try{ openAdmin(); }catch(e){} }, 2500);
+    });
+    // 이미 로드 완료된 경우
+    if(document.readyState !== 'loading'){
+      setTimeout(()=>{ try{ openAdmin(); }catch(e){} }, 2500);
+    }
+  }
+})();
 
 // 로고 5회 연속 탭으로 관리자 진입
 (function initAdminTap(){
