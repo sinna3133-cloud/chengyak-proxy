@@ -7884,9 +7884,9 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     ageFiltered = enriched.filter(d => d.dAge <= 15);
     ageMethod = 'age_15yr';
   }
+  // 15년 초과 구축은 절대 비교군에 포함하지 않음 — 데이터 없으면 시세 없음 처리
   if (!ageFiltered.length) {
-    ageFiltered = enriched; // 극단적 폴백
-    ageMethod = 'age_all';
+    return null;
   }
 
   // ── 2단계: 면적 단계적 필터링 (±5%→±10%→±20%→전체) ──
