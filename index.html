@@ -7830,9 +7830,9 @@ function _recalcMktPByTier(listing, allDeals, opts) {
       normalizedPrice = Math.round(pricePerSqm * matchedSize);
     }
 
-    // ⑤ 연식 보정: 보정가 = 실거래가(정규화) × (1 + age × 0.02)
-    const ageFactor = 1 + (dAge * 0.02);
-    const adjustedPrice = Math.round(normalizedPrice * ageFactor);
+    // ⑤ 보정가 = 면적 정규화만 적용 (연식 보정 제거)
+    const ageFactor = 1;
+    const adjustedPrice = normalizedPrice;
 
     return {
       ...d,
@@ -7843,31 +7843,41 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     };
   });
 
-  // ── 필터링 전략 (단계적 완화) ──
-  // 1차: 1군 브랜드 + 15년 이내 (엄격)
-  let filtered = scored.filter(d => d.score >= 50);
-  let method = 'tier1_strict';
+  // ── 유사 평형 우선 필터링 (단계적 완화) ──
+  // 대표 평형 결정 (분양 최대 평형 기준)
+  const mainSize = availSizes[availSizes.length - 1] || 84;
 
-  // 2차: 점수 35+ (준신축 or 1군)
+  // 1차: 동일 평형 ±5% 이내
+  let filtered = scored.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.05);
+  let method = 'size_exact';
+
+  // 2차: 유사 평형 ±10%
   if (!filtered.length) {
-    filtered = scored.filter(d => d.score >= 35);
-    method = 'tier2_relaxed';
+    filtered = scored.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.10);
+    method = 'size_similar';
   }
 
-  // 3차: 점수 20+ (최소 기준)
+  // 3차: 근접 평형 ±20%
+  if (!filtered.length) {
+    filtered = scored.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.20);
+    method = 'size_broad';
+  }
+
+  // 4차: 평형 무관 전체 (폴백)
   if (!filtered.length) {
     filtered = scored.filter(d => d.score >= 20);
-    method = 'tier3_broad';
+    method = 'tier_fallback';
   }
-
-  // 4차: 전체 중 최고가 (폴백)
   if (!filtered.length) {
     const best = scored.reduce((mx, d) => d.adjustedPrice > mx.adjustedPrice ? d : mx, scored[0]);
     filtered = [best];
     method = 'max_fallback';
   }
 
-  // ── 가중 평균 계산 (점수 기반) ──
+  // 평형 매칭 후 품질 순 정렬 (점수 높은 순)
+  filtered.sort((a, b) => b.score - a.score);
+
+  // ── 시세 산출: 동일 평형 실거래가 기반 ──
   const totalScore = filtered.reduce((s, d) => s + d.score, 0) || 1;
   let weightedMktP = Math.round(
     filtered.reduce((s, d) => s + d.adjustedPrice * d.score, 0) / totalScore
