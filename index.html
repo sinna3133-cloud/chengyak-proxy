@@ -8524,6 +8524,12 @@ window.updateHero = function(){
 let _adminExtracted = null;
 let isAdmin = false;
 
+// URL 해시로 관리자 진입 (예: index.html#admin1234)
+if(location.hash === '#admin1234'){
+  isAdmin = true;
+  setTimeout(()=>{ openAdmin(); }, 100);
+}
+
 // 로고 5회 연속 탭으로 관리자 진입
 (function initAdminTap(){
   let _tapCount = 0, _tapTimer = null;
