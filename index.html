@@ -8429,8 +8429,7 @@ if (_OAUTH_CODE) {
     s.style.display = 'none';
   } else {
     // 캐시 데이터 있으면 즉시 숨김, 없으면 1초 후 숨김
-    const hasCachedData = !!localStorage.getItem(MKTPCACHE_KEY);
-    const splashDelay = hasCachedData ? 400 : 1000;
+    const splashDelay = 1500;
     setTimeout(()=>{
       s.classList.add('hide');
       setTimeout(()=>{ s.style.display='none'; s.style.visibility='hidden'; }, 500);
