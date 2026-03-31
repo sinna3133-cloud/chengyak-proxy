@@ -7794,14 +7794,45 @@ function _estimateDealAge(dealName) {
   };
   const now = new Date().getFullYear();
   const n = dealName || '';
+
+  // 동 이름에서 지역명 제거 (대림동→대림, 신길동→신길 등이 브랜드와 혼동 방지)
+  // "OO동XXX아파트" 패턴에서 동 이름 부분을 제거한 후 브랜드 매칭
+  const cleanName = n.replace(/^[가-힣]+동/, '');
+
   // 더 구체적 브랜드 우선 매칭 (에스티지 > 래미안)
   for (const [brand, yr] of Object.entries(brandYear)) {
-    if (n.includes(brand)) return Math.max(1, now - yr);
+    if (cleanName.includes(brand) || n.includes(brand)) {
+      // "OO동" 뒤에 바로 붙은 경우는 동이름이므로 제외 (예: 대림동갑을명가)
+      const idx = n.indexOf(brand);
+      if (idx >= 0 && idx <= 3 && n.substring(idx + brand.length, idx + brand.length + 1) === '동') continue;
+      // 브랜드가 동이름 일부인지 확인 (예: "대림동" 안의 "대림")
+      const beforeBrand = n.substring(0, idx);
+      const afterBrand = n.substring(idx + brand.length, idx + brand.length + 1);
+      if (afterBrand === '동' || (beforeBrand.length > 0 && afterBrand === '동')) continue;
+      return Math.max(1, now - yr);
+    }
   }
-  // 구축 키워드 → 20~30년
-  if (/현대|한양|한신|삼익|두진|우성|동아|극동|진흥|미주|쌍용|삼호|경남|벽산/.test(n)) return 25;
-  if (/대림|한화|라이프|코오롱|금호/.test(n)) return 18;
+  // 구축 키워드 → 20~30년 (동이름 제거 후 매칭)
+  if (/현대|한양|한신|삼익|두진|우성|동아|극동|진흥|미주|쌍용|삼호|경남|벽산/.test(cleanName)) return 25;
+  if (/대림|한화|라이프|코오롱|금호/.test(cleanName)) return 18;
+  // 명가, 맨션 등 전형적 구축 키워드
+  if (/명가|맨션|그린|타운|빌라|주공|시영/.test(n)) return 28;
   return 15; // 알 수 없으면 보수적 15년
+}
+
+/* ── 비교 단지 세대수 추정 (아파트명 기반 휴리스틱) ── */
+function _estimateUnits(dealName) {
+  const n = dealName || '';
+  // 대단지 키워드 (래미안·자이·힐스테이트 등 1군 브랜드 대단지 다수)
+  if (/파크|시티|포레|센트럴|타워|월드|파밀리에|그랑|위시티|더퍼스트/.test(n)) return 1500;
+  // 1군 브랜드는 평균 800~1200세대
+  if (_isPremiumAptName(n)) return 1000;
+  // 주공·시영 등 공공 대단지
+  if (/주공|시영|휴먼시아/.test(n)) return 2000;
+  // 명가·맨션 등 구축 소규모
+  if (/명가|맨션|빌라|타운|그린/.test(n)) return 200;
+  // 알 수 없으면 0 반환 (세대수 점수 계산 시 중립 처리)
+  return 0;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -7809,7 +7840,7 @@ function _estimateDealAge(dealName) {
    ──────────────────────────────────────────────────────────
    ① 연식 단계적 필터링: 5년→10년→15년 (15년 초과 구축 제외)
    ② 면적 단계적 필터링: ±5%→±10%→±20%
-   ③ 유사도 점수: 브랜드 동질성 + 연식 근접도 + 면적 유사성
+   ③ 유사도 점수: 연식(35) > 면적(25) > 세대수(20) > 브랜드(10) = 총 90점
    ④ 상위 3~5개 유사도 가중 평균 → 시세
    ⑤ 비교 근거(최유사 단지명) + 신뢰도 등급 + 시세 범위 반환
    ══════════════════════════════════════════════════════════ */
@@ -7874,31 +7905,37 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     sizeMethod = 'size_all';
   }
 
-  // ── 3단계: 유사도 점수 (브랜드 + 연식 근접도 + 면적 일치도) ──
+  // ── 3단계: 유사도 점수 (연식 > 면적 > 세대수 > 브랜드) ──
+  // 우선순위: ① 연식 근접도(35) → ② 면적 유사성(25) → ③ 세대수 유사성(20) → ④ 브랜드(10)
   const scored = sizeFiltered.map(d => {
     let score = 0;
     let tags = [];
 
-    // ① 브랜드 동질성 (최대 30점)
-    if (isPremium && d.dPremium)       { score += 30; tags.push('1군'); }
-    else if (!isPremium && !d.dPremium) { score += 20; }
-    else if (isPremium && !d.dPremium)  { score += (relaxBrand ? 15 : 5); tags.push('비1군'); }
-    else                                { score += 15; }
+    // ① 연식 근접도 (최대 35점 — 최우선)
+    if (d.dAge <= 5)       { score += 35; tags.push('신축'); }
+    else if (d.dAge <= 10) { score += 25; tags.push('준신축'); }
+    else if (d.dAge <= 15) { score += 15; tags.push(d.dAge + '년'); }
 
-    // ② 연식 근접도 (최대 30점 — 신축일수록 높음)
-    if (d.dAge <= 3)       { score += 30; tags.push('초신축'); }
-    else if (d.dAge <= 5)  { score += 25; tags.push('신축'); }
-    else if (d.dAge <= 10) { score += 15; tags.push('준신축'); }
-    else if (d.dAge <= 15) { score += 5;  tags.push(d.dAge + '년'); }
-
-    // ③ 면적 유사성 (최대 20점)
+    // ② 면적 유사성 (최대 25점)
     if (d.dSize > 0 && d.matchedSize > 0) {
       const sizeRatio = Math.min(d.dSize, d.matchedSize) / Math.max(d.dSize, d.matchedSize);
-      if (sizeRatio >= 0.95) score += 20;
-      else if (sizeRatio >= 0.90) score += 15;
-      else if (sizeRatio >= 0.80) score += 10;
-      else score += 3;
+      if (sizeRatio >= 0.95) { score += 25; }
+      else if (sizeRatio >= 0.90) { score += 15; }
+      else if (sizeRatio >= 0.80) { score += 5; }
     }
+
+    // ③ 세대수 유사성 (최대 20점 — 세대수 차이 기준)
+    const dUnits = _estimateUnits(d.name);
+    if (targetUnits > 0 && dUnits > 0) {
+      const unitDiff = Math.abs(targetUnits - dUnits);
+      if (unitDiff < 300)      { score += 20; tags.push('유사규모'); }
+      else if (unitDiff < 500) { score += 10; }
+    } else {
+      score += 5; // 정보 부족 시 중립
+    }
+
+    // ④ 브랜드 동질성 (최대 10점 — 최후 순위, 둘 다 1군일 때만 가산)
+    if (isPremium && d.dPremium) { score += 10; tags.push('1군'); }
 
     return { ...d, score, tags };
   });
@@ -7934,8 +7971,8 @@ function _recalcMktPByTier(listing, allDeals, opts) {
   // ── 5단계: 신뢰도 등급 산출 ──
   const avgScore = totalScore / topN.length;
   let confidence = 'low'; // 참고
-  if (topN.length >= 3 && avgScore >= 40 && ageMethod !== 'age_all') confidence = 'high';   // 높음
-  else if (topN.length >= 2 && avgScore >= 20 && ageMethod !== 'age_all') confidence = 'medium'; // 보통
+  if (topN.length >= 3 && avgScore >= 50 && ageMethod !== 'age_all') confidence = 'high';   // 높음
+  else if (topN.length >= 2 && avgScore >= 25 && ageMethod !== 'age_all') confidence = 'medium'; // 보통
 
   const method = `${ageMethod}_${sizeMethod}`;
 
@@ -8229,7 +8266,7 @@ async function autoFetchMarketPrices(){
         const isPrem = _isPremiumBuilder(l.builder) || _isPremiumAptName(l.name);
 
         // ── 반경 자동 확장: 1차 조회 → 1군 비교군 없으면 반경 넓혀 재조회 ──
-        const radii = isCapital(l.loc) ? ['0.5', '1', '2'] : ['1', '2', '3'];
+        const radii = ['0.5', '1', '2'];
         let bestResult = null, bestData = null, bestRadius = radii[0];
 
         for (const radius of radii) {
