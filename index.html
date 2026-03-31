@@ -3945,8 +3945,8 @@ function _doRenderListings(){
   cont.innerHTML=fl.map((l,idx)=>{
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
     const prob=probCache.get(l.id);
-    const wrHTML=isLotto(l)
-      ? (l.units > 0 && l.units < 20 ? `<div class="wr-badge lotto">추첨</div>` : ``)
+    const wrHTML=(parseInt(l.units)||0) < 10
+      ? ``
       :prob!==null
         ?`<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
         :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
