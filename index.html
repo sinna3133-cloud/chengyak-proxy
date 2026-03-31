@@ -4323,20 +4323,20 @@ function selectTypeChip(el, id, etype){
   recalcDetailProb(l);
 }
 
+function selectTypeFromDropdown(sel, id){
+  const l = listings.find(x => String(x.id) === String(id));
+  if(!l) return;
+  l._selectedType = sel.value || '';
+  recalcDetailProb(l);
+}
 function recalcDetailProb(l){
   const prob = calcProb(l, P, l._selectedType || '');
   if(prob === null) return;
-  // 게이지 업데이트
+  // 가로 바 + 숫자 업데이트
   const numEl = document.getElementById('det-prob-num');
-  const fillEl = document.getElementById('det-gauge-fill');
-  const reasonEl = document.getElementById('det-prob-reason');
-  if(numEl){ numEl.textContent = prob + '%'; numEl.setAttribute('fill', pColor(prob)); }
-  if(fillEl){
-    fillEl.setAttribute('stroke', pColor(prob));
-    const offset = 188.5 * (1 - prob / 100);
-    fillEl.style.transition = 'stroke-dashoffset .6s ease';
-    fillEl.setAttribute('stroke-dashoffset', offset);
-  }
+  const barEl = document.getElementById('det-prob-bar');
+  if(numEl){ numEl.textContent = prob + '%'; numEl.style.color = pColor(prob); }
+  if(barEl){ barEl.style.background = pColor(prob); barEl.style.width = prob + '%'; }
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 
@@ -4716,62 +4716,65 @@ async function showDetail(id, fromSwipe=false){
   </div>`;
   })()}
 
-  <!-- 4. 📊 내 당첨 평균 예상 확률 + 🏆 가점 커트라인 -->
+  <!-- 4. 📊 내 당첨 평균 예상 확률 (가로형 바) + 🏆 가점 커트라인 -->
   ${prob!==null?`
   <div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r)">
-    <div style="font-size:13px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">내 당첨 평균 예상 확률</div>
-    ${/* ★★★ [하드코딩 — 수정 금지] 전형 선택 칩만 표시 (사용자 자격 있는 전형만) ★★★ */
-    (()=>{
-      // 사용자가 신청 가능한 전형 목록
-      const myTypes = calcTypes(P).map(t => t.l);
-      function _normType(e){
-        if(e.includes('생애최초')) return '생애최초';
-        if(e.includes('신생아')) return '신생아특공';
-        if(e.includes('다자녀')) return '다자녀특공';
-        if(e.includes('신혼부부')) return '신혼부부특공';
-        if(e.includes('노부모')) return '노부모부양';
-        if(e.includes('청년')) return '청년특공';
-        return e;
-      }
-      const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
-      const specials = eligList.filter(e =>
-        e !== '일반공급' && e !== '무순위(줍줍)' && myTypes.includes(_normType(e))
-      );
-      const typeChips = specials.length > 0
-        ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px" id="det-type-chips">`
-          + `<span class="det-chip det-chip-on" onclick="selectTypeChip(this,'${l.id}','')" data-etype="">일반공급</span>`
-          + specials.map(s=>`<span class="det-chip" onclick="selectTypeChip(this,'${l.id}','${s}')" data-etype="${s}">${s}</span>`).join('')
-          + `</div>` : '';
-      return typeChips;
-    })()}
-    <div class="prob-gauge-wrap">
-      <svg class="prob-gauge-svg" viewBox="0 0 160 100" style="height:96px">
-        <path class="prob-gauge-bg" d="M20,80 A60,60 0 0,1 140,80"/>
-        <path class="prob-gauge-fill" id="det-gauge-fill" d="M20,80 A60,60 0 0,1 140,80"
-          stroke="${pColor(prob)}"
-          stroke-dasharray="188.5"
-          stroke-dashoffset="188.5"/>
-        <text id="det-prob-num" class="prob-gauge-num" x="80" y="72" fill="${pColor(prob)}">${prob}%</text>
-        <text x="20" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">0%</text>
-        <text x="140" y="96" fill="var(--ink-4)" style="font-size:10px;text-anchor:middle">100%</text>
-      </svg>
+    <!-- 가로형 한 줄 대시보드 -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:14px;font-weight:700;color:var(--accent-dark);white-space:nowrap">내 당첨 확률</span>
+      ${/* 전형 선택 드롭다운 */
+      (()=>{
+        const myTypes = calcTypes(P).map(t => t.l);
+        function _normType(e){
+          if(e.includes('생애최초')) return '생애최초';
+          if(e.includes('신생아')) return '신생아특공';
+          if(e.includes('다자녀')) return '다자녀특공';
+          if(e.includes('신혼부부')) return '신혼부부특공';
+          if(e.includes('노부모')) return '노부모부양';
+          if(e.includes('청년')) return '청년특공';
+          return e;
+        }
+        const eligList = (l.elig || []).filter(e => !e.includes('기관추천'));
+        const specials = eligList.filter(e =>
+          e !== '일반공급' && e !== '무순위(줍줍)' && myTypes.includes(_normType(e))
+        );
+        if(specials.length > 0){
+          return `<select id="det-type-select" onchange="selectTypeFromDropdown(this,'${l.id}')" style="font-size:11px;padding:2px 6px;border:1px solid var(--accent-mid);border-radius:6px;background:white;color:var(--accent-dark);font-weight:600;cursor:pointer;outline:none">
+            <option value="">일반공급</option>
+            ${specials.map(s=>`<option value="${s}">${s}</option>`).join('')}
+          </select>`;
+        }
+        return '';
+      })()}
+      <span id="det-prob-num" style="font-size:20px;font-weight:900;color:${pColor(prob)};white-space:nowrap;min-width:48px">${prob}%</span>
+      <!-- 가로 바 그래프 -->
+      <div style="flex:1;min-width:80px;height:14px;border-radius:7px;background:rgba(0,0,0,.08);overflow:hidden;position:relative">
+        <div id="det-prob-bar" style="height:100%;width:0%;border-radius:7px;background:${pColor(prob)};transition:width .8s ease"></div>
+      </div>
     </div>
-    
-    ${(()=>{
+    ${/* 팁 (접기/펼치기) */
+    (()=>{
       const tips=[];
       const nh=parseInt(P.noHomeYears||0), dep=parseInt(P.dependents||0), acc=parseInt(P.depCount||0);
       const nhPlus=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh+3>=5?1.5:nh+3>=3?1.2:1)*(dep>=24?1.3:dep>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
-      if(nhPlus>prob) tips.push({label:`지금부터 3년 무주택 유지하면`,val:nhPlus,type:'time'});
+      if(nhPlus>prob) tips.push({label:`3년 무주택 유지 시`,val:nhPlus,type:'time'});
       const depScore1=Math.min(95,Math.round(Math.max(0.5,100/l.comp)*(nh>=5?1.5:nh>=3?1.2:1)*((dep+1)>=24?1.3:(dep+1)>=12?1.1:1)*(l.type==='public'&&parseInt(P.income||0)<=4000?1.4:1)*10)/10);
-      if(depScore1>prob) tips.push({label:`부양가족 1명 늘어나면`,val:depScore1,type:'action'});
+      if(depScore1>prob) tips.push({label:`부양가족 +1명 시`,val:depScore1,type:'action'});
       if(!tips.length) return '';
-      return '<div style="margin-top:8px;padding-top:10px;border-top:1px solid rgba(0,102,255,.15);display:flex;flex-direction:column;gap:6px">'
-        +tips.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:13px;color:var(--ink-3);line-height:1.4">${t.type==='action'?'💡':'⏳'} ${t.label}</span><span style="font-size:13px;font-weight:800;color:${pColor(t.val)};white-space:nowrap">${t.val}% 올라가요</span></div>`).join('')
+      return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,102,255,.12);display:flex;flex-direction:column;gap:4px">'
+        +tips.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;color:var(--ink-3)">${t.type==='action'?'💡':'⏳'} ${t.label}</span><span style="font-size:12px;font-weight:800;color:${pColor(t.val)}">${t.val}%</span></div>`).join('')
         +'</div>';
     })()}
   </div>`
   :/* ★★★ [하드코딩 — 수정 금지] 당첨률 CTA: 파란색 배경 + '내 당첨률 확인하기' 텍스트 ★★★ */
-  `<div style="margin:14px 0 0;padding:18px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()"><div style="font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:12px">내 당첨률 확인하기</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="font-size:56px;font-weight:900;color:var(--accent);line-height:1;animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</div><span style="font-size:13px;font-weight:600;color:var(--accent-dark)">내 조건을 입력하면 예상 당첨률을 알려드려요</span><span style="display:inline-block;margin-top:4px;padding:8px 20px;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700">조건 설정하기</span></div></div>`
+  `<div style="margin:14px 0 0;padding:14px 18px;background:linear-gradient(135deg,var(--accent-light),var(--accent-mid));border:1.5px solid var(--accent-mid);border-radius:var(--r);cursor:pointer" onclick="openWrSheet()">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:14px;font-weight:800;color:var(--accent-dark)">내 당첨률 확인하기</span>
+      <span style="font-size:24px;font-weight:900;color:var(--accent);animation:qBounce 1.2s cubic-bezier(.36,.07,.19,.97) infinite">?</span>
+      <span style="flex:1"></span>
+      <span style="padding:6px 14px;background:var(--accent);color:white;border-radius:8px;font-size:12px;font-weight:700">조건 설정</span>
+    </div>
+  </div>`
   /* ★★★ [하드코딩 끝] ★★★ */}
   ${l.cut?`<div class="info-card" style="margin-top:14px">
     <div class="info-card-title">🏆 가점 커트라인 비교</div>
@@ -4806,7 +4809,7 @@ async function showDetail(id, fromSwipe=false){
     const _dsrColor = !_detMonthlyIncome ? '' : _detDsrPct <= 30 ? '#059669' : _detDsrPct <= 40 ? '#059669' : _detDsrPct <= 50 ? '#D97706' : '#DC2626';
     const _dsrBg = !_detMonthlyIncome ? '' : _detDsrPct <= 30 ? '#ECFDF5' : _detDsrPct <= 40 ? '#ECFDF5' : _detDsrPct <= 50 ? '#FFFBEB' : '#FEF2F2';
     return `
-  <!-- 카드 1: 나의 청약 준비도 -->
+  <!-- 카드 1: 나의 청약 준비도 + 자금 상세 통합 -->
   <div class="info-card" style="margin-top:14px;overflow:hidden">
     <div class="info-card-title">💰 나의 청약 준비도</div>
     <div style="padding:16px 18px 12px">
@@ -4828,25 +4831,24 @@ async function showDetail(id, fromSwipe=false){
         ${canAfford && _shortage<=0 && monthly>0?`<div style="font-size:12px;color:var(--ink-4);margin-top:4px">예상 월 상환 약 ${monthly.toLocaleString()}만원 (연4%·30년)</div>`:''}
       </div>
     </div>
+    <!-- 자금 상세 계획 드롭다운 (같은 카드 안) -->
+    <div style="border-top:1px solid rgba(0,0,0,.06)">
+      <div style="padding:12px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="(function(el){var w=el.nextElementSibling;var btn=el.querySelector('.fund-toggle-icon');if(!w.style.maxHeight||w.style.maxHeight==='0px'){w.style.maxHeight=w.scrollHeight+'px';btn.textContent='▴'}else{w.style.maxHeight='0px';btn.textContent='▾'}})(this)">
+        <span style="font-size:13px;font-weight:600;color:var(--ink-4)">자금 상세 보기</span>
+        <span class="fund-toggle-icon" style="font-size:13px;color:var(--accent);font-weight:700">▾</span>
+      </div>
+      <div style="max-height:0px;overflow:hidden;transition:max-height .35s ease">
+        <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
+        <div class="fund-row"><span class="fund-rl">계약금 (${getDownPct(l)}%)</span><span class="fund-rv">${(dep/10000).toFixed(1)}억${!canAfford?' <span style="color:#D97706">부족</span>':''}</span></div>
+        <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억${price>90000?' <span style="color:#DC2626;font-size:12px">집단대출 불가</span>':''}</span></div>
+        <div class="fund-row"><span class="fund-rl">주담대 한도 (LTV ${Math.round(_policyLtv*100)}%)</span><span class="fund-rv" style="${_hasHome?'color:#D97706':''}">${_hasHome?'대출 어려움':((loan/10000).toFixed(1)+'억')}</span></div>
+        <div class="fund-row"><span class="fund-rl">보유 현금</span><span class="fund-rv">${(cash/10000).toFixed(1)}억</span></div>
+        <div class="fund-row"><span class="fund-rl">자기자금 필요액</span><span class="fund-rv" style="${cashShortage>0?'color:#D97706':''}">${(selfFund/10000).toFixed(1)}억</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- 카드 2: 자금 상세 계획 (접기/펼치기) -->
-  <div class="info-card" style="margin-top:14px;overflow:hidden">
-    <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="(function(el){var w=el.parentElement.nextElementSibling;var btn=el.querySelector('.fund-toggle-icon');if(w.style.maxHeight==='0px'){w.style.maxHeight=w.scrollHeight+'px';btn.textContent='▴'}else{w.style.maxHeight='0px';btn.textContent='▾'}})(this)">
-      <span style="font-size:14px;font-weight:700;color:var(--ink)">📋 자금 상세 계획</span>
-      <span class="fund-toggle-icon" style="font-size:13px;color:var(--accent);font-weight:700">▾</span>
-    </div>
-    <div style="max-height:0px;overflow:hidden;transition:max-height .35s ease">
-      <div class="fund-row"><span class="fund-rl">분양가</span><span class="fund-rv">${(price/10000).toFixed(1)}억원</span></div>
-      <div class="fund-row"><span class="fund-rl">계약금 (${getDownPct(l)}%)</span><span class="fund-rv">${(dep/10000).toFixed(1)}억${!canAfford?' <span style="color:#D97706">부족</span>':''}</span></div>
-      <div class="fund-row"><span class="fund-rl">중도금 (60%)</span><span class="fund-rv">${(mid/10000).toFixed(1)}억${price>90000?' <span style="color:#DC2626;font-size:12px">집단대출 불가</span>':''}</span></div>
-      <div class="fund-row"><span class="fund-rl">주담대 한도 (LTV ${Math.round(_policyLtv*100)}%)</span><span class="fund-rv" style="${_hasHome?'color:#D97706':''}">${_hasHome?'대출 어려움':((loan/10000).toFixed(1)+'억')}</span></div>
-      <div class="fund-row"><span class="fund-rl">보유 현금</span><span class="fund-rv">${(cash/10000).toFixed(1)}억</span></div>
-      <div class="fund-row"><span class="fund-rl">자기자금 필요액</span><span class="fund-rv" style="${cashShortage>0?'color:#D97706':''}">${(selfFund/10000).toFixed(1)}억</span></div>
-    </div>
-  </div>
-
-  <!-- 카드 3: 상환 능력 진단 (접기/펼치기) -->
+  <!-- 카드 2: 상환 능력 진단 (접기/펼치기) -->
   ${(!_hasHome && loan > 0 && _detMonthlyIncome > 0)?`
   <div class="info-card" style="margin-top:14px;overflow:hidden">
     <div style="padding:14px 18px">
@@ -4861,8 +4863,8 @@ async function showDetail(id, fromSwipe=false){
       </div>
     </div>
     <div style="border-top:1px solid rgba(0,0,0,.06)">
-      <div style="padding:10px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="(function(el){var w=el.nextElementSibling;var btn=el.querySelector('.dsr-toggle-icon');if(w.style.maxHeight==='0px'){w.style.maxHeight=w.scrollHeight+'px';btn.textContent='▴'}else{w.style.maxHeight='0px';btn.textContent='▾'}})(this)">
-        <span style="font-size:13px;color:var(--ink-5)">DSR 계산 근거 보기</span>
+      <div style="padding:12px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="(function(el){var w=el.nextElementSibling;var btn=el.querySelector('.dsr-toggle-icon');if(!w.style.maxHeight||w.style.maxHeight==='0px'){w.style.maxHeight=w.scrollHeight+'px';btn.textContent='▴'}else{w.style.maxHeight='0px';btn.textContent='▾'}})(this)">
+        <span style="font-size:13px;font-weight:600;color:var(--ink-4)">DSR 계산 근거 보기</span>
         <span class="dsr-toggle-icon" style="font-size:13px;color:var(--accent);font-weight:700">▾</span>
       </div>
       <div style="max-height:0px;overflow:hidden;transition:max-height .35s ease">
@@ -4890,15 +4892,11 @@ async function showDetail(id, fromSwipe=false){
   // 어드민: 삭제 버튼 표시
   const detDelBtn = document.getElementById('det-delete-btn');
   if(detDelBtn) detDelBtn.style.display = isAdmin ? 'flex' : 'none';
-  // 당첨률 반원 게이지 애니메이션
+  // 당첨률 가로 바 애니메이션
   setTimeout(()=>{
     if(prob!==null){
-      const fill=document.getElementById('det-gauge-fill');
-      if(fill){
-        const total=188.5;
-        const offset=total-(total*(prob/100));
-        fill.style.strokeDashoffset=offset;
-      }
+      const bar=document.getElementById('det-prob-bar');
+      if(bar) bar.style.width=prob+'%';
       // 숫자 카운트업
       const numEl=document.getElementById('det-prob-num');
       if(numEl){
@@ -4907,7 +4905,7 @@ async function showDetail(id, fromSwipe=false){
           cur+=Math.ceil(prob/20);
           if(cur>=prob){cur=prob;clearInterval(t);}
           numEl.textContent=cur+'%';
-          numEl.setAttribute('fill',pColor(cur));
+          numEl.style.color=pColor(cur);
         },30);
       }
     }
