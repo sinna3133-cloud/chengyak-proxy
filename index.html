@@ -4867,7 +4867,7 @@ async function showDetail(id, fromSwipe=false){
       </div>`:''}
       ${_conf==='low' && (l._mktPMethod||'').includes('cross_group')?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#FFF8F0">
-        <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️ 인근에 유사 평형(${l._mktMainSize||''}㎡) 거래가 없어 다른 평형대의 ㎡당 단가로 환산한 참고 시세입니다. 실제 시세와 차이가 있을 수 있어요.</div>
+        <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️비교할 평수(${l._mktMainSize||''}㎡)의 최근 거래가 없어서 가장 비슷한 주변 집들의 가격 흐름을 분석해 예측한 수치예요.</div>
       </div>`
       :_conf==='low'?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#FFF8F0">
