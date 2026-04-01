@@ -193,7 +193,7 @@ to{transform:translateY(0)}}
 /* 하단 탭 라인 */
 
 /* 알림 배너 */
-.alert-banner{margin:0 0 0;background:linear-gradient(135deg,#B91C1C,#DC2626);border-radius:12px;border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.alert-banner{margin:0 20px;background:linear-gradient(135deg,#B91C1C,#DC2626);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .alert-banner-icon{font-size:22px;flex-shrink:0}
 .alert-banner-title{font-size:13px;font-weight:800;color:white}
 .alert-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
@@ -1169,7 +1169,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
     </div>
   </div>
 
-  <div id="alert-area"></div>
+  <div id="alert-area" style="padding:10px 0 0"></div>
 
   <div class="section-row" id="rec-section-row">
     <div class="section-title">내게 맞는 공고</div>
@@ -2160,9 +2160,8 @@ function getAvgSaleP(l){
   const priceStr = l.price || '';
   if(!priceStr || priceStr === '공고 확인 필요'){ l._avgSaleP = getMaxP(l); return l._avgSaleP; }
 
-  // 대표 평형 결정 (가장 큰 평형)
-  const sizeNums = (l.size||'').match(/\d+/g);
-  const mainSize = sizeNums ? Math.max(...sizeNums.map(Number)) : 84;
+  // 주력 평형 기준 (시세 비교와 동일한 평형 사용)
+  const mainSize = _getMainSize(l);
 
   // 평형별로 파싱: "84㎡A 8억4천~8억6천" → {size:84, prices:[84000,86000]}
   const parts = priceStr.split('|');
@@ -2193,7 +2192,7 @@ function getAvgSaleP(l){
 
 /* ── gap() — 시세 차익 계산 (순수 분양가 vs 실거래가 비교) ── */
 function gap(l){
-  const _k = String(l.id||l.name)+'|'+(l.mktP||0)+'|'+(l._mktPMethod||'')+'|'+(l.minP||0)+'|'+(l._mktPMin||0)+'|'+(l._mktPMax||0);
+  const _k = String(l.id||l.name)+'|'+(l.mktP||0)+'|'+(l._mktPMethod||'')+'|'+(l.minP||0)+'|'+(l._mktPMin||0)+'|'+(l._mktPMax||0)+'|'+(l._mktMainSize||0);
   if(gap._cache && gap._cache.k === _k) return gap._cache.v;
   const saleP=getAvgSaleP(l); const salePMin=getMinSaleP(l);
   const g=l.mktP-saleP;
@@ -3392,20 +3391,40 @@ function calcScore(p){
 
 /* ══ 황금 통장 판별 + Golden Index ══ */
 /* ══ 5단계 통장 티어 시스템 ══ */
-const GOLDEN_THRESHOLD = 1800; // Lv.4+ (수도권 정복자 이상)
+// ── 티어 커트라인 슬라이딩: 배포 다음달 1일부터 매월 +20만원 누적 상향 ──
+// Lv.5 쏠림 방지: 매월 1일 기준 커트라인 자동 인상
+const TIER_BASE_YEAR = 2026;
+const TIER_BASE_MONTH = 4; // 배포월 (4 = April) — 이 달까지는 슬라이드 0
+const TIER_MONTHLY_INC = 20; // 월 상향폭 (만원)
+function _tierSlide(){
+  const now = new Date();
+  const months = (now.getFullYear() - TIER_BASE_YEAR) * 12
+    + (now.getMonth() + 1 - TIER_BASE_MONTH); // getMonth()+1 → 1~12월
+  return Math.max(0, months) * TIER_MONTHLY_INC; // 배포 다음달부터 누적
+}
 const GOLDEN_PRIME_LOCS = ['서울','하남','과천','성남','광명','고양','수원','용인','화성','인천'];
-const TIER_DEFS = [
-  { lv:5, min:2500, label:'전설의 황금 통장', tag:'Mythic',  emoji:'👑',
+const TIER_META = [
+  { lv:5, baseMin:2500, label:'전설의 황금 통장', tag:'Mythic',  emoji:'👑',
     desc:'대한민국 상위 0.1% 무적 스펙', color1:'#FFD700', color2:'#FFFACD', text:'#92400E' },
-  { lv:4, min:1800, label:'수도권 정복자',   tag:'Conqueror', emoji:'🏰',
+  { lv:4, baseMin:1800, label:'수도권 정복자',   tag:'Conqueror', emoji:'🏰',
     desc:'S급 입지 점령 준비 완료',     color1:'#A855F7', color2:'#3B82F6', text:'#fff' },
-  { lv:3, min:1200, label:'당첨 원정대장',   tag:'Master',   emoji:'🔑',
+  { lv:3, baseMin:1200, label:'당첨 원정대장',   tag:'Master',   emoji:'🔑',
     desc:'당첨의 문을 열 준비 완료',     color1:'#60A5FA', color2:'#E0F2FE', text:'#1E40AF' },
-  { lv:2, min:600,  label:'부동산 라이징 스타', tag:'Rising', emoji:'🌟',
+  { lv:2, baseMin:600,  label:'부동산 라이징 스타', tag:'Rising', emoji:'🌟',
     desc:'가능성이 보인다, 더 올라가자', color1:'#4ADE80', color2:'#BEF264', text:'#166534' },
-  { lv:1, min:0,    label:'청약 무림 초보',   tag:'Novice',   emoji:'🌱',
+  { lv:1, baseMin:0,    label:'청약 무림 초보',   tag:'Novice',   emoji:'🌱',
     desc:'이제 시작, 천천히 배워보자',   color1:'#E2E8F0', color2:'#99F6E4', text:'#475569' }
 ];
+// 동적 TIER_DEFS: min이 매월 자동 상향됨 (Lv.1은 항상 0 유지)
+function getTierDefs(){
+  const slide = _tierSlide();
+  return TIER_META.map(t => ({
+    ...t,
+    min: t.baseMin === 0 ? 0 : t.baseMin + slide
+  }));
+}
+const TIER_DEFS = getTierDefs(); // 호환성: 기존 참조 유지
+const GOLDEN_THRESHOLD = TIER_DEFS.find(t => t.lv === 4).min; // Lv.4 기준 동적 연동
 
 function isGoldenTicket(p) {
   const depAmt = parseInt(p.depAmt || 0);
@@ -3416,8 +3435,9 @@ function getGoldenTier(p) {
   // depAmt 미입력이어도 조건 설정된 유저면 Lv.1 반환
   const hasAnyCond = !!(p.byear || p.income || p.noHomeYears || p.accYears || p.depCount);
   if (!p.depAmt && !depAmt && !hasAnyCond) return null;
-  for (const t of TIER_DEFS) { if (depAmt >= t.min) return t; }
-  return TIER_DEFS[TIER_DEFS.length - 1];
+  const defs = getTierDefs(); // 매 호출 시 슬라이딩 커트라인 반영
+  for (const t of defs) { if (depAmt >= t.min) return t; }
+  return defs[defs.length - 1];
 }
 
 // 티어 SVG 배지 (인라인, 가운데 정렬용)
@@ -3945,11 +3965,16 @@ function _doRenderListings(){
   cont.innerHTML=fl.map((l,idx)=>{
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
     const prob=probCache.get(l.id);
-    const wrHTML=(parseInt(l.units)||0) < 10
+    const _units = parseInt(l.units)||0;
+    const wrHTML = _units < 10
       ? ``
-      :prob!==null
-        ?`<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
-        :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
+      : isLotto(l)
+        ? (prob!==null
+            ? `<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
+            : `<div class="wr-badge known" style="background:#FEF3C7;color:#92400E">로또 🎰</div>`)
+        : prob!==null
+          ?`<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
+          :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
     const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
     return`<div class="card card-anim" onclick="showDetail('${l.id}')">
       <div class="card-top">
@@ -4838,9 +4863,13 @@ async function showDetail(id, fromSwipe=false){
       </div>
       ${_bestComp?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#F0F9FF">
-        <div style="font-size:13px;color:#1E40AF;line-height:1.5">🏠 인근 유사 단지 <b>'${_bestComp}'</b> ${l._radiusUsed?`(${l._radiusUsed})`:''} 등 ${l._sampleCount||''}건의 실거래가 기준입니다.</div>
+        <div style="font-size:13px;color:#1E40AF;line-height:1.5">🏠 인근 유사 단지 <b>'${_bestComp}'</b> ${l._radiusUsed?`(${l._radiusUsed})`:''} 등 ${l._sampleCount||''}건의 실거래가 기준입니다.${l._mktMainSize?` <span style="color:#6B7280;font-size:11px">(${l._mktMainSize}㎡ 기준 비교)</span>`:''}</div>
       </div>`:''}
-      ${_conf==='low'?`
+      ${_conf==='low' && (l._mktPMethod||'').includes('cross_group')?`
+      <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#FFF8F0">
+        <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️ 인근에 유사 평형(${l._mktMainSize||''}㎡) 거래가 없어 다른 평형대의 ㎡당 단가로 환산한 참고 시세입니다. 실제 시세와 차이가 있을 수 있어요.</div>
+      </div>`
+      :_conf==='low'?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#FFF8F0">
         <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️ 주변에 비슷한 거래가 ${l._sampleCount||1}건뿐이라 시세 분석이 어려워요. 단지 주변의 실제 분위기나 최근 시세를 꼭 함께 체크해보세요!</div>
       </div>`:''}
@@ -7989,6 +8018,41 @@ function _estimateUnits(dealName) {
    ④ 상위 3~5개 유사도 가중 평균 → 시세
    ⑤ 비교 근거(최유사 단지명) + 신뢰도 등급 + 시세 범위 반환
    ══════════════════════════════════════════════════════════ */
+// ── 평형 그룹 헬퍼: S(<60) / M(60~85) / L(>85) ──
+function _sizeGroup(sqm){ return sqm < 60 ? 'S' : sqm <= 85 ? 'M' : 'L'; }
+
+// ── 주력 평형 결정: 84→59→최다 모집 평형 → 첫 번째 평형 ──
+function _getMainSize(listing){
+  if(listing._mainSize) return listing._mainSize;
+  const sizeNums = (listing.size||'').match(/\d+/g);
+  const availSizes = sizeNums ? [...new Set(sizeNums.map(Number))].sort((a,b)=>a-b) : [84];
+
+  // 1순위: 84㎡ 있으면 우선
+  if(availSizes.includes(84)){ listing._mainSize = 84; return 84; }
+  // 2순위: 59㎡ 있으면
+  if(availSizes.includes(59)){ listing._mainSize = 59; return 59; }
+
+  // 3순위: price 문자열에서 타입별 가구 수 추정 → 최다 평형
+  const priceStr = listing.price || '';
+  if(priceStr && priceStr !== '공고 확인 필요'){
+    const parts = priceStr.split('|');
+    // 타입 수가 많은 평형 = 주력 (같은 ㎡에 A,B,C 타입 있으면 가구수 많음)
+    const countBySize = {};
+    parts.forEach(p => {
+      const m = p.match(/(\d+)\s*㎡/);
+      if(m){ const s = parseInt(m[1]); countBySize[s] = (countBySize[s]||0) + 1; }
+    });
+    const sorted = Object.entries(countBySize).sort((a,b) => b[1] - a[1]);
+    if(sorted.length > 0){
+      listing._mainSize = parseInt(sorted[0][0]);
+      return listing._mainSize;
+    }
+  }
+  // 4순위: 첫 번째 평형
+  listing._mainSize = availSizes[0] || 84;
+  return listing._mainSize;
+}
+
 function _recalcMktPByTier(listing, allDeals, opts) {
   if (!allDeals || !allDeals.length) return null;
   const { relaxBrand = false } = opts || {};
@@ -7997,7 +8061,8 @@ function _recalcMktPByTier(listing, allDeals, opts) {
   const targetUnits = parseInt(listing.units) || 0;
   const sizeNums = (listing.size||'').match(/\d+/g);
   const availSizes = sizeNums ? [...new Set(sizeNums.map(Number))].sort((a,b)=>a-b) : [84];
-  const mainSize = availSizes[availSizes.length - 1] || 84;
+  const mainSize = _getMainSize(listing);
+  const mainGroup = _sizeGroup(mainSize); // 주력 평형의 그룹 (S/M/L)
 
   function _closestSize(dealSize) {
     if (!dealSize || availSizes.length === 1) return availSizes[0];
@@ -8010,12 +8075,13 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     const dAge = _estimateDealAge(d.name);
     const dPremium = _isPremiumAptName(d.name);
     const matchedSize = _closestSize(dSize);
-    // 평당가 정규화 (면적 차이 3㎡ 초과 시)
+    // ㎡당 단가로 주력 평형 가격 환산 (면적 차이 3㎡ 초과 시)
     let normalizedPrice = d.price || 0;
-    if (dSize > 0 && matchedSize > 0 && Math.abs(dSize - matchedSize) > 3) {
-      normalizedPrice = Math.round((d.price || 0) / dSize * matchedSize);
+    if (dSize > 0 && mainSize > 0 && Math.abs(dSize - mainSize) > 3) {
+      normalizedPrice = Math.round((d.price || 0) / dSize * mainSize);
     }
-    return { ...d, dSize, dAge, dPremium, matchedSize, normalizedPrice };
+    const dGroup = dSize > 0 ? _sizeGroup(dSize) : mainGroup; // 거래 평형 그룹
+    return { ...d, dSize, dAge, dPremium, matchedSize, normalizedPrice, dGroup };
   });
 
   // ── 1단계: 연식 기반 단계적 필터링 (5→10→15년, 15초과 제외) ──
@@ -8034,24 +8100,35 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     return null;
   }
 
-  // ── 2단계: 면적 단계적 필터링 (±5%→±10%→±20%→전체) ──
-  let sizeFiltered = ageFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.05);
-  let sizeMethod = 'size_exact';
-  if (!sizeFiltered.length) {
-    sizeFiltered = ageFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.10);
-    sizeMethod = 'size_similar';
-  }
-  if (!sizeFiltered.length) {
-    sizeFiltered = ageFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.20);
-    sizeMethod = 'size_broad';
-  }
-  if (!sizeFiltered.length) {
+  // ── 2단계: 평형 그룹 필터 → 같은 그룹(S/M/L) 우선, 없으면 단계적 확장 ──
+  // 2-A: 같은 그룹 내에서 ±5%→±10%→±20%→그룹전체
+  let groupFiltered = ageFiltered.filter(d => d.dGroup === mainGroup);
+  let sizeFiltered, sizeMethod;
+
+  if (groupFiltered.length >= 1) {
+    // 같은 그룹 내에서 면적 근접도 순
+    sizeFiltered = groupFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.05);
+    sizeMethod = 'grp_exact';
+    if (!sizeFiltered.length) {
+      sizeFiltered = groupFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.10);
+      sizeMethod = 'grp_similar';
+    }
+    if (!sizeFiltered.length) {
+      sizeFiltered = groupFiltered.filter(d => d.dSize > 0 && Math.abs(d.dSize - mainSize) / mainSize <= 0.20);
+      sizeMethod = 'grp_broad';
+    }
+    if (!sizeFiltered.length) {
+      sizeFiltered = groupFiltered; // 같은 그룹 전체
+      sizeMethod = 'grp_all';
+    }
+  } else {
+    // 2-B: 같은 그룹 없음 → 전체에서 단가 보정 (cross-group, 신뢰도 낮춤)
     sizeFiltered = ageFiltered;
-    sizeMethod = 'size_all';
+    sizeMethod = 'cross_group';
   }
 
   // ── 3단계: 유사도 점수 (연식 > 면적 > 세대수 > 브랜드) ──
-  // 우선순위: ① 연식 근접도(35) → ② 면적 유사성(25) → ③ 세대수 유사성(20) → ④ 브랜드(10)
+  // 우선순위: ① 연식 근접도(35) → ② 면적 유사성(30) → ③ 세대수 유사성(15) → ④ 브랜드(10)
   const scored = sizeFiltered.map(d => {
     let score = 0;
     let tags = [];
@@ -8061,22 +8138,29 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     else if (d.dAge <= 10) { score += 25; tags.push('준신축'); }
     else if (d.dAge <= 15) { score += 15; tags.push(d.dAge + '년'); }
 
-    // ② 면적 유사성 (최대 25점)
-    if (d.dSize > 0 && d.matchedSize > 0) {
-      const sizeRatio = Math.min(d.dSize, d.matchedSize) / Math.max(d.dSize, d.matchedSize);
-      if (sizeRatio >= 0.95) { score += 25; }
-      else if (sizeRatio >= 0.90) { score += 15; }
-      else if (sizeRatio >= 0.80) { score += 5; }
+    // ② 면적 유사성 — mainSize 기준 (최대 30점)
+    if (d.dSize > 0 && mainSize > 0) {
+      const sizeRatio = Math.min(d.dSize, mainSize) / Math.max(d.dSize, mainSize);
+      if (d.dGroup === mainGroup) {
+        // 같은 그룹: 근접도에 따라 가산
+        if (sizeRatio >= 0.95) { score += 30; tags.push('유사평형'); }
+        else if (sizeRatio >= 0.85) { score += 20; }
+        else { score += 10; }
+      } else {
+        // 다른 그룹(cross-group): 단가 보정은 하지만 점수 감점
+        score += 2;
+        tags.push('단가환산');
+      }
     }
 
-    // ③ 세대수 유사성 (최대 20점 — 세대수 차이 기준)
+    // ③ 세대수 유사성 (최대 15점 — 세대수 차이 기준)
     const dUnits = _estimateUnits(d.name);
     if (targetUnits > 0 && dUnits > 0) {
       const unitDiff = Math.abs(targetUnits - dUnits);
-      if (unitDiff < 300)      { score += 20; tags.push('유사규모'); }
-      else if (unitDiff < 500) { score += 10; }
+      if (unitDiff < 300)      { score += 15; tags.push('유사규모'); }
+      else if (unitDiff < 500) { score += 8; }
     } else {
-      score += 5; // 정보 부족 시 중립
+      score += 4; // 정보 부족 시 중립
     }
 
     // ④ 브랜드 동질성 (최대 10점 — 최후 순위, 둘 다 1군일 때만 가산)
@@ -8116,8 +8200,13 @@ function _recalcMktPByTier(listing, allDeals, opts) {
   // ── 5단계: 신뢰도 등급 산출 ──
   const avgScore = totalScore / topN.length;
   let confidence = 'low'; // 참고
-  if (topN.length >= 3 && avgScore >= 50 && ageMethod !== 'age_all') confidence = 'high';   // 높음
-  else if (topN.length >= 2 && avgScore >= 25 && ageMethod !== 'age_all') confidence = 'medium'; // 보통
+  if (sizeMethod === 'cross_group') {
+    confidence = 'low'; // 평형 그룹 불일치 → 강제 low
+  } else if (topN.length >= 3 && avgScore >= 50 && ageMethod !== 'age_all') {
+    confidence = 'high';   // 높음
+  } else if (topN.length >= 2 && avgScore >= 25 && ageMethod !== 'age_all') {
+    confidence = 'medium'; // 보통
+  }
 
   const method = `${ageMethod}_${sizeMethod}`;
 
@@ -8134,6 +8223,8 @@ function _recalcMktPByTier(listing, allDeals, opts) {
     method,
     confidence,
     bestCompName,
+    mainSize,              // 비교 기준 평형
+    mainGroup,             // 비교 기준 그룹 (S/M/L)
     avgAge: Math.round(topN.reduce((s, d) => s + d.dAge, 0) / topN.length),
     sampleCount: topN.length
   };
@@ -8280,7 +8371,7 @@ function effectiveCompText(listing, P) {
 const MARKET_API = 'https://chengyak-proxy.vercel.app/api/market-price';
 
 /* ── 시세 캐시 (localStorage) — 영구 보존, 새 공고만 신규 조회 ── */
-const MKTPCACHE_KEY = 'mktPCache_v4';
+const MKTPCACHE_KEY = 'mktPCache_v5'; // v5: 평형 그룹 매칭 도입 — 기존 캐시 무효화
 const FACTORS_CACHE_KEY = 'factorsCache_v1';
 
 let _factorsCacheMem = null;
@@ -8343,6 +8434,8 @@ function applyMktPCache() {
           l._bestCompName = tierResult.bestCompName || '';
           l._mktPMin = tierResult.mktPMin || tierResult.mktP;
           l._mktPMax = tierResult.mktPMax || tierResult.mktP;
+          l._mktMainSize = tierResult.mainSize || 0;
+          l._mktMainGroup = tierResult.mainGroup || '';
           // 캐시 업데이트
           entry._rawDeals = _rawDeals; // 원본 보존
           entry.mktP = tierResult.mktP;
@@ -8372,6 +8465,8 @@ function applyMktPCache() {
       l._bestCompName = entry.bestCompName || '';
       l._mktPMin = entry.mktPMin || entry.mktP;
       l._mktPMax = entry.mktPMax || entry.mktP;
+      l._mktMainSize = entry.mainSize || 0;
+      l._mktMainGroup = entry.mainGroup || '';
       applied++;
     }
   });
@@ -8406,8 +8501,7 @@ async function autoFetchMarketPrices(){
     const chunk = batch.slice(i, i + 10);
     await Promise.all(chunk.map(async l => {
       try {
-        const sizeNums = (l.size||'').match(/\d+/g);
-        const size = sizeNums ? Math.max(...sizeNums.map(Number)) : 84;
+        const size = _getMainSize(l); // 주력 평형 기준으로 API 조회
         const locClean = (l.loc||'').split(',')[0].replace(/\s+일원.*$/,'').trim();
         const isPrem = _isPremiumBuilder(l.builder) || _isPremiumAptName(l.name);
 
@@ -8453,7 +8547,9 @@ async function autoFetchMarketPrices(){
             l._bestCompName = bestResult.bestCompName || '';
             l._mktPMin = bestResult.mktPMin || bestResult.mktP;
             l._mktPMax = bestResult.mktPMax || bestResult.mktP;
-            console.log(`[시세 v3] ${cleanName(l.name)}: ${bestResult.mktP} (${bestResult.method}, 신뢰:${bestResult.confidence}, 기준:${bestResult.bestCompName}, r=${bestRadius}km, ${bestResult.sampleCount}건)`);
+            l._mktMainSize = bestResult.mainSize || size; // 비교 기준 평형
+            l._mktMainGroup = bestResult.mainGroup || ''; // 비교 기준 그룹
+            console.log(`[시세 v3] ${cleanName(l.name)}: ${bestResult.mktP} (${bestResult.method}, 기준${bestResult.mainSize}㎡[${bestResult.mainGroup}], 신뢰:${bestResult.confidence}, 기준:${bestResult.bestCompName}, r=${bestRadius}km, ${bestResult.sampleCount}건)`);
           } else {
             l.mktP = bestData.mktP;
             l._recentDeals = (bestData.recentDeals||[]).slice(0, 3);
@@ -8481,6 +8577,8 @@ async function autoFetchMarketPrices(){
             bestCompName: l._bestCompName,
             mktPMin: l._mktPMin,
             mktPMax: l._mktPMax,
+            mainSize: l._mktMainSize || 0,
+            mainGroup: l._mktMainGroup || '',
           };
           saveMktPCache(updatedCache);
         }
