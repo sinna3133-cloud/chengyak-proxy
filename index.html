@@ -4871,7 +4871,7 @@ async function showDetail(id, fromSwipe=false){
       </div>`
       :_conf==='low'?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:8px 18px;background:#FFF8F0">
-        <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️ 주변에 비슷한 거래가 ${l._sampleCount||1}건뿐이라 시세 분석이 어려워요. 단지 주변의 실제 분위기나 최근 시세를 꼭 함께 체크해보세요!</div>
+        <div style="font-size:13px;color:#B45309;line-height:1.5">⚠️ 주변에 유사한 평형의 거래가 없어 범위를 넓혀 분석한 예상치예요. 단지 주변의 실제 분위기나 최근 시세를 꼭 함께 체크해보세요!</div>
       </div>`:''}
       ${(l._recentDeals&&l._recentDeals.length)?`
       <div style="border-top:1px solid rgba(0,0,0,.06);padding:10px 18px 12px">
@@ -5000,10 +5000,10 @@ async function showDetail(id, fromSwipe=false){
     if(l.noMktP){
       if(barSale) barSale.style.width='70%'; // 분양가 바만 표시
     } else {
-      const gapSaleP=getMaxP(l);
-      const maxVal=Math.max(gapSaleP,l.mktP);
-      if(barSale) barSale.style.width=(gapSaleP/maxVal*100)+'%';
-      if(barMkt) barMkt.style.width=(l.mktP/maxVal*100)+'%';
+      // 시세를 100% 기준으로 잡아 분양가와의 차이를 시각적으로 강조
+      const gapSaleP=getAvgSaleP(l);
+      if(barMkt) barMkt.style.width='100%'; // 시세 = 항상 100%
+      if(barSale) barSale.style.width=(Math.min(100, gapSaleP/l.mktP*100))+'%';
     }
     // 커트라인 바 애니메이션
     if(l.cut){
