@@ -367,12 +367,10 @@ to{transform:translateY(0)}}
 .det-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative;z-index:1}
 .det-back{background:none;border:none;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;transition:opacity .15s;padding:0}
 /* 상세 고정 하단 CTA */
-.det-sticky-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:10px 20px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.07);z-index:90;display:none}
+.det-sticky-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.07);z-index:90;display:none}
 .det-sticky-cta.show{display:block}
-.det-cta-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px}
+.det-cta-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 16px rgba(0,102,255,.3);letter-spacing:-.2px}
 .det-cta-btn:active{transform:scale(.98)}
-.det-cta-btn-secondary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:var(--bg-card);color:var(--ink-2);border:1.5px solid rgba(0,0,0,.1);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:-.2px}
-.det-cta-btn-secondary:active{transform:scale(.98);background:var(--bg-2)}
 .det-bell{width:40px;height:40px;border-radius:10px;background:#F0F6FF;border:1.5px solid #DBEAFE;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
 .det-bell:active{background:#DBEAFE}
 .det-bell svg{width:18px;height:18px;stroke:var(--accent);fill:none;transition:all .2s}
@@ -4624,18 +4622,6 @@ async function showDetail(id, fromSwipe=false){
   // ★★★ [하드코딩 끝] ★★★
   document.getElementById('det-title').textContent=cleanName(l.name);
   document.getElementById('det-loc').textContent='📍 '+l.loc;
-  // 공고문 원본 CTA 링크 설정
-  const _pdfCta = document.getElementById('det-cta-pdf');
-  if(_pdfCta){
-    const _pNo = l.pblancNo || '';
-    if(_pNo){
-      _pdfCta.href = `https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancDetail.do?houseManageNo=&pblancNo=${_pNo}`;
-      _pdfCta.style.display = '';
-    } else {
-      _pdfCta.href = `https://www.applyhome.co.kr/ai/aia/selectAPTLttotPblancList.do`;
-      _pdfCta.style.display = '';
-    }
-  }
   document.getElementById('det-body').innerHTML=`
 
   <!-- 황금 통장 경고 -->
@@ -9944,16 +9930,10 @@ function applyLoginUI() {
 </div>
 <!-- ══ 상세 하단 고정 CTA ══ -->
 <div class="det-sticky-cta" id="det-sticky-cta" style="display:none">
-  <div style="display:flex;flex-direction:column;gap:8px">
-    <a id="det-cta-link" href="https://www.applyhome.co.kr" target="_blank" class="det-cta-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      청약홈에서 바로 신청하기
-    </a>
-    <a id="det-cta-pdf" href="https://www.applyhome.co.kr" target="_blank" class="det-cta-btn-secondary">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      공고문 원본 확인하기
-    </a>
-  </div>
+  <a id="det-cta-link" href="https://www.applyhome.co.kr" target="_blank" class="det-cta-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    청약홈에서 바로 신청하기
+  </a>
 </div>
 <script>
 /* ══ 알림센터 ══ */
