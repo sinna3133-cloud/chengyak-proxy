@@ -201,12 +201,12 @@ to{transform:translateY(0)}}
 /* ══ 추천 가로스크롤 ══ */
 .rec-scroll{display:flex;gap:10px;padding:4px 20px 8px;overflow-x:auto;scrollbar-width:none}
 .rec-scroll::-webkit-scrollbar{display:none}
-.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s}
+.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:10px 12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s}
 .rec-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .rec-top{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:6px}
 .rec-mytype{font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:#00A882}
-.rec-name{font-size:var(--t-md);font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:-.2px}
-.rec-loc{font-size:var(--t-sm);color:var(--ink-4);margin-bottom:6px}
+.rec-name{font-size:var(--t-md);font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;letter-spacing:-.2px}
+.rec-loc{font-size:var(--t-sm);color:var(--ink-4);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rec-bottom{display:flex;justify-content:space-between;align-items:center}
 .rec-price{font-size:var(--t-sm);font-weight:600;color:var(--ink-3)}
 .rec-d{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
@@ -250,7 +250,7 @@ to{transform:translateY(0)}}
 .card-name{font-size:16px;font-weight:800;margin-top:10px;color:var(--ink);line-height:1.35;letter-spacing:-.3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card-loc{font-size:12px;color:var(--ink-4);margin-top:4px;display:flex;align-items:center;gap:3px}
 /* 시세 인라인 */
-.gap-pill{display:flex;align-items:center;gap:8px;margin-top:11px;padding:8px 12px;background:var(--bg);border-radius:12px}
+.gap-pill{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;padding:8px 12px;background:var(--bg);border-radius:12px}
 .gap-nums{font-size:12px;color:var(--ink-4);display:flex;align-items:center;gap:5px}
 .gap-nums b{color:var(--ink-3);font-weight:700}
 .gap-badge{font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px}
@@ -1428,7 +1428,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name" id="more-name" style="font-size:14px;letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
+      <div class="my-name" id="more-name" style="letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
       <div class="my-sub" id="more-sub" style="display:none">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
@@ -3871,7 +3871,7 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
       <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}${l.days!==null&&l.days<=3?' urgent':''}">${daysText(l.days,'remain')}</span></div>
     </div>`;
