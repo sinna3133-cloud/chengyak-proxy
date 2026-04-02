@@ -3838,10 +3838,9 @@ function updateHero(){
     }
   }
 
-  // 마감임박 배너
-  const urgSaved=listings.filter(l=>savedIds.has(String(l.id))&&l.days>=0&&l.days<=3);
+  // 마감임박 배너 — 비활성화 (홈 화면 중간 끼어들어 UX 방해)
   const aEl=document.getElementById('alert-area');
-  aEl.innerHTML=urgSaved.length?`<div class="alert-banner" onclick="showDetail('${urgSaved[0].id}')"><div class="alert-banner-icon">🔔</div><div><div class="alert-banner-title">${urgSaved[0].days===0?'오늘 마감!':'마감 '+urgSaved[0].days+'일 전!'}</div><div class="alert-banner-sub">${urgSaved[0].name} 접수 마감 임박</div></div></div>`:'';
+  aEl.innerHTML='';
 
   renderRecommend();
 }
