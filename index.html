@@ -201,8 +201,8 @@ to{transform:translateY(0)}}
 /* ══ 추천 가로스크롤 ══ */
 .rec-scroll{display:flex;gap:10px;padding:4px 20px 8px;overflow-x:auto;scrollbar-width:none}
 .rec-scroll::-webkit-scrollbar{display:none}
-.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:10px 12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s}
-.rec-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:10px 12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s cubic-bezier(.22,1,.36,1),background .15s;-webkit-tap-highlight-color:transparent}
+.rec-card:active{transform:scale(.94);box-shadow:0 0 2px rgba(0,0,0,.04);background:rgba(0,0,0,.02)}
 .rec-top{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:6px}
 .rec-mytype{font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:#00A882}
 .rec-name{font-size:var(--t-md);font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;letter-spacing:-.2px}
