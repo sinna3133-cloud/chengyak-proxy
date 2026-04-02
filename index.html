@@ -237,8 +237,8 @@ to{transform:translateY(0)}}
 
 /* ══ 매물 카드 ══ */
 .listings{padding:10px 20px 40px;display:flex;flex-direction:column;gap:12px}
-.card{background:var(--bg-card);border-radius:20px;padding:14px 16px 10px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s;border:1px solid rgba(0,0,0,.05);will-change:transform}
-.card:active{transform:scale(.97)}
+.card{background:var(--bg-card);border-radius:20px;padding:14px 16px 10px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s cubic-bezier(.22,1,.36,1),background .15s;border:1px solid rgba(0,0,0,.05);will-change:transform;-webkit-tap-highlight-color:transparent}
+.card:active{transform:scale(.96);box-shadow:0 1px 4px rgba(0,0,0,.05);background:rgba(0,0,0,.015)}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start}
 .card-badges{display:flex;gap:5px;flex-wrap:wrap}
 /* 북마크 버튼 */
@@ -761,9 +761,14 @@ to{transform:translateY(0)}}
 @keyframes menuIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 .menu-item:nth-child(1){animation:menuIn .35s .05s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(2){animation:menuIn .35s .1s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(3){animation:menuIn .35s .15s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(4){animation:menuIn .35s .2s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(5){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(3){animation:menuIn .35s .05s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(4){animation:menuIn .35s .1s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(5){animation:menuIn .35s .15s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(6){animation:menuIn .35s .2s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(7){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(8){animation:menuIn .35s .3s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(9){animation:menuIn .35s .35s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(10){animation:menuIn .35s .4s cubic-bezier(.22,1,.36,1) both}
 
 /* ── 마감 임박 흔들림 ── */
 20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
