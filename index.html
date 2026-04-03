@@ -9573,7 +9573,7 @@ function renderAdminAllList(){
 }
 
 async function removeAdminListing(id){
-  showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, src); }, true); return;
+  showConfirm('공고 삭제', '이 공고를 삭제할까요?', '삭제', () => { _doAdminDelete(id, 'pdf'); }, true); return;
   const idx = listings.findIndex(l => l.id === id);
   if(idx > -1) listings.splice(idx, 1);
   // 삭제 ID 기억
