@@ -9083,26 +9083,40 @@ async function onAdminFileSelect(event){
 
 ★ 핵심 주의사항 ★
 
-[분양가 파싱 — 가장 중요]
-- '공급금액' 또는 '공급금액 및 납부일정' 표를 찾아라
-- 표에서 '계' 컬럼(대지비+건축비 합계)의 금액만 사용
-- 단위 변환 필수:
-  · 숫자가 1,000,000,000 수준(9자리) → 원 단위 → ÷10000 하여 만원으로 변환
-    예) 530,800,000원 → 53080만원 → minP: 53080
-  · 숫자가 100,000 수준(6자리) → 만원 단위 → 그대로 사용
-  · 단위가 '천원'으로 명시 → ÷10 하여 만원으로 변환
-- price 필드: 평형(타입)별 최저층~최고층 범위로 표시. 층별로 다르면 해당 타입의 최저~최고
-  ★ 반드시 만원 단위로 변환 후 억+천 형식으로 표기
-  예) 계 485,925,000원 → ÷10000 → 48,592만원 → "4억 8천" (4억8592만원)
-  예) 계 511,500,000원 → ÷10000 → 51,150만원 → "5억 1천" (5억1150만원)
-  예) 59타입 최저 4억8천 ~ 최고 5억1천 → "59㎡ 4억8천~5억1천"
-  예) 84타입 530,800,000원 → 53080만원 → "8억 3천" → "84㎡ 8억3천"
-  ★ 절대 주의: 485,925,000원을 "48억5천"이나 "47억5천"으로 표기하면 안 됨. 반드시 원→만원 변환 후 억 단위 표기
-- price 구분자: 평형별로 | 로 구분
-- minP: 전체 평형 중 계 컬럼 최저값을 반드시 만원 단위 정수로 입력. 절대 0이나 null 금지.
-  ★ 주의: 계약금(10~20%), 중도금, 잔금 컬럼 금액이 아닌 반드시 '계(대지비+건축비 합계)' 컬럼만 사용
-  ★ 예) 표에 "계: 530,800,000원" → 53080 / 표에 "계: 53,080만원" → 53080
-  ★ minP는 반드시 숫자(integer)로만 출력. 문자열/null/0 절대 금지.
+[분양가 파싱 — 가장 중요 — 단계별 수행]
+
+STEP 1: 공급금액 표 찾기
+- PDF에서 '공급금액', '공급금액 및 납부일정', '분양가격' 표를 찾아라
+- 표 안에서 반드시 '계' 또는 '합계' 컬럼(대지비+건축비 합계)만 사용
+- ★ 계약금·중도금·잔금 컬럼은 절대 사용 금지 — 반드시 '계(합계)' 컬럼만
+
+STEP 2: 원본 숫자 그대로 기록 (priceRaw 필드)
+- 표에서 읽은 '계' 금액을 타입별로 원본 숫자 그대로 기록
+- 단위도 원본 그대로 기재 (원/만원/천원 등)
+- 형식: "타입명:숫자단위" 를 | 로 구분
+- 층별로 다르면 최저~최고 모두 기록
+
+STEP 3: 단위 판별 및 만원 변환
+- 숫자 자릿수로 단위를 판별:
+  · 9자리 이상 (100,000,000~) → 원 단위 → ÷10000 → 만원
+  · 5~6자리 (10,000~999,999) → 만원 단위 → 그대로 사용
+  · '천원' 명시 → ÷10 → 만원
+
+STEP 4: 만원 → 억+천 변환 (price 필드)
+- 만원 값에서 억 단위와 천만원 단위를 분리
+- ★ 절대 주의: 원 단위 숫자를 만원 변환 없이 바로 읽으면 안 됨
+- 타입별로 | 구분. 층별 범위가 있으면 ~ 로 최저~최고 표시
+
+STEP 5: minP 산출
+- STEP 3에서 변환한 만원 값 중 전체 타입의 최저값을 정수로 입력
+- minP는 반드시 양의 정수(integer). 문자열/null/0 절대 금지
+- minPRaw: STEP 2에서 기록한 원본 값 중 최저값을 숫자만 기재 (단위 제거)
+
+★★★ 경고 ★★★
+- 이 프롬프트 안의 어떤 숫자도 절대 복사하지 마라
+- 반드시 PDF 공고문 원본 표에 있는 실제 금액만 추출할 것
+- 금액이 의심스러우면 priceRaw에 원본을 정확히 기록하고, 변환은 위 STEP대로 수행
+
 - mktP: 주변 시세 만원 단위 숫자. 공고에 없으면 반드시 0(숫자)으로 출력.
 
 [세대수]
@@ -9125,8 +9139,10 @@ async function onAdminFileSelect(event){
   "loc": "공급위치(소재지) 주소를 공고문 원문 그대로 옮겨적을 것. 절대 '일원' 사용 금지. 반드시 번지까지 포함된 정확한 주소만 기재. 공고문에 'OO동 일원'으로만 되어있더라도 사업계획승인 내용·부지 위치·공급위치 표 등에서 번지 주소를 찾아 기재. 예: 서울특별시 서초구 반포동 1-1번지, 부산광역시 사하구 당리동 340-3번지, 서울특별시 용산구 이촌동 300-6번지",
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
-  "price": "평형별 분양가 (| 구분). 타입별 최저~최고 범위로 표시. 원단위→만원→억+천 변환 필수. 예: 59㎡ 4억8천~5억1천|84㎡ 8억4천~8억8천",
+  "priceRaw": "STEP2 결과: 표 원본 금액을 타입별로 그대로 기록. 형식: 타입명:원본숫자단위|타입명:원본숫자단위. 이 값은 검증용이므로 PDF 표에서 읽은 숫자를 변환 없이 그대로 적을 것",
+  "price": "STEP4 결과: 평형별 분양가를 억+천 형식으로 변환. 형식: [면적]㎡ [억+천]~[억+천]|[면적]㎡ [억+천]~[억+천]. 반드시 STEP3 만원 변환을 거친 값에서 산출",
   "minP": 0,
+  "minPRaw": 0,
   "mktP": 0,
   "deadline": "청약 접수 마감일 YYYY-MM-DD. 선착순 분양/계약 공고이거나 마감일이 명시되지 않은 경우 반드시 '9999-12-31'로 입력",
   "size": "공급 면적 (예: 59㎡ / 84㎡)",
@@ -9251,6 +9267,76 @@ async function onAdminFileSelect(event){
       if (n > 200000) return Math.round(n / 10000); // 20억만원 초과 → 원 단위로 판단, 만원 변환
       return n;
     }
+
+    // ★ 가격 추출 검증 — 다단계 교차 검증 ★
+    const _priceWarnings = [];
+    const _sMinP = sanitizeMinP(parsed.minP);
+
+    if(parsed.price){
+      // 1) price 문자열에서 금액 추출
+      const _pNums = [];
+      parsed.price.split(/[|]/).forEach(seg => {
+        seg.split(/[~]/).forEach(part => {
+          const n = priceToNum(part.trim());
+          if(n > 0) _pNums.push(n);
+        });
+      });
+
+      // 2) minP ↔ price 교차 검증
+      if(_pNums.length && _sMinP > 0){
+        const _pMin = Math.min(..._pNums);
+        const _pMax = Math.max(..._pNums);
+        if(_sMinP < _pMin * 0.5 || _sMinP > _pMax * 1.5){
+          _priceWarnings.push(`⚠️ minP(${_sMinP.toLocaleString()}만원)가 price 범위(${_pMin.toLocaleString()}~${_pMax.toLocaleString()}만원)와 크게 다릅니다.`);
+        }
+      }
+
+      // 3) minPRaw ↔ minP 역산 검증
+      const _rawVal = parseInt(parsed.minPRaw) || 0;
+      if(_rawVal > 0 && _sMinP > 0){
+        let _rawInManwon = _rawVal;
+        if(_rawVal > 200000) _rawInManwon = Math.round(_rawVal / 10000);
+        const _diffPct = Math.abs(_rawInManwon - _sMinP) / Math.max(_rawInManwon, _sMinP) * 100;
+        if(_diffPct > 10){
+          _priceWarnings.push(`⚠️ minPRaw(${_rawVal.toLocaleString()})→만원(${_rawInManwon.toLocaleString()})과 minP(${_sMinP.toLocaleString()})가 ${_diffPct.toFixed(0)}% 차이.`);
+        }
+        if(_diffPct > 30 && _rawInManwon > 1000){
+          parsed.minP = _rawInManwon;
+          _priceWarnings.push(`🔧 minP를 ${_sMinP.toLocaleString()} → ${_rawInManwon.toLocaleString()}만원으로 자동 교정 (minPRaw 기준).`);
+        }
+      }
+
+      // 4) priceRaw ↔ price 교차 검증
+      if(parsed.priceRaw && _pNums.length){
+        const _rawNums = [];
+        parsed.priceRaw.split(/[|]/).forEach(seg => {
+          const nums = seg.match(/[0-9]+/g);
+          if(nums) nums.forEach(n => {
+            let v = parseInt(n);
+            if(v > 200000) v = Math.round(v / 10000);
+            if(v > 100) _rawNums.push(v);
+          });
+        });
+        if(_rawNums.length){
+          const _rawMin = Math.min(..._rawNums);
+          const _priceMin = Math.min(..._pNums);
+          if(Math.abs(_rawMin - _priceMin) / Math.max(_rawMin, _priceMin) > 0.15){
+            _priceWarnings.push(`⚠️ priceRaw 최저(${_rawMin.toLocaleString()}만원)와 price 최저(${_priceMin.toLocaleString()}만원)가 15% 이상 차이.`);
+          }
+        }
+      }
+    }
+
+    // 5) 합리성 검사
+    if(_sMinP > 0){
+      if(parsed.type === 'public' && _sMinP > 100000){
+        _priceWarnings.push(`⚠️ 공공분양인데 최저가 ${(_sMinP/10000).toFixed(1)}억원. 비정상적으로 높습니다.`);
+      }
+      if(_sMinP < 1000){
+        _priceWarnings.push(`⚠️ 최저가 ${_sMinP}만원. 비정상적으로 낮습니다. 단위 오류 가능성.`);
+      }
+    }
+
     _adminExtracted = {
       ...parsed,
       id: Date.now(),
@@ -9258,10 +9344,17 @@ async function onAdminFileSelect(event){
       builder: parsed.builder || '',
       minP: (function(){
         let v = sanitizeMinP(parsed.minP);
-        // minP가 0이면 price 문자열에서 최저값 추출 시도
+        // minPRaw가 있으면 역산 검증 후 더 신뢰할 수 있는 값 사용
+        const rawV = parseInt(parsed.minPRaw) || 0;
+        if(rawV > 0){
+          const rawManwon = rawV > 200000 ? Math.round(rawV / 10000) : rawV;
+          if(!v || (v > 0 && Math.abs(rawManwon - v) / Math.max(rawManwon, v) > 0.3)){
+            v = rawManwon;
+          }
+        }
+        // 그래도 0이면 price 문자열에서 최저값 추출 시도
         if(!v && parsed.price){
           const nums = [];
-          // "17억7천~18억7천" 형태에서 숫자 추출 — priceToNum 재사용
           const segments = parsed.price.split(/[|~]/);
           segments.forEach(seg => {
             const n = priceToNum(seg.trim());
@@ -9269,8 +9362,19 @@ async function onAdminFileSelect(event){
           });
           if(nums.length) v = Math.min(...nums);
         }
+        // 최후 폴백: priceRaw에서 직접 추출
+        if(!v && parsed.priceRaw){
+          const rawNums = [];
+          (parsed.priceRaw.match(/[0-9]+/g)||[]).forEach(n => {
+            let val = parseInt(n);
+            if(val > 200000) val = Math.round(val / 10000);
+            if(val > 1000) rawNums.push(val);
+          });
+          if(rawNums.length) v = Math.min(...rawNums);
+        }
         return v;
       })(),
+      priceRaw: parsed.priceRaw || '',
       lotto: (parsed.elig||[]).includes('무순위(줍줍)'),
       mktP: 0,
       noMktP: true,
@@ -9300,6 +9404,7 @@ async function onAdminFileSelect(event){
           ['단지명', parsed.name],
           ['위치', parsed.loc],
           ['분양가', parsed.price],
+          ['원본금액', parsed.priceRaw || '(미제공)'],
           ['계약금', (parseInt(parsed.downPct)||'미확인') + (parsed.downPct ? '%' : '')],
           ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ? ` (모집 ${parsed.recruitUnits}세대)` : '')],
           ['마감일', parsed.aE],
@@ -9311,7 +9416,10 @@ async function onAdminFileSelect(event){
             <span style="font-size:11px;color:var(--ink-5);width:60px;flex-shrink:0;padding-top:2px">${k}</span>
             <span style="font-size:13px;font-weight:600;color:var(--ink);flex:1">${v||'—'}</span>
           </div>`).join('')}
-      </div>`;
+      </div>
+      ${_priceWarnings.length ? `<div style="margin-top:8px;padding:8px 10px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;font-size:12px;color:#856404;line-height:1.5">
+        <b>🔍 가격 검증 결과</b><br>${_priceWarnings.join('<br>')}
+      </div>` : ''}`;
     document.getElementById('admin-preview').style.display = 'block';
 
   } catch(e) {
