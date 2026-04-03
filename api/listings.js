@@ -77,10 +77,12 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const id = req.body.id;
+      // 쿼리 파라미터 또는 body에서 id 추출
+      const id = (req.query && req.query.id) ? Number(req.query.id) : (req.body && req.body.id);
+      if (!id) return res.status(400).json({ error: 'no id' });
       const raw = await redis('GET', 'admin_listings');
       const listings = raw ? JSON.parse(raw) : [];
-      const updated = listings.filter(function(l) { return l.id !== id; });
+      const updated = listings.filter(function(l) { return Number(l.id) !== Number(id); });
       await redis('SET', 'admin_listings', JSON.stringify(updated));
       return res.status(200).json({ success: true, listings: updated });
     }
