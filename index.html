@@ -3510,6 +3510,31 @@ function isWasteOfTicket(l, p) {
   return g.g < 30000 && !l.noMktP && l.mktP > 0;
 }
 
+/* ══ 날짜 정규화: 다양한 형식 → YYYY-MM-DD ══ */
+function normalizeDate(d){
+  if(!d) return '';
+  var s = String(d).trim();
+  // 9999-12-31 등은 그대로
+  if(s.startsWith('9999')) return s;
+  // "2026년 04월 16일" → "2026-04-16"
+  var m = s.match(/(\d{4})\s*[년.\-\/]\s*(\d{1,2})\s*[월.\-\/]\s*(\d{1,2})/);
+  if(m) return m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
+  // "2026-04-16" 이미 정상이면 그대로
+  var m2 = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m2) return m2[1]+'-'+String(m2[2]).padStart(2,'0')+'-'+String(m2[3]).padStart(2,'0');
+  return s;
+}
+
+/* ══ 정규화된 날짜 문자열 → Date 객체 (안전 파싱) ══ */
+function parseDateSafe(d){
+  var s = normalizeDate(d);
+  if(!s) return null;
+  var p = s.slice(0,10).split('-');
+  if(p.length < 3) return null;
+  var dt = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
 /* ══ 단지명 정리 ══ */
 function cleanName(name){
   if(!name) return name;
@@ -3914,7 +3939,7 @@ function _doRenderListings(){
   else if(curFilter==='private') fl=listings.filter(l=>l.type==='private' && !isLotto(l));
   else if(curFilter==='lotto') fl=listings.filter(l=>isLotto(l));
   // 전체 탭: 로또청약 공고는 한 번만 (중복 제거 — 이미 listings에 하나만 있음)
-  // 마감 지난 공고 제외 (days < 0 = 이미 마감)
+  // 마감 지난 공고 제외
   fl = fl.filter(l => l.days === null || l.days >= 0);
   if(q) fl=fl.filter(l=>l.name.toLowerCase().includes(q)||l.loc.toLowerCase().includes(q));
   // 지역 필터 — 로또청약은 지역 필터 무시 (누구나 신청 가능)
@@ -8794,16 +8819,15 @@ async function loadLiveData(){
         delete l._maxP; delete l._minPSanitized;
         l.mktP = 0;
         l.noMktP = true;
-        // deadline 폴백: deadline 없으면 aE(접수 종료일) 사용
-        if(!l.deadline && l.aE) l.deadline = l.aE;
+        // deadline 폴백 + 정규화
+        l.deadline = normalizeDate(l.deadline) || normalizeDate(l.aE) || '';
         // 선착순 공고 방어: sched에 선착순 포함 시 deadline 강제 9999
         if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
           l.deadline = '9999-12-31';
           l.days = null;
         } else if(l.deadline && !String(l.deadline).startsWith('9999')){
-          const _dp2 = String(l.deadline).slice(0,10).split('-');
-          const _end2 = new Date(parseInt(_dp2[0]), parseInt(_dp2[1])-1, parseInt(_dp2[2]));
-          l.days = Math.ceil((_end2 - _adminToday) / 86400000);
+          const _end2 = parseDateSafe(l.deadline);
+          l.days = _end2 ? Math.ceil((_end2 - _adminToday) / 86400000) : 999;
         } else {
           // deadline도 aE도 없는 경우: 미래 공고로 간주
           if(l.days === undefined || l.days === null) l.days = 999;
@@ -8818,18 +8842,17 @@ async function loadLiveData(){
 
     listings.splice(0, listings.length, ...filtered);
 
-    // days 전체 재계산
+    // days 전체 재계산 (정규화 + 안전 파싱)
     const _kst3 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
     const _liveToday = new Date(_kst3.getFullYear(), _kst3.getMonth(), _kst3.getDate());
     listings.forEach(l => {
-      if(!l.deadline && l.aE) l.deadline = l.aE;
+      l.deadline = normalizeDate(l.deadline) || normalizeDate(l.aE) || l.deadline || '';
       if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
         l.deadline = '9999-12-31';
         l.days = null;
       } else if(l.deadline && !String(l.deadline).startsWith('9999')){
-        const _dp3 = String(l.deadline).slice(0,10).split('-');
-        const _end3 = new Date(parseInt(_dp3[0]), parseInt(_dp3[1])-1, parseInt(_dp3[2]));
-        l.days = Math.ceil((_end3 - _liveToday) / 86400000);
+        const _end3 = parseDateSafe(l.deadline);
+        l.days = _end3 ? Math.ceil((_end3 - _liveToday) / 86400000) : 999;
       } else if(l.days === undefined) {
         l.days = 999;
       }
@@ -8911,11 +8934,11 @@ if (_OAUTH_CODE) {
 const _nowKST = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
 const _initToday = new Date(_nowKST.getFullYear(), _nowKST.getMonth(), _nowKST.getDate());
 listings.forEach(l => {
+  l.deadline = normalizeDate(l.deadline) || l.deadline || '';
   if(l.deadline){
-    // deadline이 'YYYY-MM-DD' 형태면 KST 자정으로 처리
-    const _dp = l.deadline.slice(0,10).split('-');
-    const end = new Date(parseInt(_dp[0]), parseInt(_dp[1])-1, parseInt(_dp[2]));
-    if(end.getFullYear() >= 9000){ l.days = null; }
+    const end = parseDateSafe(l.deadline);
+    if(!end){ /* 파싱 실패 시 건너뜀 */ }
+    else if(end.getFullYear() >= 9000){ l.days = null; }
     else { l.days = Math.ceil((end - _initToday) / 86400000); } // 음수=마감완료
   }
 });
@@ -9254,8 +9277,8 @@ STEP 5: minP 산출
       const contractMatch = (parsed.sched||'').match(/계약[:\s]*([0-9.\-~\s]+)/);
       if(contractMatch) normalizedSched += ` / 계약: ${contractMatch[1].trim()}`;
     }
-    // deadline: API는 마감일 YYYY-MM-DD 형식
-    const normalizedDeadline = parsed.deadline || parsed.aE || '';
+    // deadline: 다양한 형식 → YYYY-MM-DD 정규화
+    const normalizedDeadline = normalizeDate(parsed.deadline) || normalizeDate(parsed.aE) || '';
 
     // minP 단위 정제 — Claude가 원 단위로 뽑는 경우 만원으로 변환
     function sanitizeMinP(val) {
@@ -9385,7 +9408,7 @@ STEP 5: minP 산출
       typeSpecialQuota: parsed.typeSpecialQuota || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
-      days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.ceil((_ed-_td)/86400000); })(),
+      days: (function(){ var _dl = normalizeDate(parsed.aE) || normalizedDeadline; if(!_dl||_dl.startsWith('9999')) return null; var _ed=parseDateSafe(_dl); if(!_ed) return null; var _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); var _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); return Math.ceil((_ed-_td)/86400000); })(),
       priceFactors: [],
       price: (function(){
         // priceRaw에서 자동 변환: "59A:1956600000~2150100000원|84A:2388300000원" → "59A㎡ 19억5천~21억5천|84A㎡ 23억8천"
