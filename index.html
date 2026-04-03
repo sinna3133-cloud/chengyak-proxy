@@ -758,11 +758,17 @@ to{transform:translateY(0)}}
 
 /* ── 마이페이지 메뉴 순차 ── */
 @keyframes menuIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bubbleFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-5px)}}
 .menu-item:nth-child(1){animation:menuIn .35s .05s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(2){animation:menuIn .35s .1s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(3){animation:menuIn .35s .15s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(4){animation:menuIn .35s .2s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(5){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(6){animation:menuIn .35s .3s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(7){animation:menuIn .35s .35s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(8){animation:menuIn .35s .4s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(9){animation:menuIn .35s .45s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(10){animation:menuIn .35s .5s cubic-bezier(.22,1,.36,1) both}
 
 /* ── 마감 임박 흔들림 ── */
 20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
@@ -1428,7 +1434,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
 <div class="screen" id="screen-more">
   <div class="my-hero">
     <div style="position:relative;z-index:1">
-      <div class="my-name" id="more-name" style="letter-spacing:-.3px;line-height:1.4;white-space:nowrap">로그인하고 나만의 청약 정보를 확인하세요</div>
+      <div class="my-name" id="more-name" style="letter-spacing:-.3px;line-height:1.3;font-size:16px;white-space:nowrap">로그인하고<br><span style="font-size:13px;font-weight:600;color:var(--ink-4)">나만의 청약 정보를 확인하세요</span></div>
       <div class="my-sub" id="more-sub" style="display:none">청약에 필요한 모든 것</div>
     </div>
     <div id="more-login-area" style="margin-left:auto;position:relative;z-index:1">
@@ -1488,7 +1494,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       </div>
       <!-- 초과 말풍선 -->
       <div id="prem-overquota-bubble" style="display:none;position:relative;margin-top:16px">
-        <div style="position:absolute;top:-14px;right:12px;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:700;padding:5px 10px;border-radius:20px 20px 20px 4px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+        <div style="position:absolute;top:-14px;right:12px;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:700;padding:5px 10px;border-radius:20px 20px 20px 4px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1);animation:bubbleFloat 2.4s ease-in-out infinite">
           이번 주 무료 횟수를 모두 사용했어요
         </div>
       </div>
@@ -1506,8 +1512,8 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
   <div style="background:linear-gradient(135deg,var(--ink),var(--ink-2));padding:20px 20px 24px;position:relative;overflow:hidden;flex-shrink:0">
     <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,102,255,.2) 0%,transparent 70%);top:-60px;right:-40px;pointer-events:none"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
-      <button onclick="closeReport()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white">
-        <svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg>
+      <button onclick="closeReport()" style="background:none;border:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;padding:0">
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 1,9 8,17"/></svg>
       </button>
       <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7)" id="report-nav-title">청약 전략 리포트</div>
       <div style="width:44px"></div>
@@ -1817,6 +1823,9 @@ function wRadio(el,group){
     if(childField) childField.style.display=hasChildren?'block':'none';
     if(!hasChildren){ P.children=0; P.childDates=[]; renderChildDates(); }
     if(!isMarried){ P.isDual=false; P.marriageYear=''; P.spouseAcc=false; onIncomeChange(); }
+    // 배우자 소득 필드: 기혼일 때만 표시 (미혼/이혼·사별 시 숨김)
+    const sf=document.getElementById('spouse-income-field');
+    if(sf) sf.style.display=isMarried?'block':'none';
     // 배우자 통장 필드: 기혼일 때만 표시
     const spAccField=document.getElementById('w-spouse-acc-field');
     if(spAccField) spAccField.style.display=isMarried?'block':'none';
@@ -1831,9 +1840,6 @@ function wRadio(el,group){
   }
   if(group==='dualincome'){
     P.isDual=(el.textContent==='맞벌이'); invalidateCalcCache();
-    // 맞벌이면 배우자 소득 필드 표시
-    const sf=document.getElementById('spouse-income-field');
-    if(sf) sf.style.display=P.isDual?'block':'none';
     // 소득 라벨 업데이트
     const lbl=document.getElementById('income-who-label');
     if(lbl) lbl.textContent=P.isDual?'본인':'본인';
@@ -6714,7 +6720,7 @@ async function generateReport(){
   const _channelReason = [..._pubStrengths, ..._pvtStrengths].join('. ');
 
   const prompt = `[Role]
-당신은 대한민국 주택청약 시장에서 200건 이상 당첨 컨설팅을 성공시킨 15년 경력 수석 청약 컨설턴트예요.
+당신은 대한민국 주택청약 시장에 정통한 AI 청약 분석가예요.
 부동산 시장의 냉혹한 현실을 직시하면서도, 고객 한 명 한 명에게 실행 가능한 최적 전략을 제시하는 것이 당신의 강점이에요.
 단순 정보 나열 절대 금지 — 숨은 리스크를 먼저 진단하고, 구체적 수치 근거와 함께 단호한 전략을 제안해요.
 고객을 지칭할 때는 반드시 "${reportName}님"으로 불러요. "고객님" 표현 금지.
@@ -6845,7 +6851,7 @@ ${cash < _contractAmt ? '→ [BOLD:' + (_contractAmt-cash).toLocaleString() + '�
 [SECTION:${reportName}님의 당첨 확률을 높여줄 '오늘의 할 일'이에요]
 [HEADLINE:${reportName}님이 이번 주 안에 해야 할 3가지]
 
-수석 컨설턴트로서 단호하게 알려드려요. 순서대로 하나씩:
+순서대로 하나씩 알려드려요:
 
 [BOLD:오늘 당장]
 - 구체적 공고명과 함께 당장 확인해야 할 것 (청약홈 가입확인, 통장 잔액, 서류 준비)
@@ -7211,12 +7217,21 @@ function _sectionViz(title, stats, body){
 }
 
 function _sectionLabel(title){
-  // 이모지 제거하고 순수 텍스트만
-  return (title || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FEFF}\u{1F900}-\u{1F9FF}]/gu, '').trim();
+  // 이모지, ], # 제거하고 순수 텍스트만
+  return (title || '')
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FEFF}\u{1F900}-\u{1F9FF}]/gu, '')
+    .replace(/\]/g,'').replace(/\[/g,'').replace(/#+/g,'')
+    .trim();
 }
 
 function _parseBody(body){
   return body.split('\n').filter(l => l.trim() && l.trim() !== '---' && l.trim() !== '–––' && l.trim() !== '—').map(l => {
+    // AI가 마크다운 헤더(#, ##, ###)를 출력한 경우 # 제거 후 소제목으로 처리
+    const headingMatch = l.trim().match(/^#{1,3}\s+(.+)/);
+    if(headingMatch){
+      const headText = headingMatch[1].replace(/\]/g,'').replace(/\[/g,'').trim();
+      return `<div style="font-size:15px;font-weight:800;color:var(--ink);margin:14px 0 6px;letter-spacing:-.3px">${_md(headText)}</div>`;
+    }
     const t = l.trim();
     if(!t) return '';
     // [BOLD:텍스트] 처리
@@ -7276,6 +7291,7 @@ function _parseBody(body){
 
 function _md(s){
   return s
+    .replace(/^#{1,3}\s+/,'')                  // Fix 9: 줄 시작 # 헤더 제거
     .replace(/\[BOLD:([^\]]+)\]/g,'<strong style="color:var(--accent-dark);font-weight:800">$1</strong>')
     // AI가 BOLD: 형식을 잘못 출력한 경우 처리 (대괄호 없이 BOLD: 만 있는 경우)
     .replace(/BOLD:([^\s,.\]]+(?:\s[^\s,.\]]+)*)/g,'<strong style="color:var(--accent-dark);font-weight:800">$1</strong>')
@@ -7283,8 +7299,9 @@ function _md(s){
     .replace(/`([^`]+)`/g,'<strong style="color:var(--accent);font-weight:700">$1</strong>')
     .replace(/\[단지명:\s*([^\]]+)\]/g,'<strong style="color:var(--accent);font-weight:900;font-size:16px;letter-spacing:-.3px">$1</strong>')
     .replace(/\[전형:\s*([^\]]+)\]/g,'<strong style="color:var(--mint);font-weight:800">$1</strong>')
-    .replace(/\]/g,'')
-    .replace(/\[/g,'');
+    .replace(/\]/g,'')                          // Fix 8: 남은 ] 제거
+    .replace(/\[/g,'')                          // Fix 8: 남은 [ 제거
+    .replace(/#+\s*/g,'');                      // Fix 9: 남은 # 제거
 }
 
 
@@ -7304,11 +7321,41 @@ function saveReportHistory(html){
     types: calcTypes(P).map(t=>t.l).join('·') || '조건 미입력',
     html: html
   };
-  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
-  history.unshift(item); // 최신이 맨 앞
-  if(history.length > 20) history.pop(); // 최대 20개 보관
-  localStorage.setItem('report_history_'+(kakaoUser?.kakaoId||'guest'), JSON.stringify(history));
+  const storageKey = 'report_history_'+(kakaoUser?.kakaoId||'guest');
+  const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  history.unshift(item);
+  if(history.length > 20) history.pop();
+  localStorage.setItem(storageKey, JSON.stringify(history));
+  // ── 로그인 상태면 Supabase에도 동기화 ──
+  if(kakaoUser?.kakaoId){
+    try {
+      sb.upsert('report_history', {
+        kakao_id: String(kakaoUser.kakaoId),
+        history_json: JSON.stringify(history),
+        updated_at: now.toISOString()
+      });
+    } catch(e){}
+  }
   renderReportHistory();
+}
+
+async function syncReportHistoryFromCloud(){
+  if(!kakaoUser?.kakaoId) return;
+  try {
+    const rows = await sb.select('report_history', {kakao_id: String(kakaoUser.kakaoId)});
+    if(rows && rows.length && rows[0].history_json){
+      const cloudHistory = JSON.parse(rows[0].history_json);
+      const storageKey = 'report_history_'+kakaoUser.kakaoId;
+      const localHistory = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      // 로컬 + 클라우드 병합 (id 기준 중복 제거, 최신 순)
+      const merged = [...localHistory, ...cloudHistory]
+        .filter((v,i,a) => a.findIndex(x=>x.id===v.id)===i)
+        .sort((a,b) => b.id - a.id)
+        .slice(0, 20);
+      localStorage.setItem(storageKey, JSON.stringify(merged));
+      renderReportHistory();
+    }
+  } catch(e){}
 }
 
 function renderReportHistory(){
@@ -9491,6 +9538,11 @@ const sb = {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: this.headers });
     return res.json();
   },
+  async select(table, filter={}) {
+    const qs = Object.entries(filter).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, { headers: this.headers });
+    return res.json();
+  },
   async upsert(table, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
@@ -9505,6 +9557,7 @@ const sb = {
     });
     return res.ok;
   }
+
 };
 
 /* ── Supabase: 프로필 저장 ── */
@@ -9808,6 +9861,7 @@ let kakaoUser = null; // { kakaoId, nickname, avatar, accessToken }
           sbLoadBookmarks(String(kakaoUser.kakaoId)),
           sbLoadCondition(String(kakaoUser.kakaoId))
         ]);
+        syncReportHistoryFromCloud().catch(()=>{});
         applyLoginUI();
         updateHero();
         updateMyCondCard();
@@ -9868,6 +9922,7 @@ async function handleNaverCallback(code, state) {
     sbSaveProfile(kakaoUser);
     sbLoadBookmarks(kakaoUser.kakaoId).then(() => { applyLoginUI(); updateHero(); });
     sbLoadCondition(kakaoUser.kakaoId).then(() => { updateMyCondCard(); });
+    syncReportHistoryFromCloud().catch(()=>{});
   } catch(e) {
     showToast('❌ 네이버 로그인 실패: ' + e.message);
   }
@@ -9912,6 +9967,7 @@ async function handleKakaoCallback(code) {
     sbSaveProfile(kakaoUser);
     sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
     sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); renderListings(); });
+    syncReportHistoryFromCloud().catch(()=>{});
   } catch(e) {
     showToast('❌ 로그인 실패: ' + e.message);
   }
