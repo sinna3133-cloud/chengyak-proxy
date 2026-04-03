@@ -9096,21 +9096,19 @@ STEP 2: 원본 숫자 그대로 기록 (priceRaw 필드)
 - 형식: "타입명:숫자단위" 를 | 로 구분
 - 층별로 다르면 최저~최고 모두 기록
 
-STEP 3: 단위 판별 및 만원 변환
-- 숫자 자릿수로 단위를 판별:
-  · 9자리 이상 (100,000,000~) → 원 단위 → ÷10000 → 만원
-  · 5~6자리 (10,000~999,999) → 만원 단위 → 그대로 사용
-  · '천원' 명시 → ÷10 → 만원
+STEP 3: 원 → 만원 변환
+- 원 단위(9자리 이상): 숫자를 10000으로 나눠서 만원으로 변환
+- 만원 단위(5~6자리): 그대로 사용
+- 천원 단위: 10으로 나눠서 만원으로 변환
 
-STEP 4: 만원 → 억+천 변환 (price 필드)
-- 만원 값에서 억 단위와 천만원 단위를 분리
-- ★ 절대 주의: 원 단위 숫자를 만원 변환 없이 바로 읽으면 안 됨
-- 타입별로 | 구분. 층별 범위가 있으면 ~ 로 최저~최고 표시
+STEP 4: price 필드 작성
+- price는 priceRaw를 그대로 복사한다. price = priceRaw와 동일하게 작성
+- 변환하지 마라. 원본 그대로 넣어라
 
 STEP 5: minP 산출
-- STEP 3에서 변환한 만원 값 중 전체 타입의 최저값을 정수로 입력
+- priceRaw에서 가장 작은 숫자(원 단위)를 찾아 10000으로 나눈 정수값 입력
 - minP는 반드시 양의 정수(integer). 문자열/null/0 절대 금지
-- minPRaw: STEP 2에서 기록한 원본 값 중 최저값을 숫자만 기재 (단위 제거)
+- minPRaw: priceRaw에서 가장 작은 원본 숫자를 단위 제거 후 기재
 
 ★★★ 경고 ★★★
 - 이 프롬프트 안의 어떤 숫자도 절대 복사하지 마라
@@ -9140,7 +9138,7 @@ STEP 5: minP 산출
   "region": "지역코드 (seoul/gyeonggi/incheon/busan/daejeon/sejong/daegu/gwangju/ulsan/gangwon/chungnam/jeonnam 중 하나)",
   "type": "public 또는 private (시행사가 LH/SH/지자체면 public, 민간건설사면 private)",
   "priceRaw": "STEP2 결과: 표 원본 금액을 타입별로 그대로 기록. 형식: 타입명:원본숫자단위|타입명:원본숫자단위. 이 값은 검증용이므로 PDF 표에서 읽은 숫자를 변환 없이 그대로 적을 것",
-  "price": "STEP4 결과: 평형별 분양가를 억+천 형식으로 변환. 형식: [면적]㎡ [억+천]~[억+천]|[면적]㎡ [억+천]~[억+천]. 반드시 STEP3 만원 변환을 거친 값에서 산출",
+  "price": "priceRaw와 동일하게 입력. 변환하지 말 것. 시스템이 자동 변환함",
   "minP": 0,
   "minPRaw": 0,
   "mktP": 0,
@@ -9389,7 +9387,31 @@ STEP 5: minP 산출
       eligTiers: parsed.eligTiersData || [],
       days: (function(){ if(!parsed.aE||String(parsed.aE).startsWith('9999')) return null; const _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); const _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); const _dp=String(parsed.aE).slice(0,10).split('-'); const _ed=new Date(parseInt(_dp[0]),parseInt(_dp[1])-1,parseInt(_dp[2])); return Math.ceil((_ed-_td)/86400000); })(),
       priceFactors: [],
-      price: parsed.price || '공고 확인 필요',
+      price: (function(){
+        // priceRaw에서 자동 변환: "59A:1956600000~2150100000원|84A:2388300000원" → "59A㎡ 19억5천~21억5천|84A㎡ 23억8천"
+        if(parsed.priceRaw){
+          try {
+            return parsed.priceRaw.split('|').map(seg => {
+              const m = seg.match(/^([^:]+):(.*)/);
+              if(!m) return seg;
+              const typeName = m[1].trim();
+              const valPart = m[2].replace(/원/g,'').trim();
+              const nums = valPart.split('~').map(v => {
+                let n = parseInt(v.replace(/,/g,'').trim()) || 0;
+                if(n > 200000) n = Math.round(n / 10000); // 원→만원
+                return n;
+              }).filter(n => n > 0);
+              if(!nums.length) return seg;
+              const formatted = nums.map(n => numToUkChun(n)).filter(Boolean);
+              if(formatted.length === 2) return typeName + '㎡ ' + formatted[0] + '~' + formatted[1];
+              if(formatted.length === 1) return typeName + '㎡ ' + formatted[0];
+              return seg;
+            }).join('|');
+          } catch(e){}
+        }
+        // priceRaw 없으면 AI가 준 price 사용 (폴백)
+        return parsed.price || '공고 확인 필요';
+      })(),
       sched: normalizedSched,
       deadline: normalizedDeadline
     };
@@ -9403,7 +9425,7 @@ STEP 5: minP 산출
         ${[
           ['단지명', parsed.name],
           ['위치', parsed.loc],
-          ['분양가', parsed.price],
+          ['분양가', _adminExtracted.price],
           ['원본금액', parsed.priceRaw || '(미제공)'],
           ['계약금', (parseInt(parsed.downPct)||'미확인') + (parsed.downPct ? '%' : '')],
           ['세대수', (parsed.units||'?') + '세대' + (parsed.recruitUnits ? ` (모집 ${parsed.recruitUnits}세대)` : '')],
