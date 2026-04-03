@@ -201,8 +201,8 @@ to{transform:translateY(0)}}
 /* ══ 추천 가로스크롤 ══ */
 .rec-scroll{display:flex;gap:10px;padding:4px 20px 8px;overflow-x:auto;scrollbar-width:none}
 .rec-scroll::-webkit-scrollbar{display:none}
-.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:10px 12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s cubic-bezier(.22,1,.36,1),background .15s;-webkit-tap-highlight-color:transparent}
-.rec-card:active{transform:scale(.94);box-shadow:0 0 2px rgba(0,0,0,.04);background:rgba(0,0,0,.02)}
+.rec-card{flex-shrink:0;width:180px;background:var(--bg-card);border-radius:16px;padding:10px 12px;border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s}
+.rec-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .rec-top{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:6px}
 .rec-mytype{font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:20px;background:var(--mint-light);color:#00A882}
 .rec-name{font-size:var(--t-md);font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;letter-spacing:-.2px}
@@ -236,9 +236,9 @@ to{transform:translateY(0)}}
 .sort-sel{border:1.5px solid rgba(0,0,0,.08);background:var(--bg-card);border-radius:10px;padding:6px 28px 6px 10px;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238896A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 
 /* ══ 매물 카드 ══ */
-.listings{padding:10px 20px 40px;display:flex;flex-direction:column;gap:12px}
-.card{background:var(--bg-card);border-radius:20px;padding:14px 16px 10px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s cubic-bezier(.22,1,.36,1),background .15s;border:1px solid rgba(0,0,0,.05);will-change:transform;-webkit-tap-highlight-color:transparent}
-.card:active{transform:scale(.96);box-shadow:0 1px 4px rgba(0,0,0,.05);background:rgba(0,0,0,.015)}
+.listings{padding:10px 20px 40px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--bg-card);border-radius:20px;padding:18px 16px 14px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .18s,box-shadow .18s;border:1px solid rgba(0,0,0,.05);will-change:transform}
+.card:active{transform:scale(.97)}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start}
 .card-badges{display:flex;gap:5px;flex-wrap:wrap}
 /* 북마크 버튼 */
@@ -247,29 +247,28 @@ to{transform:translateY(0)}}
 .bm-btn svg{width:20px;height:20px;transition:all .2s}
 .bm-btn.unsaved svg{stroke:var(--ink-3);fill:none}
 .bm-btn.saved svg{stroke:var(--gold);fill:var(--gold)}
-.card-name{font-size:16px;font-weight:800;margin-top:6px;color:var(--ink);line-height:1.3;letter-spacing:-.3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card-name{font-size:16px;font-weight:800;margin-top:10px;color:var(--ink);line-height:1.35;letter-spacing:-.3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card-loc{font-size:12px;color:var(--ink-4);margin-top:4px;display:flex;align-items:center;gap:3px}
 /* 시세 인라인 */
-.gap-pill{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;padding:6px 12px;background:var(--bg);border-radius:12px}
+.gap-pill{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;padding:8px 12px;background:var(--bg);border-radius:12px}
 .gap-nums{font-size:12px;color:var(--ink-4);display:flex;align-items:center;gap:5px}
 .gap-nums b{color:var(--ink-3);font-weight:700}
 .gap-badge{font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px}
 .gap-badge.up{background:var(--mint-light);color:#00A882}
 .gap-badge.dn{background:var(--red-light);color:var(--red)}
-.card-sep{height:1px;background:rgba(0,0,0,.05);margin:9px 0 8px}
+.card-sep{height:1px;background:rgba(0,0,0,.05);margin:13px 0 11px}
 .card-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
 .meta-label{font-size:var(--t-xs);color:var(--ink-5);font-weight:600;letter-spacing:.2px}
-.meta-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:2px}
+.meta-val{font-size:var(--t-base);font-weight:700;color:var(--ink);margin-top:4px}
 .meta-val.hot{color:var(--gold)}
 /* 당첨률 뱃지 */
-.wr-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
+.wr-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:12px}
 .wr-badge.known{background:var(--accent-light);color:var(--accent)}
 .wr-badge.lotto{background:var(--lotto-light);color:var(--lotto)}
 .wr-badge.unknown{background:var(--accent-light);color:var(--accent);border:1.5px dashed var(--accent)}
 .no-res{padding:48px 20px;text-align:center}
 /* 스켈레톤 UI */
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes gentleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .skeleton{background:linear-gradient(90deg,var(--bg-2) 25%,var(--bg) 50%,var(--bg-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
 .skel-card{background:var(--bg-card);border-radius:18px;padding:16px;border:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}
 .skel-line{height:14px;border-radius:6px}
@@ -494,11 +493,11 @@ to{transform:translateY(0)}}
 .menu-item{display:flex;align-items:center;padding:17px 20px;background:var(--bg-card);border-bottom:1px solid rgba(0,0,0,.04);cursor:pointer;transition:background .15s}
 .menu-item:first-of-type{margin-top:8px;border-top:1px solid rgba(0,0,0,.04)}
 .menu-item:active{background:var(--bg)}
-.menu-section-label{padding:24px 20px 6px;font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.2px}
+.menu-section-label{padding:22px 20px 8px;font-size:11px;font-weight:700;color:var(--ink-5);letter-spacing:.8px;text-transform:uppercase}
 .sup-link{font-size:13px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:opacity .15s;padding:4px 0}
 .sup-link:active{opacity:.4}
 .menu-ico{font-size:20px;margin-right:14px;width:28px;text-align:center}
-.menu-txt{font-size:16px;font-weight:400;flex:1}
+.menu-txt{font-size:15px;font-weight:400;flex:1}
 .menu-arr{color:var(--ink-5);font-size:18px}
 
 /* ══ 컨설팅 ══ */
@@ -761,14 +760,9 @@ to{transform:translateY(0)}}
 @keyframes menuIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 .menu-item:nth-child(1){animation:menuIn .35s .05s cubic-bezier(.22,1,.36,1) both}
 .menu-item:nth-child(2){animation:menuIn .35s .1s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(3){animation:menuIn .35s .05s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(4){animation:menuIn .35s .1s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(5){animation:menuIn .35s .15s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(6){animation:menuIn .35s .2s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(7){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(8){animation:menuIn .35s .3s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(9){animation:menuIn .35s .35s cubic-bezier(.22,1,.36,1) both}
-.menu-item:nth-child(10){animation:menuIn .35s .4s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(3){animation:menuIn .35s .15s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(4){animation:menuIn .35s .2s cubic-bezier(.22,1,.36,1) both}
+.menu-item:nth-child(5){animation:menuIn .35s .25s cubic-bezier(.22,1,.36,1) both}
 
 /* ── 마감 임박 흔들림 ── */
 20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}}
@@ -1445,7 +1439,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
     </div>
   </div>
 
-  <div class="menu-section-label">청약 도우미</div>
+  <div class="menu-section-label">바로가기</div>
   <div class="menu-item" onclick="showScreen('calendar')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="menu-txt">청약 일정 캘린더</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('score')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span><span class="menu-txt">내 청약 가점 계산하기</span><span class="menu-arr">›</span></div>
   <div class="menu-item" onclick="showScreen('report-history')"><span class="menu-ico"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="menu-txt">내 리포트 기록</span><span class="menu-arr">›</span></div>
@@ -1494,7 +1488,7 @@ to{transform:translateX(-50%) scale(1);opacity:1}}
       </div>
       <!-- 초과 말풍선 -->
       <div id="prem-overquota-bubble" style="display:none;position:relative;margin-top:16px">
-        <div style="position:absolute;top:-14px;right:12px;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:700;padding:5px 10px;border-radius:20px 20px 20px 4px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1);animation:gentleFloat 2.4s ease-in-out infinite">
+        <div style="position:absolute;top:-14px;right:12px;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:700;padding:5px 10px;border-radius:20px 20px 20px 4px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)">
           이번 주 무료 횟수를 모두 사용했어요
         </div>
       </div>
