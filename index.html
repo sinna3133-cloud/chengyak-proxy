@@ -3535,6 +3535,24 @@ function parseDateSafe(d){
   return isNaN(dt.getTime()) ? null : dt;
 }
 
+/* ══ days 전체 재계산 (현재 KST 기준) ══ */
+function recalcAllDays(){
+  var _k = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+  var _td = new Date(_k.getFullYear(), _k.getMonth(), _k.getDate());
+  listings.forEach(function(l){
+    l.deadline = normalizeDate(l.deadline) || normalizeDate(l.aE) || l.deadline || '';
+    if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
+      l.deadline = '9999-12-31';
+      l.days = null;
+    } else if(l.deadline && !String(l.deadline).startsWith('9999')){
+      var _ed = parseDateSafe(l.deadline);
+      l.days = _ed ? Math.ceil((_ed - _td) / 86400000) : 999;
+    } else if(l.days === undefined || l.days === null){
+      l.days = 999;
+    }
+  });
+}
+
 /* ══ 단지명 정리 ══ */
 function cleanName(name){
   if(!name) return name;
@@ -8629,6 +8647,9 @@ async function autoFetchMarketPrices(){
         const locClean = (l.loc||'').split(',')[0].replace(/\s+일원.*$/,'').trim();
         const isPrem = _isPremiumBuilder(l.builder) || _isPremiumAptName(l.name);
 
+        // 파라미터 유효성 검증 — 잘못된 요청 방지
+        if(!locClean || locClean.length < 4 || !size || size <= 0) return;
+
         // ── 반경 자동 확장: 1차 조회 → 1군 비교군 없으면 반경 넓혀 재조회 ──
         const radii = ['0.5', '1', '2'];
         let bestResult = null, bestData = null, bestRadius = radii[0];
@@ -8636,6 +8657,7 @@ async function autoFetchMarketPrices(){
         for (const radius of radii) {
           const url = `${MARKET_API}?loc=${encodeURIComponent(locClean)}&size=${size}&name=${encodeURIComponent(cleanName(l.name))}&radius=${radius}`;
           const res = await fetch(url);
+          if(!res.ok) continue; // 400/500 에러 시 다음 반경 시도
           const data = await res.json();
           if (!data.mktP || data.mktP <= 0) continue;
 
@@ -8842,21 +8864,8 @@ async function loadLiveData(){
 
     listings.splice(0, listings.length, ...filtered);
 
-    // days 전체 재계산 (정규화 + 안전 파싱)
-    const _kst3 = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
-    const _liveToday = new Date(_kst3.getFullYear(), _kst3.getMonth(), _kst3.getDate());
-    listings.forEach(l => {
-      l.deadline = normalizeDate(l.deadline) || normalizeDate(l.aE) || l.deadline || '';
-      if(l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))){
-        l.deadline = '9999-12-31';
-        l.days = null;
-      } else if(l.deadline && !String(l.deadline).startsWith('9999')){
-        const _end3 = parseDateSafe(l.deadline);
-        l.days = _end3 ? Math.ceil((_end3 - _liveToday) / 86400000) : 999;
-      } else if(l.days === undefined) {
-        l.days = 999;
-      }
-    });
+    // days 전체 재계산 — 공통 함수 사용
+    recalcAllDays();
 
     apiConnected = true;
     renderListings();
@@ -8929,19 +8938,8 @@ if (_OAUTH_CODE) {
 })();
 
 
-// days 계산 즉시 실행
-// 한국 시간(KST) 기준 오늘 자정
-const _nowKST = new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'}));
-const _initToday = new Date(_nowKST.getFullYear(), _nowKST.getMonth(), _nowKST.getDate());
-listings.forEach(l => {
-  l.deadline = normalizeDate(l.deadline) || l.deadline || '';
-  if(l.deadline){
-    const end = parseDateSafe(l.deadline);
-    if(!end){ /* 파싱 실패 시 건너뜀 */ }
-    else if(end.getFullYear() >= 9000){ l.days = null; }
-    else { l.days = Math.ceil((end - _initToday) / 86400000); } // 음수=마감완료
-  }
-});
+// days 계산 즉시 실행 — 공통 함수 사용
+recalcAllDays();
 restoreRegions();
 restoreSizes();
 updateHero();
@@ -9408,7 +9406,7 @@ STEP 5: minP 산출
       typeSpecialQuota: parsed.typeSpecialQuota || '',
       eligDetail: parsed.eligDetail || [],
       eligTiers: parsed.eligTiersData || [],
-      days: (function(){ var _dl = normalizeDate(parsed.aE) || normalizedDeadline; if(!_dl||_dl.startsWith('9999')) return null; var _ed=parseDateSafe(_dl); if(!_ed) return null; var _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); var _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); return Math.ceil((_ed-_td)/86400000); })(),
+      days: (function(){ var _dl = normalizedDeadline || normalizeDate(parsed.aE); if(!_dl||_dl.startsWith('9999')) return null; var _ed=parseDateSafe(_dl); if(!_ed) return null; var _k=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})); var _td=new Date(_k.getFullYear(),_k.getMonth(),_k.getDate()); return Math.ceil((_ed-_td)/86400000); })(),
       priceFactors: [],
       price: (function(){
         // priceRaw에서 자동 변환: "59A:1956600000~2150100000원|84A:2388300000원" → "59A㎡ 19억5천~21억5천|84A㎡ 23억8천"
@@ -9669,6 +9667,7 @@ async function confirmAdminData(force=false){
     }
     const wasOverwrite = res.status === 200 && data.overwritten;
     showToast(wasOverwrite ? '✓ 기존 공고를 PDF로 업데이트했어요!' : '✓ 공고가 추가됐어요!');
+    recalcAllDays(); // 모든 공고 days 현재 시각 기준 재계산
     resetAdmin();
     renderAdminList();
     renderListings();
