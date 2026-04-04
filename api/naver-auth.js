@@ -20,13 +20,10 @@ module.exports = async function handler(req, res) {
     const state = req.query.state || req.body?.state || '';
     if (!code) return res.status(400).json({ error: 'code 없음' });
 
-    // 앱 환경인지 확인 (state에 'app' 포함)
     const isApp = state.includes('app');
 
-    // redirect_uri 결정
-    const REDIRECT_URI = isApp
-      ? 'https://chengyak-proxy.vercel.app/api/naver-auth'
-      : (req.query.redirect_uri || process.env.NAVER_REDIRECT_URI || 'https://chengyak-proxy.vercel.app/');
+    // 네이버 콘솔 등록값과 항상 동일하게 고정
+    const REDIRECT_URI = 'https://chengyak-proxy.vercel.app/api/naver-auth';
 
     // 1단계: code → access_token
     const tokenRes = await fetch(
