@@ -28,7 +28,7 @@
 <body>
 
 <header>
-  <div class="logo">쉬운<span>청약</span></div>
+  <a href="https://chengyak-proxy.vercel.app/" style="text-decoration:none"><div class="logo">쉬운<span>청약</span></div></a>
 </header>
 
 <h1>개인정보처리방침</h1>
@@ -58,7 +58,9 @@
   ③ 즐겨찾기 동기화<br>
   ④ 서비스 개선 및 통계 분석 (비식별화 처리)<br>
   ⑤ 법령 및 서비스 이용약관 위반 행위 방지<br>
-  ⑥ 공지사항 전달 및 민원 처리</p>
+  ⑥ 공지사항 전달 및 민원 처리<br>
+  ⑦ 청약 마감 알림 등 푸시 알림 발송<br>
+  ⑧ AI 기반 청약 전략 리포트 생성</p>
 </section>
 
 <section>
@@ -81,6 +83,7 @@
   <h2>제5조 (개인정보 처리 위탁)</h2>
   <p>서비스는 원활한 서비스 제공을 위해 다음과 같이 개인정보 처리 업무를 위탁하고 있습니다.<br><br>
   <strong>· Supabase Inc.</strong> — 데이터베이스 저장 및 관리 (서비스 이용 기간)<br>
+  &nbsp;&nbsp;저장 항목: 회원 식별자, 닉네임, 즐겨찾기 목록, 청약 조건 정보(출생연도·혼인여부·무주택기간·소득·자산·부양가족 등), AI 리포트 이력<br>
   <strong>· Vercel Inc.</strong> — 서버 운영 및 호스팅 (서비스 이용 기간)<br>
   <strong>· Anthropic PBC</strong> — AI 청약 전략 분석 (Claude API) (서비스 이용 기간)</p>
 </section>
@@ -107,19 +110,19 @@
   <p>서비스는 원활한 서비스 제공을 위해 아래와 같이 개인정보를 국외로 이전합니다. 국외 이전을 원치 않을 경우 서비스 탈퇴를 통해 거부할 수 있습니다.<br><br>
 
   <strong>· Supabase Inc.</strong><br>
-  이전 국가: 미국 / 이메일: support@supabase.io<br>
+  이전 국가: 미국 / 이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbb8bebbbba4b9bf8bb8bebbaaa9aab8aee5a2a4">[email&#160;protected]</a><br>
   이전 목적: 데이터베이스 저장 및 관리<br>
   이전 항목: 회원 식별자, 닉네임, 청약 조건 정보, 즐겨찾기 등<br>
   보유 기간: 회원 탈퇴 시까지<br><br>
 
   <strong>· Vercel Inc.</strong><br>
-  이전 국가: 미국 / 이메일: privacy@vercel.com<br>
+  이전 국가: 미국 / 이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="49393b203f282a30093f2c3b2a2c25672a2624">[email&#160;protected]</a><br>
   이전 목적: 서버 운영 및 호스팅<br>
   이전 항목: 서비스 이용 중 발생하는 접속 정보<br>
   보유 기간: 서비스 이용 기간<br><br>
 
   <strong>· Anthropic PBC</strong><br>
-  이전 국가: 미국 / 이메일: privacy@anthropic.com<br>
+  이전 국가: 미국 / 이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9bebe9f2edfaf8e2dbfaf5eff3e9f4ebf2f8b5f8f4f6">[email&#160;protected]</a><br>
   이전 목적: AI 청약 전략 분석 (Claude API)<br>
   이전 항목: 이용자가 입력한 청약 조건 정보 (비식별화 처리)<br>
   보유 기간: API 처리 후 즉시 삭제 (Anthropic 정책에 따름)</p>
@@ -140,9 +143,26 @@
 </section>
 
 <section>
-  <h2>제11조 (개인정보 보호책임자)</h2>
+  <h2>제11조 (푸시 알림 서비스)</h2>
+  <p>① 서비스는 청약 마감 임박, 새로운 청약 공고 등 유용한 정보를 푸시 알림으로 발송합니다.<br>
+  ② 푸시 알림 발송을 위해 기기 토큰 정보를 수집하며, 알림 발송 목적으로만 사용됩니다.<br>
+  ③ 이용자는 기기 설정 또는 서비스 내 알림 설정에서 언제든지 수신을 거부할 수 있습니다.<br>
+  ④ 수신 거부 시에도 서비스 이용에는 제한이 없습니다.</p>
+</section>
+
+<section>
+  <h2>제12조 (AI 청약 전략 리포트)</h2>
+  <p>① 서비스는 이용자가 입력한 청약 조건 정보를 바탕으로 AI(Claude API, Anthropic PBC)를 통해 맞춤 청약 전략 리포트를 생성합니다.<br>
+  ② AI 분석에는 이름, 연락처 등 직접 식별 정보를 제외한 청약 조건 정보만 활용됩니다.<br>
+  ③ AI 분석에 사용된 데이터는 API 처리 후 즉시 삭제되며 AI 학습에 사용되지 않습니다.<br>
+  ④ 생성된 리포트 이력은 이용자 동의 하에 저장되며, 이용자가 직접 삭제할 수 있습니다.</p>
+</section>
+
+
+<section>
+  <h2>제13조 (개인정보 보호책임자)</h2>
   <div class="contact-box">
-    <p><strong>이메일: customer_service@easychengyak.com</strong><br>
+    <p><strong>이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="03607670776c6e66715c706671756a6066436662707a606b666d647a62682d606c6e">[email&#160;protected]</a></strong><br>
     개인정보 보호 관련 문의, 불만처리, 피해구제 등은 위 이메일로 연락해 주시면 지체 없이 조치하겠습니다.</p>
   </div>
   <p style="margin-top:14px; font-size:13px; color:#8896A8;">개인정보 침해 관련 신고·상담 기관</p>
@@ -155,28 +175,11 @@
 </section>
 
 <section>
-  <h2>제12조 (개인정보처리방침의 변경)</h2>
+  <h2>제14조 (개인정보처리방침의 변경)</h2>
   <p>이 개인정보처리방침은 2026년 5월 1일부터 적용됩니다. 법령·정책 또는 보안기술의 변경에 따라 내용이 추가·삭제 및 수정될 경우, 변경사항의 시행 최소 7일 전(이용자에게 불리한 변경의 경우 30일 전)에 서비스 내 공지사항을 통해 고지합니다.</p>
 </section>
 
 
 <section>
-  <h2>제13조 (위치정보 미수집)</h2>
-  <p>서비스는 이용자의 위치정보를 수집하거나 이용하지 않습니다.</p>
-</section>
-
-<section>
-  <h2>제14조 (광고)</h2>
-  <p>서비스는 현재 광고를 운영하지 않습니다. 향후 광고가 도입될 경우 본 개인정보처리방침을 개정하여 사전에 고지합니다.</p>
-</section>
-
-<section>
-  <h2>제15조 (Android 앱 적용)</h2>
-  <p>본 개인정보처리방침은 웹 서비스 및 Android 앱에 동일하게 적용됩니다.</p>
-</section>
-<footer>
-  © 2025 쉬운청약. All rights reserved.
-</footer>
-
-</body>
-</html>
+  <h2>제15조 (위치정보 미수집)</h2>
+  <p>서비스는 이용자의 위치정보를 수집하거나 이용하�
