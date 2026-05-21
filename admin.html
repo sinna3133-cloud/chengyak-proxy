@@ -5406,8 +5406,10 @@ window.addEventListener('popstate', (e) => {
 
 // 앱 최초 진입 시 초기 state 설정
 if(!history.state || !history.state.screen) {
-  // 카카오/네이버 콜백 중이면 URL 건드리지 않음
-  if(!new URLSearchParams(window.location.search).get('code')) {
+  // 카카오/네이버 콜백 중이거나 어드민 진입 중이면 URL 건드리지 않음
+  const _initSp = new URLSearchParams(window.location.search);
+  const _initIsAdmin = _initSp.get('admin') === '1234' || location.hash === '#admin1234';
+  if(!_initSp.get('code') && !_initIsAdmin) {
     history.replaceState({screen: 'home'}, '', window.location.pathname);
   }
 }
