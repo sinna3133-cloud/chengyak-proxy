@@ -2236,6 +2236,8 @@ function countUp(el, target, duration=600){
     }
     el.textContent = Math.round(cur);
   },16);
+  // 안전망: duration 2배 후 강제 정리 (화면 전환 등으로 인한 타이머 누수 방지)
+  setTimeout(()=>clearInterval(t), duration*2);
 }
 /* ★★★ [하드코딩 끝] ★★★ */
 
@@ -3267,11 +3269,18 @@ function renderSavingsCutTable(l) {
     + '<div style="font-size:13px;color:var(--ink-4);margin-top:6px;line-height:1.6">'+hint+'</div>';
 }
 
+function _safeParseLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch(e) { return fallback; }
+}
+
 /* ══ 커스텀 다이얼로그 ══ */
 function renderReportHistoryScreen() {
   const el = document.getElementById('report-history-list-screen');
   if (!el) return;
-  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
+  const history = _safeParseLS('report_history_'+(kakaoUser?.kakaoId||'guest'), []);
   if (!history.length) {
     el.innerHTML = `
       <div class="empty-state">
@@ -3466,7 +3475,6 @@ function renderRecommend(){
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
       <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
-      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span></div>
     </div>`;
   }).join('')}</div>`;
 }
@@ -4604,6 +4612,8 @@ async function showDetail(id, fromSwipe=false){
           numEl.textContent=cur+'%';
           numEl.style.color=pColor(cur);
         },30);
+        // 안전망: 1초 후 강제 정리 (화면 전환 등으로 인한 타이머 누수 방지)
+        setTimeout(()=>clearInterval(t), 1000);
       }
     }
     // 시세 바 애니메이션
@@ -4615,7 +4625,10 @@ async function showDetail(id, fromSwipe=false){
       // 시세를 100% 기준으로 잡아 분양가와의 차이를 시각적으로 강조
       const gapSaleP=getAvgSaleP(l);
       if(barMkt) barMkt.style.width='100%'; // 시세 = 항상 100%
-      if(barSale) barSale.style.width=(Math.min(100, gapSaleP/l.mktP*100))+'%';
+      if(barSale) {
+        const _pct = (l.mktP > 0 && gapSaleP > 0) ? Math.min(100, gapSaleP/l.mktP*100) : 70;
+        barSale.style.width=_pct+'%';
+      }
     }
     // 커트라인 바 애니메이션
     if(l.cut){
@@ -4720,7 +4733,7 @@ function deleteFromDetail(){
     }).catch(()=>{});
   }
   // 삭제 ID 기억
-  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  const deleted = _safeParseLS('deletedListings', []);
   if(!deleted.includes(numId)){ deleted.push(numId); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
   // 홈으로 돌아가기
   renderListings();
@@ -6927,7 +6940,7 @@ async function syncReportHistoryFromCloud(){
 function renderReportHistory(){
   const el = document.getElementById('report-history-list');
   if(!el) return;
-  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
+  const history = _safeParseLS('report_history_'+(kakaoUser?.kakaoId||'guest'), []);
   if(!history.length){
     el.innerHTML = '<div class="u-report-empty">아직 받은 리포트가 없어요.</div>';
     return;
@@ -6951,7 +6964,7 @@ function renderReportHistory(){
 }
 
 function openHistoryReport(id){
-  const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
+  const history = _safeParseLS('report_history_'+(kakaoUser?.kakaoId||'guest'), []);
   const item = history.find(h => h.id === id);
   if(!item) return;
   // 리포트 오버레이 열고 내용 표시
@@ -7322,6 +7335,11 @@ function filterGlossary(){
 const _ROOT_TABS = new Set(['home','consult','more','my','notif']);
 
 function showScreen(name, _fromBack=false){
+  // 화면 전환 시 열린 wizard/다이얼로그 잔존 정리
+  const _wiz = document.getElementById('wizard');
+  if(_wiz?.classList.contains('open')) _wiz.classList.remove('open');
+  document.querySelectorAll('.custom-dialog-ov').forEach(o => o.remove());
+
   if(name==='editcond') renderEditCond();
 
   // editcond 저장 바 표시/숨김
@@ -8497,7 +8515,7 @@ async function loadLiveData(){
       });
     } catch(e){}
 
-    const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+    const deleted = _safeParseLS('deletedListings', []);
     const validAdmin = adminSaved.filter(a => !deleted.includes(a.id));
     const filtered = validAdmin.filter(l => l.days === null || l.days >= 0);
 
@@ -9125,13 +9143,19 @@ let SUPABASE_ANON = '';
 const sb = {
   get headers() { return { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json' }; },
   async get(table, query='') {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: this.headers });
-    return res.json();
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: this.headers });
+      if(!res.ok) return [];
+      return res.json();
+    } catch(e) { return []; }
   },
   async select(table, filter={}) {
-    const qs = Object.entries(filter).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, { headers: this.headers });
-    return res.json();
+    try {
+      const qs = Object.entries(filter).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, { headers: this.headers });
+      if(!res.ok) return [];
+      return res.json();
+    } catch(e) { return []; }
   },
   async upsert(table, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
@@ -9323,7 +9347,7 @@ async function confirmAdminData(force=false){
 async function renderAdminList(){
   const el = document.getElementById('admin-list');
   const countEl = document.getElementById('admin-count');
-  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  const deleted = _safeParseLS('deletedListings', []);
   try {
     const res = await fetch(LISTINGS_API);
     const data = await res.json();
@@ -9372,7 +9396,7 @@ async function removeAdminListing(id){
   const idx = listings.findIndex(l => l.id === id);
   if(idx > -1) listings.splice(idx, 1);
   // 삭제 ID 기억
-  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  const deleted = _safeParseLS('deletedListings', []);
   if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
   // 서버 삭제 (응답 기다림)
   try {
@@ -9401,7 +9425,7 @@ function adminDeleteListing(id, src){
     }).catch(()=>{});
   }
   // 삭제된 ID 기억 (새로고침 시 다시 로드 방지)
-  const deleted = JSON.parse(localStorage.getItem('deletedListings')||'[]');
+  const deleted = _safeParseLS('deletedListings', []);
   if(!deleted.includes(id)){ deleted.push(id); localStorage.setItem('deletedListings', JSON.stringify(deleted)); }
   renderAdminList();
   renderListings();
@@ -10144,7 +10168,7 @@ function formatNotifTime(d) {
 function notifItemClick(listingId, type) {
   if (type === 'report') {
     // 리포트 알림 → 가장 최근 리포트 기록 열기
-    const history = JSON.parse(localStorage.getItem('report_history_'+(kakaoUser?.kakaoId||'guest')) || '[]');
+    const history = _safeParseLS('report_history_'+(kakaoUser?.kakaoId||'guest'), []);
     if (history.length > 0) {
       showScreen('more');
       setTimeout(() => {
