@@ -4807,7 +4807,7 @@ if(!history.state || !history.state.screen) {
 // ── 스와이프 뒤로가기 네비게이션 ──
 // 화면 어디서든 왼→오 스와이프로 이전 화면 복귀
 // 탭바(홈·컨설팅·즐겨찾기·마이)는 뒤로가기 없음, 상세 화면은 별도 처리
-const _TAB_SCREENS = new Set(['home','consult','saved','my']);
+const _TAB_SCREENS = new Set(['home','consult','more','my']);
 
 let _sw = {
   x0: 0, y0: 0,         // 터치 시작 좌표
@@ -4823,8 +4823,13 @@ function _swCanGoBack() {
   const name = cur.id.replace('screen-','');
   // 탭바 화면은 뒤로가기 없음
   if(_TAB_SCREENS.has(name)) return false;
-  // 바텀시트/모달 열려있으면 차단
-  if(document.querySelector('.wiz-ov.open, .nudge-ov[style*="flex"], [id$="-ov"].open')) return false;
+  // 바텀시트/모달 열려있으면 차단 (실제로 화면에 보이는 경우만)
+  if(document.querySelector('.wiz-ov.open')) return false;
+  if(document.querySelector('.nudge-ov[style*="flex"]')) return false;
+  const _openOvs = document.querySelectorAll('[id$="-ov"].open');
+  for(const _ov of _openOvs) {
+    if(getComputedStyle(_ov).display !== 'none') return false;
+  }
   return true;
 }
 
@@ -5354,7 +5359,7 @@ function renderSaved(){
     </div>
   </div>`;return;}
   /* ★★★ [하드코딩 — 수정 금지] 즐겨찾기: D-0 뱃지 제거 ★★★ */
-  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="setTimeout(()=>showDetail('${l.id}'),0)"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
+  c.innerHTML=`<div class="listings" style="padding:16px 20px 0">${sv.map(l=>{const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;return`<div class="card" onclick="showDetail('${l.id}')"><div class="card-top"><div class="card-badges">${typeBadge(l)}</div><button class="bm-btn saved" onclick="toggleSave(event,${l.id})">${bmSVG}</button></div><div class="card-name">${cleanName(l.name)}</div><div class="card-loc">📍 ${l.loc}</div>${gapPill(l)}<div class="card-sep"></div><div class="card-meta"><div><div class="meta-label">분양가</div><div class="meta-val">${cardPrice(l.price)}</div></div><div style="text-align:right"><div class="meta-label">마감</div><div class="meta-val ${l.days!==null&&l.days<=3?'hot urgent':(l.days<=7?'hot':'')}">${daysText(l.days)}</div></div></div></div>`;}).join('')}</div>`;
 }
 
 /* ══ 컨설팅 ══ */
