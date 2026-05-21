@@ -4132,7 +4132,10 @@ async function showDetail(id, fromSwipe=false){
   const l=listings.find(x=>String(x.id)===String(id));
   if(!fromSwipe){
     const activeScreen = document.querySelector('.screen.active');
-    prevScreen = activeScreen ? activeScreen.id.replace('screen-','') : 'home';
+    const _curName = activeScreen ? activeScreen.id.replace('screen-','') : 'home';
+    if(_curName !== 'detail') {
+      prevScreen = _curName;
+    }
     window._prevScrollY = window.scrollY;
   }
   // ★★★ [하드코딩 — 수정 금지] 유사단지 데이터로 경쟁률/커트라인 보완 ★★★
@@ -4779,7 +4782,7 @@ window.addEventListener('popstate', (e) => {
     const myScreens = ['mycond'];
     const backTo = moreScreens.includes(curName) ? 'more'
                  : myScreens.includes(curName) ? 'my'
-                 : curName === 'detail' ? (prevScreen || 'home')
+                 : curName === 'detail' ? ((prevScreen && prevScreen !== 'detail') ? prevScreen : 'home')
                  : 'home';
     showScreen(backTo, true);
     return;
@@ -5010,7 +5013,7 @@ function goBackWithAnim() {
   const cur = document.querySelector('.screen.active');
   if(!cur) { goBack(); return; }
 
-  const targetName = prevScreen || 'home';
+  const targetName = (prevScreen && prevScreen !== 'detail') ? prevScreen : 'home';
   const targetEl = document.getElementById('screen-' + targetName);
   const dur = 240;
 
@@ -5046,7 +5049,8 @@ function goBackWithAnim() {
 }
 
 function goBack(){
-  showScreen(prevScreen, true); // _fromBack=true: 스크롤 복원은 아래에서 직접 처리
+  const _safeBack = (prevScreen && prevScreen !== 'detail') ? prevScreen : 'home';
+  showScreen(_safeBack, true); // _fromBack=true: 스크롤 복원은 아래에서 직접 처리
   if(window._prevScrollY !== undefined){
     const y = window._prevScrollY;
     window._prevScrollY = undefined;
@@ -7324,7 +7328,8 @@ function showScreen(name, _fromBack=false){
     const _curActive = document.querySelector('.screen.active');
     const _curName = _curActive ? _curActive.id.replace('screen-','') : 'home';
     // 탭바 루트 화면이 아닌 경우에만 prevScreen 업데이트
-    if(!_ROOT_TABS.has(name)) {
+    // detail→detail 이동 시에는 원래 진입 화면 기억을 위해 덮어쓰지 않음
+    if(!_ROOT_TABS.has(name) && !(name === 'detail' && _curName === 'detail')) {
       prevScreen = _curName;
     }
   }
