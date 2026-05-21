@@ -3466,7 +3466,7 @@ function renderRecommend(){
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
       <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
-      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span><span class="rec-d ${l.days<=7?'u':'n'}${l.days!==null&&l.days<=3?' urgent':''}">${daysText(l.days,'remain')}</span></div>
+      <div class="rec-bottom"><span class="rec-price">${cardPrice(l.price).split('~')[0]}~</span></div>
     </div>`;
   }).join('')}</div>`;
 }
