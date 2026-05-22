@@ -4837,12 +4837,13 @@ if(!history.state || !history.state.screen) {
   // 카카오/네이버 콜백 중이거나 어드민 진입 중이면 URL 건드리지 않음
   const _initSp = new URLSearchParams(window.location.search);
   const _initIsAdmin = _initSp.get('admin') === '1234' || location.hash === '#admin1234';
+  const _initIsLogin = _initSp.get('kakaoLogin') === '1' || _initSp.get('naverLogin') === '1';
   // 데모 잠금 토글 (?demo=1 / ?demo=0)
   if(_initSp.has('demo')) {
     if(_initSp.get('demo') === '1') localStorage.setItem('demo_lock', '1');
     else localStorage.removeItem('demo_lock');
   }
-  if(!_initSp.get('code') && !_initIsAdmin) {
+  if(!_initSp.get('code') && !_initIsAdmin && !_initIsLogin) {
     history.replaceState({screen: 'home'}, '', window.location.pathname);
   }
 }
@@ -8980,9 +8981,35 @@ calMonth = _today.getMonth();
 // ★ 카카오/네이버 콜백 code를 즉시 캡처 — showScreen 등이 URL을 지우기 전에
 const _OAUTH_CODE  = new URLSearchParams(window.location.search).get('code');
 const _OAUTH_STATE = new URLSearchParams(window.location.search).get('state');
-if (_OAUTH_CODE) {
+// ★ proxy redirect로 돌아온 직접 로그인 정보 캡처 (?kakaoLogin=1 / ?naverLogin=1)
+const _LOGIN_SP = new URLSearchParams(window.location.search);
+const _KAKAO_DIRECT = _LOGIN_SP.get('kakaoLogin') === '1' ? {
+  kakaoId:     _LOGIN_SP.get('kakaoId'),
+  nickname:    _LOGIN_SP.get('nickname'),
+  avatar:      _LOGIN_SP.get('avatar'),
+  accessToken: _LOGIN_SP.get('accessToken'),
+} : null;
+const _NAVER_DIRECT = _LOGIN_SP.get('naverLogin') === '1' ? {
+  naverId:     _LOGIN_SP.get('naverId'),
+  nickname:    _LOGIN_SP.get('nickname'),
+  accessToken: _LOGIN_SP.get('accessToken'),
+} : null;
+if (_OAUTH_CODE || _KAKAO_DIRECT || _NAVER_DIRECT) {
   // URL 즉시 정리 (중복 처리 방지)
   history.replaceState({}, '', window.location.pathname);
+}
+// 페이지 로드 후 자동 로그인 처리
+if (_KAKAO_DIRECT?.kakaoId) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const sp = document.getElementById('splash'); if(sp) sp.style.display = 'none';
+    if(typeof handleKakaoDirectLogin === 'function') handleKakaoDirectLogin(_KAKAO_DIRECT);
+  });
+}
+if (_NAVER_DIRECT?.naverId) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const sp = document.getElementById('splash'); if(sp) sp.style.display = 'none';
+    if(typeof handleNaverDirectLogin === 'function') handleNaverDirectLogin(_NAVER_DIRECT);
+  });
 }
 
 // 스플래시
@@ -9936,8 +9963,9 @@ function naverLogin() {
 
     Browser.open({ url });
   } else {
-    // 웹 환경: 기존 방식
-    const redirectUri = encodeURIComponent(window.location.origin + '/');
+    // 웹 환경: proxy를 redirect_uri로 사용 (네이버 콘솔 등록값과 일치)
+    // 네이버 OAuth → proxy → 원래 사이트로 ?naverLogin=1&naverId=...로 302 redirect
+    const redirectUri = encodeURIComponent('https://chengyak-proxy.vercel.app/api/naver-auth');
     const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${redirectUri}&state=${state}`;
     window.location.replace(url);
   }

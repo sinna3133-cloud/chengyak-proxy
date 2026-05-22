@@ -50,14 +50,18 @@ module.exports = async function handler(req, res) {
     const naverId  = String(id);
     const nickname = name || '사용자';
 
-    // ── 앱 환경: 앱으로 리다이렉트 ──
+    // 웹 환경에서 로그인 후 돌아올 프론트엔드 주소
+    const WEB_ORIGIN = process.env.WEB_ORIGIN || 'https://chengyak-proxy.vercel.app';
+
+    // ── 앱 환경: 앱 커스텀 스킴으로 리다이렉트 ──
     if (isApp) {
       const params = new URLSearchParams({ naverId, nickname, accessToken });
       return res.redirect(302, `kakaoe7389d2463e1980b32b680910e373f5e://naver-oauth?${params.toString()}`);
     }
 
-    // ── 웹 환경: JSON 반환 ──
-    return res.status(200).json({ naverId, nickname, accessToken });
+    // ── 웹 환경: 원래 사이트로 302 redirect (브라우저가 JSON 페이지에서 멈추는 문제 해결) ──
+    const params = new URLSearchParams({ naverId, nickname, accessToken });
+    return res.redirect(302, `${WEB_ORIGIN}?naverLogin=1&${params.toString()}`);
 
   } catch (e) {
     return res.status(500).json({ error: e.message });
