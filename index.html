@@ -4622,12 +4622,13 @@ async function showDetail(id, fromSwipe=false){
     if(l.noMktP){
       if(barSale) barSale.style.width='70%'; // 분양가 바만 표시
     } else {
-      // 시세를 100% 기준으로 잡아 분양가와의 차이를 시각적으로 강조
+      // 시세와 분양가 중 큰 값을 100% 기준으로 → 차이가 시각적으로 명확
       const gapSaleP=getAvgSaleP(l);
-      if(barMkt) barMkt.style.width='100%'; // 시세 = 항상 100%
+      const _maxP = Math.max(l.mktP, gapSaleP);
+      if(barMkt) barMkt.style.width = _maxP > 0 ? (l.mktP / _maxP * 100) + '%' : '0%';
       if(barSale) {
-        const _pct = (l.mktP > 0 && gapSaleP > 0) ? Math.min(100, gapSaleP/l.mktP*100) : 70;
-        barSale.style.width=_pct+'%';
+        const _pct = (_maxP > 0 && gapSaleP > 0) ? (gapSaleP / _maxP * 100) : 70;
+        barSale.style.width = _pct + '%';
       }
     }
     // 커트라인 바 애니메이션
