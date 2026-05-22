@@ -6766,36 +6766,87 @@ function _removeCoachTyping() {
   if(t) t.remove();
 }
 
-function _buildCoachPrompt(question) {
+// 세션 내 대화 이력 (multi-turn)
+let _coachHistory = [];
+
+function _buildCoachSystem() {
   const name = P.name || '회원';
   const score = calcScore(P).total;
-  const types = calcTypes(P).map(t => t.l).join(', ') || '없음';
+  const types = calcTypes(P).map(t => t.l);
+  const typesStr = types.join(', ') || '없음';
   const income = parseInt(P.isDual ? (P.totalIncome || P.income || 0) : (P.income || 0));
   const nh = parseInt(P.noHomeYears || 0);
   const dep = parseInt(P.depAmt || 0);
   const accYr = parseInt(P.accYears || 0);
   const cash = parseInt(P.cash || 0);
-  return `[Role]
-당신은 ${name}님의 청약 코치예요. 친근하고 정확하게 답해요.
-[표현 규칙]
-- 일상 한국어 사용. "대기 전략", "자산 형성 철학", "기회비용" 같은 추상어 금지.
-- 보장/확정/100% 같은 단정 표현 금지. 청약은 항상 변동성 있음.
-- 정확한 정보가 없으면 "정보가 부족해요" 솔직하게.
-[답변 규칙]
-- 200자 내외로 핵심만
-- ~해요/~예요체 사용. ~다/~합니다 금지
-- 이모지 사용 금지
-- 강조: [BOLD:텍스트], 수치: [STAT:라벨|값]
+  const marriage = P.marriage || '미혼';
+  const children = parseInt(P.children || 0);
+  const region = P.resideRegion || '미입력';
+
+  // 매칭 공고 상위 3개 컨텍스트
+  let matchedStr = '아직 매칭된 공고가 없음';
+  try {
+    const _list = (typeof listings !== 'undefined') ? listings : [];
+    const matched = _list.filter(l =>
+      (l.days===null||l.days>=0) && !isLottoListing(l) && l.elig.some(e => types.includes(e))
+    ).slice(0, 3);
+    if(matched.length > 0) {
+      matchedStr = matched.map((l, i) => {
+        const g = gap(l);
+        const prob = calcProb(l, P);
+        const gapStr = g.g > 0 ? '+' + fmtManwon(g.g) : g.g < 0 ? fmtManwon(g.g) : '미정';
+        return `${i+1}. ${cleanName(l.name)}(${l.loc}) — 분양가 ${fmtUk(getMaxP(l))} / 차익 ${gapStr} / 마감 ${daysText(l.days, 'remain')} / 추정 당첨률 ${prob !== null ? prob + '%' : '?'}`;
+      }).join('\n');
+    }
+  } catch(e) {}
+
+  return `당신은 ${name}님 전용 청약 코치예요. 단순 정보 제공이 아니라, ${name}님 상황을 깊이 분석한 맞춤 조언을 해요.
 
 [${name}님 정보]
-가점 ${score}점 / 무주택 ${nh}년 / 연소득 ${income.toLocaleString()}만원
-청약통장 ${accYr}년 가입, 납입총액 ${dep.toLocaleString()}만원
-보유현금 ${cash.toLocaleString()}만원
-신청 가능 전형: ${types}
+- 가점 ${score}점 / 혼인: ${marriage} / 자녀 ${children}명
+- 무주택 ${nh}년 / 거주지 ${region}
+- 연소득 ${income.toLocaleString()}만원
+- 청약통장 ${accYr}년 가입, 납입총액 ${dep.toLocaleString()}만원
+- 보유현금 ${cash.toLocaleString()}만원
+- 신청 가능 전형: ${typesStr}
 
-[질문] ${question}
+[현재 매칭된 진행 공고]
+${matchedStr}
 
-답변:`;
+[답변 형식 — 권장]
+가능하면 아래 형식으로 (단, 단순 용어 질문엔 자유롭게):
+  ${name}님 상황: (사용자 데이터 기반 1~2줄 분석)
+  실행할 것: (구체적 액션 1~3개)
+  주의할 점: (리스크/예외 짧게, 필요 시)
+
+[답변 규칙]
+- 200~400자 내외, ${name}님 상황에 직접 연결
+- ~해요/~예요체. ~다/~합니다 금지
+- 이모지 사용 금지
+- 강조: [BOLD:텍스트], 수치: [STAT:라벨|값] 마크업
+- 일상 한국어. "대기 전략", "기회비용", "선별적", "전략적 인내심" 같은 추상어 금지
+- 보장/확정/100% 같은 단정 금지. 청약은 항상 변동성 있음
+- 모르거나 데이터 부족하면 "정확한 정보가 없어요" 솔직하게
+
+[다음 질문 추천 — 필수]
+답변 끝에 반드시 ${name}님이 다음에 물어볼 만한 질문 3개를 [SUGGEST:질문1|질문2|질문3] 형식으로 출력해요. 매칭 공고 / 사용자 상황 / 직전 대화와 연결된 자연스러운 후속 질문으로. 매번 답변 끝에 포함.`;
+}
+
+function _appendCoachChips(suggestions) {
+  const msgs = document.getElementById('coach-messages');
+  if(!msgs) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'coach-chip-row';
+  suggestions.forEach(q => {
+    const chip = document.createElement('span');
+    chip.className = 'coach-chip';
+    chip.textContent = q;
+    chip.onclick = () => _coachAskQuick(q);
+    wrap.appendChild(chip);
+  });
+  msgs.appendChild(wrap);
+  const body = document.getElementById('coach-body');
+  if(body) body.scrollTop = body.scrollHeight;
 }
 
 async function sendCoachMessage() {
@@ -6811,8 +6862,12 @@ async function sendCoachMessage() {
   input.value = '';
   _appendCoachTyping();
   _coachIncQuota();
+
+  // 시스템 prompt + 대화 이력 + 새 질문
+  const systemPrompt = _buildCoachSystem();
+  const messages = [..._coachHistory, {role: 'user', content: text}];
+
   try {
-    const prompt = _buildCoachPrompt(text);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
@@ -6821,8 +6876,9 @@ async function sendCoachMessage() {
       signal: controller.signal,
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
-        messages: [{ role: 'user', content: prompt }]
+        max_tokens: 800,
+        system: systemPrompt,
+        messages
       })
     });
     clearTimeout(timeoutId);
@@ -6831,7 +6887,19 @@ async function sendCoachMessage() {
     const answer = data.content?.map(c => c.text || '').join('').trim() || '응답을 받지 못했어요. 다시 시도해주세요.';
     _removeCoachTyping();
     const polished = (typeof _polishTone === 'function') ? _polishTone(answer) : answer;
-    _appendCoachMsg(polished, 'ai');
+
+    // [SUGGEST:...] 추출
+    const suggestMatch = polished.match(/\[SUGGEST:([^\]]+)\]/);
+    const cleanAnswer = polished.replace(/\[SUGGEST:[^\]]+\]/g, '').trim();
+    const suggestions = suggestMatch ? suggestMatch[1].split('|').map(s => s.trim()).filter(Boolean).slice(0, 3) : [];
+
+    _appendCoachMsg(cleanAnswer, 'ai');
+    if(suggestions.length > 0) _appendCoachChips(suggestions);
+
+    // 대화 이력 누적 (system은 매번 새로 만드니 history엔 안 들어감)
+    _coachHistory.push({role: 'user', content: text});
+    _coachHistory.push({role: 'assistant', content: cleanAnswer});
+    if(_coachHistory.length > 20) _coachHistory = _coachHistory.slice(-20);
   } catch(e) {
     _removeCoachTyping();
     const errMsg = e.name === 'AbortError' ? '응답이 너무 오래 걸려요. 잠시 후 다시 시도해주세요.' : '답변을 받지 못했어요. 잠시 후 다시 시도해주세요.';
