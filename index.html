@@ -6601,7 +6601,7 @@ function renderReportText(text){
     const isTop5Section = title.includes('TOP');
     const isLottoSection = title.includes('로또');
     const isFundSection = title.includes('자금');
-    const isTodaySection = title.includes('오늘');
+    const isTodaySection = false; // 이전엔 title.includes('오늘')로 4번 섹션 헤더를 숨겼으나, 일관성 위해 항상 표시
     const isDiagSection = title.includes('현주소') || title.includes('진단') || title.includes('상황');
 
     // 섹션별 배경 & 테마 색상
