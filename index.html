@@ -6539,9 +6539,14 @@ ${_isGolden
       throw new Error(`서버 응답 오류 (${res.status})${errBody ? ': ' + errBody.slice(0,100) : ''}`);
     }
     const data = await res.json();
-    const text = data.content?.map(c => c.text || '').join('') || data.error?.message || '';
-    if(!text) throw new Error('응답이 없어요');
+    const rawText = data.content?.map(c => c.text || '').join('') || data.error?.message || '';
+    if(!rawText) throw new Error('응답이 없어요');
     if(data.error) throw new Error(data.error.message || '서버 오류');
+
+    // ── im-not-ai 윤문 패스 (실패 시 원본 유지) ──
+    const _humanizeMsgEl = document.getElementById('report-loading-msg');
+    if(_humanizeMsgEl) _humanizeMsgEl.innerHTML = '표현을 자연스럽게 다듬는 중' + _dot;
+    const text = await _humanizeReport(rawText);
 
     _reportGenerating = false;
     const html = renderReportText(text);
@@ -6709,6 +6714,103 @@ function _polishTone(text) {
     [/ㅡ/g, '-'], // 한국어 ㅡ
   ];
   return TONE_REPLACE.reduce((t, [re, sub]) => t.replace(re, sub), text);
+}
+
+/**
+ * im-not-ai 기반 윤문 패스 (Claude haiku-4.5 추가 호출)
+ * - quick-rules.md의 S1 핵심 패턴을 압축한 시스템 프롬프트로 청약 리포트 다듬음
+ * - 마크업·숫자·단지명 100% 보존 (4 commandments)
+ * - 실패 / 변경률 50% 초과 / 섹션 수 변경 시 원본 유지 (fallback)
+ * - 추가 비용 회당 약 20~30원, 지연 3~7초
+ */
+async function _humanizeReport(text) {
+  if (!text || text.length < 200) return text;
+
+  const humanizeSystem = `당신은 한국어 윤문 전문가예요. 아래 입력은 청약 분석 리포트인데, AI 티가 나는 어색한 표현을 자연스럽게 다듬는 게 당신 일이에요.
+
+[절대 보존 규칙 - 한 글자도 바꾸지 마세요]
+1. 마크업: [SECTION:...], [HEADLINE:...], [STAT:라벨|값], [BOLD:...], [단지명: ...], [전형: ...] 형식과 안의 내용 그대로
+2. 모든 숫자·날짜·비율·금액·가점·연도
+3. 단지명·법령명·정책명 (LTV, DSR, 디딤돌, 청약홈, 홈택스 등)
+4. 4개 섹션 제목 ("내 조건에 딱 맞춘 청약 진단서예요" 등)
+5. 줄 구조와 단락 구분
+
+[다듬을 대상 - im-not-ai S1 핵심 패턴]
+- 명사 종결("확인", "점검", "체크", "가능", "해당") → 동사로 풀어 쓰기
+- 명령조("~하세요", "~확인하세요", "~체크하세요") → "~봐요", "~확인해 봐요"
+- AI 직역체("구체적", "최적", "최우선", "이중 무기", "실행 가능한", "압도적") → 자연스러운 표현
+- 결산 피벗("결론적으로", "따라서", "이를 통해", "요약하면") 3회 초과 → 줄이기
+- "시사하는 바가 크다", "주목할 만하다" → 구체 표현
+- "본질적으로", "핵심적으로" → 삭제
+- 이중 피동("되어진다") → 단일 피동("된다")
+- "가지고 있다" 직역 → 형용사·동사로 환원
+- 결말 공식("~할 때다", "~지금이야말로", "~해야 한다") → 평서
+- 한자어 명사 체인("전략적 함의") → 풀어 쓰기
+- 헤징 4회 초과("것이다", "보인다", "할 수 있다") → 단언
+- 문두 접속사 5회 초과("또한", "따라서", "즉", "나아가") → 대량 제거
+- 따옴표 강조 5회 초과 → 평어로
+- 줄임표(—, –, ㅡ) → 짧은 하이픈(-)
+- 부동산 카페 용어("상급지", "대장급", "정면승부", "올인", "공략") → 일반 표현
+
+[4 원칙]
+1. 의미 100% 보존. 사실·주장·수치 추가/삭제 금지
+2. 손상된 부분만 손대고 나머지는 그대로
+3. 청약 리포트 톤 유지 (블로그체·문학체로 변환 금지)
+4. 변경률 30% 이하 권장. 50% 초과는 윤문 중단
+
+[출력 형식]
+다듬은 리포트 텍스트만 출력해요. 인사말·안내·코멘트·"다듬어 봤어요"·"수정한 부분" 같은 메타 메시지는 절대 포함하지 마세요. 입력과 동일한 마크업 구조로 다듬은 결과만 반환해요.`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 윤문 30초 타임아웃
+    const res = await fetch('https://chengyak-proxy.vercel.app/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 6000,
+        system: humanizeSystem,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      console.warn('[humanize] HTTP', res.status, '- 원본 유지');
+      return text;
+    }
+    const data = await res.json();
+    const polished = data.content?.map(c => c.text || '').join('') || '';
+    if (!polished || polished.length < text.length * 0.4) {
+      console.warn('[humanize] 응답 너무 짧음 - 원본 유지');
+      return text;
+    }
+    // 안전 검사 1: 변경률 50% 초과 시 원본 유지
+    const lenDiff = Math.abs(polished.length - text.length) / text.length;
+    if (lenDiff > 0.5) {
+      console.warn('[humanize] 변경률', Math.round(lenDiff * 100) + '% (50% 초과) - 원본 유지');
+      return text;
+    }
+    // 안전 검사 2: SECTION 개수 불일치 시 원본 유지 (마크업 손상)
+    const origSec = (text.match(/\[SECTION:/g) || []).length;
+    const newSec  = (polished.match(/\[SECTION:/g) || []).length;
+    if (origSec !== newSec) {
+      console.warn('[humanize] 섹션 수 변경', origSec, '→', newSec, '- 원본 유지');
+      return text;
+    }
+    // 안전 검사 3: HEADLINE 마크업 절반 이상 손실 시 원본 유지
+    const origHL = (text.match(/\[HEADLINE:/g) || []).length;
+    const newHL  = (polished.match(/\[HEADLINE:/g) || []).length;
+    if (origHL > 0 && newHL < origHL * 0.5) {
+      console.warn('[humanize] HEADLINE 손실', origHL, '→', newHL, '- 원본 유지');
+      return text;
+    }
+    return polished;
+  } catch (e) {
+    console.warn('[humanize] 실패:', e?.message || e, '- 원본 유지');
+    return text;
+  }
 }
 
 /* ══ AI 청약 코치 (Phase 1 MVP) ══ */
