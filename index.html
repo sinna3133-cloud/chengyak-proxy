@@ -6398,7 +6398,7 @@ ${matched.length > 1 ? `
 [STAT:월상환|${_monthlyPay.toLocaleString()}만][STAT:DSR|${_dsrRatio}%]
 
 1단계 계약금: ${cash >= _contractAmt ? '[BOLD:납부 가능]' : '[BOLD:납부 불가]'} (보유 ${cash.toLocaleString()}만 vs 필요 ${_contractAmt.toLocaleString()}만)
-${cash < _contractAmt ? '→ [BOLD:' + (_contractAmt-cash).toLocaleString() + '만원 부족]. 당첨 후 계약 포기 시 재당첨 제한 10년! 반드시 자금 확보 후 청약하세요.' : '→ 잔여 ' + (cash-_contractAmt).toLocaleString() + '만원'}
+${cash < _contractAmt ? '→ [BOLD:' + (_contractAmt-cash).toLocaleString() + '만원 부족]. 당첨 후 계약을 포기하면 재당첨 제한이 10년 적용돼요. 청약 전에 자금을 미리 확보해두는 게 안전해요.' : '→ 잔여 ' + (cash-_contractAmt).toLocaleString() + '만원'}
 
 2단계 중도금: ${_midNote}
 3단계 잔금 주담대: 최대 ${fmtUk(_loanAmt)} (LTV ${Math.round(_ltvRate*100)}%)
@@ -7050,7 +7050,7 @@ const GLOSSARY = [
   {term:'LTV',short:'주택담보대출비율. 집값 대비 최대 대출 한도',full:'Loan To Value. 생애최초 전국 70%. 투기과열지구 일반 40%. 비규제 무주택 70%. 집값의 최대 몇 %까지 빌릴 수 있는지를 나타내요.',cat:'대출·자금'},
   {term:'DTI',short:'총부채상환비율. 연소득 대비 연간 원리금 상환액 비율',full:'Debt To Income. 투기과열지구 40%, 수도권 50%, 기타 60% 이내. 초과 시 대출 한도가 줄어요.',cat:'대출·자금'},
   {term:'투기과열지구',short:'청약·대출 규제가 가장 강한 지역',full:'서울 전 지역, 과천 등. 1순위 조건 강화(세대주·5년 미당첨·24개월), 가점제 비율 확대, LTV 40%, 재당첨 제한 10년 적용.',cat:'지역·규제'},
-  {term:'조정대상지역',short:'투기과열지구 다음 단계의 청약 규제 지역',full:'분양권 전매 제한, 1순위 요건 강화, LTV 50% 등 적용. 청약 시 공고문에서 해당 여부를 반드시 확인하세요.',cat:'지역·규제'},
+  {term:'조정대상지역',short:'투기과열지구 다음 단계의 청약 규제 지역',full:'분양권 전매 제한, 1순위 요건 강화, LTV 50% 등 적용. 청약 시 공고문에서 해당 여부를 꼭 확인해보세요.',cat:'지역·규제'},
   {term:'거주의무기간',short:'입주 후 일정 기간 해당 주택에 실제 거주해야 하는 의무',full:'공공분양 나눔형 5년, 분양가상한제 적용 민간 2~3년. 위반 시 과태료 및 주택 처분 명령 대상. 거주 의무 기간 중에는 임대가 불가해요.',cat:'지역·규제'},
 ];
 
@@ -9792,7 +9792,7 @@ function showPushNudge() {
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     <div style="flex:1">
       <div style="font-size:13px;font-weight:700;color:white">청약 마감 알림 받기</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">D-3 임박 공고를 놓치지 마세요</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">D-3 임박 공고를 알려드려요</div>
     </div>
     <button onclick="enablePush()" style="background:var(--accent);border:none;border-radius:10px;padding:8px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">허용</button>
     <button onclick="document.getElementById('push-nudge').remove()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 4px;flex-shrink:0">✕</button>
