@@ -4808,10 +4808,24 @@ if(!history.state || !history.state.screen) {
   // 카카오/네이버 콜백 중이거나 어드민 진입 중이면 URL 건드리지 않음
   const _initSp = new URLSearchParams(window.location.search);
   const _initIsAdmin = _initSp.get('admin') === '1234' || location.hash === '#admin1234';
+  // 데모 잠금 토글 (?demo=1 / ?demo=0)
+  if(_initSp.has('demo')) {
+    if(_initSp.get('demo') === '1') localStorage.setItem('demo_lock', '1');
+    else localStorage.removeItem('demo_lock');
+  }
   if(!_initSp.get('code') && !_initIsAdmin) {
     history.replaceState({screen: 'home'}, '', window.location.pathname);
   }
 }
+
+// 데모 잠금 상태 헬퍼
+function isDemoLocked() { return localStorage.getItem('demo_lock') === '1'; }
+function setDemoLock(on) {
+  if(on) localStorage.setItem('demo_lock', '1');
+  else localStorage.removeItem('demo_lock');
+  if(typeof showToast === 'function') showToast(on ? '🔒 데모 잠금 ON · 새 리포트 차단됨' : '🔓 데모 잠금 OFF');
+}
+function toggleDemoLock() { setDemoLock(!isDemoLocked()); }
 
 // ── 오버레이 open 시 히스토리 연동 ──
 // wizard, report-ov 오픈 함수에 pushOverlayState 삽입은
@@ -5967,6 +5981,17 @@ function _animateSectionContent(sec, sectionIdx){
 
 async function generateReport(){
   if(_reportGenerating) return;
+  // 데모 잠금: 새 리포트 생성 차단 → 캐시가 있으면 캐시 표시, 없으면 안내
+  if(isDemoLocked()) {
+    const _cached = localStorage.getItem('report_cached');
+    if(_cached) {
+      _showReportResult(_cached, true);
+      if(typeof showToast === 'function') showToast('🔒 데모 잠금 — 캐시된 리포트를 표시했어요');
+    } else {
+      if(typeof showToast === 'function') showToast('🔒 데모 잠금 — 캐시가 없어요. ?demo=0 으로 잠금 해제 후 받아주세요');
+    }
+    return;
+  }
   _reportGenerating = true;
   // 로딩 UI 표시 (재시도 시에도 동작하도록)
   const _rl = document.getElementById('report-loading');
@@ -6575,9 +6600,47 @@ ${_isGolden
   }
 }
 
+// AI 출력 톤 자동 정제 (어색한 표현 자연스러운 일상어로 치환)
+function _polishTone(text) {
+  const TONE_REPLACE = [
+    // AI풍 추상어
+    [/대기 전략/g, '더 기다리는 방법'],
+    [/자산 가치 극대화/g, '더 좋은 단지에 청약하기'],
+    [/자산 가치를 극대화/g, '더 좋은 단지에 청약'],
+    [/기회비용을 강조/g, '신중한 선택을 강조'],
+    [/기회비용/g, '놓치는 다른 선택'],
+    [/전략적 인내심/g, '신중함'],
+    [/입지적 보상이 부족/g, '시세 차익이 작은 편'],
+    [/입지적 보상/g, '시세 차익'],
+    [/통장을 아끼는 것/g, '통장을 더 좋은 곳에 쓰는 것'],
+    [/통장 스펙/g, '통장 조건'],
+    [/자산 형성 철학/g, '돈 굴리는 방식'],
+    [/장기적 자산 형성/g, '오래 보고 결정하기'],
+    [/갈아타기 전략/g, '다음 단지 고르기'],
+    [/선별적 청약/g, '신중한 선택'],
+    [/신중한 의사결정/g, '신중한 결정'],
+    // 부동산 카페식 표현
+    [/상급지 공고/g, '더 좋은 입지의 단지'],
+    [/상급지를/g, '더 좋은 입지를'],
+    [/상급지/g, '더 좋은 입지'],
+    [/대장급 블록/g, '주요 단지'],
+    [/대장급/g, '주요'],
+    [/우량 공고/g, '좋은 단지'],
+    [/우량 단지/g, '좋은 단지'],
+    // 과장 표현
+    [/단 한 번의 기회/g, '자주 있지 않은 기회'],
+    // 어색한 단정 표현
+    [/아무 단지에나 넣을 사람이 아니에요/g, '신중하게 고르는 게 좋아요'],
+    [/아무 단지에나 쓰면 안 돼요/g, '신중하게 골라야 해요'],
+  ];
+  return TONE_REPLACE.reduce((t, [re, sub]) => t.replace(re, sub), text);
+}
+
 function renderReportText(text){
   // ㅡ, —, – 를 - 로 통일
   text = text.replace(/ㅡ/g, '-').replace(/—/g, '-').replace(/–/g, '-');
+  // AI 출력 톤 자동 정제 (AI가 자체 생성한 어색 표현 → 일상어)
+  text = _polishTone(text);
   // [SECTION:] 파싱
   const sectionRe = /\[SECTION:([^\]]+)\]/g;
   if(!text.includes('[SECTION:')) {
