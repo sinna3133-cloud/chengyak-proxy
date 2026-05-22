@@ -1753,7 +1753,7 @@ function calcTypes(p, listingCtx){
 
   // 도시근로자 100% 기준 (연간 만원)
   const h=parseInt(p.household||3);
-  const base100=(URBAN_INCOME_100[Math.min(h,8)]||721)*12;
+  const base100=(URBAN_INCOME_100[Math.min(h,8)]||753)*12;
   const incPct=inc>0?Math.round(inc/base100*100):0;
 
   const t=[];
@@ -1906,7 +1906,7 @@ function calcEligDetail(l, p){
   const accYr = parseInt(p.accYears||0);
   const depCnt = parseInt(p.depCount||0);
   const h = parseInt(p.household||3);
-  const base100 = (URBAN_INCOME_100[Math.min(h,8)]||721) * 12;
+  const base100 = (URBAN_INCOME_100[Math.min(h,8)]||753) * 12;
   const incPct = inc > 0 ? Math.round(inc/base100*100) : 0;
   const hasNewborn = (p.childDates||[]).some(c => {
     if(!c.year||!c.month) return false;
@@ -6035,7 +6035,7 @@ async function generateReport(){
                     daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',
                     ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남'};
   const regionLabel = RGN_KR[P.region] || '미설정';
-  const base100  = (URBAN_INCOME_100[hForBase] || 721) * 12;
+  const base100  = (URBAN_INCOME_100[hForBase] || 753) * 12;
   const incPct   = income > 0 ? Math.round(income / base100 * 100) : 0;
   const isHot    = ['seoul','gyeonggi','incheon','sejong'].includes(P.region);
   const rank1    = isHot ? (accYr >= 2 && acc >= 24) : (accYr >= 1 && acc >= 6);
@@ -6326,6 +6326,7 @@ ${reportName}님은 저축총액 ${_goldDepAmt.toLocaleString()}만원의 ${_gol
 민간투기과열: 1순위=세대주+24개월+예치금+5년미당첨. 신혼/생초 5단계. 가점제(60㎡↓40%·85㎡↑80%)
 정책변화(2024~): 부부동시청약허용(같은단지중복신청), 생애최초1인가구60㎡이하만, 자산기준추첨제(부동산3.31억↓), 월인정납입25만원상향
 대출(2025): 생초LTV70%(수도권)/일반무주택LTV40%(투기)·70%(비규제)/유주택LTV0%. 주담대한도(수도권): 15억↓6억·15~25억4억·25억↑2억. DSR40%·스트레스금리3%(수도권)/1.5%(비규제). 9억↑중도금집단대출불가
+[소득 기준 출처] 도시근로자 월평균소득 100%/130%/140%/160% 는 2025년 통계청 발표 기준이에요. 가구원수별 100% 값: 3인↓ 753만원 / 4인 880만원 / 5인 933만원 / 6인 991만원 (월). 리포트에서 소득 기준을 언급할 때는 "2025년 도시근로자 기준" 같이 출처를 자연스럽게 명시해요. 매년 변동되므로 최신 공고문 기준이 우선임도 안내해요.
 배우자통장: ${P.spouseAcc?'보유→부부동시청약가능(확률2배가능)':'미보유/미확인'}
 PDF공고문 데이터 있으면 최우선 적용
 
