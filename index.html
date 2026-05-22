@@ -3473,7 +3473,7 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
-      <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">✓ ${myType}</span></div>
+      <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc">📍 ${l.loc}</div>
     </div>`;
   }).join('')}</div>`;
