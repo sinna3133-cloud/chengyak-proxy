@@ -8960,45 +8960,13 @@ function saveFactorsCache(cache) {
 
 // 호재 AI 조회 (캐시 우선, 없으면 Claude API 호출)
 
-// 호재 텍스트를 자연스러운 ~요체로 변환 (기존 캐시 대응)
-function _factorToYoche(text) {
-  if(!text) return text;
-  let t = String(text).trim().replace(/[.。!?]+$/, '');
-  // 이미 ~요체면 마침표만 추가
-  if(/요$|에요$|예요$|어요$|아요$|돼요$|해요$|이에요$/.test(t)) return t + '.';
-  // 격식체·명사·단정형 → ~요체
-  const map = [
-    [/합니다$/, '해요'], [/입니다$/, '이에요'], [/됩니다$/, '돼요'],
-    [/있습니다$/, '있어요'], [/없습니다$/, '없어요'],
-    [/한다$/, '해요'], [/된다$/, '돼요'], [/이다$/, '이에요'],
-    [/있다$/, '있어요'], [/없다$/, '없어요'], [/온다$/, '와요'],
-    [/예정$/, '예정이에요'], [/추진 중$/, '추진 중이에요'], [/공사 중$/, '공사 중이에요'],
-    [/계획$/, '계획이에요'], [/호재$/, '호재가 있어요'], [/완공$/, '완공돼요'],
-    [/개통$/, '개통돼요'], [/유리$/, '유리해요'], [/우수$/, '우수해요'],
-    [/인접$/, '인접해 있어요'], [/위치$/, '자리해 있어요'], [/도보권$/, '도보권에 있어요']
-  ];
-  for(const [re, sub] of map) {
-    if(re.test(t)) { t = t.replace(re, sub); break; }
-  }
-  // 그래도 명사로 끝나면 받침 따라 이에요/예요 추가
-  if(!/요$|에요$|예요$|어요$|아요$|돼요$|해요$|이에요$/.test(t)) {
-    const lastChar = t[t.length-1];
-    if(/[가-힣]/.test(lastChar)) {
-      const code = lastChar.charCodeAt(0) - 0xAC00;
-      const hasJong = code >= 0 && (code % 28) > 0;
-      t += hasJong ? '이에요' : '예요';
-    }
-  }
-  return t + '.';
-}
-
 function renderFactors(factors) {
   if(!factors || !factors.length) return '';
   return `<div style="display:flex;flex-direction:column;gap:8px">
     ${factors.map(f=>`
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon||'📍'}</span>
-      <span style="font-size:13px;color:var(--ink-3);line-height:1.55">${_factorToYoche(f.text)}</span>
+      <span style="font-size:13px;color:var(--ink-3);line-height:1.55">${f.text}</span>
     </div>`).join('')}
   </div>`;
 }
@@ -9237,7 +9205,7 @@ async function autoFetchAllFactors() {
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 400,
             messages: [{ role: 'user', content:
-              `다음 주소의 부동산 호재를 3~5개 알려줘. 반드시 JSON 배열만 반환 (마크다운 없이).\n주소: ${l.loc}\n공고명: ${l.name}\n형식: [{"icon":"이모지","text":"호재 한 줄"}]\n실제 교통/개발/학군/환경 호재만.\n[중요] 호재 텍스트는 반드시 자연스러운 ~요체로 끝나야 해요. "~예요", "~이에요", "~있어요", "~예정이에요" 등. "~한다", "~예정", "~입니다", "~호재" 같은 단정·명사·격식체 종결은 절대 쓰지 마. 예시: "GTX-A 운정~동탄 구간 개통 예정이에요", "신분당선 연장 추진 중이에요", "초·중·고 도보권에 모여 있어요", "9호선 급행 정차역이에요".`
+              `다음 주소의 부동산 호재를 3~5개 알려줘. 반드시 JSON 배열만 반환 (마크다운 없이).\n주소: ${l.loc}\n공고명: ${l.name}\n형식: [{"icon":"이모지","text":"호재 한 줄"}]\n실제 교통/개발/학군/환경 호재만.`
             }]
           })
         });
