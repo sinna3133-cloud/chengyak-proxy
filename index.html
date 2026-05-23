@@ -709,7 +709,10 @@
   <div class="menu-section-label">내 리포트 기록</div>
   <div style="padding:0 20px 4px" id="report-history-section">
     <div id="report-history-list">
-      <div class="u-report-empty">아직 받은 리포트가 없어요.</div>
+      <div class="u-report-empty" style="text-align:center;padding:24px 20px">
+        <div style="font-size:13px;color:var(--ink-4);margin-bottom:14px">아직 받은 리포트가 없어요.</div>
+        <button onclick="showScreen('consult')" style="padding:10px 22px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">리포트 받아보기</button>
+      </div>
     </div>
   </div>
   <div class="menu-section-label">고객센터</div>
@@ -1573,7 +1576,7 @@ function finishWizard(){
   }
   // 일반 흐름: 홈으로
   showScreen('home');
-  showToast('✓ 조건 저장 완료! 맞춤 공고를 확인해보세요');
+  showToast('조건이 저장됐어요. 맞춤 공고를 확인해 봐요');
   setTimeout(()=>{
     const el=document.getElementById('rec-section-row');
     if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
@@ -3579,10 +3582,14 @@ function _doRenderListings(){
 
   if(!fl.length){
     const isFiltered = curFilter !== 'all' || q || selectedRegions.size > 0;
+    const ctaBtn = isFiltered
+      ? `<button onclick="resetFilters()" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.25)">필터 초기화</button>`
+      : `<button onclick="showScreen('notif')" style="margin-top:20px;padding:12px 28px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.25)">새 공고 알림 받기</button>`;
     cont.innerHTML=`<div class="no-res">
       <div class="no-res-icon">${isFiltered ? '🔍' : '📋'}</div>
       <div class="no-res-title">${isFiltered ? '검색 결과가 없어요' : '현재 진행 중인 공고가 없어요'}</div>
-      <div class="no-res-sub" style="line-height:1.7">${isFiltered ? '다른 키워드나 필터로 검색해보세요' : '새 공고가 등록되면 바로 알려드릴게요'}</div>
+      <div class="no-res-sub" style="line-height:1.7">${isFiltered ? '다른 키워드나 필터로 다시 찾아봐요' : '새 공고가 올라오면 바로 알려드릴게요'}</div>
+      ${ctaBtn}
     </div>`;
     return;
   }
@@ -3803,6 +3810,21 @@ function restoreRegions(){
 function setFilter(f,el){curFilter=f;document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderListings();}
 function onSearch(){srchQ=document.getElementById('srch-inp').value.trim();document.getElementById('srch-clr').style.display=srchQ?'flex':'none';renderListings();}
 function clearSearch(){document.getElementById('srch-inp').value='';srchQ='';document.getElementById('srch-clr').style.display='none';renderListings();}
+// 모든 필터·검색·지역 초기화 (빈 상태에서 호출)
+function resetFilters(){
+  curFilter = 'all';
+  selectedRegions.clear();
+  srchQ = '';
+  const inp = document.getElementById('srch-inp');
+  if(inp) inp.value = '';
+  const clr = document.getElementById('srch-clr');
+  if(clr) clr.style.display = 'none';
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  const allTab = document.querySelector('.ftab[data-f="all"], .ftab:first-child');
+  if(allTab) allTab.classList.add('active');
+  document.querySelectorAll('.region-chip.active, .region-pill.active').forEach(c=>c.classList.remove('active'));
+  renderListings();
+}
 function toggleSave(e,id){
   e.stopPropagation();
   const btn=e.currentTarget;
@@ -4688,7 +4710,7 @@ function toggleDetailAlarm(){
     alarmIds.add(String(l.id));
     addNotification(`🔔 ${cleanName(l.name)} 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
     btn.classList.add('on');
-    showToast('마감 전 알림을 설정했어요 🔔');
+    showToast('마감 전 알림이 설정됐어요');
   }
 }
 
@@ -5677,7 +5699,7 @@ function _showPaywall(usedCount, weekKey){
 
 // ── 구독 페이지 (추후 결제 연동 위한 플레이스홀더) ──
 function _showSubscribePage(){
-  showToast('구독 기능은 곧 오픈돼요! 🚀');
+  showToast('구독 기능은 곧 시작해요');
 }
 
 function _openReportOv(){
@@ -7670,7 +7692,10 @@ function renderReportHistory(){
   if(!el) return;
   const history = _safeParseLS('report_history_'+(kakaoUser?.kakaoId||'guest'), []);
   if(!history.length){
-    el.innerHTML = '<div class="u-report-empty">아직 받은 리포트가 없어요.</div>';
+    el.innerHTML = `<div class="u-report-empty" style="text-align:center;padding:32px 20px">
+      <div style="font-size:14px;color:var(--ink-4);margin-bottom:16px">아직 받은 리포트가 없어요.</div>
+      <button onclick="showScreen('consult')" style="padding:11px 26px;background:var(--accent);color:white;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,102,255,.25)">리포트 받아보기</button>
+    </div>`;
     return;
   }
   el.innerHTML = history.map((item, i) => `
@@ -8411,7 +8436,7 @@ function saveEditCond(){
   updateHero(); renderListings(); updateConsult(); updateMyCondCard(); updateScoreScreen(); renderReportHistory();
   sbSaveCondition();
   showScreen('more');
-  showToast('✓ 조건이 저장됐어요! 맞춤 공고를 확인해보세요');
+  showToast('조건이 저장됐어요. 맞춤 공고를 확인해 봐요');
 }
 
 function showToast(msg){
@@ -9312,7 +9337,7 @@ async function loadLiveData(){
     }
     updateConsult();
     updateScoreScreen();
-    showToast(`✓ 경쟁률·커트라인 업데이트 완료`);
+    showToast('경쟁률·커트라인이 업데이트됐어요');
 
     // 시세 자동 조회 - loadLiveData 완료 후 실행 (listings가 채워진 상태)
     // 1) 캐시 즉시 적용 (API 응답 기다리지 않고 바로 표시)
@@ -10138,14 +10163,14 @@ async function confirmAdminData(force=false){
       });
     }
     const wasOverwrite = res.status === 200 && data.overwritten;
-    showToast(wasOverwrite ? '✓ 기존 공고를 PDF로 업데이트했어요!' : '✓ 공고가 추가됐어요!');
+    showToast(wasOverwrite ? '기존 공고를 PDF로 업데이트했어요' : '공고가 추가됐어요');
     recalcAllDays(); // 모든 공고 days 현재 시각 기준 재계산
     resetAdmin();
     renderAdminList();
     renderListings();
     renderRecommend();
   } catch(e){
-    showToast('❌ 저장 실패: ' + e.message);
+    showToast('저장이 안 됐어요: ' + e.message);
   }
 }
 
@@ -10354,7 +10379,7 @@ async function handleNaverDirectLogin(data) {
   updateMyCondCard();
   renderListings();
   renderSaved();
-  showToast(`✓ ${data.nickname}님, 환영해요!`);
+  showToast(`${data.nickname}님, 환영해요!`);
   sbSaveProfile(kakaoUser);
   sbLoadBookmarks(kakaoUser.kakaoId).then(() => { applyLoginUI(); updateHero(); });
   sbLoadCondition(kakaoUser.kakaoId).then(() => { updateMyCondCard(); });
@@ -10391,13 +10416,13 @@ async function handleNaverCallback(code, state) {
     updateMyCondCard();
     renderListings();
     renderSaved();
-    showToast(`✓ ${data.nickname}님, 환영해요!`);
+    showToast(`${data.nickname}님, 환영해요!`);
     sbSaveProfile(kakaoUser);
     sbLoadBookmarks(kakaoUser.kakaoId).then(() => { applyLoginUI(); updateHero(); });
     sbLoadCondition(kakaoUser.kakaoId).then(() => { updateMyCondCard(); });
     syncReportHistoryFromCloud().catch(()=>{});
   } catch(e) {
-    showToast('❌ 네이버 로그인 실패: ' + e.message);
+    showToast('네이버 로그인이 안 됐어요: ' + e.message);
   }
 }
 
@@ -10453,7 +10478,7 @@ async function handleKakaoDirectLogin(data) {
   updateMyCondCard();
   renderListings();
   renderSaved();
-  showToast(`✓ ${data.nickname}님, 환영해요!`);
+  showToast(`${data.nickname}님, 환영해요!`);
   sbSaveProfile(kakaoUser);
   sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
   sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); renderListings(); });
@@ -10489,14 +10514,14 @@ async function handleKakaoCallback(code) {
     updateMyCondCard();
     renderListings();
     renderSaved();
-    showToast(`✓ ${data.nickname}님, 환영해요!`);
+    showToast(`${data.nickname}님, 환영해요!`);
     // Supabase 백그라운드 처리
     sbSaveProfile(kakaoUser);
     sbLoadBookmarks(String(kakaoUser.kakaoId)).then(() => { applyLoginUI(); updateHero(); });
     sbLoadCondition(String(kakaoUser.kakaoId)).then(() => { updateMyCondCard(); renderListings(); });
     syncReportHistoryFromCloud().catch(()=>{});
   } catch(e) {
-    showToast('❌ 로그인 실패: ' + e.message);
+    showToast('로그인이 안 됐어요: ' + e.message);
   }
 }
 
@@ -10639,7 +10664,7 @@ function checkUpcomingDeadlines() {
       const sentKey = `notifSent_${l.id}_D${l.days}_${today}`;
       if (!localStorage.getItem(sentKey)) {
         const msg = l.days === 0
-          ? `⏰ ${l.name} 오늘 마감이에요! 지금 바로 신청하세요.`
+          ? `⏰ ${l.name} 오늘 마감이에요. 청약홈에서 바로 신청해 봐요.`
           : `⏰ ${l.name} 마감 3일 전이에요. 준비되셨나요?`;
         addNotification(msg, 'deadline', String(l.id));
         localStorage.setItem(sentKey, '1');
