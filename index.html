@@ -3565,7 +3565,7 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     const _prob = calcProb(l, P);
-    const _isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
+    const _isFirstCome = (l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))) || l.days===null || l.days>=999 || (l.deadline && l.deadline.startsWith('9999'));
     const _deadlineHot = !_isFirstCome && l.days !== null && l.days <= 5;
     const _badgeHTML = _isFirstCome
       ? `<div style="display:inline-flex;align-items:center;gap:4px;background:var(--violet-50);color:var(--violet-500);padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:700"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>선착순</div>`
