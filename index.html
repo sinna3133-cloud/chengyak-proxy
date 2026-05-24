@@ -540,6 +540,8 @@
     <div class="det-loc" id="det-loc"></div>
     <!-- ══ Claude Design v2: KPI strip (당첨확률·마감·분양가) ══ -->
     <div id="det-kpi-strip" style="margin-top:14px"></div>
+    <!-- ══ Claude Design v2: AI 추천 callout (자격 매칭) ══ -->
+    <div id="det-match-callout" style="margin-top:10px"></div>
   </div>
   <div class="det-body" id="det-body" style="padding-bottom:calc(80px + env(safe-area-inset-bottom))"></div>
 </div>
@@ -4312,6 +4314,37 @@ async function showDetail(id, fromSwipe=false){
           <div style="font-size:17px;font-weight:800;color:var(--text-1);font-variant-numeric:tabular-nums;letter-spacing:-.02em">${_priceLabel}</div>
         </div>
       </div>`;
+  })();
+  // Claude Design v2: AI 추천 callout (자격 매칭 안내)
+  (() => {
+    const cEl = document.getElementById('det-match-callout');
+    if(!cEl) return;
+    const _hasConditions = P.byear || P.income || P.noHomeYears || P.depCount;
+    const _name = P.name || '회원';
+    if(!_hasConditions){
+      cEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--brand-50);border:1px solid #D6E0FF;border-radius:var(--r-v2-md);color:var(--brand-700);font-size:13px;line-height:1.5;letter-spacing:-.01em;cursor:pointer" onclick="openWizard()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div style="flex:1"><b>조건을 설정하면 자격을 자동으로 분석해드려요</b></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`;
+      return;
+    }
+    const _tl = calcTypes(P).map(t=>t.l);
+    const _matchedTypes = (l.elig||[]).filter(e => _tl.includes(e));
+    if(_matchedTypes.length > 0){
+      cEl.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--green-v2-50);border:1px solid var(--green-v2-100);border-radius:var(--r-v2-md);color:var(--green-v2-700);font-size:13px;line-height:1.55;letter-spacing:-.01em">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div style="flex:1"><b>${_name}님 자격 충족</b> - ${_matchedTypes.slice(0,2).join(' · ')}${_matchedTypes.length>2?` 외 ${_matchedTypes.length-2}건`:''} 신청 가능해요</div>
+        </div>`;
+    } else {
+      cEl.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--amber-50);border:1px solid var(--amber-100);color:#6B4A06;border-radius:var(--r-v2-md);font-size:13px;line-height:1.55;letter-spacing:-.01em">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div style="flex:1"><b>현재 조건으로는 신청 자격이 부족해요</b> - 청약 자격 영역에서 어떤 조건이 걸리는지 확인해 봐요</div>
+        </div>`;
+    }
   })();
   // showScreen 호출 전 prevScreen 보존 - showScreen 내부에서 덮어쓰지 않도록
   const _savedPrev = prevScreen;
