@@ -535,6 +535,8 @@
     <div id="det-badges"></div>
     <div class="det-title" id="det-title"></div>
     <div class="det-loc" id="det-loc"></div>
+    <!-- ══ Claude Design v2: KPI strip (당첨확률·마감·분양가) ══ -->
+    <div id="det-kpi-strip" style="margin-top:14px"></div>
   </div>
   <div class="det-body" id="det-body" style="padding-bottom:calc(80px + env(safe-area-inset-bottom))"></div>
 </div>
@@ -4281,6 +4283,33 @@ async function showDetail(id, fromSwipe=false){
   // 헤더 정보 즉시 표시 (본문 로드 전)
   document.getElementById('det-title').textContent = cleanName(l.name);
   document.getElementById('det-loc').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + l.loc;
+  // Claude Design v2: KPI strip (당첨확률 · 마감 · 평균 분양가)
+  (() => {
+    const kpiEl = document.getElementById('det-kpi-strip');
+    if(!kpiEl) return;
+    const _prob = calcProb(l, P);
+    const _isFirstCome = (l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'))) || l.days===null || l.days>=999 || (l.deadline && l.deadline.startsWith('9999'));
+    const _deadlineLabel = _isFirstCome ? '선착순' : (l.days !== null && l.days >= 0 ? `D-${l.days}` : '미정');
+    const _deadlineColor = _isFirstCome ? 'var(--violet-500)' : (l.days !== null && l.days <= 5 ? 'var(--coral-600)' : 'var(--amber-600)');
+    const _priceLabel = (() => {
+      try { return cardPrice(l.price); } catch(e) { return '미정'; }
+    })();
+    kpiEl.innerHTML = `
+      <div style="background:var(--surface);border-radius:var(--r-v2-md);border:1px solid var(--border-v2);box-shadow:var(--shadow-v2-sm);display:grid;grid-template-columns:1fr 1fr 1fr;padding:14px 0">
+        <div style="padding:0 12px;text-align:center">
+          <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:6px">당첨확률</div>
+          <div style="font-size:17px;font-weight:800;color:var(--brand-600);font-variant-numeric:tabular-nums;letter-spacing:-.02em" id="det-prob">${_prob !== null ? _prob+'%' : '?'}</div>
+        </div>
+        <div style="padding:0 12px;text-align:center;border-left:1px solid var(--gray-100);border-right:1px solid var(--gray-100)">
+          <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:6px">마감</div>
+          <div style="font-size:17px;font-weight:800;color:${_deadlineColor};font-variant-numeric:tabular-nums;letter-spacing:-.02em">${_deadlineLabel}</div>
+        </div>
+        <div style="padding:0 12px;text-align:center">
+          <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:6px">분양가</div>
+          <div style="font-size:17px;font-weight:800;color:var(--text-1);font-variant-numeric:tabular-nums;letter-spacing:-.02em">${_priceLabel}</div>
+        </div>
+      </div>`;
+  })();
   // showScreen 호출 전 prevScreen 보존 - showScreen 내부에서 덮어쓰지 않도록
   const _savedPrev = prevScreen;
   showScreen('detail');
