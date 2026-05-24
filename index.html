@@ -1038,7 +1038,7 @@
       <div id="admin-status" style="display:none;margin-top:16px;padding:14px 16px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.6"></div>
 
       <div id="admin-preview" style="display:none;margin-top:16px">
-        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px">📋 추출된 데이터 확인</div>
+        <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px;display:inline-flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>추출된 데이터 확인</div>
         <div id="admin-preview-body" style="background:var(--bg);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;color:var(--ink-3)"></div>
         <div style="display:flex;gap:10px;margin-top:14px">
           <button onclick="confirmAdminData()" style="flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">✓ 공고 추가하기</button>
@@ -2171,7 +2171,7 @@ function calcEligDetail(l, p){
 
     // 거주지역 요건 (정보 표시만, 자동 판정 어려움)
     if(rule.regionReq && rule.regionReq.length > 0){
-      reasons.push(`📍 ${rule.regionReq}`);
+      reasons.push(`${rule.regionReq}`);
     }
 
     // 세대주 요건 (정보 표시)
@@ -2939,7 +2939,7 @@ function typeBadge(l){
   return typeBadgeHtml;
 }
 function gapPill(l){
-  if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4)">📊 시세 차익 기대가 어려울 수 있어요</div></div>`;
+  if(l.noMktP) return`<div class="gap-pill"><div class="gap-nums" style="color:var(--ink-4);display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>시세 차익 기대가 어려울 수 있어요</div></div>`;
   const{g,pct,saleP,gapMin,gapMax}=gap(l);const up=g>0;
   // 차익 범위 표시 (gapMin~gapMax)
   const hasRange = gapMin !== undefined && gapMax !== undefined && Math.abs(gapMax - gapMin) > 1000;
@@ -4304,7 +4304,7 @@ async function showDetail(id, fromSwipe=false){
   ${isGoldenTicket(P) && !l.noMktP && l.mktP > 0 && gap(l).g < 30000 ? `
   <div class="info-card" style="margin-top:14px;border-color:#F59E0B;background:linear-gradient(135deg,#FFF7ED,#FFFBEB)">
     <div style="padding:14px 18px">
-      <div style="font-size:14px;font-weight:800;color:#92400E;margin-bottom:6px">${getGoldenTier(P)?.emoji||'⚠️'} 통장 아끼기 권장</div>
+      <div style="font-size:14px;font-weight:800;color:#92400E;margin-bottom:6px;display:inline-flex;align-items:center;gap:7px">${getGoldenTier(P)?.emoji || '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'}<span>통장 아끼기 권장</span></div>
       <div style="font-size:12px;color:#78350F;line-height:1.7">${P.name||'회원'}님 통장이면 당첨은 가능하지만, 이 단지에서 얻는 <b>시세 차익이 다소 작아요</b>. 현재 차익 ${gap(l).g > 0 ? fmtUk(gap(l).g) : '없음'} 수준 - ${P.name||'회원'}님의 통장(${parseInt(P.depAmt||0).toLocaleString()}만원)으로 쓰기엔 아쉬운 편이에요. <b>더 좋은 입지의 단지가 나올 때까지 한 번 더 기다려보는 것도 방법이에요.</b></div>
     </div>
   </div>` : ''}
@@ -4615,7 +4615,12 @@ async function showDetail(id, fromSwipe=false){
       if(depScore1>prob) tips.push({label:`부양가족 +1명 시`,val:depScore1,type:'action'});
       if(!tips.length) return '';
       return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,102,255,.12);display:flex;flex-direction:column;gap:4px">'
-        +tips.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;color:var(--ink-3)">${t.type==='action'?'💡':'⏳'} ${t.label}</span><span style="font-size:12px;font-weight:800;color:${pColor(t.val)}">${t.val}%</span></div>`).join('')
+        +tips.map(t=>{
+          const _ico = t.type==='action'
+            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.4.4.7 1 .7 1.6V18h6.6v-1.7c0-.6.3-1.2.7-1.6A7 7 0 0 0 12 2z"/></svg>'
+            : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+          return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;color:var(--ink-3)">${_ico}${t.label}</span><span style="font-size:12px;font-weight:800;color:${pColor(t.val)}">${t.val}%</span></div>`;
+        }).join('')
         +'</div>';
     })()}
   </div>`
@@ -4711,7 +4716,7 @@ function toggleDetailAlarm(){
     showToast('알림을 해제했어요');
   } else {
     alarmIds.add(String(l.id));
-    addNotification(`🔔 ${cleanName(l.name)} 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
+    addNotification(`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${cleanName(l.name)} 마감 알림이 설정됐어요.`, 'alarm', String(l.id));
     btn.classList.add('on');
     showToast('마감 전 알림이 설정됐어요');
   }
@@ -5576,7 +5581,7 @@ function openPremReport(){
     ov.innerHTML = `
       <div style="background:var(--bg-card);border-radius:20px 20px 0 0;width:100%;padding:0 24px 40px;padding-bottom:calc(40px + env(safe-area-inset-bottom));animation:sheetUp .3s cubic-bezier(.22,1,.36,1)">
         <div style="width:40px;height:4px;background:var(--bg-2);border-radius:20px;margin:12px auto 24px"></div>
-        <div style="font-size:22px;text-align:center;margin-bottom:14px">📋</div>
+        <div style="text-align:center;margin-bottom:14px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <div style="font-size:18px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:8px;letter-spacing:-.3px">조건을 먼저 설정해주세요</div>
         <div style="font-size:14px;color:var(--ink-4);text-align:center;line-height:1.7;margin-bottom:28px">소득, 무주택 기간, 청약통장 정보를 입력하면<br>맞춤 전략 리포트를 받을 수 있어요</div>
         <button onclick="document.getElementById('no-cond-sheet-ov').remove();window._fromReportFlow=true;setTimeout(()=>openWizard(),100);"
@@ -5689,7 +5694,7 @@ function _showPaywall(usedCount, weekKey){
       <div style="width:40px;height:4px;background:var(--bg-2);border-radius:20px;margin:12px auto 20px"></div>
 
       <div style="background:var(--red-light);border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:20px">🎯</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         <div>
           <div style="font-size:13px;font-weight:800;color:var(--red)">이번 주 무료 리포트를 사용했어요</div>
           <div style="font-size:12px;color:var(--ink-4);margin-top:2px">${resetMsg} · 무료는 주 1회 제공돼요</div>
@@ -6691,12 +6696,12 @@ ${_isGolden
     }
     _showReportResult(combinedHtml, false);
     // 리포트 완료 알림 (인앱 + 브라우저 푸시)
-    addNotification('📊 청약 전략 리포트가 준비됐어요! 지금 확인해보세요.', 'report');
+    addNotification('<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>청약 전략 리포트가 준비됐어요! 지금 확인해 봐요.', 'report');
     try {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification('📊 리포트 준비 완료', {
+            reg.showNotification('리포트 준비 완료', {
               body: (P.name||'회원') + '님의 청약 전략 리포트가 완성됐어요!',
               icon: '/icon.png',
               badge: '/icon.png',
@@ -6704,7 +6709,7 @@ ${_isGolden
             });
           });
         } else {
-          new Notification('📊 리포트 준비 완료', {
+          new Notification('리포트 준비 완료', {
             body: (P.name||'회원') + '님의 청약 전략 리포트가 완성됐어요!',
             icon: '/icon.png',
             tag: 'report-done'
@@ -7562,7 +7567,7 @@ function _sectionViz(title, stats, body){
         </div>`).join('')}
       </div>
       <div style="margin-top:12px;padding:8px 12px;background:var(--accent-light);border-radius:10px;font-size:11px;color:var(--accent-dark);font-weight:600">
-        📋 청약통장: ${accNote}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>청약통장: ${accNote}
       </div>
     </div>`;
   }
@@ -7760,7 +7765,7 @@ function openHistoryReport(id){
   document.getElementById('report-nav-title').textContent = '청약 전략 리포트';
   const historyBanner = `
     <div style="background:var(--bg-2);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
-      <span style="font-size:16px">📋</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <div style="font-size:13px;color:var(--ink-4);font-weight:600">${item.date} ${item.time} 리포트</div>
     </div>`;
   const _hRptTier = getGoldenTier(P);
@@ -8991,7 +8996,7 @@ function renderFactors(factors) {
   return `<div style="display:flex;flex-direction:column;gap:8px">
     ${factors.map(f=>`
     <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:15px;flex-shrink:0;line-height:1">${f.icon||'📍'}</span>
+      <span style="font-size:15px;flex-shrink:0;line-height:1;display:inline-flex;align-items:center">${f.icon || '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'}</span>
       <span style="font-size:13px;color:var(--ink-3);line-height:1.55">${f.text}</span>
     </div>`).join('')}
   </div>`;
