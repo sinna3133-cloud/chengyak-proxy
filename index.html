@@ -3565,7 +3565,13 @@ function renderRecommend(){
   c.innerHTML=`<div class="rec-scroll">${matched.map(l=>{
     const myType=l.elig.find(e=>tl.includes(e))||l.elig[0];
     const _prob = calcProb(l, P);
-    const _deadlineHot = l.days !== null && l.days <= 5;
+    const _isFirstCome = l.sched && (l.sched.includes('선착순') || l.sched.includes('先着順'));
+    const _deadlineHot = !_isFirstCome && l.days !== null && l.days <= 5;
+    const _badgeHTML = _isFirstCome
+      ? `<div style="display:inline-flex;align-items:center;gap:4px;background:var(--violet-50);color:var(--violet-500);padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:700"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>선착순</div>`
+      : (l.days !== null && l.days >= 0
+          ? `<div style="display:inline-flex;align-items:center;gap:4px;background:${_deadlineHot?'var(--coral-50)':'var(--gray-100)'};color:${_deadlineHot?'var(--coral-600)':'var(--text-2)'};padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>D-${l.days}</div>`
+          : '');
     return`<div class="rec-card" onclick="showDetail('${l.id}')">
       <div class="rec-top" style="display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-bottom:4px">${typeBadge(l)}<span class="rec-mytype">${myType}</span></div>
       <div class="rec-name">${cleanName(l.name)}</div><div class="rec-loc"<span style="display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${l.loc}</span></span></div>
@@ -3574,7 +3580,7 @@ function renderRecommend(){
           <div style="font-size:11px;color:var(--text-3);margin-bottom:2px;font-weight:500">매칭률</div>
           <div style="font-size:16px;font-weight:800;color:var(--brand-600);font-variant-numeric:tabular-nums;letter-spacing:-.01em">${_prob !== null ? _prob : '?'}<span style="font-size:11px;font-weight:700;margin-left:1px">%</span></div>
         </div>
-        ${l.days !== null && l.days >= 0 ? `<div style="display:inline-flex;align-items:center;gap:4px;background:${_deadlineHot?'var(--coral-50)':'var(--gray-100)'};color:${_deadlineHot?'var(--coral-600)':'var(--text-2)'};padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>D-${l.days}</div>` : ''}
+        ${_badgeHTML}
       </div>
     </div>`;
   }).join('')}</div>`;
