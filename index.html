@@ -3671,15 +3671,17 @@ function _doRenderListings(){
     const myType=tl.length>0?l.elig.find(e=>tl.includes(e)):null;
     const prob=probCache.get(l.id);
     const _units = parseInt(l.units)||0;
-    const wrHTML = _units < 10
-      ? ``
+    // Claude Design v2: 카드 푸터 - 당첨확률 알약 + 자세히 → CTA
+    const _probContent = _units < 10
+      ? `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--gray-100);color:var(--text-2);padding:5px 11px;border-radius:var(--r-pill);font-size:12.5px;font-weight:600">소량 모집</span>`
       : isLotto(l)
         ? (prob!==null
-            ? `<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
-            : `<div class="wr-badge known" style="background:#FEF3C7;color:#92400E">로또 🎰</div>`)
+            ? `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--violet-50);color:var(--violet-500);padding:5px 11px;border-radius:var(--r-pill);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L13 8 L19 9 L13 10 L12 16 L11 10 L5 9 L11 8 Z"/></svg>로또 · 당첨확률 ${prob}%</span>`
+            : `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--violet-50);color:var(--violet-500);padding:5px 11px;border-radius:var(--r-pill);font-size:12.5px;font-weight:700"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L13 8 L19 9 L13 10 L12 16 L11 10 L5 9 L11 8 Z"/></svg>로또청약</span>`)
         : prob!==null
-          ?`<div class="wr-badge known">당첨률 <b>${prob}%</b></div>`
-          :`<div class="wr-badge unknown" onclick="event.stopPropagation();openWrSheet()">당첨률 <span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite;display:inline-block">?</span><span style="font-size:15px;font-weight:900;animation:qPulse 1.8s ease-in-out infinite 0.15s;display:inline-block">%</span></div>`;
+          ? `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--brand-50);color:var(--brand-700);padding:5px 11px;border-radius:var(--r-pill);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L13 8 L19 9 L13 10 L12 16 L11 10 L5 9 L11 8 Z"/></svg>당첨확률 ${prob}%</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--amber-50);color:#92400E;padding:5px 11px;border-radius:var(--r-pill);font-size:12.5px;font-weight:700;cursor:pointer" onclick="event.stopPropagation();openWrSheet()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L13 8 L19 9 L13 10 L12 16 L11 10 L5 9 L11 8 Z"/></svg>당첨확률 분석 중</span>`;
+    const wrHTML = `<div style="margin:14px -16px -16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--gray-25);border-top:1px solid var(--gray-100);border-radius:0 0 14px 14px">${_probContent}<span style="display:inline-flex;align-items:center;gap:4px;color:var(--brand-600);font-size:13px;font-weight:700">자세히<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>`;
     const bmSVG=`<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
     return`<div class="card card-anim" onclick="showDetail('${l.id}')">
       <div class="card-top">
