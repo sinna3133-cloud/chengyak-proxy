@@ -6114,10 +6114,9 @@ function _showReportResult(html, fromCache){
       </button>
     </div>` : '';
 
-  // 티어 캐러셀 삽입 (리포트 최상단 — Claude Design v2 PassbookCard 시안: 5종 가로 스냅)
+  // 티어 카드 삽입 (리포트 최상단 — 내 레벨 단일 카드)
   const _rptTier = getGoldenTier(P);
-  const _rptDateLabel = new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
-  const _tierHtml = _rptTier ? tierCarouselHTML(_rptTier.lv, _rptDateLabel) : '';
+  const _tierHtml = _rptTier ? tierCardHTML(_rptTier) : '';
   document.getElementById('report-content').innerHTML = _tierHtml + bannerHtml + html;
   document.getElementById('report-content').style.display   = 'block';
   const _rb2 = document.getElementById('report-body');
