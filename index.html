@@ -1175,6 +1175,11 @@ function _getPKey() {
 let _cachedScore = null, _cachedScoreKey = '';
 let _cachedTypes = null, _cachedTypesKey = '';
 
+// ── ✓/✗ → SVG 헬퍼 (자격 reasons·자금 안내·체크리스트 등 공통) ──
+const _SVG_CHECK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;display:inline-block;margin:0 1px"><polyline points="20 6 9 17 4 12"/></svg>';
+const _SVG_XMARK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;display:inline-block;margin:0 1px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+function _svgCheck(s) { return String(s||'').replace(/✓/g, _SVG_CHECK).replace(/✗/g, _SVG_XMARK); }
+
 function calcScoreCached() {
   const k = _getPKey();
   if(_cachedScore && _cachedScoreKey === k) return _cachedScore;
@@ -1474,7 +1479,7 @@ function onIncomeChange(){
 
   const color = pct<=100?'#059669':pct<=140?'var(--accent)':'var(--gold)';
   main.innerHTML=`<span style="color:${color}">월평균소득의 ${pct}%</span> <span style="font-size:12px;font-weight:400;color:var(--ink-4)">(기준소득 월 ${base.toLocaleString()}만원)</span>`;
-  detail.innerHTML=`✓ 가능: ${passItems.join(', ')||'없음'}${effectiveLimitNote?'<br>'+effectiveLimitNote:''}`;
+  detail.innerHTML=_svgCheck(`✓ 가능: ${passItems.join(', ')||'없음'}${effectiveLimitNote?'<br>'+effectiveLimitNote:''}`);
   // 맞벌이면 본인 소득 기준 박스는 숨김, 부부 합산만 표시
   if(!P.isDual) { box.style.display='block'; haptic('light'); }
 
@@ -1487,7 +1492,7 @@ function onIncomeChange(){
       const spouseBox = document.getElementById('spouse-pct-box');
       const spouseColor = totalPct<=140?'#059669':totalPct<=160?'var(--accent)':'var(--gold)';
       document.getElementById('spouse-pct-main').innerHTML=`<span style="color:${spouseColor}">부부 합산 월평균소득의 ${totalPct}%</span>`;
-      document.getElementById('spouse-pct-detail').textContent=`합산 연소득 ${totalIncome.toLocaleString()}만원 · 신혼부부특공 기준 200% ${totalPct<=200?'✓ 충족':'✗ 초과'}`;
+      document.getElementById('spouse-pct-detail').innerHTML=_svgCheck(`합산 연소득 ${totalIncome.toLocaleString()}만원 · 신혼부부특공 기준 200% ${totalPct<=200?'✓ 충족':'✗ 초과'}`);
       spouseBox.style.display='block';
     }
   }
@@ -4259,7 +4264,7 @@ function renderFundDashboard(l, selectedPrice){
         ${_shortPct>0?'<span style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-4)"><span style="width:10px;height:10px;border-radius:3px;background:#FCA5A5;display:inline-block"></span>부족 '+_shortPct+'%</span>':''}
       </div>
       <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:${shortage>0?'#FFF7ED':'#ECFDF5'}">
-        <span style="font-size:14px;font-weight:700;color:${shortage>0?'#B45309':'#059669'}">${shortage>0?fmtUk(shortage)+'을 더 준비하면 청약 가능해요':'✓ 자금 준비 완료! 청약 가능해요'}</span>
+        <span style="font-size:14px;font-weight:700;color:${shortage>0?'#B45309':'#059669'};display:inline-flex;align-items:center;gap:5px">${shortage>0?fmtUk(shortage)+'을 더 준비하면 청약 가능해요':_SVG_CHECK+'자금 준비 완료! 청약 가능해요'}</span>
         ${canAfford && shortage<=0 && monthly>0?'<div style="font-size:12px;color:var(--ink-4);margin-top:4px">예상 월 상환 약 '+monthly.toLocaleString()+'만원 (연4%·30년)</div>':''}
       </div>
     </div>
@@ -4676,17 +4681,17 @@ async function showDetail(id, fromSwipe=false){
               const condBadges = r.reasons.filter(s => !s.includes('소득') || s.includes('소득세'));
               return `<div style="padding:10px 14px;background:var(--public-light);border:1.5px solid var(--public);border-radius:12px">
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="width:22px;height:22px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;font-weight:800">✓</div>
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--public);display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <div style="font-size:13px;font-weight:800;color:var(--public);flex:1">${r.type}${r.sub?` <span style="font-weight:600;color:var(--accent)">${r.sub}</span>`:''}</div>
               </div>
               ${condBadges.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding-left:30px">${condBadges.map(b=>`<span style="font-size:10px;padding:2px 7px;background:rgba(5,150,105,.1);border-radius:4px;color:var(--public);font-weight:600">${b}</span>`).join('')}</div>`:''}
             </div>`;}
             else { return `<div style="padding:10px 14px;background:var(--bg);border:1.5px solid rgba(0,0,0,.07);border-radius:12px">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:${r.reasons.length?'6px':'0'}">
-                <div style="width:22px;height:22px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-5);flex-shrink:0;font-weight:800">✗</div>
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;color:var(--ink-5);flex-shrink:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
                 <div style="font-size:13px;font-weight:700;color:var(--ink-4)">${r.type}</div>
               </div>
-              ${r.reasons.length?`<div style="font-size:13px;color:var(--ink-5);line-height:1.7;padding-left:30px">${r.reasons.join(', ')}</div>`:''}
+              ${r.reasons.length?`<div style="font-size:13px;color:var(--ink-5);line-height:1.7;padding-left:30px">${_svgCheck(r.reasons.join(', '))}</div>`:''}
             </div>`;}
           }).join('')}
         </div>`;
@@ -5923,7 +5928,7 @@ function _showPaywall(usedCount, weekKey){
       <div style="background:var(--accent-light);border-radius:14px;padding:14px 16px;margin-bottom:20px">
         ${['주 3회 맞춤 청약 전략 리포트','공고별 소득·자산·LTV 자동 분석','통장 아끼기 vs 지금 넣기 판단','대출 시뮬레이션 (계약금·중도금·잔금)'].map(t =>
           `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:var(--accent-dark);font-weight:600">
-            <span style="color:var(--accent);font-size:15px">✓</span> ${t}
+            <span style="color:var(--accent);display:inline-flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> ${t}
           </div>`
         ).join('')}
       </div>
@@ -10167,7 +10172,7 @@ STEP 5: minP 산출
     // ★★★ [하드코딩 끝] ★★★
 
     statusEl.className = 'api-status-success';
-    statusEl.textContent = '✓ 추출 완료! 아래 내용을 확인해주세요';
+    statusEl.textContent = '추출 완료! 아래 내용을 확인해주세요';
 
     document.getElementById('admin-preview-body').innerHTML = `
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -11151,7 +11156,7 @@ function saveNotifSettings() {
   // 전체 알림 off 시 세부 항목도 비활성화 표시
   const detailSection = document.getElementById('notif-detail-section');
   if(detailSection) detailSection.style.opacity = settings.all ? '1' : '0.4';
-  showToast(settings.all ? '✓ 알림 설정이 저장됐어요' : '알림이 꺼졌어요');
+  showToast(settings.all ? '알림 설정이 저장됐어요' : '알림이 꺼졌어요');
 }
 function onToggleAllNotif(checked) {
   // 전체 알림 토글 시 Capacitor 푸시 권한 요청
