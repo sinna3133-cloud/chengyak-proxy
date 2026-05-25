@@ -1110,7 +1110,7 @@
         <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px;display:inline-flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>추출된 데이터 확인</div>
         <div id="admin-preview-body" style="background:var(--bg);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;color:var(--ink-3)"></div>
         <div style="display:flex;gap:10px;margin-top:14px">
-          <button onclick="confirmAdminData()" style="flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">✓ 공고 추가하기</button>
+          <button onclick="confirmAdminData()" style="flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">공고 추가하기</button>
           <button onclick="resetAdmin()" style="padding:14px 18px;background:var(--bg);color:var(--ink-4);border:1.5px solid rgba(0,0,0,.1);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">다시</button>
         </div>
       </div>
@@ -1541,7 +1541,7 @@ function checkNewborn(i){
     const diffMs=now-birth;
     const diffDays=diffMs/(1000*60*60*24);
     if(diffDays>=0&&diffDays<=730){
-      el.innerHTML='<div class="newborn-chip">✓ 신생아특공 해당 가능 (만 2세 이하)</div>';
+      el.innerHTML='<div class="newborn-chip">신생아특공 해당 가능 (만 2세 이하)</div>';
     } else if(diffDays>730){
       el.innerHTML='<div class="u-empty-sm" style="margin-top:4px">만 2세 초과 - 신생아특공 미해당</div>';
     } else el.innerHTML='';
@@ -4062,7 +4062,7 @@ function renderMyCondDashboard(){
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
       <div class="dash-section-title">지금 신청 가능한 공고 ${matched.length}건</div>
-      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc"<span style="display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${l.loc}</span></span></div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">${daysText(l.days,'d')}</span></div></div>`;}).join('')}
+      ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc"<span style="display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${l.loc}</span></span></div><div class="dash-match-bottom"><span class="dash-match-type">${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">${daysText(l.days,'d')}</span></div></div>`;}).join('')}
       ${matched.length>5?`<div style="text-align:center;font-size:13px;color:var(--accent);font-weight:600;padding:12px;cursor:pointer" onclick="showScreen('home')">전체 ${matched.length}건 보기 →</div>`:''}
     </div>`:''}
 
