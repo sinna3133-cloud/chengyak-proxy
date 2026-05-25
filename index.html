@@ -4061,7 +4061,7 @@ function renderMyCondDashboard(){
       </div>
     </div>
     ${matched.length?`<div class="dash-section" id="dash-matched-section" style="margin-top:20px">
-      <div class="dash-section-title">✨ 지금 신청 가능한 공고 ${matched.length}건</div>
+      <div class="dash-section-title">지금 신청 가능한 공고 ${matched.length}건</div>
       ${matched.slice(0,5).map(l=>{const mt=l.elig.find(e=>tl.includes(e))||l.elig[0];return`<div class="dash-match-card" onclick="showDetail('${l.id}')"><div class="dash-match-name">${cleanName(l.name)}</div><div class="dash-match-loc"<span style="display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${l.loc}</span></span></div><div class="dash-match-bottom"><span class="dash-match-type">✓ ${mt}</span><span class="dash-match-days" style="color:${l.days<=7?'var(--gold)':'var(--ink-4)'}">${daysText(l.days,'d')}</span></div></div>`;}).join('')}
       ${matched.length>5?`<div style="text-align:center;font-size:13px;color:var(--accent);font-weight:600;padding:12px;cursor:pointer" onclick="showScreen('home')">전체 ${matched.length}건 보기 →</div>`:''}
     </div>`:''}
