@@ -7849,7 +7849,8 @@ function _parseBody(body){
       const rest = _md(t.replace(/^HEADLINE:\s*/,''));
       return `<div style="font-size:16px;font-weight:900;color:var(--ink);line-height:1.4;letter-spacing:-.3px;margin:4px 0 8px">${rest}</div>`;
     }
-    if(/^\[단지명:/.test(t)){
+    if(/^\[단지명:[^\]]+\]\s*$/.test(t.trim())){
+      // 줄 전체가 [단지명: xxx] 단독일 때만 강조 박스 (AI가 본문에 단지명 마크업을 길게 박는 케이스 방어)
       return `<div style="font-size:16px;font-weight:900;color:#2563EB;margin:8px 0;background:#EFF6FF;padding:10px 14px;border-radius:10px">${_md(t)}</div>`;
     }
     if(/^[--]\s/.test(t)){
