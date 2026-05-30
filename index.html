@@ -1168,7 +1168,8 @@ function _getPKey() {
   return [P.byear,P.income,P.noHomeYears,P.dependents,P.depCount,P.accYears,
           P.marriage,P.marriageYear,P.isNoHome?'1':'0',P.children,
           P.elderParent?'1':'0',P.isDual?'1':'0',
-          (P.childDates||[]).map(c=>(c.year||'')+'/'+(c.month||'')).join(',')
+          (P.childDates||[]).map(c=>(c.year||'')+'/'+(c.month||'')).join(','),
+          P.resideRegion||'',P.resideCity||'',P.resideYears||''
   ].join('|');
 }
 
@@ -2583,6 +2584,8 @@ function calcProb(l, p, selectedType){
   if(!isLocal && _localWideScope && isWideScopeLocal(l, p)) isLocal = true;
   const isHotLocal = localRatio >= 100 && ['seoul','gyeonggi'].includes(l.region);
   const nonLocalCap = (!isLocal && isHotLocal) ? 5 : null;
+  // 특공 분기는 compLocal로 당해 효과를 이미 반영 → 공통 꼬리 D-3 중복 적용 방지용 플래그
+  let _localHandledInBranch = false;
 
   let prob, reasons = [];
 
@@ -2743,6 +2746,7 @@ function calcProb(l, p, selectedType){
 
     // ── 특별공급: Waterfall 다단계 당첨 확률 ──
     // 단계별: 우선공급 → 일반공급 → 잔여(추첨) 순으로 낙수
+    _localHandledInBranch = true; // compLocal로 당해 반영 → 공통 꼬리 D-3 중복 방지
 
     // localPriorityRatio 반영한 실질 경쟁률
     // 당해: 당해 물량(ratio%)에서 당해 거주자끼리만 경쟁 → 경쟁률 낮아짐
@@ -2822,11 +2826,7 @@ function calcProb(l, p, selectedType){
     }
 
     prob = Math.max(0.5, Math.min(92, Math.round(waterfallProb * 10) / 10));
-    // 당해 외 + 핫존(서울/경기 localPriorityRatio=100) → 5% 캡
-    if(nonLocalCap !== null) {
-      prob = Math.min(prob, nonLocalCap);
-      reasons.push('당해 외 지역 상한 5%');
-    }
+    // (당해 외 + 핫존 5% 상한은 공통 꼬리에서 일괄 적용)
     const stageLabels = stageProbs.map((p,i) => `${i+1}단계${Math.round(p*100)}%`).filter((_,i) => stageProbs[i]>0).join('→');
     reasons.push(`${selectedType} Waterfall(${stageLabels})`);
     if(isLocal) reasons.push('당해거주 경쟁률×0.5');
@@ -2979,11 +2979,7 @@ function calcProb(l, p, selectedType){
 
       prob = Math.round((scoreWinProb + lotWinProb) * 100 * 10) / 10;
       prob = Math.max(0.5, Math.min(95, prob));
-      // 당해 외 + 핫존 → 5% 캡
-      if(nonLocalCap !== null) {
-        prob = Math.min(prob, nonLocalCap);
-        reasons.push('당해 외 지역 상한 5%');
-      }
+      // (당해 외 + 핫존 5% 상한은 공통 꼬리에서 일괄 적용)
 
       const scoreLabel = scoreRatioPct > 0 ? `가점제 ${Math.round(scoreRatioPct*100)}%` : '';
       const lotLabel = `추첨제 ${Math.round(lotRatioPct*100)}%`;
@@ -3071,7 +3067,7 @@ function calcProb(l, p, selectedType){
     );
     if(myTiers.length > 0 && inc > 0){
       // 소득 기준으로 어느 단계까지 접근 가능한지 판별
-      const isDual = p.married === 'married' && parseInt(p.income2||0) > 0;
+      const isDual = !!p.isDual; // 맞벌이 여부(앱 표준 필드). incDual/incSingle 선택에 사용
       let myStep = 0;
       let totalPct = 0;
       // 도시근로자 월평균소득 100% 기준 (2025년, 3인이하 기준 월 753만원)
@@ -3103,7 +3099,8 @@ function calcProb(l, p, selectedType){
 
   // ── D-3. 당해지역 우선 배정 반영 → 체감 경쟁률 보정 ──
   // localRatio: 전형별 비율(localByType) 반영값. isLocal: 거주기간·광역우선까지 반영한 당해 자격.
-  if(!isLotto && localRatio > 0 && localRatio < 100){
+  // 특공 분기는 compLocal로 이미 당해를 반영했으므로 여기서는 제외(이중 보정 방지).
+  if(!isLotto && !_localHandledInBranch && localRatio > 0 && localRatio < 100){
     const ratio = localRatio / 100; // 예: 50% → 0.5
     if(isLocal){
       // 당해 거주자: 전체 물량 중 ratio 비율 안에서 경쟁 → 유리
@@ -3163,6 +3160,13 @@ function calcProb(l, p, selectedType){
       prob = Math.min(95, Math.round(combinedProb * 10) / 10);
       reasons.push(`부부 동시 청약 +${boost}%p`);
     }
+  }
+
+  // ── 당해 외 + 핫존(서울/경기 당해 100%) 5% 상한 (전 유형 공통, 모든 보정 후 1회) ──
+  // 공공·민간·특공 모두 마지막에 일괄 적용 (신혼희망타운은 자체 분기에서 이미 적용 후 조기 종료).
+  if(nonLocalCap !== null && !isLotto){
+    if(prob > nonLocalCap) reasons.push('당해 외 지역 상한 5%');
+    prob = Math.max(0.5, Math.min(prob, nonLocalCap));
   }
 
   // prevComp 사용 시 표시
