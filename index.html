@@ -6556,14 +6556,13 @@ async function generateReport(){
   const acc      = parseInt(P.depCount    || 0);
   const accYr    = parseInt(P.accYears    || 0);
   const ch       = parseInt(P.children   || 0);
-  const h        = parseInt(P.household  || 3);
-  // 맞벌이면 배우자 포함해서 도시근로자 기준 산정
-  const hForBase = P.isDual ? Math.min(h + 1, 8) : Math.min(h, 8);
+  // 도시근로자 소득 기준 가구원수: 직접 고른 가구원수(없으면 본인+부양가족). 앱 전역(getUrbanIncome)과 동일하게 맞벌이 +1 보정은 하지 않음.
+  const _incomeBaseH = Math.min(8, Math.max(1, parseInt(P.household) || (1 + (parseInt(P.dependents) || 0)) || 3));
   const RGN_KR   = {seoul:'서울',gyeonggi:'경기',incheon:'인천',busan:'부산',
                     daejeon:'대전',sejong:'세종',daegu:'대구',gwangju:'광주',
                     ulsan:'울산',gangwon:'강원',chungnam:'충남',jeonnam:'전남'};
   const regionLabel = RGN_KR[P.region] || '미설정';
-  const base100  = (URBAN_INCOME_100[hForBase] || 753) * 12;
+  const base100  = (URBAN_INCOME_100[_incomeBaseH] || 753) * 12;
   const incPct   = income > 0 ? Math.round(income / base100 * 100) : 0;
   const isHot    = ['seoul','gyeonggi','incheon','sejong'].includes(P.region);
   const rank1    = isHot ? (accYr >= 2 && acc >= 24) : (accYr >= 1 && acc >= 6);
@@ -6594,26 +6593,7 @@ async function generateReport(){
     if(el) el.innerHTML = msgs[Math.min(mi++, msgs.length - 1)];
   }, 2200);
 
-  // 실거래가 조회 시도 (매칭 공고 상위 3개)
-  try {
-    const targets = matched.slice(0, 3);
-    const results = await Promise.all(targets.map(async l => {
-      try {
-        const res = await fetch(`${MARKET_API}?loc=${encodeURIComponent(l.loc)}&size=84&name=${encodeURIComponent(cleanName(l.name))}&radius=0.5`);
-        const d   = await res.json();
-        return { name: cleanName(l.name), mktP: d.mktP || 0, deals: (d.recentDeals||[]).slice(0,2) };
-      } catch(e){ return null; }
-    }));
-    mktData = results.filter(Boolean);
-  } catch(e){}
-
-  // Claude API 프롬프트 구성
-  const mktStr = mktData.map(m =>
-    `- ${m.name}: 시세 ${m.mktP > 0 ? fmtUk(m.mktP) : '정보없음'}` +
-    (m.deals.length ? ` (최근 실거래: ${m.deals.map(d => fmtUk(d.price)).join(', ')})` : '')
-  ).join('\n');
-
-  // 희망 지역 필터
+  // 희망 지역 필터 (실거래가 조회·대표공고·차트가 모두 이 필터를 공통으로 사용)
   const _targetRegion = a.target_region || 'nationwide';
   const _capitalRegs  = ['seoul','gyeonggi','incheon'];
   const _seoulOnly    = ['seoul'];
@@ -6633,10 +6613,27 @@ async function generateReport(){
     if(aFirst !== bFirst) return aFirst ? 1 : -1;
     return 0;
   });
+
+  // 실거래가 조회 시도 (희망지역 필터를 통과한 매칭 공고 상위 3개)
+  try {
+    const targets = matchedFiltered.slice(0, 3);
+    const results = await Promise.all(targets.map(async l => {
+      try {
+        const res = await fetch(`${MARKET_API}?loc=${encodeURIComponent(l.loc)}&size=84&name=${encodeURIComponent(cleanName(l.name))}&radius=0.5`);
+        const d   = await res.json();
+        return { name: cleanName(l.name), mktP: d.mktP || 0, deals: (d.recentDeals||[]).slice(0,2) };
+      } catch(e){ return null; }
+    }));
+    mktData = results.filter(Boolean);
+  } catch(e){}
+
+  // Claude API 프롬프트 구성
+  const mktStr = mktData.map(m =>
+    `- ${m.name}: 시세 ${m.mktP > 0 ? fmtUk(m.mktP) : '정보없음'}` +
+    (m.deals.length ? ` (최근 실거래: ${m.deals.map(d => fmtUk(d.price)).join(', ')})` : '')
+  ).join('\n');
+
   const myDepAmt = parseInt(P.depAmt || 0);
-  const resideRgnForCut = (P.resideRegion||'').includes('서울') ? '당해'
-    : (P.resideRegion||'').includes('경기') ? '경기'
-    : (P.resideRegion||'').includes('인천') ? '경기' : '기타';
 
   const matchedStr = matchedFiltered.slice(0,3).map(l => {
     const g = gap(l);
@@ -6644,7 +6641,11 @@ async function generateReport(){
     // savingsCut 기반 당첨 가능성 분석
     let cutAnalysis = '';
     if(l.savingsCut && l.savingsCut.length > 0 && myDepAmt > 0) {
-      const regionCuts = l.savingsCut.filter(c => c.region === resideRgnForCut || c.region === '기타');
+      // 공고별로 당해/광역/기타를 판정해서 그 공고의 당첨선과 비교 (거주지를 전 공고에 일괄 '당해'로 보던 버그 수정)
+      const _cutRegion = isLocalResident(l, P) ? '당해'
+        : ((P.resideRegion||'').includes('경기') && ['seoul','gyeonggi','incheon'].includes(l.region)) ? '경기'
+        : '기타';
+      const regionCuts = l.savingsCut.filter(c => c.region === _cutRegion || c.region === '기타');
       if(regionCuts.length > 0) {
         const minLow = Math.min(...regionCuts.map(c => c.low));
         const maxHigh = Math.max(...regionCuts.map(c => c.high));
@@ -6690,23 +6691,18 @@ async function generateReport(){
   const workLabel   = {gangnam:'강남·서초', yeouido:'여의도·마포', CBD:'강북·도심', etc:'경기·기타'}[a.work] || '미응답';
   const unsoldLabel = {yes:'미분양 OK', maybe:'신중하게 고려', no:'미분양 제외'}[a.unsold] || '미응답';
 
-  // 저축 목표 계산
+  // 대표공고 분양가·계약금 비율 fallback (매칭 공고가 없을 때만 _repPrice/_repDownPct 기본값으로 사용)
   const targetPrice  = matched.length > 0 ? getMaxP(matched[0]) : 50000;
-  // 매칭 공고 평균 계약금 비율 (없으면 10%)
   const avgDownPct = matched.length > 0
     ? Math.round(matched.reduce((s,l) => s + getDownPct(l), 0) / matched.length)
     : 10;
-  const depositNeeded = Math.round(targetPrice * avgDownPct / 100);
-  const savingsGap    = Math.max(0, depositNeeded - cash);
-  const monthlyNeeded = savingsGap > 0 ? Math.round(savingsGap / 24) : 0; // 2년 목표
-
-  // 대출 시뮬레이션
-  const ltvMap = {min: 0.3, mid: 0.5, max: a.loan === 'max' ? (isHot ? 0.5 : 0.7) : 0.5};
-  const ltv    = ltvMap[a.loan] || 0.5;
-  const maxAffordable = cash > 0 ? Math.round(cash / (1 - ltv) / 10000) * 10000 : 0;
 
   // ── 자금 흐름 타임라인 계산 (대표 공고 기준) ──
-  const _repListing = matched.length > 0 ? matched[0] : null;
+  // 대표 공고: 희망지역 필터를 통과한 매칭 공고 중 시세차익이 가장 큰 1곳으로 통일.
+  // (헤드라인·당첨률·분양가·자금·차트가 모두 같은 단지를 가리키도록 — 서로 다른 공고 수치가 섞이던 버그 수정)
+  const _repListing = matchedFiltered.length > 0
+    ? matchedFiltered.slice().sort((a,b) => (gap(b).g || 0) - (gap(a).g || 0))[0]
+    : null;
   const _repPrice   = _repListing ? getMaxP(_repListing) : targetPrice; // 만원
   const _repDownPct = _repListing ? getDownPct(_repListing) : avgDownPct;
   const _isFirstBuyer = P.isNoHome && calcTypes(P).some(t => t.l === '생애최초');
@@ -6714,7 +6710,10 @@ async function generateReport(){
   // 생애최초: 수도권·규제지역 70%(6억한도), 비규제 80%
   // 일반무주택: 투기과열 40%(6억한도), 비규제 70%
   // 유주택: 수도권·규제지역 0%(금지), 비규제 60%
-  const _ltvRate    = _isFirstBuyer ? 0.7 : (isHot ? 0.4 : 0.7);
+  // 유주택자는 규제지역 대출 금지(0%)·비규제 60% — 상세화면(대출 어려움)과 동일하게 맞춤
+  const _ltvRate    = !P.isNoHome ? (isHot ? 0 : 0.6)
+                    : _isFirstBuyer ? 0.7
+                    : (isHot ? 0.4 : 0.7);
   // 주담대 한도 차등화 (2025.10.15~, 수도권·규제지역)
   // 시가 15억이하: 6억 / 15~25억: 4억 / 25억초과: 2억
   const _ltvMaxMan  = isHot
@@ -6726,10 +6725,11 @@ async function generateReport(){
   const _midAmt       = Math.round(_repPrice * 0.6);                      // 중도금(60%)
   const _balanceAmt   = Math.round(_repPrice * (1 - _repDownPct/100 - 0.6)); // 잔금(나머지)
   const _loanAmt      = Math.min(Math.round(_repPrice * _ltvRate), _ltvMaxMan); // 대출 가능액
-  const _selfFundNeed = _contractAmt + Math.max(0, _balanceAmt - _loanAmt);    // 자기자금 필요액
-  const _cashShort    = Math.max(0, _selfFundNeed - cash);                      // 부족액
-  // 9억 초과 여부 (중도금 집단대출 불가)
+  // 9억 초과 여부 (중도금 집단대출 불가 → 중도금도 자력 납부 대상)
   const _over9bk      = _repPrice > 90000;
+  // 자기자금 필요액: 계약금 + (잔금 - 주담대) + (9억 초과 시 집단대출 불가한 중도금 전액)
+  const _selfFundNeed = _contractAmt + Math.max(0, _balanceAmt - _loanAmt) + (_over9bk ? _midAmt : 0);
+  const _cashShort    = Math.max(0, _selfFundNeed - cash);                      // 부족액
   // 월상환액 추정 (잔금 대출 기준, 연 4%, 30년)
   const _baseRate     = 0.04; // 실제 대출 기준 금리 (연 4%)
   const _stressRate   = isHot ? 0.03 : 0.015; // 스트레스 금리 (수도권·규제 3%, 비규제 1.5%)
@@ -6761,11 +6761,6 @@ async function generateReport(){
   // 타임라인 문자열 (프롬프트에 직접 삽입)
   const _cashflowTable = _repListing ? `${cleanName(_repListing.name)} 분양${fmtUk(_repPrice)} | 계약금${_repDownPct}%=${_contractAmt.toLocaleString()}만(현금${cash.toLocaleString()}만→${cash>=_contractAmt?'가능':'부족'}) | 중도금60%=${_midAmt.toLocaleString()}만(${_over9bk?'집단대출불가':'집단대출가능'}) | 잔금=${_balanceAmt.toLocaleString()}만(주담대최대${_loanAmt.toLocaleString()}만,LTV${Math.round(_ltvRate*100)}%) | 자기자금필요=${_selfFundNeed.toLocaleString()}만(${_cashShort>0?_cashShort.toLocaleString()+'만부족':'충당가능'}) | 월상환${_monthlyPay.toLocaleString()}만(연4%30년) | DSR심사${_debtRatio}%(${_debtJudge})` : '매칭공고없음';
 
-  // 청약 일정 타임라인
-  const upcomingSchedule = matched.slice(0,5).map(l =>
-    `- ${cleanName(l.name)}: 접수 ${l.aS||'미정'}~${l.aE||'미정'}, 발표 ${l.aD||'미정'}, 마감 ${daysText(l.days,'remain')}`
-  ).join('\n');
-
   // ── 가점 분위 판단 ──
   const _scoreLevel = score.total >= 60 ? '상위권 - 60점 이상, 서울 주요 지역까지 도전해 볼 수 있어요'
                     : score.total >= 45 ? '중위권 - 45~59점, 경기·인천이나 서울 비인기 지역이 현실적이에요'
@@ -6776,10 +6771,8 @@ async function generateReport(){
     ? `서울 평균(${_seoulAvgScore}점)을 넘어요. 상위 ${Math.max(5, 30 - (score.total - _seoulAvgScore) * 2)}% 정도 위치예요`
     : `서울 평균(${_seoulAvgScore}점)에는 못 미쳐요. 경기·인천이나 추첨제 중심으로 풀어 가면 좋아요`;
 
-  // ── TOP PICK 공고 ──
-  const _topPick = matched.length > 0
-    ? matched.slice().sort((a,b) => (gap(b).g||0) - (gap(a).g||0))[0]
-    : null;
+  // ── TOP PICK 공고 ── 대표 공고(_repListing)와 동일하게 맞춰 섹션2 헤드라인/STAT/자금 수치를 일관되게 유지
+  const _topPick = _repListing;
   const _topPickGap = _topPick ? gap(_topPick) : null;
 
   // ── 실데이터(청약홈) 보강: 대표·상위 공고의 경쟁률·커트라인을 유사단지 실적으로 주입 ──
@@ -6787,7 +6780,7 @@ async function generateReport(){
   // 보강에 실패해도 calcProb는 기존 추정 로직으로 그대로 진행됨.
   try {
     const _enrichSeen = new Set();
-    const _enrichTargets = [_repListing, ...matched.slice(0,3)].filter(l => {
+    const _enrichTargets = [_repListing, ...matchedFiltered.slice(0,3)].filter(l => {
       if (!l || l._historyEnriched || _enrichSeen.has(l)) return false;
       _enrichSeen.add(l); return true;
     });
@@ -6848,7 +6841,6 @@ async function generateReport(){
     }).filter(Boolean);
     return `${cnt}명 - ${details.join(' / ') || '생년월 미입력'}`;
   })();
-  const _household = 1 + (parseInt(P.dependents) || 0);
   const _dualLabel = P.isDual ? '맞벌이' : '외벌이';
   const _spouseIncStr = P.isDual && P.spouseIncome ? `(본인 ${parseInt(P.income||0).toLocaleString()}만 + 배우자 ${parseInt(P.spouseIncome||0).toLocaleString()}만 합산)` : '';
   const _marriageYearStr = (P.marriage === '기혼' && P.marriageYear) ? `(혼인 ${_now.getFullYear() - parseInt(P.marriageYear) + 1}년차)` : '';
@@ -6946,9 +6938,9 @@ PDF 공고문 데이터가 있으면 그 데이터를 가장 먼저 적용해요
 [${reportName}님 정보]
 나이: 만 ${age}세 / 혼인: ${P.marriage||'미혼'}${_marriageYearStr} / 청약가점: ${score.total}점 (${_scorePct})
 가점 수준: ${_scoreLevel}
-가족: 부양가족 ${P.dependents||0}명, 가구원 ${_household}명
+가족: 부양가족 ${P.dependents||0}명, 가구원 ${_incomeBaseH}명
 자녀: ${_childInfoStr}${_hasNewbornChild ? ' [BOLD:만 2세 이하 자녀 있음 → 신생아 특공 50% 우선배정 대상]' : ''}
-소득 유형: ${_dualLabel} / 연소득: ${income.toLocaleString()}만원${_spouseIncStr} (도시근로자 ${incPct}%, 가구원 ${_household}명 기준)
+소득 유형: ${_dualLabel} / 연소득: ${income.toLocaleString()}만원${_spouseIncStr} (도시근로자 ${incPct}%, 가구원 ${_incomeBaseH}명 기준)
 무주택: ${P.isNoHome?'무주택 '+nh+'년':'유주택'}
 보유현금: ${cash.toLocaleString()}만원 / 청약통장: ${acc}회 납입, 가입 ${accYr}년, 납입총액 ${_myDepAmt.toLocaleString()}만원 (${rank1?'1순위 자격 있음':'2순위'})
 거주지: ${P.resideRegion||'미입력'} ${P.resideYears?P.resideYears+'년 거주':''}
@@ -7027,7 +7019,7 @@ ${_topPick ? `
 [BOLD:자금 계획]
 [지시: 2~3문장으로 풀어 써요. 계약금 ${_contractAmt.toLocaleString()}만(보유 현금 ${cash.toLocaleString()}만 → ${cash >= _contractAmt ? '낼 수 있어요' : (_contractAmt-cash).toLocaleString()+'만원 부족'}), 중도금 ${_midAmt.toLocaleString()}만(${_over9bk?'9억 초과 - 자력 납부 준비':'무이자 집단대출'}), 잔금 ${_balanceAmt.toLocaleString()}만(주담대 최대 ${fmtUk(_loanAmt)})을 자연스럽게 풀어 쓰고, ${reportName}님 자금 상황에서 가장 신경 써야 할 단계 1개 짚어 줘요. 자세한 흐름은 다음 섹션에서 다룬다고 자연스럽게.]` : '지금은 조건에 맞는 공고가 없어요. 가점·조건을 입력해 주시면 바로 분석해 드릴게요.'}
 
-${matched.length > 1 ? `
+${matchedFiltered.length > 1 ? `
 [BOLD:대안 공고]
 [지시: 가장 잘 맞는 공고 외에 매칭 공고 중 1~2개를 골라 비교. 각 대안마다 2~3문장으로 ① [단지명: 정확한 이름] + 위치 ② 이 단지와의 차이점(경쟁률·소득 기준·전형·시세 차익 중 가장 눈에 띄는 것) ③ ${reportName}님에게 어떤 상황에서 더 유리한지를 자연스러운 줄글로 설명. 본문 내 [BOLD:] 인라인 추가 금지. 단지명은 [단지명:] 마크업만 사용.]` : ''}
 
@@ -7125,7 +7117,7 @@ ${_isGolden
       const _svgWarn = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
       const fundChart = `<div class="rpt-chart-card"><div class="rpt-chart-title">${_svgWallet}자금 흐름 한눈에 보기</div><div class="rpt-chart-sub">${_repListing ? cleanName(_repListing.name) : '대표공고 없음'} 기준 · 총 ${fmtUk(_fundTotal)}</div><div class="rpt-fund-bar"><div class="rpt-fund-seg seg-contract" style="width:${_cPct}%"></div><div class="rpt-fund-seg seg-mid" style="width:${_mPct}%"></div><div class="rpt-fund-seg seg-balance" style="width:${_bPct}%"></div></div><div class="rpt-fund-legend"><span class="rpt-fund-legend-item"><i class="seg-contract"></i>계약금 ${_contractAmt.toLocaleString()}만</span><span class="rpt-fund-legend-item"><i class="seg-mid"></i>중도금 ${_midAmt.toLocaleString()}만</span><span class="rpt-fund-legend-item"><i class="seg-balance"></i>잔금 ${_balanceAmt.toLocaleString()}만</span></div><div class="rpt-fund-meta"><div>${_svgCash}현금 ${cash.toLocaleString()}만</div><div>${_svgBank}대출 ${_loanAmt.toLocaleString()}만</div><div class="${_cashShort > 0 ? 'rpt-warn' : 'rpt-ok'}">${_cashShort > 0 ? _svgWarn+'부족 '+_cashShort.toLocaleString()+'만' : _svgCheck+'충당 가능'}</div></div></div>`;
       // B. 청약 일정 캘린더
-      const _timeline = matched.slice(0, 5).filter(l => l.days !== null && l.days >= 0 && l.days <= 20);
+      const _timeline = matchedFiltered.slice(0, 5).filter(l => l.days !== null && l.days >= 0 && l.days <= 20);
       const _svgCal = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
       const timeChart = _timeline.length ? `<div class="rpt-chart-card"><div class="rpt-chart-title">${_svgCal}매칭 공고 마감 일정</div><div class="rpt-chart-sub">앞으로 20일 이내 마감 ${_timeline.length}건</div><div class="rpt-timeline" style="padding:28px 0 22px"><div class="rpt-time-axis"><span>오늘</span><span>D-5</span><span>D-10</span><span>D-15</span><span>D-20</span></div><div class="rpt-time-bar">${_timeline.map((l, i) => { const pct = Math.min(95, (l.days / 20) * 100); const urgent = l.days <= 7; const labelStyle = i % 2 === 0 ? 'bottom:18px' : 'top:18px'; return `<div class="rpt-time-dot ${urgent?'urgent':''}" style="left:${pct}%"><span class="rpt-time-label" style="${labelStyle}">${cleanName(l.name).slice(0,8)} D-${l.days}</span></div>`; }).join('')}</div></div><div class="rpt-time-list">${_timeline.map(l => { const hot = l.days <= 7; return `<div class="rpt-time-item ${hot?'hot':''}"><span class="rpt-time-item-l"><span class="rpt-time-item-dot ${hot?'hot':''}"></span><span class="rpt-time-item-name">${cleanName(l.name)}</span></span><span class="rpt-time-item-d ${hot?'hot':''}">D-${l.days}</span></div>`; }).join('')}</div></div>` : '';
       // C. 가점 분포
@@ -7134,7 +7126,7 @@ ${_isGolden
       const _svgChart = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>';
       const scoreChart = `<div class="rpt-chart-card"><div class="rpt-chart-title">${_svgChart}가점 분포에서 내 위치</div><div class="rpt-chart-sub">서울 평균 당첨 가점 62점 (2024년 실측)</div><div class="rpt-score-wrap"><div class="rpt-score-bar"><div class="rpt-score-fill" style="width:${_myScorePct}%"></div></div><div class="rpt-score-marker rpt-marker-seoul" style="left:${_seoulPct}%">서울 평균 62점</div><div class="rpt-score-marker rpt-marker-me" style="left:${_myScorePct}%">내 점수 ${score.total}점</div></div><div class="rpt-score-axis"><span>0점</span><span>20점</span><span>40점</span><span>60점</span><span>84점</span></div></div>`;
       // D. 당첨 확률 비교
-      const _topMatched = matched.slice(0, 3);
+      const _topMatched = matchedFiltered.slice(0, 3);
       const _svgTarget = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>';
       const probChart = _topMatched.length ? `<div class="rpt-chart-card"><div class="rpt-chart-title">${_svgTarget}매칭 공고별 당첨 확률</div><div class="rpt-chart-sub">상위 ${_topMatched.length}개 비교</div><div class="rpt-prob-list">${_topMatched.map(l => { const p = calcProb(l, P) || 0; const cls = p >= 50 ? 'high' : p >= 25 ? 'mid' : 'low'; return `<div class="rpt-prob-row"><div><div class="rpt-prob-name">${cleanName(l.name).slice(0,18)}</div><div class="rpt-prob-bar-wrap"><div class="rpt-prob-bar ${cls}" style="width:${Math.min(100,Math.max(p,3))}%"></div></div></div><div class="rpt-prob-pct">${p}%</div></div>`; }).join('')}</div></div>` : '';
       return `<div class="rpt-charts">${fundChart}${timeChart}${scoreChart}${probChart}</div>`;
@@ -7931,7 +7923,7 @@ function _sectionViz(title, stats, body){
   const score = calcScore(P);
 
   // ① 점수 섹션 - 가점 게이지 + 항목별 바
-  if(t.includes('점수') || t.includes('상황') || t.includes('현주소')){
+  if(t.includes('점수') || t.includes('상황') || t.includes('현주소') || t.includes('진단')){
     const total = score.total;
     const max = 84;
     const pct = Math.round(total/max*100);
